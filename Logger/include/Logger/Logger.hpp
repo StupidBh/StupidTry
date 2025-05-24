@@ -1,10 +1,7 @@
 ﻿#pragma once
-#include "SingletonHolder.hpp"
+#include "pch.h"
 
-#include <iostream>
-#include <filesystem>
-#include <mutex>
-#include <shared_mutex>
+#include "SingletonHolder.hpp"
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
@@ -14,19 +11,20 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace _Logging_ {
-    class Logger final : public asst::SingletonHolder<Logger> {
+    class EXPORT_API Logger final : public asst::SingletonHolder<Logger> {
         DELETE_COPY_AND_MOVE(Logger);
 
         Logger()
         {
             try {
                 spdlog::init_thread_pool(32768, 2);
-                InitLog(".", TARGET_NAME, false);
+                InitLog(".", "Before-Init", false);
             }
             catch (const spdlog::spdlog_ex& e) {
                 std::cerr << "Logger initialization failed: " << e.what() << std::endl;
                 std::abort();
             }
+
         }
 
     public:

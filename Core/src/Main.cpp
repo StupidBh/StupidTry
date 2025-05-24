@@ -1,6 +1,6 @@
-﻿#include <cctype>
+﻿#include <limits>
 
-#include "Logger.hpp"
+#include "Logger/Logger.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -16,8 +16,12 @@ int main(int argc, char* argv[])
     }
 #endif // _DEBUG
 
+    _Logging_::Logger::get_instance().log()->info("Test");
+
     constexpr int int_max = std::numeric_limits<int>::max();
-    LOG_INFO("{}:{}", int_max, INT_MAX);
+    LOG_INFO("INT_MAX: {}", int_max);
+    LOG_INFO("INT_MAX: {}", int_max);
+    LOG_INFO("INT_MAX: {}", int_max);
 
     return 0;
 }
