@@ -10,6 +10,9 @@
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
+template class EXPORT_API std::shared_ptr<spdlog::async_logger>;
+class EXPORT_API std::shared_mutex;
+
 namespace _Logging_ {
     class EXPORT_API Logger final : public asst::SingletonHolder<Logger> {
         DELETE_COPY_AND_MOVE(Logger);
@@ -24,7 +27,6 @@ namespace _Logging_ {
                 std::cerr << "Logger initialization failed: " << e.what() << std::endl;
                 std::abort();
             }
-
         }
 
     public:

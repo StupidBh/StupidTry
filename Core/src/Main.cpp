@@ -16,11 +16,12 @@ int main(int argc, char* argv[])
     }
 #endif // _DEBUG
 
-    _Logging_::Logger::get_instance().log()->info("Test");
+    LOG_INFO("Test");
+    LOG_DEBUG("Test");
+    LOG_WARN("Test");
+    LOG_ERROR("Test");
 
     constexpr int int_max = std::numeric_limits<int>::max();
-    LOG_INFO("INT_MAX: {}", int_max);
-    LOG_INFO("INT_MAX: {}", int_max);
     LOG_INFO("INT_MAX: {}", int_max);
 
     return 0;
