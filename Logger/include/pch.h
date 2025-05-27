@@ -15,6 +15,14 @@
 #include <mutex>
 #include <shared_mutex>
 
-VECTOR_EXPORT(char)
+#include "spdlog/async.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/stopwatch.h"
+#include "spdlog/fmt/ranges.h" // 启用容器格式化支持
+#include "spdlog/sinks/daily_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
+template class EXPORT_API std::shared_ptr<spdlog::async_logger>;
+class EXPORT_API std::shared_mutex;
 
 #endif // PCH_H
