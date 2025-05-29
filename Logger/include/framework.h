@@ -5,7 +5,7 @@
 // Windows 头文件
 #include <windows.h>
 
-#ifdef STUPID_LIBRARY_EXPORTS
+#ifndef STUPID_LIBRARY_EXPORTS
 #define EXPORT_API __declspec(dllexport)
 #else
 #define EXPORT_API __declspec(dllimport)

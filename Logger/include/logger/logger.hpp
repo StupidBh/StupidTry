@@ -29,6 +29,9 @@ namespace _Logging_ {
 
         void InitLog(const std::string& work_path, const std::string& file_name, bool verbose = false)
         {
+            std::unique_lock lock(m_mutex);
+            spdlog::init_thread_pool(32768, 2);
+
             constexpr auto log_fmt =
 #ifdef _DEBUG
                 // [年-月-日] [时-分-秒-毫秒] [T:线程ID] [P:进程ID] [日志等级] [文件名:行号]
@@ -37,19 +40,31 @@ namespace _Logging_ {
                 "[%Y-%m-%d %H:%M:%S.%e] [T:%t] [P:%P] [%^%l%$] %v";
 #endif
 
+            spdlog::sinks_init_list log_sinks_list;
+
+            // 终端回显日志消息
+            std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
+                std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            console_sink->set_pattern(log_fmt);
+
             // 创建日志目录
             auto log_dir = std::filesystem::path(work_path) / "logs";
+            log_dir = log_dir.lexically_normal();
+            std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
             try {
                 if (!std::filesystem::exists(log_dir)) {
                     std::filesystem::create_directories(log_dir);
                 }
+
+                // 写入外部文件的日志消息
+                std::string log_filename = fmt::format("{}/{}.log", log_dir.string(), file_name);
+                file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_filename, 0, 0, false, 30);
+                file_sink->set_pattern(log_fmt);
+
+                log_sinks_list = { console_sink, file_sink };
             }
-            catch (const std::filesystem::filesystem_error& e) {
-                std::cerr << "Failed to create log directory: " << e.what() << std::endl;
-                std::abort();
-            }
-            catch (const std::exception& e) {
-                std::cerr << "Error: " << e.what() << std::endl;
+            catch (...) {
+                log_sinks_list = { console_sink };
             }
 
 #ifdef _WIN32
@@ -57,21 +72,7 @@ namespace _Logging_ {
             SetConsoleCP(CP_UTF8);
 #endif
 
-            // 终端回显日志消息
-            std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
-                std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            console_sink->set_pattern(log_fmt);
-
-            // 写入外部文件的日志消息
-            std::string log_filename = fmt::format("{}/{}.log", log_dir.string(), file_name);
-            std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink =
-                std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_filename, 0, 0, false, 30);
-            file_sink->set_pattern(log_fmt);
-
             // 创建异步记录器
-            spdlog::init_thread_pool(32768, 2);
-            spdlog::sinks_init_list log_sinks_list = { console_sink, file_sink };
-
             m_log = std::make_shared<spdlog::async_logger>(
                 "app",
                 log_sinks_list,
@@ -83,10 +84,14 @@ namespace _Logging_ {
 
 #ifdef _DEBUG
             console_sink->set_level(spdlog::level::debug);
-            file_sink->set_level(spdlog::level::debug);
+            if (file_sink) {
+                file_sink->set_level(spdlog::level::debug);
+            }
 #else
             console_sink->set_level(spdlog::level::info);
-            file_sink->set_level(spdlog::level::info);
+            if (file_sink) {
+                file_sink->set_level(spdlog::level::info);
+            }
 
             if (verbose) {
                 console_sink->set_level(spdlog::level::debug);
@@ -98,7 +103,7 @@ namespace _Logging_ {
 
         void ShutDown()
         {
-            std::shared_lock<std::shared_mutex> lock(m_mutex);
+            std::unique_lock lock(m_mutex);
             if (m_log) {
                 m_log->flush();
             }

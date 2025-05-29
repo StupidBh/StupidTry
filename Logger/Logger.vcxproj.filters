@@ -18,7 +18,7 @@
     <ClInclude Include="include\framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\Logger.hpp">
+    <ClInclude Include="include\logger\logger.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\pch.h">
@@ -27,9 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dll\src\dllmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\src\Logger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dll\src\pch.cpp">

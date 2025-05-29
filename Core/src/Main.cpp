@@ -1,6 +1,7 @@
 ﻿#include <limits>
 
-#include "Logger.hpp"
+#include "Utils.hpp"
+#include "logger/logger.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -18,8 +19,8 @@ int main(int argc, char* argv[])
     }
 #endif // _DEBUG
 
-    constexpr int int_max = std::numeric_limits<int>::max();
-    LOG_INFO("INT_MAX: {}", int_max);
+    constexpr auto MAX = std::numeric_limits<double>::max();
+    LOG_INFO("{}_max: {}", typeid(MAX).name(), MAX);
 
     return 0;
 }
