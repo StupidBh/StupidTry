@@ -6,8 +6,8 @@
 int main(int argc, char* argv[])
 {
 #ifdef _DEBUG
-    std::string command;
     if (argc > 1) {
+        std::string command;
         for (int i = 1; i < argc; ++i) {
             command += argv[i];
             command += " ";
