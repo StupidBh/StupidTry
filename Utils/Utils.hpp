@@ -1,12 +1,26 @@
 ﻿#pragma once
-#include <format>
-#include <vector>
 #include <concepts>
+#include <format>
 #include <iostream>
-#include <type_traits>
 #include <stdexcept>
+#include <type_traits>
+#include <vector>
 
-namespace stupid {
+namespace _contatiner_ {
+    template<class T>
+    struct is_std_contatiner : std::false_type
+    {
+    };
+
+    template<class T, class Alloc>
+    struct is_std_contatiner<std::vector<T, Alloc>> : std::true_type
+    {
+    };
+}
+template<class T>
+concept VectorType = _contatiner_::is_std_contatiner<std::remove_cvref_t<T>>::value;
+
+namespace _hidden_ {
     /// 溢出处理策略
     enum class OverflowPolicy
     {
@@ -106,15 +120,15 @@ namespace stupid {
 }
 
 /// 智能选择 constexpr/运行时的统一入口
-template<class TargetType, class OriginalType, stupid::OverflowPolicy Policy = stupid::OverflowPolicy::Exception>
+template<class TargetType, class OriginalType, _hidden_::OverflowPolicy Policy = _hidden_::OverflowPolicy::Exception>
 requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
 constexpr inline TargetType SafeCast(OriginalType value)
 {
     if constexpr (std::is_constant_evaluated()) {
-        return stupid::SafeCastConstexpr<OriginalType, TargetType>(value);
+        return _hidden_::SafeCastConstexpr<OriginalType, TargetType>(value);
     }
     else {
-        return stupid::SafeCastRuntime<OriginalType, TargetType, Policy>(value);
+        return _hidden_::SafeCastRuntime<OriginalType, TargetType, Policy>(value);
     }
 }
 

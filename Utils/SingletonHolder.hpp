@@ -8,7 +8,7 @@
     class_name& operator=(const class_name&) = delete
 
 namespace utils {
-    template<typename T>
+    template<class T>
     class SingletonHolder {
         DELETE_COPY_AND_MOVE(SingletonHolder);
 
@@ -25,6 +25,6 @@ namespace utils {
         SingletonHolder() = default;
     };
 
-    template<typename T>
+    template<class T>
     concept Singleton = std::is_base_of_v<SingletonHolder<T>, T>;
 }

@@ -1,5 +1,7 @@
-﻿#include "Utils.hpp"
-#include "log/logger.hpp"
+﻿#include "log/logger.hpp"
+
+#include "Utils.hpp"
+#include "SingletonData.hpp"
 
 #include "boost/process.hpp"
 

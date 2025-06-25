@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright(c) 2016-2018 Gabi Melman.
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
 //
@@ -11,7 +11,7 @@
 //
 #include <spdlog/tweakme.h>
 
-#if defined(SPDLOG_USE_STD_FORMAT)  // SPDLOG_USE_STD_FORMAT is defined - use std::format
+#if defined(SPDLOG_USE_STD_FORMAT) // SPDLOG_USE_STD_FORMAT is defined - use std::format
     #include <format>
 #elif !defined(SPDLOG_FMT_EXTERNAL)
     #if !defined(SPDLOG_COMPILED_LIB) && !defined(FMT_HEADER_ONLY)
@@ -24,7 +24,7 @@
     #include <spdlog/fmt/bundled/base.h>
     #include <spdlog/fmt/bundled/format.h>
 
-#else  // SPDLOG_FMT_EXTERNAL is defined - use external fmtlib
+#else // SPDLOG_FMT_EXTERNAL is defined - use external fmtlib
     #include <fmt/base.h>
     #include <fmt/format.h>
 #endif

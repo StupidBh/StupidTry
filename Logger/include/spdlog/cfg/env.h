@@ -1,4 +1,4 @@
-// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
+﻿// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
 // Distributed under the MIT License (http://opensource.org/licenses/MIT)
 
 #pragma once
@@ -24,13 +24,14 @@
 // export SPDLOG_LEVEL="off,logger1=debug,logger2=info"
 
 namespace spdlog {
-namespace cfg {
-inline void load_env_levels(const char* var = "SPDLOG_LEVEL") {
-    auto env_val = details::os::getenv(var);
-    if (!env_val.empty()) {
-        helpers::load_levels(env_val);
-    }
-}
+    namespace cfg {
+        inline void load_env_levels(const char* var = "SPDLOG_LEVEL")
+        {
+            auto env_val = details::os::getenv(var);
+            if (!env_val.empty()) {
+                helpers::load_levels(env_val);
+            }
+        }
 
-}  // namespace cfg
-}  // namespace spdlog
+    } // namespace cfg
+} // namespace spdlog

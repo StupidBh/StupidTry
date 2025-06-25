@@ -6,11 +6,14 @@
     #include <windows.h>
 #endif
 
-#ifndef STUPID_LIBRARY_EXPORTS
-#define STUPID_EXPORT_API __declspec(dllexport)
+#ifndef STUPID_EXPORT_LIBRARY
+    #define STUPID_EXPORT_API __declspec(dllexport)
 #else
-#define STUPID_EXPORT_API __declspec(dllimport)
-#endif // STUPID_LIBRARY_EXPORTS
+    #define STUPID_EXPORT_API __declspec(dllimport)
+#endif
 
 #include <iostream>
 #include <filesystem>
+#include <shared_mutex>
+
+class STUPID_EXPORT_API std::shared_mutex;
