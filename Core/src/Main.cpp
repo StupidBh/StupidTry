@@ -15,10 +15,8 @@ int main(int argc, char* argv[])
         command.pop_back(); // 去除尾部多余的空格字符
         LOG_DEBUG("Command: '{}'", command);
     }
-    else {
-        LOG_DEBUG("No command line arguments provided.");
-    }
 #endif // _DEBUG
 
+    _Logging_::Logger::get_instance().ShutDown();
     return 0;
 }

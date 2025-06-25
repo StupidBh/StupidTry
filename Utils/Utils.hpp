@@ -1,121 +1,170 @@
 ﻿#pragma once
 #include <format>
 #include <vector>
-#include <ranges>
 #include <concepts>
 #include <iostream>
-
 #include <type_traits>
 #include <stdexcept>
-#include <cmath>
-#include <string>
 
-constexpr std::string_view type_name_mapping(const char* raw_name)
-{
-    if (std::string_view(raw_name) == "i") {
-        return "int";
-    }
-    if (std::string_view(raw_name) == "j") {
-        return "unsigned int";
-    }
-    if (std::string_view(raw_name) == "l") {
-        return "long";
-    }
-    if (std::string_view(raw_name) == "m") {
-        return "unsigned long";
-    }
-    if (std::string_view(raw_name) == "f") {
-        return "float";
-    }
-    if (std::string_view(raw_name) == "d") {
-        return "double";
-    }
-    return raw_name;
-}
+namespace stupid {
+    /// 溢出处理策略
+    enum class OverflowPolicy
+    {
+        Exception,  // 抛异常
+        Clip,       // 裁剪至上下界
+        DefaultZero // 超出时返回零
+    };
 
-template<typename OriginalType, typename TargetType>
-requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
-inline TargetType ChangeType(const OriginalType& value)
-{
-    constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
-    constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
+    /// 运行时安全转换
+    template<class OriginalType, class TargetType, OverflowPolicy Policy = OverflowPolicy::Exception>
+    requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
+    inline TargetType SafeCastRuntime(const OriginalType& value)
+    {
+        constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
+        constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
 
-    if constexpr (std::is_integral_v<TargetType> && std::is_floating_point_v<OriginalType>) {
-        if (std::isnan(value)) {
-            throw std::runtime_error(std::format("Cannot convert NaN to {}", type_name_mapping(typeid(TargetType).name())));
-        }
+        // 浮点 → 整型，需要特殊处理
+        if constexpr (std::is_integral_v<TargetType> && std::is_floating_point_v<OriginalType>) {
+            if (std::isnan(value)) {
+                if constexpr (Policy == OverflowPolicy::Exception) {
+                    throw std::runtime_error(std::format("Cannot convert NaN value to {}", typeid(TargetType).name()));
+                }
+                else {
+                    return TargetType(0);
+                }
+            }
+            if (!std::isfinite(value)) {
+                if constexpr (Policy == OverflowPolicy::Exception) {
+                    throw std::runtime_error(std::format("Cannot convert infinite value to {}", typeid(TargetType).name()));
+                }
+                else {
+                    return TargetType(0);
+                }
+            }
 
-        constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-        constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-        if (value > omax) {
-            return target_max;
-        }
-        if (value < omin) {
-            return target_min;
-        }
-        return static_cast<TargetType>(value);
-    }
-    else {
-        OriginalType omin = static_cast<OriginalType>(target_min);
-        OriginalType omax = static_cast<OriginalType>(target_max);
-        if (value >= omin && value <= omax) {
+            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
+            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
+            if (value > omax) {
+                if constexpr (Policy == OverflowPolicy::Exception) {
+                    throw std::runtime_error(std::format("Overflow: {} > max({})", value, typeid(TargetType).name()));
+                }
+                else if constexpr (Policy == OverflowPolicy::Clip) {
+                    return target_max;
+                }
+                else {
+                    return TargetType(0);
+                }
+            }
+            if (value < omin) {
+                if constexpr (Policy == OverflowPolicy::Exception) {
+                    throw std::runtime_error(std::format("Underflow: {} < min({})", value, typeid(TargetType).name()));
+                }
+                else if constexpr (Policy == OverflowPolicy::Clip) {
+                    return target_min;
+                }
+                else {
+                    return TargetType(0);
+                }
+            }
             return static_cast<TargetType>(value);
         }
-        return (value > OriginalType(0)) ? target_max : target_min;
+        else {
+            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
+            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
+            if (value >= omin && value <= omax) {
+                return static_cast<TargetType>(value);
+            }
+
+            if constexpr (Policy == OverflowPolicy::Exception) {
+                throw std::runtime_error(std::format("Value {} out of range for {}", value, typeid(TargetType).name()));
+            }
+            else if constexpr (Policy == OverflowPolicy::Clip) {
+                return (value > OriginalType(0)) ? target_max : target_min;
+            }
+            else {
+                return TargetType(0);
+            }
+        }
+    }
+
+    /// 编译期安全转换
+    template<class OriginalType, class TargetType>
+    requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
+    constexpr inline TargetType SafeCastConstexpr(const OriginalType& value)
+    {
+        if constexpr (std::is_constant_evaluated()) {
+            if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
+                value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
+                throw std::runtime_error("SafeCastConstexpr: value out of range");
+            }
+            return static_cast<TargetType>(value);
+        }
+        else {
+            return SafeCastRuntime<OriginalType, TargetType>(value);
+        }
     }
 }
 
-template<typename TargetType, typename OriginalType>
-constexpr TargetType SafeCast(OriginalType value) noexcept
+/// 智能选择 constexpr/运行时的统一入口
+template<class TargetType, class OriginalType, stupid::OverflowPolicy Policy = stupid::OverflowPolicy::Exception>
+requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
+constexpr inline TargetType SafeCast(OriginalType value)
 {
-    static_assert(std::is_arithmetic_v<OriginalType>, "OriginalType must be arithmetic");
-    static_assert(std::is_arithmetic_v<TargetType>, "TargetType must be arithmetic");
-
     if constexpr (std::is_constant_evaluated()) {
-        static_assert(
-            std::numeric_limits<OriginalType>::lowest() >= std::numeric_limits<TargetType>::lowest() &&
-                std::numeric_limits<OriginalType>::max() <= std::numeric_limits<TargetType>::max(),
-            "Unsafe cast in compile-time context");
-        return static_cast<TargetType>(value);
+        return stupid::SafeCastConstexpr<OriginalType, TargetType>(value);
     }
     else {
-        return ChangeType<OriginalType, TargetType>(value);
+        return stupid::SafeCastRuntime<OriginalType, TargetType, Policy>(value);
     }
 }
 
-template<typename OriginalType, typename TgargetType>
-constexpr inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
+template<class OriginalType, class TgargetType>
+inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
 {
+    bool is_error = true;
     std::vector<TgargetType> result;
     result.reserve(data.size());
-    for (const auto& item : data) {
+    for (decltype(auto) item : data) {
         try {
-            result.emplace_back(ChangeType<OriginalType, TgargetType>(item));
+            result.emplace_back(SafeCast<OriginalType, TgargetType>(item));
         }
         catch (const std::exception& e) {
-            std::cerr << e.what() << std::endl;
+            if (is_error) {
+                std::cerr << e.what() << std::endl;
+                is_error = false;
+            }
         }
     }
     return result;
 }
 
-template<class _Ty>
-requires std::copy_constructible<_Ty>
-constexpr inline void AppendVector(std::vector<_Ty>& target, const std::vector<_Ty>& source)
+/// 将 source 中的元素复制追加到 target。
+/// \tparam ValueType 元素类型
+/// \param target 目标 vector
+/// \param source 要复制的 vector
+template<class ValueType>
+requires std::copy_constructible<ValueType>
+constexpr inline void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType>& source)
 {
     target.insert(target.end(), source.begin(), source.end());
 }
 
-template<class _Ty>
-requires std::movable<_Ty>
-constexpr inline void AppendVector(std::vector<_Ty>& target, std::vector<_Ty>&& source)
+template<class ValueType>
+requires std::movable<ValueType>
+constexpr inline void AppendVector(std::vector<ValueType>& target, std::vector<ValueType>&& source)
 {
     target.insert(target.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
 }
 
-template<class _Ty, class Range>
-requires std::ranges::input_range<Range> && std::constructible_from<_Ty, std::ranges::range_reference_t<Range>>
-constexpr inline void AppendVector(std::vector<_Ty>& target, Range&& source)
+template<class ValueType, std::ranges::input_range Range>
+requires std::constructible_from<ValueType, std::remove_cvref_t<std::ranges::range_reference_t<Range>>>
+constexpr inline void AppendVector(std::vector<ValueType>& target, Range&& source)
 {
-    target.insert(target.end(), std::ranges::begin(source), std::ranges::begin(source));
+    target.insert(target.end(), std::ranges::begin(source), std::ranges::end(source));
+}
+
+template<class ValueType>
+constexpr inline void AppendVector(std::vector<ValueType>& target, std::initializer_list<ValueType> source)
+{
+    target.insert(target.end(), source.begin(), source.end());
 }
