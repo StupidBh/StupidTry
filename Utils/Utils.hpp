@@ -34,37 +34,34 @@ constexpr std::string_view type_name_mapping(const char* raw_name)
 }
 
 template<typename OriginalType, typename TargetType>
-TargetType ChangeType(const OriginalType& value)
+requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
+inline TargetType ChangeType(const OriginalType& value)
 {
-    static_assert(std::is_arithmetic_v<OriginalType>, "OriginalType must be arithmetic");
-    static_assert(std::is_arithmetic_v<TargetType>, "TargetType must be arithmetic");
-
     constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
     constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
 
     if constexpr (std::is_integral_v<TargetType> && std::is_floating_point_v<OriginalType>) {
-        // 处理NaN
         if (std::isnan(value)) {
             throw std::runtime_error(std::format("Cannot convert NaN to {}", type_name_mapping(typeid(TargetType).name())));
         }
 
-        if (value > static_cast<OriginalType>(target_max)) {
+        constexpr OriginalType omax = static_cast<OriginalType>(target_max);
+        constexpr OriginalType omin = static_cast<OriginalType>(target_min);
+        if (value > omax) {
             return target_max;
         }
-
-        if (value < static_cast<OriginalType>(target_min)) {
+        if (value < omin) {
             return target_min;
         }
-
         return static_cast<TargetType>(value);
     }
     else {
-        if (value >= target_min && value <= target_max) {
+        OriginalType omin = static_cast<OriginalType>(target_min);
+        OriginalType omax = static_cast<OriginalType>(target_max);
+        if (value >= omin && value <= omax) {
             return static_cast<TargetType>(value);
         }
-
-        // 超界处理
-        return (value > static_cast<OriginalType>(0)) ? target_max : target_min;
+        return (value > OriginalType(0)) ? target_max : target_min;
     }
 }
 
