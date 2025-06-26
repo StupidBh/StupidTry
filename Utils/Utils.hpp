@@ -119,8 +119,8 @@ namespace _hidden_ {
     }
 }
 
-/// 智能选择 constexpr/运行时的统一入口
-template<class TargetType, class OriginalType, _hidden_::OverflowPolicy Policy = _hidden_::OverflowPolicy::Exception>
+/// 智能选择 编译/运行 的统一入口
+template<class TargetType, class OriginalType, _hidden_::OverflowPolicy Policy = _hidden_::OverflowPolicy::Clip>
 requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
 constexpr inline TargetType SafeCast(OriginalType value)
 {
