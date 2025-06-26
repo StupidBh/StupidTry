@@ -7,18 +7,18 @@
 #include <vector>
 
 namespace _contatiner_ {
-    template<class T>
+    template<class ValueType>
     struct is_std_contatiner : std::false_type
     {
     };
 
-    template<class T, class Alloc>
-    struct is_std_contatiner<std::vector<T, Alloc>> : std::true_type
+    template<class ValueType, class Alloc>
+    struct is_std_contatiner<std::vector<ValueType, Alloc>> : std::true_type
     {
     };
 }
-template<class T>
-concept VectorType = _contatiner_::is_std_contatiner<std::remove_cvref_t<T>>::value;
+template<class ValueType>
+concept VectorType = _contatiner_::is_std_contatiner<std::remove_cvref_t<ValueType>>::value;
 
 namespace _hidden_ {
     /// 溢出处理策略
