@@ -2,6 +2,7 @@
 #include <concepts>
 #include <format>
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
@@ -181,4 +182,19 @@ template<class ValueType>
 constexpr inline void AppendVector(std::vector<ValueType>& target, std::initializer_list<ValueType> source)
 {
     target.insert(target.end(), source.begin(), source.end());
+}
+
+template<class ValueType>
+requires requires(ValueType value, std::size_t i) {
+    { value + value } -> std::convertible_to<ValueType>;
+    { static_cast<ValueType>(i) * value } -> std::convertible_to<ValueType>;
+}
+constexpr auto MakeSteppedVector(std::size_t count, ValueType start, ValueType step = 1)
+{
+    std::vector<ValueType> result;
+    result.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        result.emplace_back(start + static_cast<ValueType>(i) * step);
+    }
+    return result;
 }
