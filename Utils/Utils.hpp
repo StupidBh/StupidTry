@@ -136,19 +136,10 @@ constexpr inline TargetType SafeCast(OriginalType value)
 template<class OriginalType, class TgargetType>
 inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
 {
-    bool is_error = true;
     std::vector<TgargetType> result;
     result.reserve(data.size());
-    for (decltype(auto) item : data) {
-        try {
-            result.emplace_back(SafeCast<OriginalType, TgargetType>(item));
-        }
-        catch (const std::exception& e) {
-            if (is_error) {
-                std::cerr << e.what() << std::endl;
-                is_error = false;
-            }
-        }
+    for (const auto& item : data) {
+        result.emplace_back(SafeCast<OriginalType, TgargetType>(item), _hidden_::OverflowPolicy::Clip);
     }
     return result;
 }
