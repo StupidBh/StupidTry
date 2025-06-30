@@ -107,16 +107,11 @@ namespace _hidden_ {
     requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
     constexpr inline TargetType SafeCastConstexpr(const OriginalType& value)
     {
-        if constexpr (std::is_constant_evaluated()) {
-            if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
-                value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
-                throw std::runtime_error("SafeCastConstexpr: value out of range");
-            }
-            return static_cast<TargetType>(value);
+        if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
+            value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
+            throw std::runtime_error("SafeCastConstexpr: value out of range");
         }
-        else {
-            return SafeCastRuntime<OriginalType, TargetType>(value);
-        }
+        return static_cast<TargetType>(value);
     }
 }
 
@@ -180,7 +175,7 @@ requires requires(ValueType value, std::size_t i) {
     { value + value } -> std::convertible_to<ValueType>;
     { static_cast<ValueType>(i) * value } -> std::convertible_to<ValueType>;
 }
-constexpr auto MakeSteppedVector(std::size_t count, ValueType start = 0, ValueType step = 1)
+constexpr auto CreateVector(std::size_t count, ValueType start = 0, ValueType step = 1)
 {
     std::vector<ValueType> result;
     result.reserve(count);
