@@ -15,9 +15,9 @@ int main(int argc, char* argv[])
             command += " ";
         }
         command.pop_back(); // 去除尾部多余的空格字符
-        LOG_DEBUG("Command: '{}'", command);
+        std::cout << command << std::endl;
     }
-#endif //
+#endif
 
     constexpr auto n = std::numeric_limits<int>::max();
     LOG_INFO("{}_max: {}", typeid(n).name(), n);
