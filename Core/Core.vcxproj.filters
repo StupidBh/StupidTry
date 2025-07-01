@@ -18,9 +18,18 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Core\src\SyncIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\SingletonData.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\SyncController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SyncIO.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
