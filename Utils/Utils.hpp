@@ -134,10 +134,6 @@ inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& da
     return result;
 }
 
-/// 将 source 中的元素复制追加到 target。
-/// \tparam ValueType 元素类型
-/// \param target 目标 vector
-/// \param source 要复制的 vector
 template<class ValueType>
 requires std::copy_constructible<ValueType>
 constexpr inline void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType>& source)
