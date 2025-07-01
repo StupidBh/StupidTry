@@ -1,10 +1,5 @@
 ﻿#pragma once
-#include <concepts>
 #include <format>
-#include <iostream>
-#include <numeric>
-#include <stdexcept>
-#include <type_traits>
 #include <vector>
 
 namespace _contatiner_ {
