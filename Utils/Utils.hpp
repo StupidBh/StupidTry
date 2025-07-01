@@ -170,7 +170,7 @@ requires requires(ValueType value, std::size_t i) {
     { value + value } -> std::convertible_to<ValueType>;
     { static_cast<ValueType>(i) * value } -> std::convertible_to<ValueType>;
 }
-constexpr auto CreateVector(std::size_t count, ValueType start = 0, ValueType step = 1)
+constexpr inline std::vector<ValueType> CreateVector(std::size_t count, ValueType start = 0, ValueType step = 1)
 {
     std::vector<ValueType> result;
     result.reserve(count);
