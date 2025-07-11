@@ -18,7 +18,7 @@ concept VectorType = _contatiner_::is_std_contatiner<std::remove_cvref_t<ValueTy
 
 namespace _hidden_ {
     /// 溢出处理策略
-    enum class OverflowPolicy
+    enum class OverflowPolicy : int
     {
         Exception,  // 抛异常
         Clip,       // 裁剪至上下界
