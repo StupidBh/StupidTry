@@ -2,8 +2,9 @@
 
 #include "Utils.hpp"
 #include "SingletonData.hpp"
+#include "SyncIO.h"
 
-#include "boost/process.hpp"
+#include <queue>
 
 int main(int argc, char* argv[])
 {
@@ -19,8 +20,7 @@ int main(int argc, char* argv[])
     }
 #endif
 
-    constexpr auto n = std::numeric_limits<int>::max();
-    LOG_INFO("{}_max: {}", typeid(n).name(), n);
+    SyncIO().run();
 
     _Logging_::Logger::get_instance().ShutDown();
     return 0;

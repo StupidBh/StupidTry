@@ -173,11 +173,13 @@
   <ItemGroup>
     <ClCompile Include="Core\src\SyncIO.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="Utils\src\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\SingletonData.hpp" />
     <ClInclude Include="Common\SyncController.h" />
     <ClInclude Include="Core\SyncIO.h" />
+    <ClInclude Include="Utils\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.vcxproj">
