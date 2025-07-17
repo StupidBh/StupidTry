@@ -1,12 +1,8 @@
 ﻿#include "log/logger.hpp"
-
-#include "Utils.hpp"
 #include "SingletonData.hpp"
-#include "SyncIO.h"
+#include "highfive/highfive.hpp"
 
-#include <queue>
-
-int main(int argc, char* argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 #ifdef _DEBUG
     if (argc > 1) {
@@ -20,7 +16,14 @@ int main(int argc, char* argv[])
     }
 #endif
 
-    SyncIO().run();
+    std::string filename = "./new_file.h5";
+
+    HighFive::File file(filename, HighFive::File::Truncate);
+    auto group_tet = file.createGroup("TST");
+    group_tet.createAttribute("1", 1);
+
+    SINGLE_DATA.m_pool = std::make_unique<ThreadPool>(10);
+    SINGLE_DATA.m_pool->wait_for_completion();
 
     _Logging_::Logger::get_instance().ShutDown();
     return 0;
