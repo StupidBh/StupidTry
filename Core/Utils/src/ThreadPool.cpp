@@ -41,5 +41,5 @@ ThreadPool::~ThreadPool()
 void ThreadPool::wait_for_completion()
 {
     std::unique_lock<std::mutex> lock(m_queue_mutex);
-    m_completion_condition.wait(lock, [this] { return m_unfinished_tasks == 0; })
+    m_completion_condition.wait(lock, [this] { return m_unfinished_tasks == 0; });
 }
