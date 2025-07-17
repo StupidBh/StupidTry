@@ -32,68 +32,47 @@ namespace _hidden_ {
     {
         constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
         constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
+        constexpr OriginalType omin = static_cast<OriginalType>(target_min);
+        constexpr OriginalType omax = static_cast<OriginalType>(target_max);
 
-        // 浮点 → 整型，需要特殊处理
-        if constexpr (std::is_integral_v<TargetType> && std::is_floating_point_v<OriginalType>) {
-            if (std::isnan(value)) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Cannot convert NaN value to {}", typeid(TargetType).name()));
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            if (!std::isfinite(value)) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Cannot convert infinite value to {}", typeid(TargetType).name()));
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-
-            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-            if (value > omax) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Overflow: {} > max({})", value, typeid(TargetType).name()));
-                }
-                else if constexpr (Policy == OverflowPolicy::Clip) {
-                    return target_max;
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            if (value < omin) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Underflow: {} < min({})", value, typeid(TargetType).name()));
-                }
-                else if constexpr (Policy == OverflowPolicy::Clip) {
-                    return target_min;
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            return static_cast<TargetType>(value);
-        }
-        else {
-            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-            if (value >= omin && value <= omax) {
-                return static_cast<TargetType>(value);
-            }
-
+        auto handle_overflow = [&](const char* reason, TargetType fallback) -> TargetType {
             if constexpr (Policy == OverflowPolicy::Exception) {
-                throw std::runtime_error(std::format("Value {} out of range for {}", value, typeid(TargetType).name()));
+                throw std::runtime_error(
+                    std::format("SafeCastRuntime error ({}): cannot convert {} to {}", reason, value, typeid(TargetType).name()));
             }
             else if constexpr (Policy == OverflowPolicy::Clip) {
-                return (value > OriginalType(0)) ? target_max : target_min;
+                return fallback;
             }
             else {
                 return TargetType(0);
             }
+        };
+
+        // 浮点 -> 整型，需要特别处理
+        if constexpr (std::is_floating_point_v<OriginalType> && std::is_integral_v<TargetType>) {
+            if (std::isnan(value)) {
+                return handle_overflow("NaN", 0);
+            }
+            if (!std::isfinite(value)) {
+                return handle_overflow("Infinite", 0);
+            }
+            if (value > omax) {
+                return handle_overflow("Overflow", target_max);
+            }
+            if (value < omin) {
+                return handle_overflow("Underflow", target_min);
+            }
+            return static_cast<TargetType>(value);
+        }
+        // 其他类型转换（包括整型<->整型，整型->浮点，浮点->浮点）
+        else {
+            if (value > omax) {
+                return handle_overflow("Overflow", target_max);
+            }
+            if (value < omin) {
+                return handle_overflow("Underflow", target_min);
+            }
+            return static_cast<TargetType>(value);
         }
     }
 
