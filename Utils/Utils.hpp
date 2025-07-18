@@ -102,6 +102,28 @@ constexpr inline TargetType SafeCast(OriginalType value)
     }
 }
 
+template<std::floating_point _Ty>
+constexpr bool almost_equal(_Ty a, _Ty b)
+{
+    constexpr auto get_tolerance = []() -> std::pair<_Ty, _Ty> {
+        if constexpr (std::same_as<_Ty, float>) {
+            return { 1e-5f, 1e-7f };
+        }
+        else if constexpr (std::same_as<_Ty, double>) {
+            return { 1e-9, 1e-12 };
+        }
+        else { // long double or custom
+            return { 1e-12L, 1e-15L };
+        }
+    };
+    const auto [rel_tol, abs_tol] = get_tolerance();
+
+    const _Ty diff = std::fabs(a - b);
+    const _Ty scale = std::max(std::fabs(a), std::fabs(b));
+
+    return diff <= std::max(rel_tol * scale, abs_tol);
+}
+
 template<class TgargetType, class OriginalType>
 inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
 {
