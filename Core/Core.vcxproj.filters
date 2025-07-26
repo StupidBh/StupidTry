@@ -18,9 +18,21 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\src\ThreadPool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\src\Function.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\SingletonData.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\ThreadPool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Function.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
