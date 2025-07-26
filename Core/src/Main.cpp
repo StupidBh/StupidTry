@@ -9,7 +9,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     auto C = ProcessArguments(argc, argv);
 
-    CallCmd("ping 127.0.0.1 -n 3");
+    CallCmd("ping www.bilibili.com -n 3");
 
     HighFive::File file("./Hdf5.dat", HighFive::File::Overwrite);
     file.createGroup("Test").createAttribute("TestAttribute", 42);
