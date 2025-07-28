@@ -60,11 +60,11 @@ namespace _Logging_ {
             }
             catch (const std::filesystem::filesystem_error& e) {
                 std::cerr << e.what() << std::endl;
-                log_dir = log_dir.parent_path(); // 重定向到上一级目录
+                log_dir = work_dir.parent_path() / "logs"; // 重定向到上一级目录
             }
             catch (...) {
                 std::cerr << "Unknown error in create log dir!" << std::endl;
-                log_dir = "."; // 重定向到工作目录
+                log_dir = "./logs"; // 重定向到工作目录
             }
 
             // 终端回显日志消息
