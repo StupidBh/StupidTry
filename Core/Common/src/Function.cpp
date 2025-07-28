@@ -135,25 +135,27 @@ void CallCmd(const std::string& command)
     if (!CreateProcessA(
             nullptr,                            // 不指定应用程序名，直接从命令行解析
             const_cast<char*>(command.c_str()), // 命令行参数（必须可修改）
-            nullptr,
-            nullptr,                            // 安全属性
+            nullptr,                            // 进程安全属性
+            nullptr,                            // 线程安全属性
             TRUE,                               // 继承句柄
             CREATE_NO_WINDOW,                   // 不显示窗口
             nullptr,                            // 使用父进程的环境变量
             nullptr,                            // 使用父进程的工作目录
-            &si,                                // 指向 STARTUPINFO 结构体的指针
-            &pi                                 // 指向 PROCESS_INFORMATION 结构体的指针
+            &si,                                // 指向 STARTUPINFO 结构体的指针, 启动信息
+            &pi                                 // 指向 PROCESS_INFORMATION 结构体的指针, 进程线程的信息输出
             )) {
-        // 清理
+        // 清理进程和线程的句柄
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+
+        // 关闭子进程的读取端、写入端
+        CloseHandle(hWritePipe);
         CloseHandle(hReadPipe);
 
         LOG_ERROR("CreateProcess failed: {}", GetLastError());
         LOG_ERROR("Command Line: [{}]", command);
         return;
     }
-
     CloseHandle(hWritePipe); // 关闭子进程不再需要的写入端
 
     // 读取子进程的回显消息
@@ -172,14 +174,11 @@ void CallCmd(const std::string& command)
         }
         LOG_INFO(line);
     }
+    // 等待进程结束
+    WaitForSingleObject(pi.hProcess, INFINITE);
 
-    WaitForSingleObject(pi.hProcess, INFINITE); // 等待进程结束
-
-    // 清理进程和线程的句柄
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
-
-    // 关闭子进程不再需要的读取端
     CloseHandle(hReadPipe);
 }
 
