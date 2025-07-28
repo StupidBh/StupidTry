@@ -3,7 +3,7 @@
 #include "Utils.hpp"
 #include "SingletonData.hpp"
 
-int main(int argc, char* argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 #ifdef _DEBUG
     if (argc > 1) {
