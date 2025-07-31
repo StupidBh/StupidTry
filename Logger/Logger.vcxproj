@@ -71,22 +71,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(ProjectDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>stupid-logger</TargetName>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>$(ProjectDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>stupid-logger</TargetName>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(ProjectDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>stupid-logger</TargetName>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(ProjectDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>stupid-logger</TargetName>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>

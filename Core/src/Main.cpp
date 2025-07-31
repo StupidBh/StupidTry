@@ -1,25 +1,12 @@
 ﻿#include "log/logger.hpp"
-
-#include "Utils.hpp"
 #include "SingletonData.hpp"
+
+#include "Function.h"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-#ifdef _DEBUG
-    if (argc > 1) {
-        std::string command;
-        for (int i = 1; i < argc; ++i) {
-            command += argv[i];
-            command += " ";
-        }
-        command.pop_back(); // 去除尾部多余的空格字符
-        LOG_DEBUG("Command: '{}'", command);
-    }
-#endif //
+    CallCmd("ping 127.0.0.1");
 
-    constexpr auto n = std::numeric_limits<int>::max();
-    LOG_INFO("{}_max: {}", typeid(n).name(), n);
-
-    _Logging_::Logger::get_instance().ShutDown();
     return 0;
 }
+

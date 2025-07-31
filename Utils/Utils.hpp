@@ -1,10 +1,5 @@
 ﻿#pragma once
-#include <concepts>
 #include <format>
-#include <iostream>
-#include <numeric>
-#include <stdexcept>
-#include <type_traits>
 #include <vector>
 
 namespace _contatiner_ {
@@ -23,7 +18,7 @@ concept VectorType = _contatiner_::is_std_contatiner<std::remove_cvref_t<ValueTy
 
 namespace _hidden_ {
     /// 溢出处理策略
-    enum class OverflowPolicy
+    enum class OverflowPolicy : int
     {
         Exception,  // 抛异常
         Clip,       // 裁剪至上下界
@@ -37,68 +32,47 @@ namespace _hidden_ {
     {
         constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
         constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
+        constexpr OriginalType omin = static_cast<OriginalType>(target_min);
+        constexpr OriginalType omax = static_cast<OriginalType>(target_max);
 
-        // 浮点 → 整型，需要特殊处理
-        if constexpr (std::is_integral_v<TargetType> && std::is_floating_point_v<OriginalType>) {
-            if (std::isnan(value)) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Cannot convert NaN value to {}", typeid(TargetType).name()));
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            if (!std::isfinite(value)) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Cannot convert infinite value to {}", typeid(TargetType).name()));
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-
-            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-            if (value > omax) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Overflow: {} > max({})", value, typeid(TargetType).name()));
-                }
-                else if constexpr (Policy == OverflowPolicy::Clip) {
-                    return target_max;
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            if (value < omin) {
-                if constexpr (Policy == OverflowPolicy::Exception) {
-                    throw std::runtime_error(std::format("Underflow: {} < min({})", value, typeid(TargetType).name()));
-                }
-                else if constexpr (Policy == OverflowPolicy::Clip) {
-                    return target_min;
-                }
-                else {
-                    return TargetType(0);
-                }
-            }
-            return static_cast<TargetType>(value);
-        }
-        else {
-            constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-            constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-            if (value >= omin && value <= omax) {
-                return static_cast<TargetType>(value);
-            }
-
+        auto handle_overflow = [&](const char* reason, TargetType fallback) -> TargetType {
             if constexpr (Policy == OverflowPolicy::Exception) {
-                throw std::runtime_error(std::format("Value {} out of range for {}", value, typeid(TargetType).name()));
+                throw std::runtime_error(
+                    std::format("SafeCastRuntime error ({}): cannot convert {} to {}", reason, value, typeid(TargetType).name()));
             }
             else if constexpr (Policy == OverflowPolicy::Clip) {
-                return (value > OriginalType(0)) ? target_max : target_min;
+                return fallback;
             }
             else {
                 return TargetType(0);
             }
+        };
+
+        // 浮点 -> 整型，需要特别处理
+        if constexpr (std::is_floating_point_v<OriginalType> && std::is_integral_v<TargetType>) {
+            if (std::isnan(value)) {
+                return handle_overflow("NaN", 0);
+            }
+            if (!std::isfinite(value)) {
+                return handle_overflow("Infinite", 0);
+            }
+            if (value > omax) {
+                return handle_overflow("Overflow", target_max);
+            }
+            if (value < omin) {
+                return handle_overflow("Underflow", target_min);
+            }
+            return static_cast<TargetType>(value);
+        }
+        // 其他类型转换（包括整型<->整型，整型->浮点，浮点->浮点）
+        else {
+            if (value > omax) {
+                return handle_overflow("Overflow", target_max);
+            }
+            if (value < omin) {
+                return handle_overflow("Underflow", target_min);
+            }
+            return static_cast<TargetType>(value);
         }
     }
 
@@ -107,16 +81,11 @@ namespace _hidden_ {
     requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
     constexpr inline TargetType SafeCastConstexpr(const OriginalType& value)
     {
-        if constexpr (std::is_constant_evaluated()) {
-            if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
-                value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
-                throw std::runtime_error("SafeCastConstexpr: value out of range");
-            }
-            return static_cast<TargetType>(value);
+        if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
+            value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
+            throw std::runtime_error("SafeCastConstexpr: value out of range");
         }
-        else {
-            return SafeCastRuntime<OriginalType, TargetType>(value);
-        }
+        return static_cast<TargetType>(value);
     }
 }
 
@@ -133,21 +102,39 @@ constexpr inline TargetType SafeCast(OriginalType value)
     }
 }
 
-template<class OriginalType, class TgargetType>
+template<std::floating_point _Ty>
+constexpr bool almost_equal(_Ty a, _Ty b)
+{
+    constexpr auto get_tolerance = []() -> std::pair<_Ty, _Ty> {
+        if constexpr (std::same_as<_Ty, float>) {
+            return { 1e-5f, 1e-7f };
+        }
+        else if constexpr (std::same_as<_Ty, double>) {
+            return { 1e-9, 1e-12 };
+        }
+        else { // long double or custom
+            return { 1e-12L, 1e-15L };
+        }
+    };
+    const auto [rel_tol, abs_tol] = get_tolerance();
+
+    const _Ty diff = std::fabs(a - b);
+    const _Ty scale = std::max(std::fabs(a), std::fabs(b));
+
+    return diff <= std::max(rel_tol * scale, abs_tol);
+}
+
+template<class TgargetType, class OriginalType>
 inline std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
 {
     std::vector<TgargetType> result;
     result.reserve(data.size());
     for (const auto& item : data) {
-        result.emplace_back(SafeCast<OriginalType, TgargetType>(item), _hidden_::OverflowPolicy::Clip);
+        result.emplace_back(SafeCast<TgargetType, OriginalType>(item));
     }
     return result;
 }
 
-/// 将 source 中的元素复制追加到 target。
-/// \tparam ValueType 元素类型
-/// \param target 目标 vector
-/// \param source 要复制的 vector
 template<class ValueType>
 requires std::copy_constructible<ValueType>
 constexpr inline void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType>& source)
@@ -175,12 +162,12 @@ constexpr inline void AppendVector(std::vector<ValueType>& target, std::initiali
     target.insert(target.end(), source.begin(), source.end());
 }
 
-template<class ValueType>
+template<class ValueType = int>
 requires requires(ValueType value, std::size_t i) {
     { value + value } -> std::convertible_to<ValueType>;
     { static_cast<ValueType>(i) * value } -> std::convertible_to<ValueType>;
 }
-constexpr auto MakeSteppedVector(std::size_t count, ValueType start, ValueType step = 1)
+constexpr inline std::vector<ValueType> CreateVector(std::size_t count, ValueType start = 0, ValueType step = 1)
 {
     std::vector<ValueType> result;
     result.reserve(count);
