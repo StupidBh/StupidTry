@@ -10,19 +10,11 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     // --trans -i testPath -c .\Test\config\info.json -w .\Test -n 8 -d 16 --NonEn --DEBUG
 
     po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()(
-        "help",
-        "Produce help message")("getInfo", po::bool_switch()->default_value(false), "Execution mode for get info.json") //
-        ("trans", po::bool_switch()->default_value(false), "Execution mode for trans")                                  //
-        ("inputPath,i", po::value<std::string>()->required(), "Input file path (required)")                             //
-        ("outputPath,o", po::value<std::string>(), "Output json file path (required by 'getInfo')")                     //
-        ("configPath,c", po::value<std::string>(), "Input json file path")                                              //
-        ("workDirectory,w", po::value<std::string>(), "Work directory")                                                 //
-        ("cpuNum,n", po::value<int>()->default_value(8), "Number of CPUs")                                              //
-        ("bitDepth,d", po::value<int>()->default_value(32), "Data precision")                                           //
-        ("En", po::bool_switch()->default_value(false), "Perform the conversion mode 'En'")                             //
-        ("NonEn", po::bool_switch()->default_value(false), "Perform the conversion mode 'NonEn'")                       //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                                     //
+    desc.add_options()("help", "Produce help message")                                      //
+        ("inputPath,i", po::value<std::string>()->required(), "Input file path (required)") //
+        ("workDirectory,w", po::value<std::string>(), "Work directory")                     //
+        ("cpuNum,n", po::value<int>()->default_value(8), "Number of CPUs")                  //
+        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")         //
         ;
 
     std::ostringstream oss;
@@ -144,7 +136,6 @@ void CallCmd(const std::string& command)
             &si,                                // 指向 STARTUPINFO 结构体的指针
             &pi                                 // 指向 PROCESS_INFORMATION 结构体的指针
             )) {
-        // 清理
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         CloseHandle(hReadPipe);
@@ -163,10 +154,11 @@ void CallCmd(const std::string& command)
         buffer[bytesRead] = '\0';
 
         std::string line(buffer, bytesRead);
-        if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
+        if (line.empty() ||
+            std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
             continue;
         }
-        line.erase(std::remove_if(line.begin(), line.end(), [](unsigned char c) { return c == '\r' || c == '\n'; }), line.end());
+        std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n'; });
         if (IsLikelyGBK(line)) {
             line = GBKToUTF8(line);
         }

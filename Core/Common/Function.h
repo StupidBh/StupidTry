@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <ranges>
 
 #include "boost/program_options.hpp"
 
