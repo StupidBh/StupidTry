@@ -7,10 +7,6 @@
     class_name& operator=(class_name&&) = delete; \
     class_name& operator=(const class_name&) = delete
 
-#define SINGLETON_CLASS(class_name)   \
-    DELETE_COPY_AND_MOVE(class_name); \
-    friend class SingletonHolder
-
 namespace utils {
     template<class T>
     class SingletonHolder {

@@ -1,17 +1,12 @@
 ﻿#pragma once
-#include <memory>
-
 #include "SingletonHolder.hpp"
-#include "ThreadPool.h"
 
 namespace stupid {
     class SingletonData final : public utils::SingletonHolder<SingletonData> {
-        SINGLETON_CLASS(SingletonData);
-        SingletonData() = default;
+        DELETE_COPY_AND_MOVE(SingletonData);
 
     public:
-        std::unique_ptr<ThreadPool> m_pool = nullptr;
     };
 }
 
-#define SINGLE_DATA stupid::SingletonData::get_instance()
+#define GV_DATA stupid::SingletonData::get_instance()
