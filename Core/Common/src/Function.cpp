@@ -6,9 +6,6 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
 {
     namespace po = boost::program_options;
 
-    // --getInfo --inputPath testPath --outputPath .\Test\config\info.json
-    // --trans -i testPath -c .\Test\config\info.json -w .\Test -n 8 -d 16 --NonEn --DEBUG
-
     po::options_description desc("Usage: [options]", 150, 10);
     desc.add_options()("help", "Produce help message")                                      //
         ("inputPath,i", po::value<std::string>()->required(), "Input file path (required)") //
@@ -190,7 +187,7 @@ std::string GetEnv(const std::string& env)
     if (need_size == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
         return {};
-}
+    }
 
     std::string buffer(need_size, '\0');
     if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
