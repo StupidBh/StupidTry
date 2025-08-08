@@ -184,7 +184,19 @@ void CallCmd(const std::string& command)
     WaitForSingleObject(hThread.get(), INFINITE);
 }
 
-    // 关闭子进程不再需要的读取端
-    CloseHandle(hReadPipe);
+std::string GetEnv(const std::string& env)
+{
+    DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
+    if (need_size == 0) {
+        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+        return {};
 }
 
+    std::string buffer(need_size, '\0');
+    if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
+        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+        return {};
+    }
+    buffer.pop_back();
+    return buffer; // 去掉末尾的 '\0'
+}
