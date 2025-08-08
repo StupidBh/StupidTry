@@ -12,12 +12,6 @@
     #pragma once
 #endif
 
-#ifndef _DEBUG
-    #pragma comment(lib, "boost_program_options-vc143-mt-x64-1_88.lib")
-#else
-    #pragma comment(lib, "boost_program_options-vc143-mt-gd-x64-1_88.lib")
-#endif
-
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
 #include <boost/program_options/parsers.hpp>
