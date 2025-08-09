@@ -162,6 +162,20 @@ constexpr inline void AppendVector(std::vector<ValueType>& target, std::initiali
     target.insert(target.end(), source.begin(), source.end());
 }
 
+template<class ValueType>
+constexpr inline void AppendVector(std::vector<ValueType>& target, std::size_t count, const ValueType& value)
+{
+    target.insert(target.end(), count, value);
+}
+
+template<class ValueType>
+constexpr inline void AppendVector(std::vector<ValueType>& target, std::size_t count, ValueType&& value)
+{
+    for(std::size_t i = 0; i < count; ++i){
+        target.emplace_back(std::move(value));
+    }
+}
+
 template<class ValueType = int>
 requires requires(ValueType value, std::size_t i) {
     { value + value } -> std::convertible_to<ValueType>;
