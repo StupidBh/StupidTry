@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "Utils.hpp"
 
-#include <ranges>
-
 #include "boost/program_options.hpp"
 
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[]);
