@@ -1,5 +1,6 @@
 ﻿#include "Function.h"
 
+#include "SingletonData.hpp"
 #include "log/logger.hpp"
 
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
@@ -7,11 +8,11 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     namespace po = boost::program_options;
 
     po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()("help", "Produce help message")                                      //
-        ("inputPath,i", po::value<std::string>()->required(), "Input file path (required)") //
-        ("workDirectory,w", po::value<std::string>(), "Work directory")                     //
-        ("cpuNum,n", po::value<int>()->default_value(8), "Number of CPUs")                  //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")         //
+    desc.add_options()("help", "Produce help message")                                //
+        ("inputPath,i", po::value<std::string>(), "Input file path (required)")       //
+        ("workDirectory,w", po::value<std::string>()->required(), "Work directory")   //
+        ("cpuNum,n", po::value<std::uint32_t>()->default_value(8u), "Number of CPUs") //
+        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")   //
         ;
 
     std::ostringstream oss;
@@ -21,26 +22,30 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     try {
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         if (vm.contains("help")) {
-            LOG_INFO("{}", oss.str());
+            std::cerr << oss.str() << std::endl;
             return {};
         }
+
         po::notify(vm);
     }
     catch (const po::error& e) {
-        LOG_ERROR("Parameter error: {}", e.what());
-        LOG_INFO(oss.str());
+        std::cerr << "Parameter error: " << e.what() << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
     catch (const std::exception& e) {
-        LOG_ERROR(e.what());
-        LOG_INFO(oss.str());
+        std::cerr << e.what() << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
     catch (...) {
-        LOG_ERROR("Unknown error in ProcessArguments");
-        LOG_INFO(oss.str());
+        std::cerr << "Unknown error in ProcessArguments" << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
+
+    std::filesystem::path workDirectory = vm["workDirectory"].as<std::string>();
+    _Logging_::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
 
     return vm;
 }
@@ -110,9 +115,9 @@ void CallCmd(const std::string& command)
 
     // 安全属性结构，用于允许管道句柄继承
     SECURITY_ATTRIBUTES sa = {};
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = nullptr;
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
@@ -127,13 +132,13 @@ void CallCmd(const std::string& command)
     SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0);
 
     // 设置启动信息，重定向输出
-    PROCESS_INFORMATION pi = { 0 };
-    STARTUPINFOA si = { 0 };
-    si.dwFlags |= STARTF_USESTDHANDLES;
+    PROCESS_INFORMATION pi = {};
+    STARTUPINFOA si = {};
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdInput = nullptr;
     si.hStdOutput = hWritePipe.get();
     si.hStdError = hWritePipe.get();
-    si.cb = sizeof(si);
 
     // 创建子进程
     if (!CreateProcessA(
@@ -154,20 +159,17 @@ void CallCmd(const std::string& command)
     }
     hWritePipe.reset(); // 父进程不再需要写入端
 
-    // RAII 管理子进程和线程句柄
     UniqueHandle hProcess(pi.hProcess);
     UniqueHandle hThread(pi.hThread);
 
     // 读取子进程的回显消息
     char buffer[4096] = {};
     DWORD bytesRead = 0;
-    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) &&
-           bytesRead > 0) {
+    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
 
         std::string line(buffer, bytesRead);
-        if (line.empty() ||
-            std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
+        if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
             continue;
         }
         std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n'; });
@@ -178,7 +180,7 @@ void CallCmd(const std::string& command)
     }
 
     // 等待进程结束
-    WaitForSingleObject(hThread.get(), INFINITE);
+    WaitForSingleObject(hProcess.get(), INFINITE);
 }
 
 std::string GetEnv(const std::string& env)
@@ -194,6 +196,6 @@ std::string GetEnv(const std::string& env)
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
         return {};
     }
-    buffer.pop_back();
-    return buffer; // 去掉末尾的 '\0'
+    buffer.pop_back(); // 去掉末尾的 '\0'
+    return buffer;
 }

@@ -5,8 +5,12 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    CallCmd("ping 127.0.0.1");
+    SINGLE_DATA.m_vm = ProcessArguments(argc, argv);
 
+    CallCmd("ping google.com");
+
+
+    _Logging_::Logger::get_instance().ShutDown();
     return 0;
 }
 
