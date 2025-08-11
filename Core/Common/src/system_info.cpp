@@ -1,14 +1,14 @@
 ﻿#include "system_info.h"
 
 #include <array>
-#include <string>
-#include <sstream>
-#include <memory>
-#include <stdexcept>
 #include <iostream>
-#include <thread> // std::thread::hardware_concurrency
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
 
-#if defined(_WIN32)
+#ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
 #endif

@@ -34,7 +34,7 @@ namespace _Logging_ {
                 if (this->m_log) {
                     return this->m_log;
                 }
-            } // 释放共享锁
+            }
 
             if (!this->m_log) {
                 spdlog::init_thread_pool(32768, 2);
@@ -51,14 +51,13 @@ namespace _Logging_ {
             std::unique_lock lock(this->m_mutex);
 
             static constexpr const char* log_fmt =
-#ifdef _WIN32
     #ifdef _DEBUG
-                // [年-月-日] [时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
+                // [年-月-日 时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] [%s:%!:%#] %v";
     #else
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] %v";
     #endif
-#endif
+
             spdlog::sinks_init_list log_sinks_list;
 
             // 终端回显日志消息
