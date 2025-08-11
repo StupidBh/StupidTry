@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Utils.hpp"
+#include "system_info.h"
 
 #include "boost/program_options.hpp"
 
