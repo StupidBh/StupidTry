@@ -29,9 +29,16 @@ namespace _Logging_ {
 
         std::shared_ptr<spdlog::async_logger> log()
         {
-            std::shared_lock<std::shared_mutex> lock(this->m_mutex);
+            {
+                std::shared_lock lock(this->m_mutex);
+                if (this->m_log) {
+                    return this->m_log;
+                }
+            } // 释放共享锁
+
             if (!this->m_log) {
-                this->InitLog(".", "defalut");
+                spdlog::init_thread_pool(32768, 2);
+                this->InitLog(".", "default");
             }
             return this->m_log;
         }
@@ -101,8 +108,6 @@ namespace _Logging_ {
             this->m_log->flush_on(spdlog::level::trace);
             this->m_log->set_error_handler(
                 [](const std::string& msg) { std::cerr << "[*** Logger ERROR ***] " << msg << std::endl; });
-
-            this->m_log->info("Logger initialized with log file: {}", this->m_log->name());
         }
 
         void ShutDown()
