@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Utils.hpp"
+#include "ScopedTimer.hpp"
+
 #include "system_info.h"
 
 #include "boost/program_options.hpp"
