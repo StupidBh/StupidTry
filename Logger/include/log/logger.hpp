@@ -37,7 +37,9 @@ namespace _Logging_ {
             }
 
             if (!this->m_log) {
-                spdlog::init_thread_pool(32768, 2);
+                if (!spdlog::thread_pool()) {
+                    spdlog::init_thread_pool(32768, 2);
+                }
                 this->InitLog(".", "default");
             }
             return this->m_log;
@@ -51,12 +53,12 @@ namespace _Logging_ {
             std::unique_lock lock(this->m_mutex);
 
             static constexpr const char* log_fmt =
-    #ifdef _DEBUG
+#ifdef _DEBUG
                 // [年-月-日 时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] [%s:%!:%#] %v";
-    #else
+#else
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] %v";
-    #endif
+#endif
 
             spdlog::sinks_init_list log_sinks_list;
 
