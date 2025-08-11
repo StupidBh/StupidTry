@@ -9,7 +9,7 @@
 
 #define SINGLETON_CLASS(class_name)   \
     DELETE_COPY_AND_MOVE(class_name); \
-    friend class SingletonHolder
+    friend class SingletonHolder<class_name>
 
 namespace utils {
     template<class T>

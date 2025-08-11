@@ -121,8 +121,7 @@ namespace _Logging_ {
         }
 
     private:
-        friend class utils::SingletonHolder<Logger>;
-        DELETE_COPY_AND_MOVE(Logger);
+        SINGLETON_CLASS(Logger);
     };
 }
 
