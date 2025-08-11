@@ -22,15 +22,24 @@ namespace _Logging_ {
             SetConsoleCP(CP_UTF8);
 #endif
             spdlog::init_thread_pool(32768, 2);
-            InitLog(".", "defalut");
         }
 
     public:
-        ~Logger() override { ShutDown(); }
+        ~Logger() override { this->ShutDown(); }
 
-        inline auto log()
+        std::shared_ptr<spdlog::async_logger> log()
         {
-            std::shared_lock<std::shared_mutex> lock(m_mutex);
+            {
+                std::shared_lock lock(this->m_mutex);
+                if (this->m_log) {
+                    return this->m_log;
+                }
+            } // 释放共享锁
+
+            if (!this->m_log) {
+                spdlog::init_thread_pool(32768, 2);
+                this->InitLog(".", "default");
+            }
             return this->m_log;
         }
 
@@ -39,9 +48,9 @@ namespace _Logging_ {
             const std::string& log_file_name,
             [[maybe_unused]] bool verbose = false)
         {
-            std::unique_lock lock(m_mutex);
+            std::unique_lock lock(this->m_mutex);
 
-            constexpr auto log_fmt =
+            static constexpr const char* log_fmt =
 #ifdef _WIN32
     #ifdef _DEBUG
                 // [年-月-日] [时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
@@ -50,29 +59,13 @@ namespace _Logging_ {
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] %v";
     #endif
 #endif
-
-            // 创建日志目录
-            std::filesystem::path log_dir = work_dir / "logs";
-            try {
-                if (!std::filesystem::exists(log_dir)) {
-                    std::filesystem::create_directories(log_dir);
-                }
-            }
-            catch (const std::filesystem::filesystem_error& e) {
-                std::cerr << e.what() << std::endl;
-                log_dir = log_dir.parent_path(); // 重定向到上一级目录
-                log_dir = work_dir.parent_path() / "logs"; // 重定向到上一级目录
-            }
-            catch (...) {
-                std::cerr << "Unknown error in create log dir!" << std::endl;
-                log_dir = "."; // 重定向到工作目录
-                log_dir = "./logs"; // 重定向到工作目录
-            }
+            spdlog::sinks_init_list log_sinks_list;
 
             // 终端回显日志消息
             std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
                 std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             console_sink->set_pattern(log_fmt);
+            log_sinks_list = { console_sink };
 
 #ifdef _DEBUG
             console_sink->set_level(spdlog::level::debug);
@@ -80,10 +73,14 @@ namespace _Logging_ {
             console_sink->set_level(verbose ? spdlog::level::debug : spdlog::level::info);
 #endif // _DEBUG
 
-            spdlog::sinks_init_list log_sinks_list;
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
             try {
                 // 写入外部文件的日志消息
+                std::filesystem::path log_dir = work_dir / "logs";
+                if (!std::filesystem::exists(log_dir)) {
+                    std::filesystem::create_directories(log_dir);
+                }
+
                 std::string log_filename = std::format("{}/{}.log", log_dir.string(), log_file_name);
                 file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_filename, 0, 0, false, 30);
                 file_sink->set_pattern(log_fmt);
@@ -98,27 +95,29 @@ namespace _Logging_ {
             }
             catch (...) {
                 std::cerr << "The log file creation failed. Roll back to the terminal!" << std::endl;
-                log_sinks_list = { console_sink };
             }
 
             // 创建异步记录器
-            m_log = std::make_shared<spdlog::async_logger>(
-                "app",
+            this->m_log = std::make_shared<spdlog::async_logger>(
+                "stupid-log",
                 log_sinks_list,
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
-            m_log->set_pattern(log_fmt);
-            m_log->set_level(spdlog::level::trace);
-            m_log->flush_on(spdlog::level::trace);
-            m_log->set_error_handler([](const std::string& msg) { std::cerr << "[*** Logger ERROR ***] " << msg << std::endl; });
+            this->m_log->set_pattern(log_fmt);
+            this->m_log->set_level(spdlog::level::trace);
+            this->m_log->flush_on(spdlog::level::trace);
+            this->m_log->set_error_handler(
+                [](const std::string& msg) { std::cerr << "[*** Logger ERROR ***] " << msg << std::endl; });
         }
 
         void ShutDown()
         {
-            std::unique_lock lock(m_mutex);
-            if (m_log) {
-                m_log->flush();
+            std::unique_lock lock(this->m_mutex);
+            if (this->m_log) {
+                this->m_log->flush();
+                this->m_log.reset();
             }
+            spdlog::shutdown();
         }
 
     private:

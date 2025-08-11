@@ -1,20 +1,18 @@
 ﻿#include "Function.h"
 
+#include "SingletonData.hpp"
 #include "log/logger.hpp"
 
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
 {
     namespace po = boost::program_options;
 
-    // --getInfo --inputPath testPath --outputPath .\Test\config\info.json
-    // --trans -i testPath -c .\Test\config\info.json -w .\Test -n 8 -d 16 --NonEn --DEBUG
-
     po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()("help", "Produce help message")                                      //
-        ("inputPath,i", po::value<std::string>()->required(), "Input file path (required)") //
-        ("workDirectory,w", po::value<std::string>(), "Work directory")                     //
-        ("cpuNum,n", po::value<int>()->default_value(8), "Number of CPUs")                  //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")         //
+    desc.add_options()("help", "Produce help message")                                //
+        ("inputPath,i", po::value<std::string>(), "Input file path (required)")       //
+        ("workDirectory,w", po::value<std::string>()->required(), "Work directory")   //
+        ("cpuNum,n", po::value<std::uint32_t>()->default_value(8u), "Number of CPUs") //
+        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")   //
         ;
 
     std::ostringstream oss;
@@ -24,26 +22,30 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     try {
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         if (vm.contains("help")) {
-            LOG_INFO("{}", oss.str());
+            std::cerr << oss.str() << std::endl;
             return {};
         }
+
         po::notify(vm);
     }
     catch (const po::error& e) {
-        LOG_ERROR("Parameter error: {}", e.what());
-        LOG_INFO(oss.str());
+        std::cerr << "Parameter error: " << e.what() << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
     catch (const std::exception& e) {
-        LOG_ERROR(e.what());
-        LOG_INFO(oss.str());
+        std::cerr << e.what() << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
     catch (...) {
-        LOG_ERROR("Unknown error in ProcessArguments");
-        LOG_INFO(oss.str());
+        std::cerr << "Unknown error in ProcessArguments" << std::endl;
+        std::cerr << oss.str() << std::endl;
         return {};
     }
+
+    std::filesystem::path workDirectory = vm["workDirectory"].as<std::string>();
+    _Logging_::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
 
     return vm;
 }
@@ -98,6 +100,21 @@ std::string GBKToUTF8(const std::string& gbk_str)
 
 void CallCmd(const std::string& command)
 {
+    utils::ScopedTimer timer(std::format("CallCmd: [{}]", command), [&](std::string_view msg) { LOG_INFO("{}", msg); });
+
+    // RAII 管理 HANDLE
+    struct HandleCloser
+    {
+        void operator()(HANDLE h) const
+        {
+            if (h && h != INVALID_HANDLE_VALUE) {
+                CloseHandle(h);
+            }
+        }
+    };
+
+    using UniqueHandle = std::unique_ptr<void, HandleCloser>;
+
     // 安全属性结构，用于允许管道句柄继承
     SECURITY_ATTRIBUTES sa = {};
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -105,23 +122,25 @@ void CallCmd(const std::string& command)
     sa.lpSecurityDescriptor = nullptr;
 
     // 创建用于读子进程回显消息的管道
-    HANDLE hReadPipe = nullptr, hWritePipe = nullptr;
-    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
+    HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
+    if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
         std::cerr << "CreatePipe failed.\n";
         return;
     }
+    UniqueHandle hReadPipe(readPipeRaw);
+    UniqueHandle hWritePipe(writePipeRaw);
 
     // 防止子进程继承读取句柄，导致无法关闭（只继承写入）
-    SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
+    SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0);
 
     // 设置启动信息，重定向输出
-    PROCESS_INFORMATION pi = { 0 };
-    STARTUPINFOA si = { 0 };
-    si.dwFlags |= STARTF_USESTDHANDLES;
-    si.hStdInput = nullptr;
-    si.hStdOutput = hWritePipe;
-    si.hStdError = hWritePipe;
+    PROCESS_INFORMATION pi = {};
+    STARTUPINFOA si = {};
     si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdInput = nullptr;
+    si.hStdOutput = hWritePipe.get();
+    si.hStdError = hWritePipe.get();
 
     // 创建子进程
     if (!CreateProcessA(
@@ -136,30 +155,23 @@ void CallCmd(const std::string& command)
             &si,                                // 指向 STARTUPINFO 结构体的指针
             &pi                                 // 指向 PROCESS_INFORMATION 结构体的指针
             )) {
-        // 清理进程和线程的句柄
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-
-        // 关闭子进程的读取端、写入端
-        CloseHandle(hWritePipe);
-        CloseHandle(hReadPipe);
-
         LOG_ERROR("CreateProcess failed: {}", GetLastError());
         LOG_ERROR("Command Line: [{}]", command);
         return;
     }
+    hWritePipe.reset(); // 父进程不再需要写入端
 
-    CloseHandle(hWritePipe); // 关闭子进程不再需要的写入端
+    UniqueHandle hProcess(pi.hProcess);
+    UniqueHandle hThread(pi.hThread);
 
     // 读取子进程的回显消息
     char buffer[4096] = {};
     DWORD bytesRead = 0;
-    while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
+    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
 
         std::string line(buffer, bytesRead);
-        if (line.empty() ||
-            std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
+        if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
             continue;
         }
         std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n'; });
@@ -169,13 +181,23 @@ void CallCmd(const std::string& command)
         LOG_INFO(line);
     }
 
-    WaitForSingleObject(pi.hProcess, INFINITE); // 等待进程结束
-
-    // 清理进程和线程的句柄
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-
-    // 关闭子进程不再需要的读取端
-    CloseHandle(hReadPipe);
+    // 等待进程结束
+    WaitForSingleObject(hProcess.get(), INFINITE);
 }
 
+std::string GetEnv(const std::string& env)
+{
+    DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
+    if (need_size == 0) {
+        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+        return {};
+    }
+
+    std::string buffer(need_size, '\0');
+    if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
+        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+        return {};
+    }
+    buffer.pop_back(); // 去掉末尾的 '\0'
+    return buffer;
+}

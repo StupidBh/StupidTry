@@ -73,22 +73,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>stupid</TargetName>
+    <TargetName>stupid-app</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>stupid</TargetName>
+    <TargetName>stupid-app</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>stupid</TargetName>
+    <TargetName>stupid-app</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>stupid</TargetName>
+    <TargetName>stupid-app</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -105,7 +105,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)3rdparty\hdf5\lib;$(SolutionDir)3rdparty\boost\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -130,7 +130,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)3rdparty\hdf5\lib;$(SolutionDir)3rdparty\boost\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -151,7 +151,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)3rdparty\hdf5\lib;$(SolutionDir)3rdparty\boost\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -176,7 +176,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)3rdparty\hdf5\lib;$(SolutionDir)3rdparty\boost\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;szip.lib;aec.lib;zlib.lib;boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -184,12 +184,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common\src\Function.cpp" />
+    <ClCompile Include="Common\src\system_info.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="Utils\src\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.hpp" />
+    <ClInclude Include="Common\system_info.h" />
     <ClInclude Include="Utils\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>

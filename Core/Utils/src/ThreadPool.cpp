@@ -4,6 +4,7 @@ ThreadPool::ThreadPool(size_t threads) :
     m_stop(false),
     m_unfinished_tasks(0)
 {
+    m_workers.reserve(threads);
     for (size_t i = 0; i < threads; ++i) {
         m_workers.emplace_back([this] {
             while (true) {

@@ -78,7 +78,7 @@ BreakStringLiterals: true
 BreakArrays: true
 
 
-ColumnLimit: 100
+ColumnLimit: 120
 
 CompactNamespaces: false
 

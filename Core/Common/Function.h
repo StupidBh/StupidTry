@@ -1,5 +1,8 @@
 ﻿#pragma once
-#include <ranges>
+#include "Utils.hpp"
+#include "ScopedTimer.hpp"
+
+#include "system_info.h"
 
 #include "boost/program_options.hpp"
 
@@ -9,3 +12,5 @@ bool IsLikelyGBK(const std::string& str);
 std::string GBKToUTF8(const std::string& gbk_str);
 
 void CallCmd(const std::string& command);
+
+std::string GetEnv(const std::string& env);
