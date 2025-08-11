@@ -174,7 +174,7 @@ void CallCmd(const std::string& command)
         if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
             continue;
         }
-        std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n'; });
+        std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n' || c == '\t'; });
         if (IsLikelyGBK(line)) {
             line = GBKToUTF8(line);
         }
