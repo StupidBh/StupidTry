@@ -100,7 +100,7 @@ std::string GBKToUTF8(const std::string& gbk_str)
 
 void CallCmd(const std::string& command)
 {
-    utils::ScopedTimer timer(std::format("CallCmd: [{}]", command), [&](std::string_view msg) { LOG_INFO("{}", msg); });
+    SCOPED_TIMER(std::format("CallCmd: [{}]", command));
 
     // RAII 管理 HANDLE
     struct HandleCloser

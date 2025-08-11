@@ -5,7 +5,7 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    utils::ScopedTimer timer("main-function", [&](std::string_view msg) { LOG_INFO("{}", msg); });
+    SCOPED_TIMER("main-function");
     SINGLE_DATA.m_vm = ProcessArguments(argc, argv);
 
     CallCmd("ping bing.com");
