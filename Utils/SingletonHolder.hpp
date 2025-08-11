@@ -30,5 +30,5 @@ namespace utils {
     };
 
     template<class T>
-    concept Singleton = std::is_base_of_v<SingletonHolder<T>, T>;
+    concept Singleton = std::derived_from<T, SingletonHolder<T>>;
 }
