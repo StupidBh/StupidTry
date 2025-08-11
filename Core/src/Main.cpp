@@ -8,12 +8,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     SCOPED_TIMER("main-function");
     SINGLE_DATA.m_vm = ProcessArguments(argc, argv);
 
-    CallCmd("ping bing.com");
+    CallCmd("ping www.baidu.com");
 
     try {
-        LOG_INFO("Physical cores: {}", get_core_count(CoreType::Physical));
-        LOG_INFO("Logical cores: {}", get_core_count(CoreType::Logical));
-        LOG_INFO("Total cores: {}", get_core_count(CoreType::Total));
+        LOG_INFO("Physical-Cores: {}", get_core_count(CoreType::Physical));
+        LOG_INFO("Logical-Cores: {}", get_core_count(CoreType::Logical));
+        LOG_INFO("Total-Cores: {}", get_core_count(CoreType::Total));
     }
     catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << '\n';
