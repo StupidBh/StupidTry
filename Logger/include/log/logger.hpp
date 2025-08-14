@@ -21,7 +21,7 @@ namespace _Logging_ {
             SetConsoleOutputCP(CP_UTF8);
             SetConsoleCP(CP_UTF8);
 #endif
-            spdlog::init_thread_pool(32768, 2);
+            spdlog::init_thread_pool(32768, 1);
         }
 
     public:
@@ -37,9 +37,7 @@ namespace _Logging_ {
             }
 
             if (!this->m_log) {
-                if (!spdlog::thread_pool()) {
-                    spdlog::init_thread_pool(32768, 2);
-                }
+                spdlog::init_thread_pool(32768, 1);
                 this->InitLog(".", "default");
             }
             return this->m_log;
