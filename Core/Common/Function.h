@@ -4,6 +4,7 @@
 
 #include "system_info.h"
 
+#include "log/logger.hpp"
 #include "boost/program_options.hpp"
 
 #define SCOPED_TIMER(out_msg)                    \

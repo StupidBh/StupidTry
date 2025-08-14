@@ -1,7 +1,6 @@
 ﻿#include "Function.h"
 
 #include "SingletonData.hpp"
-#include "log/logger.hpp"
 
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
 {

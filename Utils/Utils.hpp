@@ -37,8 +37,11 @@ namespace _hidden_ {
 
         auto handle_overflow = [&](const char* reason, TargetType fallback) -> TargetType {
             if constexpr (Policy == OverflowPolicy::Exception) {
-                throw std::runtime_error(
-                    std::format("SafeCastRuntime error ({}): cannot convert {} to {}", reason, value, typeid(TargetType).name()));
+                throw std::runtime_error(std::format(
+                    "SafeCastRuntime error ({}): cannot convert {} to {}",
+                    reason,
+                    value,
+                    typeid(TargetType).name()));
             }
             else if constexpr (Policy == OverflowPolicy::Clip) {
                 return fallback;
@@ -166,13 +169,13 @@ template<class ValueType, class _Ty>
 constexpr void AppendVector(std::vector<ValueType>& target, std::size_t count, _Ty&& value)
 {
     if constexpr (std::is_lvalue_reference_v<_Ty>) {
-    target.insert(target.end(), count, value);
-}
+        target.insert(target.end(), count, value);
+    }
     else {
         for (std::size_t i = 0; i < count; ++i) {
-        target.emplace_back(std::move(value));
+            target.emplace_back(std::move(value));
+        }
     }
-}
 }
 
 template<class ValueType = int>
