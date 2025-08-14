@@ -122,9 +122,11 @@ namespace _Logging_ {
     private:
         SINGLETON_CLASS(Logger);
     };
+
+#define LOG Logger::get_instance().log()
 }
 
-#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::info, __VA_ARGS__)
-#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::warn, __VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::debug, __VA_ARGS__)
-#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::err, __VA_ARGS__)
+#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::info, __VA_ARGS__)
+#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::warn, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::debug, __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::err, __VA_ARGS__)
