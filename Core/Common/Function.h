@@ -6,6 +6,10 @@
 
 #include "boost/program_options.hpp"
 
+#define SCOPED_TIMER(out_msg)                    \
+    decltype(auto) CONCAT(timer_, __COUNTER__) = \
+        utils::ScopedTimer(std::string(out_msg), [&](std::string_view msg) { _Logging_::LOG->info(msg); })
+
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[]);
 
 bool IsLikelyGBK(const std::string& str);

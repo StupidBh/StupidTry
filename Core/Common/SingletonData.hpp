@@ -21,4 +21,3 @@ namespace stupid {
 }
 
 #define SINGLE_DATA stupid::SingletonData::get_instance()
-#define SCOPED_TIMER(call_name) utils::ScopedTimer timer(call_name, [&](std::string_view msg) { LOG_INFO("{}", msg); })

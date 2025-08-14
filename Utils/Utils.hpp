@@ -190,3 +190,6 @@ constexpr inline std::vector<ValueType> CreateVector(std::size_t count, ValueTyp
     }
     return result;
 }
+
+#define CONCAT_IMPL(x, y) x##y
+#define CONCAT(x, y)      CONCAT_IMPL(x, y)
