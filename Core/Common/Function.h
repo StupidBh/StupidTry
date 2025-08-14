@@ -14,3 +14,5 @@ std::string GBKToUTF8(const std::string& gbk_str);
 void CallCmd(const std::string& command);
 
 std::string GetEnv(const std::string& env);
+
+std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& sub_str);

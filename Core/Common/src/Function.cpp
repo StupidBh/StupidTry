@@ -201,3 +201,14 @@ std::string GetEnv(const std::string& env)
     buffer.pop_back(); // 去掉末尾的 '\0'
     return buffer;
 }
+
+std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& sub_str)
+{
+    auto eq_case_insensitive = [](unsigned char ch1, unsigned char ch2) {
+        return std::tolower(ch1) == std::tolower(ch2);
+    };
+
+    auto it = std::ranges::search(main_str, sub_str, eq_case_insensitive);
+
+    return it.empty() ? std::string::npos : static_cast<std::size_t>(std::distance(main_str.begin(), it.begin()));
+}
