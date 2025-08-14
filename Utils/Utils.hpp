@@ -162,18 +162,17 @@ constexpr inline void AppendVector(std::vector<ValueType>& target, std::initiali
     target.insert(target.end(), source.begin(), source.end());
 }
 
-template<class ValueType>
-constexpr inline void AppendVector(std::vector<ValueType>& target, std::size_t count, const ValueType& value)
+template<class ValueType, class _Ty>
+constexpr void AppendVector(std::vector<ValueType>& target, std::size_t count, _Ty&& value)
 {
+    if constexpr (std::is_lvalue_reference_v<_Ty>) {
     target.insert(target.end(), count, value);
 }
-
-template<class ValueType>
-constexpr inline void AppendVector(std::vector<ValueType>& target, std::size_t count, ValueType&& value)
-{
-    for(std::size_t i = 0; i < count; ++i){
+    else {
+        for (std::size_t i = 0; i < count; ++i) {
         target.emplace_back(std::move(value));
     }
+}
 }
 
 template<class ValueType = int>
