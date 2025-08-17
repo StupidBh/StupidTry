@@ -187,7 +187,6 @@
     <ClCompile Include="Common\src\system_info.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="Utils\src\ProgressManager.cpp" />
-    <ClCompile Include="Utils\src\ThreadPool.cpp" />
     <ClCompile Include="Utils\src\woolang.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,7 +194,6 @@
     <ClInclude Include="Common\SingletonData.hpp" />
     <ClInclude Include="Common\system_info.h" />
     <ClInclude Include="Utils\ProgressManager.h" />
-    <ClInclude Include="Utils\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.vcxproj">
