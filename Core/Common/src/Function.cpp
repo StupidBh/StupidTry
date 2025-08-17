@@ -7,11 +7,11 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     namespace po = boost::program_options;
 
     po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()("help", "Produce help message")                                //
-        ("inputPath,i", po::value<std::string>(), "Input file path (required)")       //
-        ("workDirectory,w", po::value<std::string>()->required(), "Work directory")   //
-        ("cpuNum,n", po::value<std::uint32_t>()->default_value(8u), "Number of CPUs") //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")   //
+    desc.add_options()("help,h", "Display this help message")                                                  //
+        ("inputPath,i", po::value<std::string>(), "Path to the input file")                                    //
+        ("workDirectory,w", po::value<std::string>()->required(), "Directory for working (required)")          //
+        ("cpuNum,n", po::value<std::uint16_t>()->default_value(2), "Number of CPU cores to use (default: 2)") //
+        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                            //
         ;
 
     std::ostringstream oss;
@@ -32,18 +32,13 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
         std::cerr << oss.str() << std::endl;
         return {};
     }
-    catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << oss.str() << std::endl;
-        return {};
-    }
     catch (...) {
-        std::cerr << "Unknown error in ProcessArguments" << std::endl;
+        std::cerr << "Unknown error in ProcessArguments." << std::endl;
         std::cerr << oss.str() << std::endl;
         return {};
     }
 
-    std::filesystem::path workDirectory = vm["workDirectory"].as<std::string>();
+    std::string workDirectory = vm["workDirectory"].as<std::string>();
     _Logging_::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
 
     return vm;
@@ -135,7 +130,7 @@ void CallCmd(const std::string& command)
     // 设置启动信息，重定向输出
     PROCESS_INFORMATION pi = {};
     STARTUPINFOA si = {};
-    si.cb = sizeof(si);
+    si.cb = sizeof(STARTUPINFOA);
     si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdInput = nullptr;
     si.hStdOutput = hWritePipe.get();
@@ -208,6 +203,5 @@ std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& 
     };
 
     auto it = std::ranges::search(main_str, sub_str, eq_case_insensitive);
-
     return it.empty() ? std::string::npos : static_cast<std::size_t>(std::distance(main_str.begin(), it.begin()));
 }
