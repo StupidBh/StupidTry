@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <type_traits>
+#include <concepts>
 
 #define DELETE_COPY_AND_MOVE(class_name)          \
     class_name(class_name&&) = delete;            \
