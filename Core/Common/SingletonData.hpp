@@ -1,8 +1,5 @@
 ﻿#pragma once
-#include <memory>
-
 #include "SingletonHolder.hpp"
-#include "ThreadPool.h"
 
 #include "boost/program_options.hpp"
 
@@ -15,9 +12,13 @@ namespace stupid {
         SingletonData() = default;
 
     public:
-        std::unique_ptr<ThreadPool> m_pool;
-        boost::program_options::variables_map m_vm;
+        boost::program_options::variables_map VM;
     };
 }
 
 #define SINGLE_DATA stupid::SingletonData::get_instance()
+
+#define INPUT_PATH std::filesystem::path(SINGLE_DATA.VM["inputPath"].as<std::string>())
+#define WORK_DIR   std::filesystem::path(SINGLE_DATA.VM["workDirectory"].as<std::string>())
+#define CPU_NUM    SINGLE_DATA.VM["cpuNum"].as<std::uint16_t>()
+#define IS_DEBUG   SINGLE_DATA.VM["DEBUG"].as<bool>()
