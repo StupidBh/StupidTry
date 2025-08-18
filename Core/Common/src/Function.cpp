@@ -7,11 +7,11 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     namespace po = boost::program_options;
 
     po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()("help,h", "Display this help message")                                                  //
-        ("inputPath,i", po::value<std::string>(), "Path to the input file")                                    //
-        ("workDirectory,w", po::value<std::string>()->required(), "Directory for working (required)")          //
+    desc.add_options()("help,h", "Display this help message")                                                 //
+        ("inputPath,i", po::value<std::string>(), "Path to the input file")                                   //
+        ("workDirectory,w", po::value<std::string>()->required(), "Directory for working (required)")         //
         ("cpuNum,n", po::value<std::uint16_t>()->default_value(2), "Number of CPU cores to use (default: 2)") //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                            //
+        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                           //
         ;
 
     std::ostringstream oss;
@@ -92,7 +92,7 @@ std::string GBKToUTF8(const std::string& gbk_str)
     return utf8_str;
 }
 
-void CallCmd(const std::string& command)
+void CallCmd(const std::string& command, bool open_log)
 {
     SCOPED_TIMER(std::format("CallCmd: [{}]", command));
 
@@ -172,7 +172,12 @@ void CallCmd(const std::string& command)
         if (IsLikelyGBK(line)) {
             line = GBKToUTF8(line);
         }
-        LOG_INFO(line);
+        if (open_log) {
+            LOG_INFO(line);
+        }
+        else {
+            std::cerr << line << std::endl;
+        }
     }
 
     // 等待进程结束
