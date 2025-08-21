@@ -1,14 +1,14 @@
 ﻿#include "system_info.h"
 
 #include <array>
-#include <string>
-#include <sstream>
-#include <memory>
-#include <stdexcept>
 #include <iostream>
-#include <thread> // std::thread::hardware_concurrency
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
 
-#if defined(_WIN32)
+#ifdef _WIN32
     #define NOMINMAX
     #include <windows.h>
 #endif
@@ -17,9 +17,10 @@ size_t get_core_count(CoreType type)
 {
 #ifdef _WIN32
     auto run_cmd = [](const char* cmd) -> std::string {
+        std::string ps_cmd = std::string("powershell -Command \"") + cmd + "\"";
         std::array<char, 128> buffer {};
         std::string output;
-        std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
+        std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(ps_cmd.c_str(), "r"), _pclose);
         if (!pipe) {
             throw std::runtime_error("_popen() failed!");
         }
@@ -32,17 +33,26 @@ size_t get_core_count(CoreType type)
 
     std::string result;
     switch (type) {
-    case CoreType::Physical: result = run_cmd("wmic cpu get NumberOfCores /value"); break;
-    case CoreType::Logical :
-    case CoreType::Total   : result = run_cmd("wmic cpu get NumberOfLogicalProcessors /value"); break;
+    case CoreType::Physical: result = run_cmd("(Get-CimInstance -ClassName Win32_Processor).NumberOfCores"); break;
+    case CoreType::Logical:
+    case CoreType::Total:
+        result = run_cmd("(Get-CimInstance -ClassName Win32_Processor).NumberOfLogicalProcessors");
+        break;
     }
 
-    // 从输出提取数字
-    auto pos = result.find('=');
-    if (pos == std::string::npos) {
-        throw std::runtime_error("Unexpected WMIC output: " + result);
-    }
-    return static_cast<size_t>(std::stoi(result.substr(pos + 1)));
+    auto trim = [](const std::string& str) -> std::string {
+        auto start = str.begin();
+        while (start != str.end() && std::isspace(*start)) {
+            ++start;
+        }
+        auto end = str.end();
+        do {
+            --end;
+        } while (std::distance(start, end) > 0 && std::isspace(*end));
+        return std::string(start, end + 1);
+    };
+
+    return static_cast<size_t>(std::stoi(trim(result)));
 
 #elif defined(__linux__)
     if (type == CoreType::Logical || type == CoreType::Total) {

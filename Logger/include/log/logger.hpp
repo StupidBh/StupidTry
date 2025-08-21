@@ -21,7 +21,7 @@ namespace _Logging_ {
             SetConsoleOutputCP(CP_UTF8);
             SetConsoleCP(CP_UTF8);
 #endif
-            spdlog::init_thread_pool(32768, 2);
+            spdlog::init_thread_pool(32768, 1);
         }
 
     public:
@@ -34,10 +34,10 @@ namespace _Logging_ {
                 if (this->m_log) {
                     return this->m_log;
                 }
-            } // 释放共享锁
+            }
 
             if (!this->m_log) {
-                spdlog::init_thread_pool(32768, 2);
+                spdlog::init_thread_pool(32768, 1);
                 this->InitLog(".", "default");
             }
             return this->m_log;
@@ -51,14 +51,13 @@ namespace _Logging_ {
             std::unique_lock lock(this->m_mutex);
 
             static constexpr const char* log_fmt =
-#ifdef _WIN32
-    #ifdef _DEBUG
-                // [年-月-日] [时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
+#ifdef _DEBUG
+                // [年-月-日 时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] [%s:%!:%#] %v";
-    #else
+#else
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] %v";
-    #endif
 #endif
+
             spdlog::sinks_init_list log_sinks_list;
 
             // 终端回显日志消息
@@ -121,12 +120,13 @@ namespace _Logging_ {
         }
 
     private:
-        friend class utils::SingletonHolder<Logger>;
-        DELETE_COPY_AND_MOVE(Logger);
+        SINGLETON_CLASS(Logger);
     };
+
+#define LOG Logger::get_instance().log()
 }
 
-#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::info, __VA_ARGS__)
-#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::warn, __VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::debug, __VA_ARGS__)
-#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(_Logging_::Logger::get_instance().log(), spdlog::level::err, __VA_ARGS__)
+#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::info, __VA_ARGS__)
+#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::warn, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::debug, __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::err, __VA_ARGS__)

@@ -185,14 +185,17 @@
   <ItemGroup>
     <ClCompile Include="Common\src\Function.cpp" />
     <ClCompile Include="Common\src\system_info.cpp" />
+    <ClCompile Include="Utils\src\MioReader.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="Utils\src\ThreadPool.cpp" />
+    <ClCompile Include="Utils\src\ProgressManager.cpp" />
+    <ClCompile Include="Utils\src\woolang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.hpp" />
     <ClInclude Include="Common\system_info.h" />
-    <ClInclude Include="Utils\ThreadPool.h" />
+    <ClInclude Include="Utils\MioReader.h" />
+    <ClInclude Include="Utils\ProgressManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.vcxproj">

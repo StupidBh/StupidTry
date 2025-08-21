@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <type_traits>
+#include <concepts>
 
 #define DELETE_COPY_AND_MOVE(class_name)          \
     class_name(class_name&&) = delete;            \
@@ -9,7 +9,7 @@
 
 #define SINGLETON_CLASS(class_name)   \
     DELETE_COPY_AND_MOVE(class_name); \
-    friend class SingletonHolder
+    friend class SingletonHolder<class_name>
 
 namespace utils {
     template<class T>
@@ -30,5 +30,5 @@ namespace utils {
     };
 
     template<class T>
-    concept Singleton = std::is_base_of_v<SingletonHolder<T>, T>;
+    concept Singleton = std::derived_from<T, SingletonHolder<T>>;
 }

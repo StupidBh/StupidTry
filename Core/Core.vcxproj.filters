@@ -3,13 +3,16 @@
   <ItemGroup>
     <ClCompile Include="Common\src\Function.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="Utils\src\ThreadPool.cpp" />
     <ClCompile Include="Common\src\system_info.cpp" />
+    <ClCompile Include="Utils\src\ProgressManager.cpp" />
+    <ClCompile Include="Utils\src\woolang.cpp" />
+    <ClCompile Include="Utils\src\MioReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.hpp" />
-    <ClInclude Include="Utils\ThreadPool.h" />
     <ClInclude Include="Common\system_info.h" />
+    <ClInclude Include="Utils\ProgressManager.h" />
+    <ClInclude Include="Utils\MioReader.h" />
   </ItemGroup>
 </Project>
