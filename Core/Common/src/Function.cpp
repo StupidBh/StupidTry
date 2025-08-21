@@ -168,10 +168,12 @@ void CallCmd(const std::string& command, bool open_log)
         if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
             continue;
         }
+
         std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n' || c == '\t'; });
         if (IsLikelyGBK(line)) {
             line = GBKToUTF8(line);
         }
+
         if (open_log) {
             LOG_INFO(line);
         }
