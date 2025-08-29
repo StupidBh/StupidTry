@@ -180,7 +180,7 @@
     <ClInclude Include="include\log\log_formatter.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dll\src\dllmain.cpp" />
+    <ClCompile Include="src\dll\dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

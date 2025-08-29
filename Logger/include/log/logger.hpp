@@ -25,7 +25,11 @@ namespace _Logging_ {
         }
 
     public:
-        ~Logger() override { this->ShutDown(); }
+        ~Logger() override
+        {
+            this->ShutDown();
+            spdlog::shutdown();
+        }
 
         std::shared_ptr<spdlog::async_logger> log()
         {
@@ -37,7 +41,6 @@ namespace _Logging_ {
             }
 
             if (!this->m_log) {
-                spdlog::init_thread_pool(32768, 1);
                 this->InitLog(".", "default");
             }
             return this->m_log;
@@ -114,9 +117,7 @@ namespace _Logging_ {
             std::unique_lock lock(this->m_mutex);
             if (this->m_log) {
                 this->m_log->flush();
-                this->m_log.reset();
             }
-            spdlog::shutdown();
         }
 
     private:
