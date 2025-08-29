@@ -190,6 +190,12 @@ namespace utils {
         }
         return result;
     }
+
+    template<VectorType ValueType>
+    void ClearVector(ValueType& vec)
+    {
+        vec = ValueType();
+    }
 }
 
 #define CONCAT_IMPL(x, y) x##y
