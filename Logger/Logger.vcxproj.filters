@@ -26,7 +26,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dll\src\dllmain.cpp">
+    <ClCompile Include="src\dll\dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
