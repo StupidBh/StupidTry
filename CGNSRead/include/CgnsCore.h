@@ -1,4 +1,4 @@
 ﻿#pragma once
 #include "CGNSReadFramework.h"
 
- void EXPORT_API Test();
+CGNS_EXPORT_API void Test();

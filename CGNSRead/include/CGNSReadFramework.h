@@ -7,9 +7,9 @@
 #endif
 
 #ifndef STUPID_EXPORT_LIBRARY
-    #define EXPORT_API __declspec(dllexport)
+    #define CGNS_EXPORT_API __declspec(dllexport)
 #else
-    #define EXPORT_API __declspec(dllimport)
+    #define CGNS_EXPORT_API __declspec(dllimport)
 #endif
 
 #include "cgns/cgnslib.h"

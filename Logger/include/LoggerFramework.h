@@ -7,13 +7,13 @@
 #endif
 
 #ifndef STUPID_EXPORT_LIBRARY
-    #define STUPID_EXPORT_API __declspec(dllexport)
+    #define LOG_EXPORT_API __declspec(dllexport)
 #else
-    #define STUPID_EXPORT_API __declspec(dllimport)
+    #define LOG_EXPORT_API __declspec(dllimport)
 #endif
 
 #include <iostream>
 #include <filesystem>
 #include <shared_mutex>
 
-class STUPID_EXPORT_API std::shared_mutex;
+class LOG_EXPORT_API std::shared_mutex;

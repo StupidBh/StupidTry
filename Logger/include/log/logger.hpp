@@ -8,10 +8,10 @@
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-template class STUPID_EXPORT_API std::shared_ptr<spdlog::async_logger>;
+template class LOG_EXPORT_API std::shared_ptr<spdlog::async_logger>;
 
 namespace _Logging_ {
-    class STUPID_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
+    class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
         std::shared_ptr<spdlog::async_logger> m_log;
         mutable std::shared_mutex m_mutex;
 
