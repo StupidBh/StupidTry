@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "framework.h"
+#include "LoggerFramework.h"
 #include "spdlog/fmt/fmt.h"
 
 template<>

@@ -15,18 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\LoggerFramework.h">
+    <ClInclude Include="include\CGNSReadFramework.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\log\logger.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\log\log_formatter.hpp">
+    <ClInclude Include="include\CgnsCore.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\dll\dllmain.cpp">
+    <ClCompile Include="src\dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

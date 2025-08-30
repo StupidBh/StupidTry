@@ -56,7 +56,7 @@ namespace _Logging_ {
             static constexpr const char* log_fmt =
 #ifdef _DEBUG
                 // [年-月-日 时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
-                "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] [%s:%!:%#] %v";
+                "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] [%s:%#] %v";
 #else
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%l%$] %v";
 #endif

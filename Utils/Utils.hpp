@@ -17,99 +17,10 @@ namespace _contatiner_ {
     inline constexpr bool is_std_vector_v = is_std_contatiner<std::remove_cvref_t<T>>::value;
 }
 
-namespace _hidden_ {
-    /// 溢出处理策略
-    enum class OverflowPolicy : int
-    {
-        Exception,  // 抛异常
-        Clip,       // 裁剪至上下界
-        DefaultZero // 超出时返回零
-    };
-
-    /// 运行时安全转换
-    template<class OriginalType, class TargetType, OverflowPolicy Policy = OverflowPolicy::Exception>
-    requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
-    TargetType SafeCastRuntime(const OriginalType& value)
-    {
-        constexpr TargetType target_max = std::numeric_limits<TargetType>::max();
-        constexpr TargetType target_min = std::numeric_limits<TargetType>::lowest();
-        constexpr OriginalType omin = static_cast<OriginalType>(target_min);
-        constexpr OriginalType omax = static_cast<OriginalType>(target_max);
-
-        auto handle_overflow = [&](const char* reason, TargetType fallback) -> TargetType {
-            if constexpr (Policy == OverflowPolicy::Exception) {
-                throw std::runtime_error(std::format(
-                    "SafeCastRuntime error ({}): cannot convert {} to {}",
-                    reason,
-                    value,
-                    typeid(TargetType).name()));
-            }
-            else if constexpr (Policy == OverflowPolicy::Clip) {
-                return fallback;
-            }
-            else {
-                return TargetType(0);
-            }
-        };
-
-        // 浮点 -> 整型，需要特别处理
-        if constexpr (std::is_floating_point_v<OriginalType> && std::is_integral_v<TargetType>) {
-            if (std::isnan(value)) {
-                return handle_overflow("NaN", 0);
-            }
-            if (!std::isfinite(value)) {
-                return handle_overflow("Infinite", 0);
-            }
-            if (value > omax) {
-                return handle_overflow("Overflow", target_max);
-            }
-            if (value < omin) {
-                return handle_overflow("Underflow", target_min);
-            }
-            return static_cast<TargetType>(value);
-        }
-        // 其他类型转换（包括整型<->整型，整型->浮点，浮点->浮点）
-        else {
-            if (value > omax) {
-                return handle_overflow("Overflow", target_max);
-            }
-            if (value < omin) {
-                return handle_overflow("Underflow", target_min);
-            }
-            return static_cast<TargetType>(value);
-        }
-    }
-
-    /// 编译期安全转换
-    template<class OriginalType, class TargetType>
-    requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
-    constexpr TargetType SafeCastConstexpr(const OriginalType& value)
-    {
-        if (value < static_cast<OriginalType>(std::numeric_limits<TargetType>::lowest()) ||
-            value > static_cast<OriginalType>(std::numeric_limits<TargetType>::max())) {
-            throw std::runtime_error("SafeCastConstexpr: value out of range");
-        }
-        return static_cast<TargetType>(value);
-    }
-}
-
 namespace utils {
 
     template<class ValueType>
     concept VectorType = _contatiner_::is_std_vector_v<ValueType>;
-
-    /// 智能选择 编译/运行 的统一入口
-    template<class TargetType, class OriginalType, _hidden_::OverflowPolicy Policy = _hidden_::OverflowPolicy::Clip>
-    requires std::is_arithmetic_v<OriginalType> && std::is_arithmetic_v<TargetType>
-    constexpr TargetType SafeCast(OriginalType value)
-    {
-        if constexpr (std::is_constant_evaluated()) {
-            return _hidden_::SafeCastConstexpr<OriginalType, TargetType>(value);
-        }
-        else {
-            return _hidden_::SafeCastRuntime<OriginalType, TargetType, Policy>(value);
-        }
-    }
 
     template<std::floating_point _Ty>
     constexpr bool almost_equal(_Ty a, _Ty b)
