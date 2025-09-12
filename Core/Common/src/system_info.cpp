@@ -5,6 +5,7 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <format>
 #include <string>
 #include <thread>
 
@@ -17,7 +18,7 @@ size_t get_core_count(CoreType type)
 {
 #ifdef _WIN32
     auto run_cmd = [](const char* cmd) -> std::string {
-        std::string ps_cmd = std::string("powershell -Command \"") + cmd + "\"";
+        std::string ps_cmd = std::format("powershell -Command \"{}\"", cmd);
         std::array<char, 128> buffer {};
         std::string output;
         std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(ps_cmd.c_str(), "r"), _pclose);
@@ -58,7 +59,6 @@ size_t get_core_count(CoreType type)
     if (type == CoreType::Logical || type == CoreType::Total) {
         return static_cast<size_t>(std::thread::hardware_concurrency());
     }
-    // 物理核心数：解析 /proc/cpuinfo
     std::array<char, 128> buffer {};
     std::unique_ptr<FILE, decltype(&pclose)> pipe(
         popen("lscpu | grep 'Core(s) per socket' | awk '{print $4}'", "r"),

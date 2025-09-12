@@ -106,6 +106,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(ProjectDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -131,6 +132,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(ProjectDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -152,6 +154,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(ProjectDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
@@ -177,6 +180,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(ProjectDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>

@@ -1,5 +1,7 @@
 ﻿#include "Function.h"
 
+#include <ranges>
+
 #include "SingletonData.hpp"
 
 boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
@@ -44,9 +46,9 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     return vm;
 }
 
-bool IsLikelyGBK(const std::string& str)
+bool IsLikelyGBK(std::string_view str)
 {
-    for (std::string::size_type i = 0; i < str.length(); ++i) {
+    for (std::string_view::size_type i = 0; i < str.length(); ++i) {
         unsigned char c1 = static_cast<unsigned char>(str[i]);
         if (c1 <= 0x7F) { // ASCII
             continue;
@@ -92,10 +94,19 @@ std::string GBKToUTF8(const std::string& gbk_str)
     return utf8_str;
 }
 
+std::string_view TrimNewline(std::string_view sv)
+{
+    while (!sv.empty() && (sv.back() == '\n' || sv.back() == '\r')) {
+        sv.remove_suffix(1);
+    }
+    while (!sv.empty() && (sv.front() == '\n' || sv.front() == '\r')) {
+        sv.remove_prefix(1);
+    }
+    return sv;
+}
+
 void CallCmd(const std::string& command, bool open_log)
 {
-    SCOPED_TIMER(std::format("CallCmd: [{}]", command));
-
     // RAII 管理 HANDLE
     struct HandleCloser
     {
@@ -164,12 +175,14 @@ void CallCmd(const std::string& command, bool open_log)
     while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
 
-        std::string line(buffer, bytesRead);
-        if (line.empty() || std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
+        std::string_view line_view(buffer, bytesRead);
+        line_view = TrimNewline(line_view);
+        if (std::find_if_not(line_view.begin(), line_view.end(), [](unsigned char c) { return std::isspace(c); }) ==
+            line_view.end()) {
             continue;
         }
 
-        std::erase_if(line, [](unsigned char c) { return c == '\r' || c == '\n' || c == '\t'; });
+        std::string line(line_view);
         if (IsLikelyGBK(line)) {
             line = GBKToUTF8(line);
         }
@@ -211,4 +224,26 @@ std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& 
 
     auto it = std::ranges::search(main_str, sub_str, eq_case_insensitive);
     return it.empty() ? std::string::npos : static_cast<std::size_t>(std::distance(main_str.begin(), it.begin()));
+}
+
+bool iequals(std::string_view lhs, std::string_view rhs)
+{
+    if (lhs.size() != rhs.size()) {
+        return false;
+    }
+
+    return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) {
+        return std::tolower(c1) == std::tolower(c2);
+    });
+}
+
+std::string TrimTrailingSpaces(std::string_view sv)
+{
+    auto is_whitespace = [](char c) -> bool {
+        return std::isspace(static_cast<unsigned char>(c));
+    };
+
+    auto view = sv | std::views::drop_while(is_whitespace) | std::views::reverse |
+                std::views::drop_while(is_whitespace) | std::views::reverse;
+    return std::string(view.begin(), view.end());
 }

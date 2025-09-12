@@ -24,5 +24,5 @@ void Test()
     cg_version(cg_file_id, &cg_file_version);
 
     LOG_INFO("CGNS-v{:.2f}", cg_file_version);
-    _Logging_::Logger::get_instance().ShutDown();
+
 }

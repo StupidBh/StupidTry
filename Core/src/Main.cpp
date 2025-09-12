@@ -1,7 +1,5 @@
-﻿#include "SingletonData.hpp"
-#include "ThreadPool.hpp"
-
-#include "Function.h"
+﻿#include "Function.h"
+#include "SingletonData.hpp"
 
 #include "CgnsCore.h"
 
@@ -10,10 +8,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     SCOPED_TIMER("main");
     SINGLE_DATA.VM = ProcessArguments(argc, argv);
 
-    // CallCmd("ping www.bing.com", true);
+    int cpu = get_core_count(CoreType::Physical);
+    LOG_INFO("PhysicalCore: {}", cpu);
 
-    Test();
+    CallCmd("ping www.bilibili.com", true);
 
     _Logging_::Logger::get_instance().ShutDown();
     return 0;
 }
+
