@@ -183,7 +183,7 @@ void CallCmd(const std::string& command, bool open_log)
         }
 
         std::string line(line_view);
-        if (IsLikelyGBK(line)) {
+        if (IsLikelyGBK(line_view)) {
             line = GBKToUTF8(line);
         }
 
@@ -216,7 +216,7 @@ std::string GetEnv(const std::string& env)
     return buffer;
 }
 
-std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& sub_str)
+std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str)
 {
     auto eq_case_insensitive = [](unsigned char ch1, unsigned char ch2) {
         return std::tolower(ch1) == std::tolower(ch2);

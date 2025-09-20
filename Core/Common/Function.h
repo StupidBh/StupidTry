@@ -21,6 +21,6 @@ void CallCmd(const std::string& command, bool open_log = false);
 
 std::string GetEnv(const std::string& env);
 
-std::size_t FindCaseInsensitive(const std::string& main_str, const std::string& sub_str);
+std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str);
 bool iequals(std::string_view lhs, std::string_view rhs);
 std::string TrimTrailingSpaces(std::string_view sv);
