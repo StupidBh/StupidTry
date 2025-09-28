@@ -1,4 +1,4 @@
-﻿/* ------------------------------------------------------------------------- *
+/* ------------------------------------------------------------------------- *
  * CGNS - CFD General Notation System (http://www.cgns.org)                  *
  * CGNS/MLL - Mid-Level Library header file                                  *
  * ------------------------------------------------------------------------- */
@@ -44,7 +44,7 @@
 
 #define HDF5_NEED_MPI     0
 #define HDF5_NEED_SZIP    0
-#define HDF5_NEED_ZLIB    1
+#define HDF5_NEED_ZLIB    0
 
 #define MPI_INCLUDE_PATH ""
 #define MPI_LIBRARY      ""
@@ -54,6 +54,6 @@
 #define MPI_INC          ""
 #define MPI_LIBS         ""
 
-#include "cgns/cgnstypes.h"
+#include "cgnstypes.h"
 
 #endif
