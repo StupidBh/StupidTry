@@ -187,6 +187,7 @@
     <ClInclude Include="include\CGNSReadFramework.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CgnsCore.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>

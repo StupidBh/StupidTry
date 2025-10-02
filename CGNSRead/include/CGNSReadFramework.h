@@ -12,4 +12,7 @@
     #define CGNS_EXPORT_API __declspec(dllimport)
 #endif
 
-#include "cgns/cgnslib.h"
+#include <string>
+#include <string_view>
+
+#include <filesystem>

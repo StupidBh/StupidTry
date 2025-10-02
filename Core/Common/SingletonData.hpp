@@ -5,7 +5,7 @@
 
 namespace stupid {
     inline static constexpr const char* APP_NAME = "stupid-app";
-    inline static constexpr const char* APP_VERSION = "0.1.1";
+    inline static constexpr const char* APP_VERSION = "0.2.0";
 
     class SingletonData final : public utils::SingletonHolder<SingletonData> {
         SINGLETON_CLASS(SingletonData);
