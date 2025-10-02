@@ -40,8 +40,12 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
         return {};
     }
 
+#ifdef _DEBUG
+    vm.at("DEBUG").value() = true;
+#endif // _DEBUG
+
     std::string workDirectory = vm["workDirectory"].as<std::string>();
-    _Logging_::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
+    dylog::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
 
     return vm;
 }
