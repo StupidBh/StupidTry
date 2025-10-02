@@ -2,48 +2,42 @@
 #include "log_formatter.hpp"
 #include "SingletonHolder.hpp"
 
+#include <string>
+#include <memory>
+#include <shared_mutex>
+
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ranges.h"
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 
-template class LOG_EXPORT_API std::shared_ptr<spdlog::async_logger>;
+namespace dylog {
+    class LOG_EXPORT_API std::shared_mutex;
+    template class LOG_EXPORT_API std::shared_ptr<spdlog::async_logger>;
 
-namespace _Logging_ {
     class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
-        std::shared_ptr<spdlog::async_logger> m_log;
-        mutable std::shared_mutex m_mutex;
+        SINGLETON_CLASS(Logger);
+        std::shared_ptr<spdlog::async_logger> m_log = nullptr;
+        std::shared_mutex m_mutex;
 
         Logger()
         {
+            spdlog::init_thread_pool(32768, 1);
+
 #ifdef _WIN32
             SetConsoleOutputCP(CP_UTF8);
             SetConsoleCP(CP_UTF8);
 #endif
-            spdlog::init_thread_pool(32768, 1);
         }
 
     public:
-        ~Logger() override
+        ~Logger()
         {
-            this->ShutDown();
+#ifndef _DEBUG
             spdlog::shutdown();
-        }
-
-        std::shared_ptr<spdlog::async_logger> log()
-        {
-            {
-                std::shared_lock lock(this->m_mutex);
-                if (this->m_log) {
-                    return this->m_log;
-                }
-            }
-
-            if (!this->m_log) {
-                this->InitLog(".", "default");
-            }
-            return this->m_log;
+            spdlog::drop_all();
+#endif
         }
 
         void InitLog(
@@ -53,7 +47,7 @@ namespace _Logging_ {
         {
             std::unique_lock lock(this->m_mutex);
 
-            static constexpr const char* log_fmt =
+            constexpr const char* log_fmt =
 #ifdef _DEBUG
                 // [年-月-日 时-分-秒-毫秒] [P:进程ID] [T:线程ID] [日志等级] [文件名:行号]
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%L%$] [%s:%#] %v";
@@ -68,12 +62,7 @@ namespace _Logging_ {
                 std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             console_sink->set_pattern(log_fmt);
             log_sinks_list = { console_sink };
-
-#ifdef _DEBUG
-            console_sink->set_level(spdlog::level::debug);
-#else
             console_sink->set_level(verbose ? spdlog::level::debug : spdlog::level::info);
-#endif // _DEBUG
 
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
             try {
@@ -86,12 +75,7 @@ namespace _Logging_ {
                 std::string log_filename = std::format("{}/{}.log", log_dir.string(), log_file_name);
                 file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_filename, 0, 0, false, 30);
                 file_sink->set_pattern(log_fmt);
-
-#ifdef _DEBUG
-                file_sink->set_level(spdlog::level::debug);
-#else
                 file_sink->set_level(verbose ? spdlog::level::debug : spdlog::level::info);
-#endif // _DEBUG
 
                 log_sinks_list = { console_sink, file_sink };
             }
@@ -110,24 +94,30 @@ namespace _Logging_ {
             this->m_log->flush_on(spdlog::level::trace);
             this->m_log->set_error_handler(
                 [](const std::string& msg) { std::cerr << "[*** Logger ERROR ***] " << msg << std::endl; });
+
+            spdlog::set_default_logger(this->m_log);
         }
 
-        void ShutDown()
+        std::shared_ptr<spdlog::async_logger> log()
         {
-            std::unique_lock lock(this->m_mutex);
-            if (this->m_log) {
-                this->m_log->flush();
+            {
+                std::shared_lock lock(this->m_mutex);
+                if (this->m_log) {
+                    return this->m_log;
+                }
             }
+
+            if (!this->m_log) {
+                this->InitLog(".", "default");
+            }
+            return this->m_log;
         }
-
-    private:
-        SINGLETON_CLASS(Logger);
     };
-
-#define LOG Logger::get_instance().log()
 }
 
-#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::info, __VA_ARGS__)
-#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::warn, __VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::debug, __VA_ARGS__)
-#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(_Logging_::LOG, spdlog::level::err, __VA_ARGS__)
+#define LOG dylog::Logger::get_instance().log()
+
+#define LOG_INFO(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::info, __VA_ARGS__)
+#define LOG_WARN(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::warn, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::debug, __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::err, __VA_ARGS__)

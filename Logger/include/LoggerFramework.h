@@ -14,6 +14,3 @@
 
 #include <iostream>
 #include <filesystem>
-#include <shared_mutex>
-
-class LOG_EXPORT_API std::shared_mutex;
