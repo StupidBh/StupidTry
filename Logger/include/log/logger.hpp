@@ -1,16 +1,14 @@
 ﻿#pragma once
+#include "LoggerFramework.h"
 #include "log_formatter.hpp"
-#include "SingletonHolder.hpp"
 
-#include <string>
 #include <memory>
 #include <shared_mutex>
 
+#include "SingletonHolder.hpp"
+
 #include "spdlog/async.h"
-#include "spdlog/spdlog.h"
 #include "spdlog/fmt/ranges.h"
-#include "spdlog/sinks/daily_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace dylog {
     class LOG_EXPORT_API std::shared_mutex;
