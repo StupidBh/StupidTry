@@ -30,11 +30,10 @@ namespace dylog {
         }
 
     public:
-        ~Logger()
+        ~Logger() override
         {
 #ifndef _DEBUG
             spdlog::shutdown();
-            spdlog::drop_all();
 #endif
         }
 
@@ -59,7 +58,7 @@ namespace dylog {
 
             spdlog::sinks_init_list log_sinks_list = { console_sink };
 
-                // 写入外部文件的日志消息
+            // 写入外部文件的日志消息
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
             try {
                 std::filesystem::path log_dir = work_dir / "logs";
