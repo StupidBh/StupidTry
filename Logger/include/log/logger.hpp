@@ -18,7 +18,7 @@ namespace dylog {
 
     class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
         SINGLETON_CLASS(Logger);
-        std::shared_ptr<spdlog::async_logger> m_log = nullptr;
+        std::shared_ptr<spdlog::logger> m_log = nullptr;
         std::shared_mutex m_mutex;
 
         Logger()
@@ -93,7 +93,7 @@ namespace dylog {
             spdlog::set_default_logger(this->m_log);
         }
 
-        std::shared_ptr<spdlog::async_logger> log()
+        std::shared_ptr<spdlog::logger> log()
         {
             {
                 std::shared_lock lock(this->m_mutex);
