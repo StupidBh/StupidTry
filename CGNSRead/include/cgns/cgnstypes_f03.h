@@ -29,46 +29,46 @@
 #ifndef CGNSTYPES_F03_H
 #define CGNSTYPES_F03_H
 
-#define CG_BUILD_PARALLEL_F 0
-#define CG_BUILD_64BIT_F 1
-#define HAVE_FORTRAN_95 0
-#define HAVE_FORTRAN_2003 0
-#define HAVE_FORTRAN_2008TS 0
+#define CG_BUILD_PARALLEL_F      0
+#define CG_BUILD_64BIT_F         1
+#define HAVE_FORTRAN_95          0
+#define HAVE_FORTRAN_2003        0
+#define HAVE_FORTRAN_2008TS      0
 #define HDF5_HAVE_MULTI_DATASETS 1
 
-#define CG_BUILD_HDF5   1
+#define CG_BUILD_HDF5 1
 
-#define CG_BUILD_SCOPE  0
+#define CG_BUILD_SCOPE 0
 
-#define CGNS_BASESCOPE  0
+#define CGNS_BASESCOPE 0
 
 #if CG_BUILD_SCOPE
-# ifndef CGNS_SCOPE_ENUMS
-#  define CGNS_SCOPE_ENUMS
-# endif
+    #ifndef CGNS_SCOPE_ENUMS
+        #define CGNS_SCOPE_ENUMS
+    #endif
 #else
-# ifdef CGNS_SCOPE_ENUMS
-#  undef CGNS_SCOPE_ENUMS
-# endif
+    #ifdef CGNS_SCOPE_ENUMS
+        #undef CGNS_SCOPE_ENUMS
+    #endif
 #endif
 
 #ifdef __GFORTRAN__
-#define PASTE(a) a
-#define CONCATENATE(a,b) PASTE(a)b
+    #define PASTE(a)          a
+    #define CONCATENATE(a, b) PASTE(a) b
 #else
-#define PASTE(a,b) a ## b
-#define CONCATENATE(a,b) PASTE(a,b)
+    #define PASTE(a, b)       a##b
+    #define CONCATENATE(a, b) PASTE(a, b)
 #endif
 
 #ifdef CGNS_SCOPE_ENUMS
 ! set scope prefix (case does not matter in Fortran)
 ! set scope prefix for values only
-#define CGNS_ENUMV(x) CONCATENATE(CG_,x)
+    #define CGNS_ENUMV(x) CONCATENATE(CG_, x)
 ! set scope prefix for types
-#define CGNS_ENUMT(x) CONCATENATE(CG_,x)
+    #define CGNS_ENUMT(x) CONCATENATE(CG_, x)
 #else
-#define CGNS_ENUMV(x) x
-#define CGNS_ENUMT(x) x
+    #define CGNS_ENUMV(x) x
+    #define CGNS_ENUMT(x) x
 #endif
 
 #endif
