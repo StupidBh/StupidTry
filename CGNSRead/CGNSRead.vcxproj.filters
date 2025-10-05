@@ -21,12 +21,18 @@
     <ClInclude Include="include\CgnsCore.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Core\CgnsUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\CgnsCore.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\src\CgnsUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

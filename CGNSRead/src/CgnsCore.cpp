@@ -8,6 +8,8 @@ void cgns::InitLog(std::shared_ptr<spdlog::logger> log)
 
 void cgns::OpenCGNS(const std::string& file_path)
 {
+    LOG_INFO("Open in read only: [{}]", file_path);
+
     int cgns_file_type = -1;
     int status = cg_is_cgns(file_path.c_str(), &cgns_file_type);
     auto FileTypeName = [](int file_type) -> const char* {
@@ -20,27 +22,20 @@ void cgns::OpenCGNS(const std::string& file_path)
         }
     };
     if (status != CG_OK || cgns_file_type == CG_FILE_NONE) {
-        LOG_INFO("The [{}] is a invalid [{}] file, msg: {}", file_path, FileTypeName(cgns_file_type), cg_get_error());
+        LOG_INFO("The file is a invalid [{}] file, msg: {}", FileTypeName(cgns_file_type), cg_get_error());
         return;
     }
 
     int cg_file_id = -1;
-    status = cg_open(file_path.c_str(), CG_MODE_READ, &cg_file_id);
-    if (status != CG_OK) {
-        LOG_INFO("Open [{}] Faild: {}", file_path, cg_get_error());
+    if (CG_INFO(cg_open(file_path.c_str(), CG_MODE_READ, &cg_file_id)) != CG_OK) {
         return;
     }
 
     float cg_file_version = 0.F;
-    cg_version(cg_file_id, &cg_file_version);
+    CG_INFO(cg_version(cg_file_id, &cg_file_version));
 
     int cg_file_precision = 0;
-    cg_precision(cg_file_id, &cg_file_precision);
+    CG_INFO(cg_precision(cg_file_id, &cg_file_precision));
 
-    LOG_INFO(
-        "[{}] {}, v{:.2f}, precision={}",
-        FileTypeName(cgns_file_type),
-        file_path,
-        cg_file_version,
-        cg_file_precision);
+    LOG_INFO("[{}] v{:.2f}, precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
 }
