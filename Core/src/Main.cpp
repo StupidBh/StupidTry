@@ -3,8 +3,6 @@
 
 #include "CgnsCore.h"
 
-#include <thread>
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SINGLE_DATA.VM = ProcessArguments(argc, argv);
@@ -12,13 +10,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         return EXIT_FAILURE;
     }
     SCOPED_TIMER(std::filesystem::path(argv[0]).filename().string());
+
     cgns::InitLog(LOG);
 
-    std::jthread jt(CallCmd, "ping www.bilibili.com", true);
-
-    // std::string cgns_path = "C:\\Sundy\\numeca_result\\CO2_1_Air_adf.cgns";
-    std::string cgns_path = "C:\\Sundy\\numeca_result\\CO2_1_Air_hdf5.cgns";
-    cgns::OpenCGNS(cgns_path);
+    LOG_INFO("STUPID_VER_MAJOR: {}", stupid::STUPID_VER_MAJOR);
+    LOG_WARN("STUPID_VER_MINOR: {}", stupid::STUPID_VER_MINOR);
+    LOG_DEBUG("STUPID_VER_PATCH: {}", stupid::STUPID_VER_PATCH);
+    LOG_ERROR("STUPID_VERSION: {}", stupid::STUPID_VERSION);
 
     return 0;
 }
