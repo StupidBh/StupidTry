@@ -28,5 +28,5 @@ namespace stupid {
 
 #define INPUT_PATH std::filesystem::path(SINGLE_DATA.VM["inputPath"].as<std::string>())
 #define WORK_DIR   std::filesystem::path(SINGLE_DATA.VM["workDirectory"].as<std::string>())
-#define CPU_NUM    SINGLE_DATA.VM["cpuNum"].as<std::uint16_t>()
+#define CPU_NUM    SINGLE_DATA.VM["cpuNum"].as<int>()
 #define IS_DEBUG   SINGLE_DATA.VM["DEBUG"].as<bool>()

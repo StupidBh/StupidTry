@@ -12,7 +12,7 @@ boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
     desc.add_options()("help,h", "Display this help message")                                                 //
         ("inputPath,i", po::value<std::string>(), "Path to the input file")                                   //
         ("workDirectory,w", po::value<std::string>()->required(), "Directory for working (required)")         //
-        ("cpuNum,n", po::value<std::uint16_t>()->default_value(2), "Number of CPU cores to use (default: 2)") //
+        ("cpuNum,n", po::value<int>()->default_value(2), "Number of CPU cores to use (default: 2)")   //
         ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                           //
         ;
 
