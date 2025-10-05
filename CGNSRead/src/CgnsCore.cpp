@@ -1,10 +1,8 @@
 #include "CgnsCore.h"
 
-#include "cgns/cgnslib.h"
-
-void cgns::InitLog(std::shared_ptr<spdlog::async_logger> log)
+void cgns::InitLog(std::shared_ptr<spdlog::logger> log)
 {
-    spdlog::set_default_logger(log);
+    dylog::Logger::get_instance().UpdateLog(log);
 }
 
 void cgns::OpenCGNS(const std::string& file_path)
