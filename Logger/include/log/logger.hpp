@@ -107,6 +107,20 @@ namespace dylog {
             }
             return this->m_log;
         }
+
+        void UpdateLog()
+        {
+            std::unique_lock lock(this->m_mutex);
+            this->m_log = spdlog::default_logger();
+        }
+
+        void UpdateLog(std::shared_ptr<spdlog::logger> log)
+        {
+            spdlog::set_default_logger(log);
+
+            std::unique_lock lock(this->m_mutex);
+            this->m_log = log;
+        }
     };
 }
 
