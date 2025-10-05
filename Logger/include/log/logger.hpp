@@ -55,27 +55,22 @@ namespace dylog {
                 "[%Y-%m-%d %H:%M:%S.%e] [P:%5P] [T:%5t] [%^%L%$] %v";
 #endif
 
-            spdlog::sinks_init_list log_sinks_list;
-
             // 终端回显日志消息
             std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
                 std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            console_sink->set_pattern(log_fmt);
-            log_sinks_list = { console_sink };
-            console_sink->set_level(verbose ? spdlog::level::debug : spdlog::level::info);
 
-            std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink;
-            try {
+            spdlog::sinks_init_list log_sinks_list = { console_sink };
+
                 // 写入外部文件的日志消息
+            std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
+            try {
                 std::filesystem::path log_dir = work_dir / "logs";
                 if (!std::filesystem::exists(log_dir)) {
                     std::filesystem::create_directories(log_dir);
                 }
 
-                std::string log_filename = std::format("{}/{}.log", log_dir.string(), log_file_name);
-                file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_filename, 0, 0, false, 30);
-                file_sink->set_pattern(log_fmt);
-                file_sink->set_level(verbose ? spdlog::level::debug : spdlog::level::info);
+                std::filesystem::path log_path = log_dir / (log_file_name + ".log");
+                file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path.string(), 0, 0, false, 30);
 
                 log_sinks_list = { console_sink, file_sink };
             }
@@ -90,10 +85,10 @@ namespace dylog {
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
             this->m_log->set_pattern(log_fmt);
-            this->m_log->set_level(spdlog::level::trace);
+            this->m_log->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
             this->m_log->flush_on(spdlog::level::trace);
             this->m_log->set_error_handler(
-                [](const std::string& msg) { std::cerr << "[*** Logger ERROR ***] " << msg << std::endl; });
+                [](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
 
             spdlog::set_default_logger(this->m_log);
         }
