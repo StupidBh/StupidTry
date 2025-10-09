@@ -12,7 +12,7 @@
 
 namespace dylog {
     class LOG_EXPORT_API std::shared_mutex;
-    template class LOG_EXPORT_API std::shared_ptr<spdlog::async_logger>;
+    template class LOG_EXPORT_API std::shared_ptr<spdlog::logger>;
 
     class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
         SINGLETON_CLASS(Logger);
@@ -32,9 +32,7 @@ namespace dylog {
     public:
         ~Logger() override
         {
-#ifndef _DEBUG
             spdlog::shutdown();
-#endif
         }
 
         void InitLog(
