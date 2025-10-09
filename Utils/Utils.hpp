@@ -18,7 +18,6 @@ namespace _contatiner_ {
 }
 
 namespace utils {
-
     template<class ValueType>
     concept VectorType = _contatiner_::is_std_vector_v<ValueType>;
 
@@ -82,7 +81,7 @@ namespace utils {
         }
         else {
             for (std::size_t i = 0; i < count; ++i) {
-                target.emplace_back(std::move(value));
+                target.emplace_back(value);
             }
         }
     }
@@ -102,10 +101,11 @@ namespace utils {
         return result;
     }
 
-    template<VectorType ValueType>
-    void ClearVector(ValueType& vec)
+    template<class _Ty>
+    requires std::default_initializable<_Ty> && std::movable<_Ty>
+    constexpr void DeepClear(_Ty& vec)
     {
-        vec = ValueType();
+        vec = _Ty();
     }
 }
 
