@@ -30,10 +30,7 @@ namespace dylog {
         }
 
     public:
-        ~Logger() override
-        {
-            spdlog::shutdown();
-        }
+        ~Logger() override { spdlog::shutdown(); }
 
         void InitLog(
             const std::filesystem::path& work_dir,
@@ -75,7 +72,7 @@ namespace dylog {
 
             // 创建异步记录器
             this->m_log = std::make_shared<spdlog::async_logger>(
-                "stupid-log",
+                log_file_name,
                 log_sinks_list,
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
