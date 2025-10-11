@@ -18,12 +18,11 @@ namespace _contatiner_ {
 }
 
 namespace utils {
-
     template<class ValueType>
     concept VectorType = _contatiner_::is_std_vector_v<ValueType>;
 
     template<std::floating_point _Ty>
-    constexpr bool almost_equal(_Ty a, _Ty b)
+    constexpr bool almost_equal(_Ty lhs, _Ty rhs)
     {
         constexpr auto get_tolerance = []() -> std::pair<_Ty, _Ty> {
             if constexpr (std::same_as<_Ty, float>) {
@@ -38,8 +37,8 @@ namespace utils {
         };
         const auto [rel_tol, abs_tol] = get_tolerance();
 
-        const _Ty diff = std::fabs(a - b);
-        const _Ty scale = std::max(std::fabs(a), std::fabs(b));
+        const _Ty diff = std::fabs(lhs - rhs);
+        const _Ty scale = std::max(std::fabs(lhs), std::fabs(rhs));
 
         return diff <= std::max(rel_tol * scale, abs_tol);
     }
@@ -82,7 +81,7 @@ namespace utils {
         }
         else {
             for (std::size_t i = 0; i < count; ++i) {
-                target.emplace_back(std::move(value));
+                target.emplace_back(value);
             }
         }
     }
@@ -103,7 +102,7 @@ namespace utils {
     }
 
     template<VectorType ValueType>
-    void ClearVector(ValueType& vec)
+    constexpr void ClearVector(ValueType& vec)
     {
         vec = ValueType();
     }
