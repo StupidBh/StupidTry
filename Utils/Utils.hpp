@@ -101,10 +101,11 @@ namespace utils {
         return result;
     }
 
-    template<VectorType ValueType>
-    constexpr void ClearVector(ValueType& vec)
+    template<class _Ty>
+    requires std::default_initializable<_Ty> && std::movable<_Ty>
+    constexpr void DeepClear(_Ty& vec)
     {
-        vec = ValueType();
+        vec = _Ty();
     }
 }
 

@@ -1,4 +1,4 @@
-#include "CgnsCore.h"
+﻿#include "CgnsCore.h"
 #include "CgnsUtils.h"
 
 void cgns::InitLog(std::shared_ptr<spdlog::logger> log)
