@@ -16,12 +16,11 @@ namespace dylog {
 
     class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
         SINGLETON_CLASS(Logger);
-        std::shared_ptr<spdlog::logger> m_log = nullptr;
         std::shared_mutex m_mutex;
 
         Logger()
         {
-            spdlog::init_thread_pool(32768, 1);
+            spdlog::init_thread_pool(32768, 2);
 
 #ifdef _WIN32
             SetConsoleOutputCP(CP_UTF8);
@@ -30,7 +29,7 @@ namespace dylog {
         }
 
     public:
-        ~Logger() override { spdlog::shutdown(); }
+        ~Logger() override = default;
 
         void InitLog(const std::filesystem::path& work_dir, const std::string& log_file_name, bool verbose = false)
         {
@@ -68,52 +67,25 @@ namespace dylog {
             }
 
             // 创建异步记录器
-            this->m_log = std::make_shared<spdlog::async_logger>(
+            auto my_logger = std::make_shared<spdlog::async_logger>(
                 log_file_name,
                 log_sinks_list,
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
-            this->m_log->set_pattern(log_fmt);
-            this->m_log->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
-            this->m_log->flush_on(spdlog::level::trace);
-            this->m_log->set_error_handler(
+            my_logger->set_pattern(log_fmt);
+            my_logger->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
+            my_logger->flush_on(spdlog::level::trace);
+            my_logger->set_error_handler(
                 [](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
 
-            spdlog::set_default_logger(this->m_log);
+            spdlog::set_default_logger(my_logger);
         }
 
-        std::shared_ptr<spdlog::logger> log()
-        {
-            {
-                std::shared_lock lock(this->m_mutex);
-                if (this->m_log) {
-                    return this->m_log;
-                }
-            }
-
-            if (!this->m_log) {
-                this->InitLog(".", "default");
-            }
-            return this->m_log;
-        }
-
-        void UpdateLog()
-        {
-            std::unique_lock lock(this->m_mutex);
-            this->m_log = spdlog::default_logger();
-        }
-
-        void UpdateLog(std::shared_ptr<spdlog::logger> log)
-        {
-            spdlog::set_default_logger(log);
-
-            std::unique_lock lock(this->m_mutex);
-            this->m_log = log;
-        }
+        void UpdateLog(std::shared_ptr<spdlog::logger> log) { spdlog::set_default_logger(log); }
     };
 }
 
-#define LOG dylog::Logger::get_instance().log()
+#define LOG spdlog::default_logger()
 
 #define LOG_INFO(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::info, __VA_ARGS__)
 #define LOG_WARN(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::warn, __VA_ARGS__)
