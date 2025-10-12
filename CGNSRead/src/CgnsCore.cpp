@@ -21,13 +21,14 @@ void cgns::OpenCGNS(const std::string& file_path)
         default          : return "ERROR_FILE";
         }
     };
-    if (status != CG_OK || cgns_file_type == CG_FILE_NONE) {
-        LOG_INFO("The file is a invalid [{}] file, msg: {}", FileTypeName(cgns_file_type), cg_get_error());
-        return;
-    }
+     if (status != CG_OK || cgns_file_type == CG_FILE_NONE) {
+         LOG_INFO("The file is a invalid [{}] file, msg: {}", FileTypeName(cgns_file_type), cg_get_error());
+         return;
+     }
 
     int cg_file_id = -1;
     if (CG_INFO(cg_open(file_path.c_str(), CG_MODE_READ, &cg_file_id)) != CG_OK) {
+        LOG_ERROR("Open [{}] failed: {}", file_path, cg_file_id);
         return;
     }
 
@@ -37,5 +38,12 @@ void cgns::OpenCGNS(const std::string& file_path)
     int cg_file_precision = 0;
     CG_INFO(cg_precision(cg_file_id, &cg_file_precision));
 
-    LOG_INFO("[{}] v{:.2f}, precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
+    LOG_INFO(
+        "{}:[{}] v{:.2f}, precision={}",
+        cg_file_id,
+        FileTypeName(cgns_file_type),
+        cg_file_version,
+        cg_file_precision);
+
+    CG_INFO(cg_close(cg_file_id));
 }
