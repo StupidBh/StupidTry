@@ -22,7 +22,7 @@ namespace utils {
     concept VectorType = _contatiner_::is_std_vector_v<ValueType>;
 
     template<std::floating_point _Ty>
-    constexpr bool almost_equal(_Ty lhs, _Ty rhs)
+    constexpr bool almost_equal(_Ty lhs, _Ty rhs) noexcept
     {
         constexpr auto get_tolerance = []() -> std::pair<_Ty, _Ty> {
             if constexpr (std::same_as<_Ty, float>) {
@@ -43,13 +43,13 @@ namespace utils {
         return diff <= std::max(rel_tol * scale, abs_tol);
     }
 
-    template<class TgargetType, class OriginalType>
-    constexpr std::vector<TgargetType> ShrinkVector(const std::vector<OriginalType>& data)
+    template<class TgargetType, VectorType OriginalType>
+    constexpr std::vector<TgargetType> ShrinkVector(const OriginalType& source)
     {
         std::vector<TgargetType> result;
-        result.reserve(data.size());
-        for (const auto& item : data) {
-            result.emplace_back(SafeCast<TgargetType, OriginalType>(item));
+        result.reserve(source.size());
+        for (const auto& value : source) {
+            result.emplace_back(static_cast<TgargetType>(value));
         }
         return result;
     }
@@ -103,7 +103,7 @@ namespace utils {
 
     template<class _Ty>
     requires std::default_initializable<_Ty> && std::movable<_Ty>
-    constexpr void DeepClear(_Ty& vec)
+    constexpr void DeepClear(_Ty& vec) noexcept
     {
         vec = _Ty();
     }
