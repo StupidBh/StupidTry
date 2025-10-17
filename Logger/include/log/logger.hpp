@@ -2,7 +2,6 @@
 #include "LoggerFramework.h"
 #include "log_formatter.hpp"
 
-#include <memory>
 #include <shared_mutex>
 
 #include "SingletonHolder.hpp"
@@ -12,7 +11,6 @@
 
 namespace dylog {
     class LOG_EXPORT_API std::shared_mutex;
-    template class LOG_EXPORT_API std::shared_ptr<spdlog::logger>;
 
     class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
         SINGLETON_CLASS(Logger);
@@ -63,25 +61,29 @@ namespace dylog {
                 log_sinks_list = { console_sink, file_sink };
             }
             catch (...) {
-                std::cerr << "The log file creation failed. Roll back to the terminal!" << std::endl;
+                std::cerr << "The log file creation failed. Roll back to the terminal!\n";
             }
 
             // 创建异步记录器
-            auto my_logger = std::make_shared<spdlog::async_logger>(
+            auto async_logger = std::make_shared<spdlog::async_logger>(
                 log_file_name,
                 log_sinks_list,
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
-            my_logger->set_pattern(log_fmt);
-            my_logger->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
-            my_logger->flush_on(spdlog::level::trace);
-            my_logger->set_error_handler(
+            async_logger->set_pattern(log_fmt);
+            async_logger->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
+            async_logger->flush_on(spdlog::level::trace);
+            async_logger->set_error_handler(
                 [](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
 
-            spdlog::set_default_logger(my_logger);
+            spdlog::set_default_logger(async_logger);
         }
 
-        void UpdateLog(std::shared_ptr<spdlog::logger> log) { spdlog::set_default_logger(log); }
+        void UpdateLog(std::shared_ptr<spdlog::logger> log)
+        {
+            std::unique_lock lock(this->m_mutex);
+            spdlog::set_default_logger(log);
+        }
     };
 }
 
