@@ -3,6 +3,27 @@
 
 #include "CgnsCore.h"
 
+#include "highfive/highfive.hpp"
+
+template<utils::VectorType ValueType, class _Ty>
+HighFive::DataSet WriteDataSet(const std::string& name, ValueType&& data, _Ty&& loc)
+{
+    using namespace HighFive;
+
+    using RawVectorType = std::remove_cvref_t<ValueType>;
+    using TrueValueType = typename RawVectorType::value_type;
+
+    DataSet data_set = loc.createDataSet<TrueValueType>(name, DataSpace::From(data));
+    data_set.write(std::forward<ValueType>(data));
+    return data_set;
+}
+
+template<utils::VectorType ValueType, class _Ty>
+HighFive::DataSet WriteDataSet(ValueType&& data, _Ty&& loc)
+{
+    return WriteDataSet<ValueType, _Ty>("Test", std::forward<ValueType>(data), std::forward<_Ty>(loc));
+}
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SINGLE_DATA.VM = ProcessArguments(argc, argv);
