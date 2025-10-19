@@ -5,11 +5,11 @@
 #include "system_info.h"
 
 #include "log/logger.hpp"
-#include "boost/program_options.hpp"
 
 #define SCOPED_TIMER(out_msg) decltype(auto) CONCAT(timer_, __COUNTER__) = utils::ScopedTimer(std::string_view(out_msg))
-
-boost::program_options::variables_map ProcessArguments(int argc, char* argv[]);
+#define SCOPED_TIMER_LOG(out_msg)                \
+    decltype(auto) CONCAT(timer_, __COUNTER__) = \
+        utils::ScopedTimer(std::string_view(out_msg), [](std::string_view msg) { LOG_INFO(msg); })
 
 bool IsLikelyGBK(std::string_view str);
 std::string GBKToUTF8(const std::string& gbk_str);
