@@ -2,54 +2,6 @@
 
 #include <ranges>
 
-#include "SingletonData.hpp"
-
-boost::program_options::variables_map ProcessArguments(int argc, char* argv[])
-{
-    namespace po = boost::program_options;
-
-    po::options_description desc("Usage: [options]", 150, 10);
-    desc.add_options()("help,h", "Display this help message")                                         //
-        ("inputPath,i", po::value<std::string>(), "Path to the input file")                           //
-        ("workDirectory,w", po::value<std::string>()->required(), "Directory for working (required)") //
-        ("cpuNum,n", po::value<int>()->default_value(2), "Number of CPU cores to use (default: 2)")   //
-        ("DEBUG", po::bool_switch()->default_value(false), "Enable verbose output")                   //
-        ;
-
-    std::ostringstream oss;
-    oss << desc;
-
-    po::variables_map vm;
-    try {
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.contains("help")) {
-            std::cerr << oss.str() << std::endl;
-            return {};
-        }
-
-        po::notify(vm);
-    }
-    catch (const po::error& e) {
-        std::cerr << "Parameter error: " << e.what() << std::endl;
-        std::cerr << oss.str() << std::endl;
-        return {};
-    }
-    catch (...) {
-        std::cerr << "Unknown error in ProcessArguments." << std::endl;
-        std::cerr << oss.str() << std::endl;
-        return {};
-    }
-
-#ifdef _DEBUG
-    vm.at("DEBUG").value() = true;
-#endif // _DEBUG
-
-    std::string workDirectory = vm["workDirectory"].as<std::string>();
-    dylog::Logger::get_instance().InitLog(workDirectory, stupid::APP_NAME, vm["DEBUG"].as<bool>());
-
-    return vm;
-}
-
 bool IsLikelyGBK(std::string_view str)
 {
     for (std::string_view::size_type i = 0; i < str.length(); ++i) {

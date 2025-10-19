@@ -20,13 +20,18 @@ namespace stupid {
         SingletonData() = default;
 
     public:
-        boost::program_options::variables_map VM;
+        void ProcessArguments(int argc, char* argv[]);
+        const boost::program_options::variables_map& get_variables_map() const noexcept;
+
+    private:
+        boost::program_options::variables_map m_vm;
     };
 }
 
-#define SINGLE_DATA stupid::SingletonData::get_instance()
+#define SINGLE_DATA    stupid::SingletonData::get_instance()
+#define SINGLE_DATA_VM stupid::SingletonData::get_instance().get_variables_map()
 
-#define INPUT_PATH std::filesystem::path(SINGLE_DATA.VM["inputPath"].as<std::string>())
-#define WORK_DIR   std::filesystem::path(SINGLE_DATA.VM["workDirectory"].as<std::string>())
-#define CPU_NUM    SINGLE_DATA.VM["cpuNum"].as<int>()
-#define IS_DEBUG   SINGLE_DATA.VM["DEBUG"].as<bool>()
+#define INPUT_PATH std::filesystem::path(SINGLE_DATA_VM["inputPath"].as<std::string>())
+#define WORK_DIR   std::filesystem::path(SINGLE_DATA_VM["workDirectory"].as<std::string>())
+#define CPU_NUM    SINGLE_DATA_VM["cpuNum"].as<int>()
+#define IS_DEBUG   SINGLE_DATA_VM["DEBUG"].as<bool>()

@@ -1,5 +1,5 @@
 ﻿#include "Function.h"
-#include "SingletonData.hpp"
+#include "SingletonData.h"
 
 #include "CgnsCore.h"
 
@@ -26,13 +26,29 @@ HighFive::DataSet WriteDataSet(ValueType&& data, _Ty&& loc)
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    SINGLE_DATA.VM = ProcessArguments(argc, argv);
-    if (SINGLE_DATA.VM.empty()) {
+    SINGLE_DATA.ProcessArguments(argc, argv);
+    if (SINGLE_DATA_VM.empty()) {
         return EXIT_FAILURE;
     }
     SCOPED_TIMER(std::filesystem::path(argv[0]).filename().string());
 
-    cgns::InitLog(LOG);
+    for (auto& [key, value] : SINGLE_DATA_VM) {
+        if (value.empty()) {
+            LOG_WARN("Param: {} = <empty>", key);
+        }
+        else if (value.value().type() == typeid(std::string)) {
+            LOG_INFO("Param: {} = {}", key, value.as<std::string>());
+        }
+        else if (value.value().type() == typeid(int)) {
+            LOG_INFO("Param: {} = {}", key, value.as<int>());
+        }
+        else if (value.value().type() == typeid(bool)) {
+            LOG_INFO("Param: {} = {}", key, value.as<bool>());
+        }
+        else {
+            LOG_WARN("Param: {} = <unhandled type>", key);
+        }
+    }
 
     LOG_INFO("STUPID_VER_MAJOR: {}", stupid::STUPID_VER_MAJOR);
     LOG_WARN("STUPID_VER_MINOR: {}", stupid::STUPID_VER_MINOR);
