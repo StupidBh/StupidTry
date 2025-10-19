@@ -14,7 +14,6 @@ void cgns::OpenCGNS(const std::string& file_path)
     int status = cg_is_cgns(file_path.c_str(), &cgns_file_type);
     auto FileTypeName = [](int file_type) -> const char* {
         switch (file_type) {
-        // case CG_FILE_NONE: return "ERROR_FILE";
         case CG_FILE_ADF : return "ADF";
         case CG_FILE_ADF2: return "ADF2";
         case CG_FILE_HDF5: return "HDF5";

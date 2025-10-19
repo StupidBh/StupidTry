@@ -7,10 +7,11 @@
     <ClCompile Include="Utils\src\ProgressManager.cpp" />
     <ClCompile Include="Utils\src\woolang.cpp" />
     <ClCompile Include="Utils\src\MioReader.cpp" />
+    <ClCompile Include="Common\src\SingletonData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
-    <ClInclude Include="Common\SingletonData.hpp" />
+    <ClInclude Include="Common\SingletonData.h" />
     <ClInclude Include="Common\system_info.h" />
     <ClInclude Include="Utils\ProgressManager.h" />
     <ClInclude Include="Utils\MioReader.h" />
