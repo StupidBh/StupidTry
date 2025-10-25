@@ -8,12 +8,10 @@
 template<utils::VectorType ValueType, class _Ty>
 HighFive::DataSet WriteDataSet(const std::string& name, ValueType&& data, _Ty&& loc)
 {
-    using namespace HighFive;
-
     using RawVectorType = std::remove_cvref_t<ValueType>;
     using TrueValueType = typename RawVectorType::value_type;
 
-    DataSet data_set = loc.createDataSet<TrueValueType>(name, DataSpace::From(data));
+    HighFive::DataSet data_set = loc.createDataSet<TrueValueType>(name, HighFive::DataSpace::From(data));
     data_set.write(std::forward<ValueType>(data));
     return data_set;
 }
