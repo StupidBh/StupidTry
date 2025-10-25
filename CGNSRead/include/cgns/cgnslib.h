@@ -1,4 +1,4 @@
-/* ------------------------------------------------------------------------- *
+﻿/* ------------------------------------------------------------------------- *
  * CGNS - CFD General Notation System (http://www.cgns.org)                  *
  * CGNS/MLL - Mid-Level Library header file                                  *
  * Please see cgnsconfig.h file for this local installation configuration    *
