@@ -85,7 +85,7 @@ void CallCmd(const std::string& command, bool open_log)
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
     if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
-        std::cerr << "CreatePipe failed.\n";
+        LOG_ERROR("CreatePipe failed: {}",GetLastError());
         return;
     }
     UniqueHandle hReadPipe(readPipeRaw);
