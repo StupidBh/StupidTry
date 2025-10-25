@@ -1,4 +1,4 @@
-#include "SingletonData.h"
+﻿#include "SingletonData.h"
 
 #include <iostream>
 
@@ -23,6 +23,7 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), this->m_vm);
         if (this->m_vm.contains("help")) {
             std::cerr << oss.str() << std::endl;
+            return;
         }
 
         po::notify(this->m_vm);
@@ -30,10 +31,12 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
     catch (const po::error& e) {
         std::cerr << "Parameter error: " << e.what() << std::endl;
         std::cerr << oss.str() << std::endl;
+        return;
     }
     catch (...) {
         std::cerr << "Unknown error in ProcessArguments." << std::endl;
         std::cerr << oss.str() << std::endl;
+        return;
     }
 
 #ifdef _DEBUG
