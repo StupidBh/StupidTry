@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
  *
  *  Distributed under the Boost Software License, Version 1.0.
@@ -19,121 +19,118 @@
 
 namespace HighFive {
 
-///
-/// \brief Enum of the types of objects (H5O api)
-///
-enum class ObjectType {
-    File,
-    Group,
-    UserDataType,
-    DataSpace,
-    Dataset,
-    Attribute,
-    Other  // Internal/custom object type
-};
-
-
-class Object {
-  public:
-    // move constructor, reuse hid
-    Object(Object&& other) noexcept;
-
     ///
-    /// \brief isValid
-    /// \return true if current Object is a valid HDF5Object
+    /// \brief Enum of the types of objects (H5O api)
     ///
-    bool isValid() const noexcept;
+    enum class ObjectType
+    {
+        File,
+        Group,
+        UserDataType,
+        DataSpace,
+        Dataset,
+        Attribute,
+        Other // Internal/custom object type
+    };
 
-    ///
-    /// \brief getId
-    /// \return internal HDF5 id to the object
-    ///  provided for C API compatibility
-    ///
-    hid_t getId() const noexcept;
+    class Object {
+    public:
+        // move constructor, reuse hid
+        Object(Object&& other) noexcept;
 
-    ///
-    /// \brief Retrieve several infos about the current object (address, dates, etc)
-    ///
-    ObjectInfo getInfo() const;
+        ///
+        /// \brief isValid
+        /// \return true if current Object is a valid HDF5Object
+        ///
+        bool isValid() const noexcept;
 
-    ///
-    /// \brief Address of an HDF5 object in the file.
-    ///
-    /// Not all HDF5 files support addresses anymore. The more recent concept
-    /// is a VOL token.
-    ///
-    /// \since 3.0.0
-    ///
-    haddr_t getAddress() const;
+        ///
+        /// \brief getId
+        /// \return internal HDF5 id to the object
+        ///  provided for C API compatibility
+        ///
+        hid_t getId() const noexcept;
 
-    ///
-    /// \brief Gets the fundamental type of the object (dataset, group, etc)
-    /// \exception ObjectException when the _hid is negative or the type
-    ///     is custom and not registered yet
-    ///
-    ObjectType getType() const;
+        ///
+        /// \brief Retrieve several infos about the current object (address, dates, etc)
+        ///
+        ObjectInfo getInfo() const;
 
-    // Check if refer to same object
-    bool operator==(const Object& other) const noexcept {
-        return _hid == other._hid;
-    }
+        ///
+        /// \brief Address of an HDF5 object in the file.
+        ///
+        /// Not all HDF5 files support addresses anymore. The more recent concept
+        /// is a VOL token.
+        ///
+        /// \since 3.0.0
+        ///
+        haddr_t getAddress() const;
 
-  protected:
-    // empty constructor
-    Object();
+        ///
+        /// \brief Gets the fundamental type of the object (dataset, group, etc)
+        /// \exception ObjectException when the _hid is negative or the type
+        ///     is custom and not registered yet
+        ///
+        ObjectType getType() const;
 
-    // copy constructor, increase reference counter
-    Object(const Object& other);
+        // Check if refer to same object
+        bool operator==(const Object& other) const noexcept { return _hid == other._hid; }
 
-    // Init with an low-level object id
-    explicit Object(hid_t) noexcept;
+    protected:
+        // empty constructor
+        Object();
 
-    // decrease reference counter
-    ~Object();
+        // copy constructor, increase reference counter
+        Object(const Object& other);
 
-    // Copy-Assignment operator
-    Object& operator=(const Object& other);
-    Object& operator=(Object&& other);
+        // Init with an low-level object id
+        explicit Object(hid_t) noexcept;
 
-    hid_t _hid;
+        // decrease reference counter
+        ~Object();
 
-  private:
-    friend class Reference;
-    friend class CompoundType;
+        // Copy-Assignment operator
+        Object& operator=(const Object& other);
+        Object& operator=(Object&& other);
+
+        hid_t _hid;
+
+    private:
+        friend class Reference;
+        friend class CompoundType;
 
 #if HIGHFIVE_HAS_FRIEND_DECLARATIONS
-    template <typename Derivate>
-    friend class NodeTraits;
-    template <typename Derivate>
-    friend class AnnotateTraits;
-    template <typename Derivate>
-    friend class PathTraits;
+        template<typename Derivate>
+        friend class NodeTraits;
+        template<typename Derivate>
+        friend class AnnotateTraits;
+        template<typename Derivate>
+        friend class PathTraits;
 #endif
-};
+    };
 
+    ///
+    /// \brief A class for accessing hdf5 objects info
+    ///
+    class ObjectInfo {
+    public:
+        ObjectInfo(const Object& obj);
 
-///
-/// \brief A class for accessing hdf5 objects info
-///
-class ObjectInfo {
-  public:
-    ObjectInfo(const Object& obj);
+        /// \brief Retrieve the number of references to this object
+        size_t getRefCount() const noexcept;
 
-    /// \brief Retrieve the number of references to this object
-    size_t getRefCount() const noexcept;
+        /// \brief Retrieve the object's creation time
+        time_t getCreationTime() const noexcept;
 
-    /// \brief Retrieve the object's creation time
-    time_t getCreationTime() const noexcept;
+        /// \brief Retrieve the object's last modification time
+        time_t getModificationTime() const noexcept;
 
-    /// \brief Retrieve the object's last modification time
-    time_t getModificationTime() const noexcept;
+    private:
+        detail::h5o_info1_t raw_info;
 
-  private:
-    detail::h5o_info1_t raw_info;
+        friend class Object;
+    };
 
-    friend class Object;
-};
-
-}  // namespace HighFive
+} // namespace HighFive
 
 #include "bits/H5Object_misc.hpp"
