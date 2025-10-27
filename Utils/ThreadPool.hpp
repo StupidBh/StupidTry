@@ -116,6 +116,7 @@ namespace utils {
          */
         void shutdown()
         {
+            this->wait_for_completion();
             {
                 std::scoped_lock lock(m_mutex);
                 if (m_stopped) {
@@ -124,7 +125,7 @@ namespace utils {
                 m_stopped = true;
             }
             m_task_cv.notify_all();
-            m_workers.clear(); // jthread 自动 join
+            m_workers.clear();
         }
 
         /**
@@ -139,7 +140,6 @@ namespace utils {
                 }
                 m_stopped = true;
 
-                // 清空任务队列
                 std::queue<std::function<void()>> empty;
                 std::swap(m_tasks, empty);
                 m_unfinished_tasks = 0;
