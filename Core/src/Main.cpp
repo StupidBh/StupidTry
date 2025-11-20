@@ -3,6 +3,15 @@
 
 #include "CgnsCore.h"
 
+#include <unordered_set>
+#include <ranges>
+#include <algorithm>
+#include <string>
+#include <fstream>
+
+#include <codecvt>
+#include <locale>
+
 #include "highfive/highfive.hpp"
 
 template<utils::VectorType ValueType, class _Ty>
@@ -28,7 +37,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     if (SINGLE_DATA_VM.empty()) {
         return EXIT_FAILURE;
     }
-    SCOPED_TIMER(std::filesystem::path(argv[0]).filename().string());
+    cgns::InitLog(LOG);
 
     for (auto& [key, value] : SINGLE_DATA_VM) {
         if (value.empty()) {
@@ -48,10 +57,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         }
     }
 
-    LOG_INFO("STUPID_VER_MAJOR: {}", stupid::STUPID_VER_MAJOR);
-    LOG_WARN("STUPID_VER_MINOR: {}", stupid::STUPID_VER_MINOR);
-    LOG_DEBUG("STUPID_VER_PATCH: {}", stupid::STUPID_VER_PATCH);
-    LOG_ERROR("STUPID_VERSION: {}", stupid::STUPID_VERSION);
-
+    spdlog::shutdown();
     return 0;
 }
