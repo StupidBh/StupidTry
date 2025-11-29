@@ -31,7 +31,7 @@ namespace stupid {
 #define SINGLE_DATA    stupid::SingletonData::get_instance()
 #define SINGLE_DATA_VM stupid::SingletonData::get_instance().get_variables_map()
 
-#define INPUT_PATH std::filesystem::path(SINGLE_DATA_VM["inputPath"].as<std::string>())
-#define WORK_DIR   std::filesystem::path(SINGLE_DATA_VM["workDirectory"].as<std::string>())
+#define INPUT_PATH SINGLE_DATA_VM["inputPath"].as<std::string>()
+#define WORK_DIR   SINGLE_DATA_VM["workDirectory"].as<std::string>()
 #define CPU_NUM    SINGLE_DATA_VM["cpuNum"].as<int>()
 #define IS_DEBUG   SINGLE_DATA_VM["DEBUG"].as<bool>()
