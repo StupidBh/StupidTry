@@ -182,7 +182,7 @@ bool IEquals(std::string_view lhs, std::string_view rhs)
     }
 
     return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) {
-        return std::tolower(c1) == std::tolower(c2);
+        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2)); 
     });
 }
 
