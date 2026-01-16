@@ -15,7 +15,7 @@ bool IsLikelyGBK(std::string_view str);
 std::string GBKToUTF8(const std::string& gbk_str);
 std::string_view TrimNewline(std::string_view sv);
 
-void CallCmd(const std::string& command, bool open_log = false);
+void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = nullptr);
 
 std::string GetEnv(const std::string& env);
 

@@ -61,7 +61,7 @@ std::string_view TrimNewline(std::string_view sv)
     return sv;
 }
 
-void CallCmd(const std::string& command, bool open_log)
+void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
     // RAII 管理 HANDLE
     struct HandleCloser
@@ -96,25 +96,24 @@ void CallCmd(const std::string& command, bool open_log)
 
     // 设置启动信息，重定向输出
     PROCESS_INFORMATION pi = {};
-    STARTUPINFOA si = {};
-    si.cb = sizeof(STARTUPINFOA);
-    si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdInput = nullptr;
-    si.hStdOutput = hWritePipe.get();
-    si.hStdError = hWritePipe.get();
+    STARTUPINFOW si { .cb = sizeof(STARTUPINFOW),
+                      .dwFlags = STARTF_USESTDHANDLES,
+                      .hStdOutput = hWritePipe.get(),
+                      .hStdError = hWritePipe.get() };
 
     // 创建子进程
-    if (!CreateProcessA(
-            nullptr,                            // 不指定应用程序名，直接从命令行解析
-            const_cast<char*>(command.c_str()), // 命令行参数（必须可修改）
+    std::wstring cmd(command.begin(), command.end());
+    if (!CreateProcessW(
+            nullptr,          // 不指定应用程序名，直接从命令行解析
+            cmd.data(),       // 命令行参数（必须可修改）
             nullptr,
-            nullptr,                            // 安全属性
-            TRUE,                               // 继承句柄
-            CREATE_NO_WINDOW,                   // 不显示窗口
-            nullptr,                            // 使用父进程的环境变量
-            nullptr,                            // 使用父进程的工作目录
-            &si,                                // 指向 STARTUPINFO 结构体的指针
-            &pi                                 // 指向 PROCESS_INFORMATION 结构体的指针
+            nullptr,          // 安全属性
+            TRUE,             // 继承句柄
+            CREATE_NO_WINDOW, // 不显示窗口
+            nullptr,          // 使用父进程的环境变量
+            nullptr,          // 使用父进程的工作目录
+            &si,              // 指向 STARTUPINFO 结构体的指针
+            &pi               // 指向 PROCESS_INFORMATION 结构体的指针
             )) {
         LOG_ERROR("CreateProcess failed: {}", GetLastError());
         LOG_ERROR("Command Line: [{}]", command);
@@ -131,23 +130,21 @@ void CallCmd(const std::string& command, bool open_log)
     while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
 
-        std::string_view line_view(buffer, bytesRead);
-        line_view = TrimNewline(line_view);
-        if (std::find_if_not(line_view.begin(), line_view.end(), [](unsigned char c) { return std::isspace(c); }) ==
-            line_view.end()) {
+        std::string_view line_view(TrimSpaces(buffer));
+        if (line_view.empty()) {
             continue;
         }
 
-        std::string line(line_view);
-        if (IsLikelyGBK(line_view)) {
-            line = GBKToUTF8(line);
+        if (callback != nullptr) {
+            if (callback(std::string(line_view))) {
+                if (hProcess.get() != nullptr) {
+                    TerminateProcess(hProcess.get(), 0);
+                }
+                break;
         }
-
-        if (open_log) {
-            LOG_INFO(line);
         }
         else {
-            std::cerr << line << std::endl;
+            std::cerr << line_view;
         }
     }
 
