@@ -179,7 +179,7 @@ std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_
     return it.empty() ? std::string::npos : static_cast<std::size_t>(std::distance(main_str.begin(), it.begin()));
 }
 
-bool iequals(std::string_view lhs, std::string_view rhs)
+bool IEquals(std::string_view lhs, std::string_view rhs)
 {
     if (lhs.size() != rhs.size()) {
         return false;

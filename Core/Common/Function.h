@@ -20,5 +20,5 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 std::string GetEnv(const std::string& env);
 
 std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str);
-bool iequals(std::string_view lhs, std::string_view rhs);
+bool IEquals(std::string_view lhs, std::string_view rhs);
 std::string TrimTrailingSpaces(std::string_view sv);
