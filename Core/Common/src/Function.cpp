@@ -4,27 +4,30 @@
 
 bool IsLikelyGBK(std::string_view str)
 {
-    for (std::string_view::size_type i = 0; i < str.length(); ++i) {
+    bool hasHighBit = false;
+    for (std::size_t i = 0; i < str.length(); ++i) {
         unsigned char c1 = static_cast<unsigned char>(str[i]);
-        if (c1 <= 0x7F) { // ASCII
+        if (c1 <= 0x7F) {
             continue;
         }
-        else if (c1 >= 0x81 && c1 <= 0xFE) {
+
+        hasHighBit = true;
+        if (c1 >= 0x81 && c1 <= 0xFE) {
             if (i + 1 >= str.length()) {
-                return false; // 不完整的双字节字符
+                return false; // 截断
             }
 
             unsigned char c2 = static_cast<unsigned char>(str[i + 1]);
             if (c2 < 0x40 || c2 > 0xFE || c2 == 0x7F) {
                 return false;
             }
-            ++i; // GBK 双字节字符
+            ++i;
         }
         else {
-            return false;
+            return false; // 出现非法字节
         }
     }
-    return true;
+    return hasHighBit;
 }
 
 std::string GBKToUTF8(const std::string& gbk_str)
