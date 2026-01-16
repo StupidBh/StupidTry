@@ -68,10 +68,9 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     using UniqueHandle = std::unique_ptr<void, HandleCloser>;
 
     // 安全属性结构，用于允许管道句柄继承
-    SECURITY_ATTRIBUTES sa = {};
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = nullptr;
+    SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES),
+                               .lpSecurityDescriptor = nullptr,
+                               .bInheritHandle = TRUE };
 
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
