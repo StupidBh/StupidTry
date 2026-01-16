@@ -7,7 +7,7 @@ int cgns::CG_INFO(int status)
 {
     if (status != CG_OK) {
         LOG_ERROR("CGNS Faild: {}", cg_get_error());
-        spdlog::default_logger()->flush();
+        LOG->flush();
     }
     return status;
 }
