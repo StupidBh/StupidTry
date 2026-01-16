@@ -12,7 +12,7 @@
         utils::ScopedTimer(std::string_view(out_msg), [](std::string_view msg) { LOG_INFO(msg); })
 
 bool IsLikelyGBK(std::string_view str);
-std::string GBKToUTF8(const std::string& gbk_str);
+std::string GBKToUTF8(std::string_view gbk_str);
 std::string_view TrimNewline(std::string_view sv);
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = nullptr);

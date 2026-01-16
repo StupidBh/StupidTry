@@ -30,39 +30,29 @@ bool IsLikelyGBK(std::string_view str)
     return hasHighBit;
 }
 
-std::string GBKToUTF8(const std::string& gbk_str)
+std::string GBKToUTF8(std::string_view gbk_str)
 {
-    // GBK -> UTF-16
-    int wlen = MultiByteToWideChar(CP_ACP, 0, gbk_str.c_str(), -1, nullptr, 0);
-    if (wlen == 0) {
-        LOG_WARN("Failed to convert GBK to UTF-16");
-        return gbk_str;
+    if (gbk_str.empty()) {
+        return {};
     }
-    std::wstring wstr(wlen - 1, 0);
-    MultiByteToWideChar(CP_ACP, 0, gbk_str.c_str(), -1, wstr.data(), wlen);
 
-    // UTF-16 -> UTF-8
-    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    if (utf8_len == 0) {
-        LOG_WARN("Failed to convert UTF-16 to UTF-8");
-        return gbk_str;
+    int wlen = MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), nullptr, 0);
+    if (wlen <= 0) {
+        return std::string(gbk_str);
     }
-    std::string utf8_str(utf8_len - 1, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8_str.data(), utf8_len, nullptr, nullptr);
+
+    std::wstring wstr(wlen, L'\0');
+    MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), wstr.data(), wlen);
+    int u8len = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, nullptr, 0, nullptr, nullptr);
+    if (u8len <= 0) {
+        return std::string(gbk_str);
+}
+
+    std::string utf8_str(u8len, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, utf8_str.data(), u8len, nullptr, nullptr);
 
     return utf8_str;
-}
-
-std::string_view TrimNewline(std::string_view sv)
-{
-    while (!sv.empty() && (sv.back() == '\n' || sv.back() == '\r')) {
-        sv.remove_suffix(1);
     }
-    while (!sv.empty() && (sv.front() == '\n' || sv.front() == '\r')) {
-        sv.remove_prefix(1);
-    }
-    return sv;
-}
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
