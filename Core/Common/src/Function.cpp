@@ -1,7 +1,5 @@
 ﻿#include "Function.h"
 
-#include <ranges>
-
 bool IsLikelyGBK(std::string_view str)
 {
     bool hasHighBit = false;

@@ -13,7 +13,6 @@
 
 bool IsLikelyGBK(std::string_view str);
 std::string GBKToUTF8(std::string_view gbk_str);
-std::string_view TrimNewline(std::string_view sv);
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = nullptr);
 
