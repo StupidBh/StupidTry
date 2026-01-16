@@ -70,7 +70,9 @@ void cgns::OpenCGNS(const std::string& file_path)
                 int index_zone_dim = -1;
                 CG_INFO(cg_index_dim(cg_file_id, base, zone, &index_zone_dim));
                 switch (index_zone_dim) {
-                case 1: break;
+                case 1: {
+                    LOG_INFO("  {:>3}:[{}] {}, Dim={}", zone, ZoneTypeName[zone_type], zone_name, index_zone_dim);
+                } break;
                 case 2: {
                     cgsize_t vertex_sum = zone_size[0] * zone_size[1];
                     cgsize_t cell_sum = zone_size[2] * zone_size[3];
@@ -111,7 +113,14 @@ void cgns::OpenCGNS(const std::string& file_path)
                         zone_size[7],
                         zone_size[8]);
                 } break;
-                default: break;
+                default: {
+                    LOG_WARN(
+                        "  {:>3}:[{}] {}, Invaild-Dim={}",
+                        zone,
+                        ZoneTypeName[zone_type],
+                        zone_name,
+                        index_zone_dim);
+                } break;
                 }
             }
             else if (zone_type == ZoneType_t::Unstructured) {
