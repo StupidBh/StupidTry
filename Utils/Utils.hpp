@@ -102,10 +102,11 @@ namespace utils {
     }
 
     template<class _Ty>
-    requires std::default_initializable<_Ty> && std::movable<_Ty>
-    constexpr void DeepClear(_Ty& vec) noexcept
+    concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
+    template<Clearable... Args>
+    constexpr void DeepClear(Args&... vecs) noexcept
     {
-        vec = _Ty();
+        ((vecs = Args()), ...);
     }
 }
 
