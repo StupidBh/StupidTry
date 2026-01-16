@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
 #include <cctype>
 #include <charconv>
 #include <system_error>
@@ -33,18 +34,35 @@ public:
         const char* end = ptr + line.size();
 
         while (ptr < end) {
-            while (ptr < end && std::isspace(static_cast<unsigned char>(*ptr))) {
+            while (ptr < end && static_cast<unsigned char>(*ptr) <= 32) {
                 ++ptr;
             }
             if (ptr >= end) {
                 break;
             }
 
-            _Ty value {};
-            auto [p, ec] = std::from_chars(ptr, end, value);
+            _Ty val {};
+            auto [p, ec] = std::from_chars(ptr, end, val);
             if (ec == std::errc {}) {
-                out.emplace_back(value);
+                if (p < end && (*p == '-' || *p == '+') && std::isdigit(static_cast<unsigned char>(*(p - 1)))) {
+                    int exponent = 0;
+                    auto [p_exp, ec_exp] = std::from_chars(p, end, exponent);
+
+                    if (ec_exp == std::errc {}) {
+                        val *= static_cast<_Ty>(std::pow(10.0, exponent));
+                        out.emplace_back(val);
+                        ptr = p_exp;
+                    }
+                    else {
+                        while (ptr < end && !std::isspace(static_cast<unsigned char>(*ptr))) {
+                            ++ptr;
+                        }
+                    }
+                }
+                else {
+                    out.emplace_back(val);
                 ptr = p;
+            }
             }
             else {
                 while (ptr < end && !std::isspace(static_cast<unsigned char>(*ptr))) {
