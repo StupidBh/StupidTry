@@ -29,7 +29,7 @@ namespace stupid {
 }
 
 #define SINGLE_DATA    stupid::SingletonData::get_instance()
-#define SINGLE_DATA_VM stupid::SingletonData::get_instance().get_variables_map()
+#define SINGLE_DATA_VM SINGLE_DATA.get_variables_map()
 
 #define INPUT_PATH SINGLE_DATA_VM["inputPath"].as<std::string>()
 #define WORK_DIR   SINGLE_DATA_VM["workDirectory"].as<std::string>()
