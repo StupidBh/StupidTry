@@ -1,6 +1,8 @@
 ﻿#include "CgnsCore.h"
 #include "CgnsUtils.h"
 
+#include <set>
+
 void cgns::InitLog(std::shared_ptr<spdlog::logger> log)
 {
     dylog::Logger::get_instance().UpdateLog(log);
@@ -152,15 +154,15 @@ void cgns::OpenCGNS(const std::string& file_path)
                     &section_nbndry,
                     &section_parent_flag));
 
-                cgsize_t section_element_sum = section_end - section_start + 1;
                 cgsize_t element_data_size = 0;
                 CG_INFO(cg_ElementDataSize(cg_file_id, base, zone, section, &element_data_size));
 
                 std::vector<cgsize_t> elements(element_data_size, 0);
-                static constexpr std::array MIX_ELEMENT = { ElementType_t::MIXED,
+                    cgsize_t section_element_sum = section_end - section_start + 1;
+                    static const std::set MIX_ELEMENT = { ElementType_t::MIXED,
                                                             ElementType_t::NGON_n,
                                                             ElementType_t::NFACE_n };
-                if (std::ranges::find(MIX_ELEMENT, section_element_type) != MIX_ELEMENT.end()) {
+                    if (MIX_ELEMENT.contains(section_element_type)) {
                     std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
                     CG_INFO(cg_poly_elements_read(
                         cg_file_id,
