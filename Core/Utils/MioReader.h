@@ -20,7 +20,7 @@ public:
     template<class _Ty>
     static _Ty parse_line(std::string_view line)
     {
-        std::vector<_Ty> value(1);
+        static std::vector<_Ty> value(1);
         parse_line<_Ty>(line, value);
         return value.back();
     }
