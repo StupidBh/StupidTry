@@ -192,11 +192,6 @@
     <ClCompile Include="src\CgnsCore.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.vcxproj">
-      <Project>{fa235d09-9964-43c5-a6ac-7beb8153a6e3}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
