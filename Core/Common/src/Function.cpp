@@ -190,13 +190,17 @@ bool IEquals(std::string_view lhs, std::string_view rhs)
     });
 }
 
-std::string TrimTrailingSpaces(std::string_view sv)
+std::string_view TrimSpaces(std::string_view sv)
 {
-    auto is_whitespace = [](char c) -> bool {
-        return std::isspace(static_cast<unsigned char>(c));
-    };
+    static constinit std::string_view whitespace_chars = " \t\n\r\f\v";
+    auto first = sv.find_first_not_of(whitespace_chars);
+    if (first == std::string_view::npos) {
+        return {};
+    }
+    sv.remove_prefix(first);
 
-    auto view = sv | std::views::drop_while(is_whitespace) | std::views::reverse |
-                std::views::drop_while(is_whitespace) | std::views::reverse;
-    return std::string(view.begin(), view.end());
+    auto last = sv.find_last_not_of(whitespace_chars);
+    sv.remove_suffix(sv.size() - last - 1);
+
+    return sv;
 }
