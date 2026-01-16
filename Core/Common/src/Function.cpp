@@ -169,14 +169,20 @@ std::string GetEnv(const std::string& env)
     return buffer;
 }
 
-std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str)
+std::size_t FindCaseInsensitive(std::string_view haystack, std::string_view needle)
 {
-    auto eq_case_insensitive = [](unsigned char ch1, unsigned char ch2) {
-        return std::tolower(ch1) == std::tolower(ch2);
-    };
+    if (needle.empty()) {
+        return 0;
+    }
 
-    auto it = std::ranges::search(main_str, sub_str, eq_case_insensitive);
-    return it.empty() ? std::string::npos : static_cast<std::size_t>(std::distance(main_str.begin(), it.begin()));
+    const auto res = std::ranges::search(haystack, needle, [](unsigned char c1, unsigned char c2) {
+        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2));
+    });
+    if (res.begin() == haystack.end()) {
+        return std::string_view::npos;
+    }
+
+    return static_cast<std::size_t>(std::ranges::distance(haystack.begin(), res.begin()));
 }
 
 bool IEquals(std::string_view lhs, std::string_view rhs)
