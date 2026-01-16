@@ -132,35 +132,6 @@ void cgns::OpenCGNS(const std::string& file_path)
                     zone_size[0],
                     zone_size[1],
                     zone_size[2]);
-            }
-
-            int nsols = 0;
-            CG_INFO(cg_nsols(cg_file_id, base, zone, &nsols));
-            for (int sol = 1; sol <= nsols; ++sol) {
-                char sol_name[33];
-                int sol_data_dim = 0, nfields = 0;
-                cgsize_t sol_npnts = 0;
-                std::vector<cgsize_t> sol_dim_vals(4, 0);
-                GridLocation_t sol_location = GridLocation_t::GridLocationNull;
-                PointSetType_t sol_point_set_type = PointSetType_t::PointSetTypeNull;
-                CG_INFO(cg_nfields(cg_file_id, base, zone, sol, &nfields));
-                CG_INFO(cg_sol_info(cg_file_id, base, zone, sol, sol_name, &sol_location));
-                CG_INFO(cg_sol_size(cg_file_id, base, zone, sol, &sol_data_dim, sol_dim_vals.data()));
-                CG_INFO(cg_sol_ptset_info(cg_file_id, base, zone, sol, &sol_point_set_type, &sol_npnts));
-
-                sol_dim_vals.resize(sol_data_dim);
-                LOG_INFO(
-                    "    {:>2}:[{}]-[{}] {}, NField={}, DataDim={}, DataVal={}, npnts={}",
-                    sol,
-                    GridLocationName[sol_location],
-                    PointSetTypeName[sol_point_set_type],
-                    sol_name,
-                    nfields,
-                    sol_data_dim,
-                    sol_dim_vals,
-                    sol_npnts);
-            }
-            LOG->flush();
 
             int nsections = 0;
             CG_INFO(cg_nsections(cg_file_id, base, zone, &nsections));
@@ -214,6 +185,35 @@ void cgns::OpenCGNS(const std::string& file_path)
                     section_element_sum);
                 LOG->flush();
             }
+        }
+
+            int nsols = 0;
+            CG_INFO(cg_nsols(cg_file_id, base, zone, &nsols));
+            for (int sol = 1; sol <= nsols; ++sol) {
+                char sol_name[33];
+                int sol_data_dim = 0, nfields = 0;
+                cgsize_t sol_npnts = 0;
+                std::vector<cgsize_t> sol_dim_vals(4, 0);
+                GridLocation_t sol_location = GridLocation_t::GridLocationNull;
+                PointSetType_t sol_point_set_type = PointSetType_t::PointSetTypeNull;
+                CG_INFO(cg_nfields(cg_file_id, base, zone, sol, &nfields));
+                CG_INFO(cg_sol_info(cg_file_id, base, zone, sol, sol_name, &sol_location));
+                CG_INFO(cg_sol_size(cg_file_id, base, zone, sol, &sol_data_dim, sol_dim_vals.data()));
+                CG_INFO(cg_sol_ptset_info(cg_file_id, base, zone, sol, &sol_point_set_type, &sol_npnts));
+
+                sol_dim_vals.resize(sol_data_dim);
+                LOG_INFO(
+                    "    {:>2}:[{}]-[{}] {}, NField={}, DataDim={}, DataVal={}, npnts={}",
+                    sol,
+                    GridLocationName[sol_location],
+                    PointSetTypeName[sol_point_set_type],
+                    sol_name,
+                    nfields,
+                    sol_data_dim,
+                    sol_dim_vals,
+                    sol_npnts);
+            }
+            LOG->flush();
         }
     }
 
