@@ -135,59 +135,59 @@ void cgns::OpenCGNS(const std::string& file_path)
                     zone_size[1],
                     zone_size[2]);
 
-            int nsections = 0;
-            CG_INFO(cg_nsections(cg_file_id, base, zone, &nsections));
-            for (int section = 1; section <= nsections; ++section) {
-                char section_name[33];
-                ElementType_t section_element_type = ElementType_t::ElementTypeNull;
-                cgsize_t section_start = 0, section_end = 0;
-                int section_nbndry = 0, section_parent_flag = 0;
-                CG_INFO(cg_section_read(
-                    cg_file_id,
-                    base,
-                    zone,
-                    section,
-                    section_name,
-                    &section_element_type,
-                    &section_start,
-                    &section_end,
-                    &section_nbndry,
-                    &section_parent_flag));
-
-                cgsize_t element_data_size = 0;
-                CG_INFO(cg_ElementDataSize(cg_file_id, base, zone, section, &element_data_size));
-
-                std::vector<cgsize_t> elements(element_data_size, 0);
-                    cgsize_t section_element_sum = section_end - section_start + 1;
-                    static const std::set MIX_ELEMENT = { ElementType_t::MIXED,
-                                                            ElementType_t::NGON_n,
-                                                            ElementType_t::NFACE_n };
-                    if (MIX_ELEMENT.contains(section_element_type)) {
-                    std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
-                    CG_INFO(cg_poly_elements_read(
+                int nsections = 0;
+                CG_INFO(cg_nsections(cg_file_id, base, zone, &nsections));
+                for (int section = 1; section <= nsections; ++section) {
+                    char section_name[33];
+                    ElementType_t section_element_type = ElementType_t::ElementTypeNull;
+                    cgsize_t section_start = 0, section_end = 0;
+                    int section_nbndry = 0, section_parent_flag = 0;
+                    CG_INFO(cg_section_read(
                         cg_file_id,
                         base,
                         zone,
                         section,
-                        elements.data(),
-                        elements_connect_offset.data(),
-                        nullptr));
-                }
-                else {
-                    CG_INFO(cg_elements_read(cg_file_id, base, zone, section, elements.data(), nullptr));
-                }
+                        section_name,
+                        &section_element_type,
+                        &section_start,
+                        &section_end,
+                        &section_nbndry,
+                        &section_parent_flag));
 
-                LOG_INFO(
-                    "   {:>3}:[{}] {}, ElementRange=[{},{}]:{}",
-                    section,
-                    ElementTypeName[section_element_type],
-                    section_name,
-                    std::ranges::min(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
-                    std::ranges::max(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
-                    section_element_sum);
-                LOG->flush();
+                    cgsize_t element_data_size = 0;
+                    CG_INFO(cg_ElementDataSize(cg_file_id, base, zone, section, &element_data_size));
+
+                    std::vector<cgsize_t> elements(element_data_size, 0);
+                    cgsize_t section_element_sum = section_end - section_start + 1;
+                    static const std::set MIX_ELEMENT = { ElementType_t::MIXED,
+                                                          ElementType_t::NGON_n,
+                                                          ElementType_t::NFACE_n };
+                    if (MIX_ELEMENT.contains(section_element_type)) {
+                        std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
+                        CG_INFO(cg_poly_elements_read(
+                            cg_file_id,
+                            base,
+                            zone,
+                            section,
+                            elements.data(),
+                            elements_connect_offset.data(),
+                            nullptr));
+                    }
+                    else {
+                        CG_INFO(cg_elements_read(cg_file_id, base, zone, section, elements.data(), nullptr));
+                    }
+
+                    LOG_INFO(
+                        "   {:>3}:[{}] {}, ElementRange=[{},{}]:{}",
+                        section,
+                        ElementTypeName[section_element_type],
+                        section_name,
+                        std::ranges::min(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
+                        std::ranges::max(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
+                        section_element_sum);
+                    LOG->flush();
+                }
             }
-        }
 
             int nsols = 0;
             CG_INFO(cg_nsols(cg_file_id, base, zone, &nsols));

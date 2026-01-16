@@ -44,13 +44,13 @@ std::string GBKToUTF8(std::string_view gbk_str)
     int u8len = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, nullptr, 0, nullptr, nullptr);
     if (u8len <= 0) {
         return std::string(gbk_str);
-}
+    }
 
     std::string utf8_str(u8len, '\0');
     WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, utf8_str.data(), u8len, nullptr, nullptr);
 
     return utf8_str;
-    }
+}
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
@@ -75,7 +75,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
     if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
-        LOG_ERROR("CreatePipe failed: {}",GetLastError());
+        LOG_ERROR("CreatePipe failed: {}", GetLastError());
         return;
     }
     UniqueHandle hReadPipe(readPipeRaw);
@@ -131,7 +131,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
                     TerminateProcess(hProcess.get(), 0);
                 }
                 break;
-        }
+            }
         }
         else {
             std::cerr << line_view;

@@ -61,8 +61,8 @@ public:
                 }
                 else {
                     out.emplace_back(val);
-                ptr = p;
-            }
+                    ptr = p;
+                }
             }
             else {
                 while (ptr < end && !std::isspace(static_cast<unsigned char>(*ptr))) {

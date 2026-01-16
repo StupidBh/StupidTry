@@ -54,7 +54,7 @@ namespace utils {
             else {
                 static std::mutex mtx;
                 std::scoped_lock lock(mtx);
-                std::cerr << msg << '\n';
+                std::cerr << msg << std::endl;
             }
         }
 
