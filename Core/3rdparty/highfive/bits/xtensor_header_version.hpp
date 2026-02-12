@@ -1,4 +1,4 @@
-﻿// clang-format off
+// clang-format off
 #if HIGHFIVE_XTENSOR_HEADER_VERSION == 0
   #if __cplusplus >= 201703L
     #if __has_include(<xtensor/xtensor.hpp>)

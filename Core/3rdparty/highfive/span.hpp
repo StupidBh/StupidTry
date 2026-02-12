@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (c) 2024 Blue Brain Project
  *
  *  Distributed under the Boost Software License, Version 1.0.
@@ -15,20 +15,19 @@
 #include <span>
 
 namespace HighFive {
-    namespace details {
+namespace details {
 
-        template<class T, std::size_t Extent>
-        struct inspector<std::span<T, Extent>> : public inspector_stl_span<std::span<T, Extent>>
-        {
-        private:
-            using super = inspector_stl_span<std::span<T, Extent>>;
+template <class T, std::size_t Extent>
+struct inspector<std::span<T, Extent>>: public inspector_stl_span<std::span<T, Extent>> {
+  private:
+    using super = inspector_stl_span<std::span<T, Extent>>;
 
-        public:
-            using type = typename super::type;
-            using value_type = typename super::value_type;
-            using base_type = typename super::base_type;
-            using hdf5_type = typename super::hdf5_type;
-        };
+  public:
+    using type = typename super::type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+    using hdf5_type = typename super::hdf5_type;
+};
 
-    } // namespace details
-} // namespace HighFive
+}  // namespace details
+}  // namespace HighFive

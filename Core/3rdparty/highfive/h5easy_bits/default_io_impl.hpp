@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
  *
  *  Distributed under the Boost Software License, Version 1.0.
@@ -13,53 +13,57 @@
 #include "H5Easy_scalar.hpp"
 
 namespace H5Easy {
-    namespace detail {
+namespace detail {
 
-        using HighFive::details::inspector;
+using HighFive::details::inspector;
 
-        template<typename T>
-        struct default_io_impl
-        {
-            inline static std::vector<size_t> shape(const T& data) { return inspector<T>::getDimensions(data); }
+template <typename T>
+struct default_io_impl {
+    inline static std::vector<size_t> shape(const T& data) {
+        return inspector<T>::getDimensions(data);
+    }
 
-            inline static DataSet dump(File& file, const std::string& path, const T& data, const DumpOptions& options)
-            {
-                using value_type = typename inspector<T>::base_type;
-                DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
-                dataset.write(data);
-                if (options.flush()) {
-                    file.flush();
-                }
-                return dataset;
-            }
+    inline static DataSet dump(File& file,
+                               const std::string& path,
+                               const T& data,
+                               const DumpOptions& options) {
+        using value_type = typename inspector<T>::base_type;
+        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
+        dataset.write(data);
+        if (options.flush()) {
+            file.flush();
+        }
+        return dataset;
+    }
 
-            inline static T load(const File& file, const std::string& path) { return file.getDataSet(path).read<T>(); }
+    inline static T load(const File& file, const std::string& path) {
+        return file.getDataSet(path).read<T>();
+    }
 
-            inline static Attribute dumpAttribute(
-                File& file,
-                const std::string& path,
-                const std::string& key,
-                const T& data,
-                const DumpOptions& options)
-            {
-                using value_type = typename inspector<T>::base_type;
-                Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
-                attribute.write(data);
-                if (options.flush()) {
-                    file.flush();
-                }
-                return attribute;
-            }
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
+        using value_type = typename inspector<T>::base_type;
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
+        attribute.write(data);
+        if (options.flush()) {
+            file.flush();
+        }
+        return attribute;
+    }
 
-            inline static T loadAttribute(const File& file, const std::string& path, const std::string& key)
-            {
-                auto read_attribute = [&key](const auto& obj) {
-                    return obj.getAttribute(key).template read<T>();
-                };
-
-                return apply_attr_func(file, path, read_attribute);
-            }
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
+        auto read_attribute = [&key](const auto& obj) {
+            return obj.getAttribute(key).template read<T>();
         };
 
-    } // namespace detail
-} // namespace H5Easy
+        return apply_attr_func(file, path, read_attribute);
+    }
+};
+
+}  // namespace detail
+}  // namespace H5Easy
