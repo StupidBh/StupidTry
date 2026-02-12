@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 #include <filesystem>
 
 #include "spdlog/fmt/fmt.h"
+#include "spdlog/fmt/ranges.h"
 
 template<>
 struct fmt::formatter<std::filesystem::path>

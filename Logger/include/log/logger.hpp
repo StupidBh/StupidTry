@@ -1,18 +1,25 @@
-﻿#pragma once
-#include "LoggerFramework.h"
+#pragma once
+
+#ifdef _WIN32
+    #define NOMINMAX
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
+
 #include "log_formatter.hpp"
 
+#include <iostream>
 #include <shared_mutex>
 
 #include "SingletonHolder.hpp"
 
 #include "spdlog/async.h"
-#include "spdlog/fmt/ranges.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/daily_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace dylog {
-    class LOG_EXPORT_API std::shared_mutex;
-
-    class LOG_EXPORT_API Logger final : public utils::SingletonHolder<Logger> {
+    class Logger final : public utils::SingletonHolder<Logger> {
         SINGLETON_CLASS(Logger);
         std::shared_mutex m_mutex;
 
