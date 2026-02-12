@@ -98,18 +98,19 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)3rdparty\hdf5\include;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;</AdditionalDependencies>
       <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +123,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)3rdparty\hdf5\include;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -132,11 +133,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;</AdditionalDependencies>
       <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,18 +149,19 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)3rdparty\hdf5\include;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;boost_program_options-vc143-mt-gd-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;</AdditionalDependencies>
       <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-gd-x64-1_88.dll" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -171,7 +174,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)3rdparty\hdf5\include;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -181,28 +184,25 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\boost\lib;$(SolutionDir)3rdparty\hdf5\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;boost_program_options-vc143-mt-x64-1_88.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>hdf5.lib;hdf5_cpp.lib;</AdditionalDependencies>
       <Profile>false</Profile>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)3rdparty\boost\lib\boost_program_options-vc143-mt-x64-1_88.dll" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common\src\Function.cpp" />
     <ClCompile Include="Common\src\SingletonData.cpp" />
-    <ClCompile Include="Common\src\system_info.cpp" />
     <ClCompile Include="Utils\src\MioReader.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="Utils\src\ProgressManager.cpp" />
-    <ClCompile Include="Utils\src\woolang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.h" />
-    <ClInclude Include="Common\system_info.h" />
+    <ClInclude Include="Utils\HighFive.hpp" />
     <ClInclude Include="Utils\MioReader.h" />
-    <ClInclude Include="Utils\ProgressManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CGNSRead\CGNSRead.vcxproj">

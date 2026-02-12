@@ -3,17 +3,14 @@
   <ItemGroup>
     <ClCompile Include="Common\src\Function.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="Common\src\system_info.cpp" />
-    <ClCompile Include="Utils\src\ProgressManager.cpp" />
-    <ClCompile Include="Utils\src\woolang.cpp" />
     <ClCompile Include="Utils\src\MioReader.cpp" />
     <ClCompile Include="Common\src\SingletonData.cpp" />
+    <ClCompile Include="Utils\src\woolang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.h" />
-    <ClInclude Include="Common\system_info.h" />
-    <ClInclude Include="Utils\ProgressManager.h" />
     <ClInclude Include="Utils\MioReader.h" />
+    <ClInclude Include="Utils\HighFive.hpp" />
   </ItemGroup>
 </Project>
