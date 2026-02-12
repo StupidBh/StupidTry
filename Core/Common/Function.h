@@ -1,8 +1,6 @@
-﻿#pragma once
+#pragma once
 #include "Utils.hpp"
 #include "ScopedTimer.hpp"
-
-#include "system_info.h"
 
 #include "log/logger.hpp"
 

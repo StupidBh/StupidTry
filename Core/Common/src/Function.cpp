@@ -1,15 +1,15 @@
-﻿#include "Function.h"
+#include "Function.h"
 
 bool IsLikelyGBK(std::string_view str)
 {
-    bool hasHighBit = false;
+    bool has_high_bit = false;
     for (std::size_t i = 0; i < str.length(); ++i) {
         unsigned char c1 = static_cast<unsigned char>(str[i]);
         if (c1 <= 0x7F) {
             continue;
         }
 
-        hasHighBit = true;
+        has_high_bit = true;
         if (c1 >= 0x81 && c1 <= 0xFE) {
             if (i + 1 >= str.length()) {
                 return false; // 截断
@@ -25,7 +25,7 @@ bool IsLikelyGBK(std::string_view str)
             return false; // 出现非法字节
         }
     }
-    return hasHighBit;
+    return has_high_bit;
 }
 
 std::string GBKToUTF8(std::string_view gbk_str)
@@ -182,7 +182,7 @@ bool IEquals(std::string_view lhs, std::string_view rhs)
     }
 
     return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) {
-        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2)); 
+        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2));
     });
 }
 

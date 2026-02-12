@@ -1,4 +1,4 @@
-﻿#include "CgnsCore.h"
+#include "CgnsCore.h"
 #include "CgnsUtils.h"
 
 #include <set>
@@ -49,7 +49,7 @@ void cgns::OpenCGNS(const std::string& file_path)
     for (int base = 1; base <= nbases; ++base) {
         char base_name[33];
         int cell_dim = 0, phys_dim = 0;
-        SimulationType_t base_simulation_tyoe = SimulationType_t::SimulationTypeNull;
+        CG_SimulationType_t base_simulation_tyoe = CG_SimulationType_t::CG_SimulationTypeNull;
         CG_INFO(cg_base_read(cg_file_id, base, base_name, &cell_dim, &phys_dim));
         CG_INFO(cg_simulation_type_read(cg_file_id, base, &base_simulation_tyoe));
         LOG_INFO(
@@ -64,11 +64,11 @@ void cgns::OpenCGNS(const std::string& file_path)
         CG_INFO(cg_nzones(cg_file_id, base, &nzones));
         for (int zone = 1; zone <= nzones; ++zone) {
             char zone_name[33];
-            ZoneType_t zone_type = ZoneType_t::ZoneTypeNull;
+            CG_ZoneType_t zone_type = CG_ZoneType_t::CG_ZoneTypeNull;
             std::array<cgsize_t, 9> zone_size { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             CG_INFO(cg_zone_type(cg_file_id, base, zone, &zone_type));
             CG_INFO(cg_zone_read(cg_file_id, base, zone, zone_name, zone_size.data()));
-            if (zone_type == ZoneType_t::Structured) {
+            if (zone_type == CG_ZoneType_t::CG_Structured) {
                 int index_zone_dim = -1;
                 CG_INFO(cg_index_dim(cg_file_id, base, zone, &index_zone_dim));
                 switch (index_zone_dim) {
@@ -125,7 +125,7 @@ void cgns::OpenCGNS(const std::string& file_path)
                 } break;
                 }
             }
-            else if (zone_type == ZoneType_t::Unstructured) {
+            else if (zone_type == CG_ZoneType_t::CG_Unstructured) {
                 LOG_INFO(
                     "  {:>3}:[{}] {}, NVertex={}, NCell={}, NBoundVertex={}",
                     zone,
@@ -139,7 +139,7 @@ void cgns::OpenCGNS(const std::string& file_path)
                 CG_INFO(cg_nsections(cg_file_id, base, zone, &nsections));
                 for (int section = 1; section <= nsections; ++section) {
                     char section_name[33];
-                    ElementType_t section_element_type = ElementType_t::ElementTypeNull;
+                    CG_ElementType_t section_element_type = CG_ElementType_t::CG_ElementTypeNull;
                     cgsize_t section_start = 0, section_end = 0;
                     int section_nbndry = 0, section_parent_flag = 0;
                     CG_INFO(cg_section_read(
@@ -159,9 +159,9 @@ void cgns::OpenCGNS(const std::string& file_path)
 
                     std::vector<cgsize_t> elements(element_data_size, 0);
                     cgsize_t section_element_sum = section_end - section_start + 1;
-                    static const std::set MIX_ELEMENT = { ElementType_t::MIXED,
-                                                          ElementType_t::NGON_n,
-                                                          ElementType_t::NFACE_n };
+                    static const std::set MIX_ELEMENT = { CG_ElementType_t::CG_MIXED,
+                                                          CG_ElementType_t::CG_NGON_n,
+                                                          CG_ElementType_t::CG_NFACE_n };
                     if (MIX_ELEMENT.contains(section_element_type)) {
                         std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
                         CG_INFO(cg_poly_elements_read(
@@ -196,8 +196,8 @@ void cgns::OpenCGNS(const std::string& file_path)
                 int sol_data_dim = 0, nfields = 0;
                 cgsize_t sol_npnts = 0;
                 std::vector<cgsize_t> sol_dim_vals(4, 0);
-                GridLocation_t sol_location = GridLocation_t::GridLocationNull;
-                PointSetType_t sol_point_set_type = PointSetType_t::PointSetTypeNull;
+                CG_GridLocation_t sol_location = CG_GridLocation_t::CG_GridLocationNull;
+                CG_PointSetType_t sol_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
                 CG_INFO(cg_nfields(cg_file_id, base, zone, sol, &nfields));
                 CG_INFO(cg_sol_info(cg_file_id, base, zone, sol, sol_name, &sol_location));
                 CG_INFO(cg_sol_size(cg_file_id, base, zone, sol, &sol_data_dim, sol_dim_vals.data()));

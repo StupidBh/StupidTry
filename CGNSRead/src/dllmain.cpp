@@ -1,4 +1,4 @@
-﻿#include "CGNSReadFramework.h"
+#include "CGNSReadFramework.h"
 
 BOOL APIENTRY DllMain([[maybe_unused]] HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]] LPVOID lpReserved)
 {

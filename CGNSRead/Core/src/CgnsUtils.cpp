@@ -1,4 +1,4 @@
-﻿#include "CgnsUtils.h"
+#include "CgnsUtils.h"
 
 #include "cgns/cgnslib.h"
 #include "log/logger.hpp"

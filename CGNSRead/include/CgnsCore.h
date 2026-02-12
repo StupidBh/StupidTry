@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CGNSReadFramework.h"
 
 namespace cgns {

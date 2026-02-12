@@ -1,4 +1,4 @@
-﻿#include "MioReader.h"
+#include "MioReader.h"
 
 MioReader::MioReader(const std::string& filename) :
     m_mmap(filename),

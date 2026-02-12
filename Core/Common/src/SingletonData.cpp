@@ -1,4 +1,4 @@
-﻿#include "SingletonData.h"
+#include "SingletonData.h"
 
 #include <iostream>
 
@@ -29,11 +29,13 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
     catch (const bpo::error& e) {
         std::cerr << "Parameter error: " << e.what() << std::endl;
         std::cerr << oss.str() << std::endl;
+        this->m_vm.clear();
         return;
     }
     catch (...) {
         std::cerr << "Unknown error in ProcessArguments." << std::endl;
         std::cerr << oss.str() << std::endl;
+        this->m_vm.clear();
         return;
     }
 
@@ -45,6 +47,24 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
         this->m_vm["workDirectory"].as<std::string>(),
         stupid::APP_NAME,
         this->m_vm["DEBUG"].as<bool>());
+
+    for (auto& [key, value] : this->m_vm) {
+        if (value.empty()) {
+            LOG_WARN("<empty>-[{}] = <empty>", key);
+        }
+        else if (value.value().type() == typeid(std::string)) {
+            LOG_DEBUG("<string>-[{}] = {}", key, value.as<std::string>());
+        }
+        else if (value.value().type() == typeid(int)) {
+            LOG_DEBUG("<int>-[{}] = {}", key, value.as<int>());
+        }
+        else if (value.value().type() == typeid(bool)) {
+            LOG_DEBUG("<bool>-[{}] = {}", key, value.as<bool>());
+        }
+        else {
+            LOG_WARN("[{}] = <unhandled type>", key);
+        }
+    }
 }
 
 const boost::program_options::variables_map& stupid::SingletonData::get_variables_map() const noexcept

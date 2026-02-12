@@ -1,7 +1,7 @@
-﻿#include "Function.h"
+#include "Function.h"
 #include "SingletonData.h"
 
-#include "highfive/highfive.hpp"
+#include "CgnsCore.h"
 
 int main(int argc, char* argv[])
 {
@@ -10,23 +10,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    for (auto& [key, value] : SINGLE_DATA_VM) {
-        if (value.empty()) {
-            LOG_WARN("<empty>-[{}] = <empty>", key);
-        }
-        else if (value.value().type() == typeid(std::string)) {
-            LOG_INFO("<string>-[{}] = {}", key, value.as<std::string>());
-        }
-        else if (value.value().type() == typeid(int)) {
-            LOG_INFO("<int>-[{}] = {}", key, value.as<int>());
-        }
-        else if (value.value().type() == typeid(bool)) {
-            LOG_INFO("<bool>-[{}] = {}", key, value.as<bool>());
-        }
-        else {
-            LOG_WARN("[{}] = <unhandled type>", key);
-        }
-    }
+    cgns::InitLog(LOG);
+    std::string cgns_path = "D:\\work\\openfoam-case\\cavity\\CGNS\\cavity_0.cgns";
+    cgns::OpenCGNS(cgns_path);
 
     spdlog::shutdown();
     return 0;
