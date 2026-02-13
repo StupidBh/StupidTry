@@ -5,14 +5,14 @@
 
 int main(int argc, char* argv[])
 {
+    SCOPED_TIMER("stupid-try main");
     SINGLE_DATA.ProcessArguments(argc, argv);
     if (SINGLE_DATA_VM.empty()) {
         return EXIT_FAILURE;
     }
 
     cgns::InitLog(LOG);
-    std::string cgns_path = "D:\\work\\openfoam-case\\cavity\\CGNS\\cavity_0.cgns";
-    cgns::OpenCGNS(cgns_path);
+    cgns::OpenCGNS(INPUT_PATH);
 
     spdlog::shutdown();
     return 0;
