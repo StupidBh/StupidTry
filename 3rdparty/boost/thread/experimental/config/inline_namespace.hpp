@@ -14,10 +14,9 @@
 #include <boost/config.hpp>
 
 #if !defined(BOOST_NO_CXX11_INLINE_NAMESPACES)
-# define BOOST_THREAD_INLINE_NAMESPACE(name) inline namespace name
+    #define BOOST_THREAD_INLINE_NAMESPACE(name) inline namespace name
 #else
-# define BOOST_THREAD_INLINE_NAMESPACE(name) namespace name
+    #define BOOST_THREAD_INLINE_NAMESPACE(name) namespace name
 #endif
-
 
 #endif

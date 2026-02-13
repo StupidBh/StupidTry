@@ -16,39 +16,38 @@
 #include <boost/url/segments_encoded_view.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** Parse a string and return an encoded segment view
+        /** Parse a string and return an encoded segment view
 
-    This function parses the string and returns the
-    corresponding path object if the string is valid,
-    otherwise returns an error.
+            This function parses the string and returns the
+            corresponding path object if the string is valid,
+            otherwise returns an error.
 
-    @par BNF
-    @code
-    path          = [ "/" ] segment *( "/" segment )
-    @endcode
+            @par BNF
+            @code
+            path          = [ "/" ] segment *( "/" segment )
+            @endcode
 
-    @par Exception Safety
-    No-throw guarantee.
+            @par Exception Safety
+            No-throw guarantee.
 
-    @return A valid view on success, otherwise an
-    error code.
+            @return A valid view on success, otherwise an
+            error code.
 
-    @param s The string to parse
+            @param s The string to parse
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
-        >3.3.  Path (rfc3986)</a>
+            @par Specification
+            @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
+                >3.3.  Path (rfc3986)</a>
 
-    @see
-        @ref segments_encoded_view.
-*/
-BOOST_URL_DECL
-system::result<segments_encoded_view>
-parse_path(core::string_view s) noexcept;
+            @see
+                @ref segments_encoded_view.
+        */
+        BOOST_URL_DECL
+        system::result<segments_encoded_view> parse_path(core::string_view s) noexcept;
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

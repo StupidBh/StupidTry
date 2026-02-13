@@ -7,22 +7,27 @@
 //
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
-
 #ifndef BOOST_TT_IS_FINAL_HPP_INCLUDED
 #define BOOST_TT_IS_FINAL_HPP_INCLUDED
 
 #include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #ifdef BOOST_IS_FINAL
-#include <boost/type_traits/remove_cv.hpp>
+    #include <boost/type_traits/remove_cv.hpp>
 #endif
 
 namespace boost {
 
 #ifdef BOOST_IS_FINAL
-template <class T> struct is_final : public integral_constant<bool, BOOST_IS_FINAL(T)> {};
+    template<class T>
+    struct is_final : public integral_constant<bool, BOOST_IS_FINAL(T)>
+    {
+    };
 #else
-template <class T> struct is_final : public integral_constant<bool, false> {};
+    template<class T>
+    struct is_final : public integral_constant<bool, false>
+    {
+    };
 #endif
 
 } // namespace boost

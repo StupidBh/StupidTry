@@ -14,12 +14,10 @@
 // 20.8.1 class template unique_ptr:
 // default_delete
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::default_delete;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::default_delete;
+    }
 }
 
 #endif // header

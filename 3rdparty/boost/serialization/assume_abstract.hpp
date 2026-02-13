@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
@@ -23,38 +23,47 @@
 
 #ifndef BOOST_NO_IS_ABSTRACT
 
-// if there is an intrinsic is_abstract defined, we don't have to do anything
-#define BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+    // if there is an intrinsic is_abstract defined, we don't have to do anything
+    #define BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
 // but forward to the "official" is_abstract
 namespace boost {
-namespace serialization {
-    template<class T>
-    struct is_abstract : boost::is_abstract< T > {} ;
-} // namespace serialization
+    namespace serialization {
+        template<class T>
+        struct is_abstract : boost::is_abstract<T>
+        {
+        };
+    } // namespace serialization
 } // namespace boost
 
 #else
 // we have to "make" one
 
 namespace boost {
-namespace serialization {
-    template<class T>
-    struct is_abstract : boost::false_type {};
-} // namespace serialization
+    namespace serialization {
+        template<class T>
+        struct is_abstract : boost::false_type
+        {
+        };
+    } // namespace serialization
 } // namespace boost
 
-// define a macro to make explicit designation of this more transparent
-#define BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)        \
-namespace boost {                                     \
-namespace serialization {                             \
-template<>                                            \
-struct is_abstract< T > : boost::true_type {};        \
-template<>                                            \
-struct is_abstract< const T > : boost::true_type {};  \
-}}                                                    \
-/**/
+    // define a macro to make explicit designation of this more transparent
+    #define BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)             \
+        namespace boost {                                      \
+            namespace serialization {                          \
+                template<>                                     \
+                struct is_abstract<T> : boost::true_type       \
+                {                                              \
+                };                                             \
+                template<>                                     \
+                struct is_abstract<const T> : boost::true_type \
+                {                                              \
+                };                                             \
+            }                                                  \
+        }                                                      \
+        /**/
 
 #endif // BOOST_NO_IS_ABSTRACT
 
-#endif //BOOST_SERIALIZATION_ASSUME_ABSTRACT_HPP
+#endif // BOOST_SERIALIZATION_ASSUME_ABSTRACT_HPP

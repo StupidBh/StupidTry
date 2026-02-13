@@ -13,24 +13,37 @@
 #include <string>
 #include <boost/process/v1/detail/windows/handler.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-template<typename Char>
-struct start_dir_init : handler_base_ext
-{
-    start_dir_init(const std::basic_string<Char> &s) : s_(s) {}
+                    template<typename Char>
+                    struct start_dir_init : handler_base_ext
+                    {
+                        start_dir_init(const std::basic_string<Char>& s) :
+                            s_(s)
+                        {
+                        }
 
-    template <class Executor>
-    void on_setup(Executor& exec) const
-    {
-        exec.work_dir = s_.c_str();
+                        template<class Executor>
+                        void on_setup(Executor& exec) const
+                        {
+                            exec.work_dir = s_.c_str();
+                        }
+
+                        const std::basic_string<Char>& str() const { return s_; }
+
+                    private:
+                        std::basic_string<Char> s_;
+                    };
+
+                }
+            }
+        }
     }
-
-    const std::basic_string<Char> &str() const {return s_;}
-private:
-    std::basic_string<Char> s_;
-};
-
-}}}}}
+}
 
 #endif

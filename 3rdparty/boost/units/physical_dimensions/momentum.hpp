@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -18,14 +18,13 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-/// derived dimension for linear momentum : L M T^-1
-typedef derived_dimension<length_base_dimension,1,
-                          mass_base_dimension,1,
-                          time_base_dimension,-1>::type momentum_dimension;                
+        /// derived dimension for linear momentum : L M T^-1
+        typedef derived_dimension<length_base_dimension, 1, mass_base_dimension, 1, time_base_dimension, -1>::type
+            momentum_dimension;
 
-} // namespace units
+    } // namespace units
 
 } // namespace boost
 

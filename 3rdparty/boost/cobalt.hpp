@@ -30,5 +30,5 @@
 #include <boost/cobalt/wait_group.hpp>
 #include <boost/cobalt/with.hpp>
 
-#endif //BOOST_COBALT_HPP
+#endif // BOOST_COBALT_HPP
 

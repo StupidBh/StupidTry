@@ -11,20 +11,20 @@
 
 #include <boost/config.hpp>
 
-namespace boost
-{
+namespace boost {
 
-template<class T> struct type_identity
-{
-    typedef T type;
-};
+    template<class T>
+    struct type_identity
+    {
+        typedef T type;
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-template <class T> using type_identity_t = typename type_identity<T>::type;
+    template<class T>
+    using type_identity_t = typename type_identity<T>::type;
 
 #endif
-
 
 } // namespace boost
 

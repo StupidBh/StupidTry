@@ -15,7 +15,7 @@
 
 namespace boost {
 
-struct blank;
+    struct blank;
 
 } // namespace boost
 

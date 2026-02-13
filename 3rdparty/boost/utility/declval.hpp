@@ -10,4 +10,4 @@
 
 #include <boost/type_traits/declval.hpp>
 
-#endif  // BOOST_UTILITY_DECLVAL_HPP
+#endif // BOOST_UTILITY_DECLVAL_HPP

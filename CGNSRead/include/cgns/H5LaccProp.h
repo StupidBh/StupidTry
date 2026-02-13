@@ -16,57 +16,53 @@
 
 namespace H5 {
 
-/*! \class LinkAccPropList
-    \brief Class LinkAccPropList inherits from PropList and provides
-    wrappers for the HDF5 link access property list.
-*/
-// Inheritance: PropList -> IdComponent
-class H5CPP_DLL LinkAccPropList : public PropList {
-  public:
-    ///\brief Default link access property list.
-    static const LinkAccPropList &DEFAULT;
+    /*! \class LinkAccPropList
+        \brief Class LinkAccPropList inherits from PropList and provides
+        wrappers for the HDF5 link access property list.
+    */
+    // Inheritance: PropList -> IdComponent
+    class H5CPP_DLL LinkAccPropList : public PropList {
+    public:
+        ///\brief Default link access property list.
+        static const LinkAccPropList& DEFAULT;
 
-    // Creates a link access property list.
-    LinkAccPropList();
+        // Creates a link access property list.
+        LinkAccPropList();
 
-    ///\brief Returns this class name.
-    virtual H5std_string
-    fromClass() const override
-    {
-        return ("LinkAccPropList");
-    }
+        ///\brief Returns this class name.
+        virtual H5std_string fromClass() const override { return ("LinkAccPropList"); }
 
-    // Copy constructor: same as the original LinkAccPropList.
-    LinkAccPropList(const LinkAccPropList &original);
+        // Copy constructor: same as the original LinkAccPropList.
+        LinkAccPropList(const LinkAccPropList& original);
 
-    // Creates a copy of an existing link access property list
-    // using the property list id.
-    LinkAccPropList(const hid_t plist_id);
+        // Creates a copy of an existing link access property list
+        // using the property list id.
+        LinkAccPropList(const hid_t plist_id);
 
-    // Sets the number of soft or user-defined links that can be
-    // traversed before a failure occurs.
-    void setNumLinks(size_t nlinks) const;
+        // Sets the number of soft or user-defined links that can be
+        // traversed before a failure occurs.
+        void setNumLinks(size_t nlinks) const;
 
-    // Gets the number of soft or user-defined link traversals allowed
-    size_t getNumLinks() const;
+        // Gets the number of soft or user-defined link traversals allowed
+        size_t getNumLinks() const;
 
-    // Noop destructor
-    virtual ~LinkAccPropList() override = default;
+        // Noop destructor
+        virtual ~LinkAccPropList() override = default;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-    // Deletes the global constant, should only be used by the library
-    static void deleteConstants();
+        // Deletes the global constant, should only be used by the library
+        static void deleteConstants();
 
-  private:
-    static LinkAccPropList *DEFAULT_;
+    private:
+        static LinkAccPropList* DEFAULT_;
 
-    // Creates the global constant, should only be used by the library
-    static LinkAccPropList *getConstant();
+        // Creates the global constant, should only be used by the library
+        static LinkAccPropList* getConstant();
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-}; // end of LinkAccPropList
+    }; // end of LinkAccPropList
 } // namespace H5
 
 #endif // H5LinkAccPropList_H

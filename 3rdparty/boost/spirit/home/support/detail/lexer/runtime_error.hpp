@@ -9,19 +9,16 @@
 #include <boost/config.hpp> // for BOOST_SYMBOL_VISIBLE
 #include <stdexcept>
 
-namespace boost
-{
-namespace lexer
-{
-class BOOST_SYMBOL_VISIBLE runtime_error : public std::runtime_error
-{
-public:
-    runtime_error (const std::string &what_arg_) :
-        std::runtime_error (what_arg_)
-    {
+namespace boost {
+    namespace lexer {
+        class BOOST_SYMBOL_VISIBLE runtime_error : public std::runtime_error {
+        public:
+            runtime_error(const std::string& what_arg_) :
+                std::runtime_error(what_arg_)
+            {
+            }
+        };
     }
-};
-}
 }
 
 #endif

@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //  detail/local_sp_deleter.hpp
@@ -20,64 +20,58 @@
 #include <boost/smart_ptr/detail/local_counted_base.hpp>
 #include <boost/config.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-template<class D> class local_sp_deleter: public local_counted_impl_em
-{
-private:
+        template<class D>
+        class local_sp_deleter : public local_counted_impl_em {
+        private:
+            D d_;
 
-    D d_;
+        public:
+            local_sp_deleter() :
+                d_()
+            {
+            }
 
-public:
+            explicit local_sp_deleter(D const& d) noexcept :
+                d_(d)
+            {
+            }
 
-    local_sp_deleter(): d_()
-    {
-    }
+            explicit local_sp_deleter(D&& d) noexcept :
+                d_(std::move(d))
+            {
+            }
 
-    explicit local_sp_deleter( D const& d ) noexcept: d_( d )
-    {
-    }
+            D& deleter() noexcept { return d_; }
 
-    explicit local_sp_deleter( D&& d ) noexcept: d_( std::move(d) )
-    {
-    }
+            template<class Y>
+            void operator()(Y* p) noexcept
+            {
+                d_(p);
+            }
 
-    D& deleter() noexcept
-    {
-        return d_;
-    }
+            void operator()(std::nullptr_t p) noexcept { d_(p); }
+        };
 
-    template<class Y> void operator()( Y* p ) noexcept
-    {
-        d_( p );
-    }
+        template<>
+        class local_sp_deleter<void> {};
 
-    void operator()( std::nullptr_t p ) noexcept
-    {
-        d_( p );
-    }
-};
+        template<class D>
+        D* get_local_deleter(local_sp_deleter<D>* p) noexcept
+        {
+            return &p->deleter();
+        }
 
-template<> class local_sp_deleter<void>
-{
-};
+        inline void* get_local_deleter(local_sp_deleter<void>* /*p*/) noexcept
+        {
+            return 0;
+        }
 
-template<class D> D * get_local_deleter( local_sp_deleter<D> * p ) noexcept
-{
-    return &p->deleter();
-}
-
-inline void * get_local_deleter( local_sp_deleter<void> * /*p*/ ) noexcept
-{
-    return 0;
-}
-
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_LOCAL_SP_DELETER_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_DETAIL_LOCAL_SP_DELETER_HPP_INCLUDED

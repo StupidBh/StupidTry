@@ -13,19 +13,13 @@
 
 #include <boost/smart_ptr/bad_weak_ptr.hpp>
 
-namespace boost
-{
-  namespace signals2
-  {
-    class expired_slot: public bad_weak_ptr
-    {
-    public:
-      virtual char const * what() const throw()
-      {
-        return "boost::signals2::expired_slot";
-      }
-    };
-  }
+namespace boost {
+    namespace signals2 {
+        class expired_slot : public bad_weak_ptr {
+        public:
+            virtual char const* what() const throw() { return "boost::signals2::expired_slot"; }
+        };
+    }
 } // end namespace boost
 
 #endif // BOOST_SIGNALS2_EXPIRED_SLOT_HPP

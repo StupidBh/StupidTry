@@ -24,114 +24,93 @@
 
 namespace boost {
 
-namespace detail { namespace aligned_storage {
+    namespace detail {
+        namespace aligned_storage {
 
-BOOST_STATIC_CONSTANT(
-      std::size_t
-    , alignment_of_max_align = ::boost::alignment_of<boost::detail::max_align>::value
-    );
+            BOOST_STATIC_CONSTANT(
+                std::size_t,
+                alignment_of_max_align = ::boost::alignment_of<boost::detail::max_align>::value);
 
-//
-// To be TR1 conforming this must be a POD type:
-//
-template <
-      std::size_t size_
-    , std::size_t alignment_
->
-struct aligned_storage_imp
-{
-    union data_t
-    {
-        char buf[size_];
+            //
+            // To be TR1 conforming this must be a POD type:
+            //
+            template<std::size_t size_, std::size_t alignment_>
+            struct aligned_storage_imp
+            {
+                union data_t
+                {
+                    char buf[size_];
 
-        typename ::boost::type_with_alignment<alignment_>::type align_;
-    } data_;
-    void* address() const { return const_cast<aligned_storage_imp*>(this); }
-};
-template <std::size_t size>
-struct aligned_storage_imp<size, std::size_t(-1)>
-{
-   union data_t
-   {
-      char buf[size];
-      ::boost::detail::max_align align_;
-   } data_;
-   void* address() const { return const_cast<aligned_storage_imp*>(this); }
-};
+                    typename ::boost::type_with_alignment<alignment_>::type align_;
+                } data_;
 
-template< std::size_t alignment_ >
-struct aligned_storage_imp<0u,alignment_>
-{
-    /* intentionally empty */
-    void* address() const { return 0; }
-};
+                void* address() const { return const_cast<aligned_storage_imp*>(this); }
+            };
 
-}} // namespace detail::aligned_storage
+            template<std::size_t size>
+            struct aligned_storage_imp<size, std::size_t(-1)>
+            {
+                union data_t
+                {
+                    char buf[size];
+                    ::boost::detail::max_align align_;
+                } data_;
 
-template <
-      std::size_t size_
-    , std::size_t alignment_ = std::size_t(-1)
->
-class aligned_storage : 
+                void* address() const { return const_cast<aligned_storage_imp*>(this); }
+            };
+
+            template<std::size_t alignment_>
+            struct aligned_storage_imp<0u, alignment_>
+            {
+                /* intentionally empty */
+                void* address() const { return 0; }
+            };
+
+        }
+    } // namespace detail
+
+    template<std::size_t size_, std::size_t alignment_ = std::size_t(-1)>
+    class aligned_storage :
 #ifndef BOOST_BORLANDC
-   private 
+        private
 #else
-   public
+        public
 #endif
-   ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> 
-{
- 
-public: // constants
+        ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> {
 
-    typedef ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> type;
+    public: // constants
+        typedef ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> type;
 
-    BOOST_STATIC_CONSTANT(
-          std::size_t
-        , size = size_
-        );
-    BOOST_STATIC_CONSTANT(
-          std::size_t
-        , alignment = (
-              alignment_ == std::size_t(-1)
-            ? ::boost::detail::aligned_storage::alignment_of_max_align
-            : alignment_
-            )
-        );
+        BOOST_STATIC_CONSTANT(std::size_t, size = size_);
+        BOOST_STATIC_CONSTANT(
+            std::size_t,
+            alignment =
+                (alignment_ == std::size_t(-1) ? ::boost::detail::aligned_storage::alignment_of_max_align
+                                               : alignment_));
 
-private: // noncopyable
+    private: // noncopyable
+        aligned_storage(const aligned_storage&);
+        aligned_storage& operator=(const aligned_storage&);
 
-    aligned_storage(const aligned_storage&);
-    aligned_storage& operator=(const aligned_storage&);
+    public: // structors
+        aligned_storage() {}
 
-public: // structors
+        ~aligned_storage() {}
 
-    aligned_storage()
+    public: // accessors
+        void* address() { return static_cast<type*>(this)->address(); }
+
+        const void* address() const { return static_cast<const type*>(this)->address(); }
+    };
+
+    //
+    // Make sure that is_pod recognises aligned_storage<>::type
+    // as a POD (Note that aligned_storage<> itself is not a POD):
+    //
+    template<std::size_t size_, std::size_t alignment_>
+    struct is_pod<::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_>> : public true_type
     {
-    }
-
-    ~aligned_storage()
-    {
-    }
-
-public: // accessors
-
-    void* address()
-    {
-        return static_cast<type*>(this)->address();
-    }
-
-    const void* address() const
-    {
-        return static_cast<const type*>(this)->address();
-    }
-};
-
-//
-// Make sure that is_pod recognises aligned_storage<>::type
-// as a POD (Note that aligned_storage<> itself is not a POD):
-//
-template <std::size_t size_, std::size_t alignment_>
-struct is_pod< ::boost::detail::aligned_storage::aligned_storage_imp<size_, alignment_> > : public true_type{};
+    };
 
 } // namespace boost
 

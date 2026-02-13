@@ -11,54 +11,61 @@
 
 #include <boost/core/pointer_traits.hpp>
 
-namespace boost{
-namespace unordered{
-namespace detail{
-namespace foa{
+namespace boost {
+    namespace unordered {
+        namespace detail {
+            namespace foa {
 
-template<class T,class VoidPtr>
-struct element_type
-{
-  using value_type=T;
-  using pointer=typename boost::pointer_traits<VoidPtr>::template rebind<T>;
+                template<class T, class VoidPtr>
+                struct element_type
+                {
+                    using value_type = T;
+                    using pointer = typename boost::pointer_traits<VoidPtr>::template rebind<T>;
 
-  pointer p;
+                    pointer p;
 
-  /*
-   * we use a deleted copy constructor here so the type is no longer
-   * trivially copy-constructible which inhibits our memcpy
-   * optimizations when copying the tables
-   */
-  element_type()=default;
-  element_type(pointer p_):p(p_){}
-  element_type(element_type const&)=delete;
-  element_type(element_type&& rhs)noexcept
-  {
-    p = rhs.p;
-    rhs.p = nullptr;
-  }
+                    /*
+                     * we use a deleted copy constructor here so the type is no longer
+                     * trivially copy-constructible which inhibits our memcpy
+                     * optimizations when copying the tables
+                     */
+                    element_type() = default;
 
-  element_type& operator=(element_type const&)=delete;
-  element_type& operator=(element_type&& rhs)noexcept
-  {
-    if (this!=&rhs){
-      p=rhs.p;
-      rhs.p=nullptr;
+                    element_type(pointer p_) :
+                        p(p_)
+                    {
+                    }
+
+                    element_type(element_type const&) = delete;
+
+                    element_type(element_type&& rhs) noexcept
+                    {
+                        p = rhs.p;
+                        rhs.p = nullptr;
+                    }
+
+                    element_type& operator=(element_type const&) = delete;
+
+                    element_type& operator=(element_type&& rhs) noexcept
+                    {
+                        if (this != &rhs) {
+                            p = rhs.p;
+                            rhs.p = nullptr;
+                        }
+                        return *this;
+                    }
+
+                    void swap(element_type& rhs) noexcept
+                    {
+                        auto tmp = p;
+                        p = rhs.p;
+                        rhs.p = tmp;
+                    }
+                };
+
+            }
+        }
     }
-    return *this;
-  }
-
-  void swap(element_type& rhs)noexcept
-  {
-    auto tmp=p;
-    p=rhs.p;
-    rhs.p=tmp;
-  }
-};
-
-}
-}
-}
 }
 
 #endif // BOOST_UNORDERED_DETAIL_FOA_ELEMENT_TYPE_HPP

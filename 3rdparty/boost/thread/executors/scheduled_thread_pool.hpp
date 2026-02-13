@@ -9,45 +9,43 @@
 #define BOOST_THREAD_EXECUTORS_SCHEDULED_THREAD_POOL_HPP
 
 #include <boost/thread/detail/config.hpp>
-#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && defined BOOST_THREAD_USES_MOVE
+#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && \
+    defined BOOST_THREAD_USES_MOVE
 
-#include <boost/thread/executors/detail/scheduled_executor_base.hpp>
+    #include <boost/thread/executors/detail/scheduled_executor_base.hpp>
 
-namespace boost
-{
-namespace executors
-{
+namespace boost {
+    namespace executors {
 
-  class scheduled_thread_pool : public detail::scheduled_executor_base<>
-  {
-  private:
-    thread_group _workers;
-  public:
+        class scheduled_thread_pool : public detail::scheduled_executor_base<> {
+        private:
+            thread_group _workers;
 
-    scheduled_thread_pool(size_t num_threads) : super()
-    {
-      for(size_t i = 0; i < num_threads; i++)
-      {
-        _workers.create_thread(bind(&super::loop, this));
-      }
-    }
+        public:
+            scheduled_thread_pool(size_t num_threads) :
+                super()
+            {
+                for (size_t i = 0; i < num_threads; i++) {
+                    _workers.create_thread(bind(&super::loop, this));
+                }
+            }
 
-    ~scheduled_thread_pool()
-    {
-      this->close();
-      _workers.interrupt_all();
-      _workers.join_all();
-    }
+            ~scheduled_thread_pool()
+            {
+                this->close();
+                _workers.interrupt_all();
+                _workers.join_all();
+            }
 
-  private:
-    typedef detail::scheduled_executor_base<> super;
-  }; //end class
+        private:
+            typedef detail::scheduled_executor_base<> super;
+        }; // end class
 
-} //end executors namespace
+    } // namespace executors
 
-using executors::scheduled_thread_pool;
+    using executors::scheduled_thread_pool;
 
-} //end boost
+} // namespace boost
 #endif
 #endif
 

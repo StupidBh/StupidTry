@@ -17,76 +17,55 @@
 #include <string>
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-struct segments_iter_impl
-    : private parts_base
-{
-    path_ref ref; // parent path data the iterator aliases
-    std::size_t pos = 0; // encoded offset of current segment start
-    std::size_t next = 0; // encoded offset one past current segment
-    std::size_t index = 0; // segment index within the parent path
-    std::size_t dn = 0; // decoded length of current segment
-    std::size_t decoded_prefix = 0; // decoded chars preceding current segment
-private:
-    pct_string_view s_;
-public:
+            struct segments_iter_impl : private parts_base
+            {
+                path_ref ref;                   // parent path data the iterator aliases
+                std::size_t pos = 0;            // encoded offset of current segment start
+                std::size_t next = 0;           // encoded offset one past current segment
+                std::size_t index = 0;          // segment index within the parent path
+                std::size_t dn = 0;             // decoded length of current segment
+                std::size_t decoded_prefix = 0; // decoded chars preceding current segment
+            private:
+                pct_string_view s_;
 
-    segments_iter_impl() = default;
-    segments_iter_impl(
-        segments_iter_impl const&) noexcept = default;
-    segments_iter_impl& operator=(
-        segments_iter_impl const&) noexcept = default;
+            public:
+                segments_iter_impl() = default;
+                segments_iter_impl(segments_iter_impl const&) noexcept = default;
+                segments_iter_impl& operator=(segments_iter_impl const&) noexcept = default;
 
-    // begin
-    segments_iter_impl(
-        detail::path_ref const&) noexcept;
+                // begin
+                segments_iter_impl(detail::path_ref const&) noexcept;
 
-    // end
-    segments_iter_impl(
-        detail::path_ref const&,
-        int) noexcept;
+                // end
+                segments_iter_impl(detail::path_ref const&, int) noexcept;
 
-    // at index
-    segments_iter_impl(
-        url_impl const& u_,
-        std::size_t pos_,
-        std::size_t i_) noexcept;
+                // at index
+                segments_iter_impl(url_impl const& u_, std::size_t pos_, std::size_t i_) noexcept;
 
-    void update() noexcept;
+                void update() noexcept;
 
-    BOOST_URL_DECL
-    void
-    increment() noexcept;
+                BOOST_URL_DECL
+                void increment() noexcept;
 
-    BOOST_URL_DECL
-    void
-    decrement() noexcept;
+                BOOST_URL_DECL
+                void decrement() noexcept;
 
-    pct_string_view
-    dereference() const noexcept
-    {
-        return s_;
-    }
+                pct_string_view dereference() const noexcept { return s_; }
 
-    std::size_t
-    decoded_prefix_size() const noexcept
-    {
-        return decoded_prefix;
-    }
+                std::size_t decoded_prefix_size() const noexcept { return decoded_prefix; }
 
-    bool
-    equal(
-        segments_iter_impl const& other) const noexcept
-    {
-        BOOST_ASSERT(ref.alias_of(other.ref));
-        return index == other.index;
-    }
-};
+                bool equal(segments_iter_impl const& other) const noexcept
+                {
+                    BOOST_ASSERT(ref.alias_of(other.ref));
+                    return index == other.index;
+                }
+            };
 
-} // detail
-} // urls
-} // boost
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

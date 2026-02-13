@@ -22,19 +22,20 @@
 
 /* plugins always export */
 #if defined(_MSC_VER) /* MSVC Compiler Case */
-#define H5PLUGIN_DLL __declspec(dllexport)
+    #define H5PLUGIN_DLL __declspec(dllexport)
 #elif (__GNUC__ >= 4) /* GCC 4.x has support for visibility options */
-#define H5PLUGIN_DLL __attribute__((visibility("default")))
+    #define H5PLUGIN_DLL __attribute__((visibility("default")))
 #else
-#define H5PLUGIN_DLL
+    #define H5PLUGIN_DLL
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-H5PLUGIN_DLL H5PL_type_t H5PLget_plugin_type(void);
-H5PLUGIN_DLL const void *H5PLget_plugin_info(void);
+    H5PLUGIN_DLL H5PL_type_t H5PLget_plugin_type(void);
+    H5PLUGIN_DLL const void* H5PLget_plugin_info(void);
 
 #ifdef __cplusplus
 }

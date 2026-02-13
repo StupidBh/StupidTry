@@ -6,66 +6,48 @@
 // ing file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <boost/statechart/result.hpp>
 
+namespace boost {
+    namespace statechart {
 
+        class event_base;
 
-namespace boost
-{
-namespace statechart
-{
+        //////////////////////////////////////////////////////////////////////////////
+        template<class Event>
+        class deferral {
+        public:
+            //////////////////////////////////////////////////////////////////////////
+            // The following declarations should be private.
+            // They are only public because many compilers lack template friends.
+            //////////////////////////////////////////////////////////////////////////
+            template<class State, class EventBase, class IdType>
+            static detail::reaction_result react(State& stt, const EventBase&, const IdType& eventType)
+            {
+                if (eventType == Event::static_type()) {
+                    return detail::result_utility::get_result(stt.defer_event());
+                }
+                else {
+                    return detail::no_reaction;
+                }
+            }
+        };
 
+        template<>
+        class deferral<event_base> {
+        public:
+            //////////////////////////////////////////////////////////////////////////
+            // The following declarations should be private.
+            // They are only public because many compilers lack template friends.
+            //////////////////////////////////////////////////////////////////////////
+            template<class State, class EventBase, class IdType>
+            static detail::reaction_result react(State& stt, const EventBase&, const IdType&)
+            {
+                return detail::result_utility::get_result(stt.defer_event());
+            }
+        };
 
-
-class event_base;
-
-//////////////////////////////////////////////////////////////////////////////
-template< class Event >
-class deferral
-{
-  public:
-    //////////////////////////////////////////////////////////////////////////
-    // The following declarations should be private.
-    // They are only public because many compilers lack template friends.
-    //////////////////////////////////////////////////////////////////////////
-    template< class State, class EventBase, class IdType >
-    static detail::reaction_result react(
-      State & stt, const EventBase &, const IdType & eventType )
-    {
-      if ( eventType == Event::static_type() )
-      {
-        return detail::result_utility::get_result( stt.defer_event() );
-      }
-      else
-      {
-        return detail::no_reaction;
-      }
-    }
-};
-
-template<>
-class deferral< event_base >
-{
-  public:
-    //////////////////////////////////////////////////////////////////////////
-    // The following declarations should be private.
-    // They are only public because many compilers lack template friends.
-    //////////////////////////////////////////////////////////////////////////
-    template< class State, class EventBase, class IdType >
-    static detail::reaction_result react(
-      State & stt, const EventBase &, const IdType & )
-    {
-      return detail::result_utility::get_result( stt.defer_event() );
-    }
-};
-
-
-
-} // namespace statechart
+    } // namespace statechart
 } // namespace boost
-
-
 
 #endif

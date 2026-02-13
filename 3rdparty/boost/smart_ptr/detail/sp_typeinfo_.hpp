@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //  smart_ptr/detail/sp_typeinfo_.hpp
@@ -17,42 +17,38 @@
 
 #include <boost/config.hpp>
 
-#if defined( BOOST_NO_TYPEID ) || defined( BOOST_NO_STD_TYPEINFO )
+#if defined(BOOST_NO_TYPEID) || defined(BOOST_NO_STD_TYPEINFO)
 
-#include <boost/core/typeinfo.hpp>
+    #include <boost/core/typeinfo.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-typedef boost::core::typeinfo sp_typeinfo_;
+        typedef boost::core::typeinfo sp_typeinfo_;
 
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 
-#define BOOST_SP_TYPEID_(T) BOOST_CORE_TYPEID(T)
+    #define BOOST_SP_TYPEID_(T) BOOST_CORE_TYPEID(T)
 
 #else // defined( BOOST_NO_TYPEID ) || defined( BOOST_NO_STD_TYPEINFO )
 
-#include <typeinfo>
+    #include <typeinfo>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-typedef std::type_info sp_typeinfo_;
+        typedef std::type_info sp_typeinfo_;
 
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 
-#define BOOST_SP_TYPEID_(T) typeid(T)
+    #define BOOST_SP_TYPEID_(T) typeid(T)
 
 #endif // defined( BOOST_NO_TYPEID ) || defined( BOOST_NO_STD_TYPEINFO )
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_TYPEINFO_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_DETAIL_SP_TYPEINFO_HPP_INCLUDED

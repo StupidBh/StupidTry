@@ -10,23 +10,20 @@
 
 //
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-inline void append_int( std::string& s, int v )
-{
-    char buffer[ 32 ];
-    detail::snprintf( buffer, sizeof( buffer ), ":%d", v );
+            inline void append_int(std::string& s, int v)
+            {
+                char buffer[32];
+                detail::snprintf(buffer, sizeof(buffer), ":%d", v);
 
-    s += buffer;
-}
+                s += buffer;
+            }
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #endif // #ifndef BOOST_SYSTEM_DETAIL_APPEND_INT_HPP_INCLUDED

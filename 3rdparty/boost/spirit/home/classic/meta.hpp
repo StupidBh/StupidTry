@@ -7,9 +7,9 @@
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_META_MAIN_HPP)
-#define BOOST_SPIRIT_META_MAIN_HPP
+    #define BOOST_SPIRIT_META_MAIN_HPP
 
-#include <boost/spirit/home/classic/version.hpp>
+    #include <boost/spirit/home/classic/version.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -17,10 +17,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/spirit/home/classic/meta/fundamental.hpp>
-#include <boost/spirit/home/classic/meta/parser_traits.hpp>
-#include <boost/spirit/home/classic/meta/as_parser.hpp>
-#include <boost/spirit/home/classic/meta/traverse.hpp>
+    #include <boost/spirit/home/classic/meta/fundamental.hpp>
+    #include <boost/spirit/home/classic/meta/parser_traits.hpp>
+    #include <boost/spirit/home/classic/meta/as_parser.hpp>
+    #include <boost/spirit/home/classic/meta/traverse.hpp>
 
 #endif // BOOST_SPIRIT_CORE_MAIN_HPP
 

@@ -7,17 +7,14 @@
 
 #include <type_traits>
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-using std::is_same;
+            using std::is_same;
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #endif // #ifndef BOOST_SYSTEM_DETAIL_IS_SAME_HPP_INCLUDED

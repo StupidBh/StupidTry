@@ -23,47 +23,45 @@
 #include <boost/process/v1/detail/async_handler.hpp>
 
 #if defined(BOOST_POSIX_API)
-#include <boost/process/v1/posix.hpp>
+    #include <boost/process/v1/posix.hpp>
 #endif
 
 namespace boost {
 
-namespace process { BOOST_PROCESS_V1_INLINE namespace v1 {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
 
-namespace detail {
+            }
 
-}
+            /** Launch a process and detach it. Returns no handle.
 
-/** Launch a process and detach it. Returns no handle.
+            This function starts a process and immediately detaches it. It thereby prevents the system from creating a
+            zombie process, but will also cause the system to be unable to wait for the child to exit.
 
-This function starts a process and immediately detaches it. It thereby prevents the system from creating a zombie process,
-but will also cause the system to be unable to wait for the child to exit.
+            \note This will set `SIGCHLD` to `SIGIGN` on posix.
 
-\note This will set `SIGCHLD` to `SIGIGN` on posix.
+            \warning This function does not allow asynchronous operations, since it cannot wait for the end of the
+            process. It will fail to compile if a reference to `boost::asio::io_context` is passed.
 
-\warning This function does not allow asynchronous operations, since it cannot wait for the end of the process.
-It will fail to compile if a reference to `boost::asio::io_context` is passed.
+             */
+            template<typename... Args>
+            inline void spawn(Args && ... args)
+            {
+                typedef typename ::boost::process::v1::detail::has_async_handler<Args...>::type has_async;
 
- */
-template<typename ...Args>
-inline void spawn(Args && ...args)
-{
-    typedef typename ::boost::process::v1::detail::has_async_handler<Args...>::type
-            has_async;
+                static_assert(!has_async::value, "Spawn cannot wait for exit, so async properties cannot be used");
 
-
-    static_assert(
-            !has_async::value,
-            "Spawn cannot wait for exit, so async properties cannot be used");
-
-    auto c = ::boost::process::v1::detail::execute_impl(
+                auto c = ::boost::process::v1::detail::execute_impl(
 #if defined(BOOST_POSIX_API)
-            ::boost::process::v1::posix::sig.ign(),
+                    ::boost::process::v1::posix::sig.ign(),
 #endif
-             std::forward<Args>(args)...);
-    c.detach();
+                    std::forward<Args>(args)...);
+                c.detach();
+            }
+        }
+    }
 }
-
-}}}
 
 #endif

@@ -7,23 +7,23 @@
 
 #include <string>
 
-namespace boost
-{
-namespace thread_detail
-{
+namespace boost {
+    namespace thread_detail {
 
-inline std::string string_trim( std::string const& s )
-{
-    std::size_t i = s.find_first_not_of( " \t\r\n" );
+        inline std::string string_trim(std::string const& s)
+        {
+            std::size_t i = s.find_first_not_of(" \t\r\n");
 
-    if( i == std::string::npos ) return std::string();
+            if (i == std::string::npos) {
+                return std::string();
+            }
 
-    std::size_t j = s.find_last_not_of( " \t\r\n" );
+            std::size_t j = s.find_last_not_of(" \t\r\n");
 
-    return s.substr( i, j + 1 - i );
-}
+            return s.substr(i, j + 1 - i);
+        }
 
-} // namespace thread_detail
+    } // namespace thread_detail
 } // namespace boost
 
 #endif // #ifndef BOOST_THREAD_DETAIL_STRING_TRIM_HPP_INCLUDED

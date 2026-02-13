@@ -17,37 +17,36 @@
 #include <boost/core/detail/string_view.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** Parse a string and return an encoded params view
+        /** Parse a string and return an encoded params view
 
-    This function parses the string and returns the
-    corresponding params object if the string is valid,
-    otherwise returns an error.
+            This function parses the string and returns the
+            corresponding params object if the string is valid,
+            otherwise returns an error.
 
-    @par BNF
-    @code
-    query         = *( pchar / "/" / "?" )
-    @endcode
+            @par BNF
+            @code
+            query         = *( pchar / "/" / "?" )
+            @endcode
 
-    @par Exception Safety
-    No-throw guarantee.
+            @par Exception Safety
+            No-throw guarantee.
 
-    @return A valid view on success, otherwise an
-    error code.
+            @return A valid view on success, otherwise an
+            error code.
 
-    @param s The string to parse
+            @param s The string to parse
 
-    @par Specification
+            @par Specification
 
-    @see
-        @ref params_encoded_view.
-*/
-BOOST_URL_DECL
-system::result<params_encoded_view>
-parse_query(core::string_view s) noexcept;
+            @see
+                @ref params_encoded_view.
+        */
+        BOOST_URL_DECL
+        system::result<params_encoded_view> parse_query(core::string_view s) noexcept;
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

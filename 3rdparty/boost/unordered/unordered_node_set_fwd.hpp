@@ -9,7 +9,7 @@
 
 #include <boost/config.hpp>
 #if defined(BOOST_HAS_PRAGMA_ONCE)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/container_hash/hash_fwd.hpp>
@@ -17,42 +17,43 @@
 #include <memory>
 
 #ifndef BOOST_NO_CXX17_HDR_MEMORY_RESOURCE
-#include <memory_resource>
+    #include <memory_resource>
 #endif
 
 namespace boost {
-  namespace unordered {
-    template <class Key, class Hash = boost::hash<Key>,
-      class KeyEqual = std::equal_to<Key>,
-      class Allocator = std::allocator<Key> >
-    class unordered_node_set;
+    namespace unordered {
+        template<
+            class Key,
+            class Hash = boost::hash<Key>,
+            class KeyEqual = std::equal_to<Key>,
+            class Allocator = std::allocator<Key>>
+        class unordered_node_set;
 
-    template <class Key, class Hash, class KeyEqual, class Allocator>
-    bool operator==(
-      unordered_node_set<Key, Hash, KeyEqual, Allocator> const& lhs,
-      unordered_node_set<Key, Hash, KeyEqual, Allocator> const& rhs);
+        template<class Key, class Hash, class KeyEqual, class Allocator>
+        bool operator==(
+            unordered_node_set<Key, Hash, KeyEqual, Allocator> const& lhs,
+            unordered_node_set<Key, Hash, KeyEqual, Allocator> const& rhs);
 
-    template <class Key, class Hash, class KeyEqual, class Allocator>
-    bool operator!=(
-      unordered_node_set<Key, Hash, KeyEqual, Allocator> const& lhs,
-      unordered_node_set<Key, Hash, KeyEqual, Allocator> const& rhs);
+        template<class Key, class Hash, class KeyEqual, class Allocator>
+        bool operator!=(
+            unordered_node_set<Key, Hash, KeyEqual, Allocator> const& lhs,
+            unordered_node_set<Key, Hash, KeyEqual, Allocator> const& rhs);
 
-    template <class Key, class Hash, class KeyEqual, class Allocator>
-    void swap(unordered_node_set<Key, Hash, KeyEqual, Allocator>& lhs,
-      unordered_node_set<Key, Hash, KeyEqual, Allocator>& rhs)
-      noexcept(noexcept(lhs.swap(rhs)));
+        template<class Key, class Hash, class KeyEqual, class Allocator>
+        void swap(
+            unordered_node_set<Key, Hash, KeyEqual, Allocator>& lhs,
+            unordered_node_set<Key, Hash, KeyEqual, Allocator>& rhs) noexcept(noexcept(lhs.swap(rhs)));
 
 #ifndef BOOST_NO_CXX17_HDR_MEMORY_RESOURCE
-    namespace pmr {
-      template <class Key, class Hash = boost::hash<Key>,
-        class KeyEqual = std::equal_to<Key> >
-      using unordered_node_set = boost::unordered::unordered_node_set<Key, Hash,
-        KeyEqual, std::pmr::polymorphic_allocator<Key> >;
-    } // namespace pmr
+        namespace pmr {
+            template<class Key, class Hash = boost::hash<Key>, class KeyEqual = std::equal_to<Key>>
+            using unordered_node_set =
+                boost::unordered::unordered_node_set<Key, Hash, KeyEqual, std::pmr::polymorphic_allocator<Key>>;
+        } // namespace pmr
 #endif
-  } // namespace unordered
+    } // namespace unordered
 
-  using boost::unordered::unordered_node_set;
+    using boost::unordered::unordered_node_set;
 } // namespace boost
 
 #endif

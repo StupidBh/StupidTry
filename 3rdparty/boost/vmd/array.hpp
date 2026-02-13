@@ -5,14 +5,14 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_ARRAY_HPP)
-#define BOOST_VMD_ARRAY_HPP
+    #define BOOST_VMD_ARRAY_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-#include <boost/vmd/array/to_seq.hpp>
-#include <boost/vmd/array/to_tuple.hpp>
+        #include <boost/vmd/array/to_seq.hpp>
+        #include <boost/vmd/array/to_tuple.hpp>
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_ARRAY_HPP */
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_ARRAY_HPP */

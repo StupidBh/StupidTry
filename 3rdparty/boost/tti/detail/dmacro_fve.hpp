@@ -5,12 +5,12 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_DETAIL_MACRO_FVE_HPP)
-#define BOOST_TTI_DETAIL_MACRO_FVE_HPP
+    #define BOOST_TTI_DETAIL_MACRO_FVE_HPP
 
-#include <boost/preprocessor/variadic/elem.hpp>
+    #include <boost/preprocessor/variadic/elem.hpp>
 
-#define BOOST_TTI_DETAIL_FIRST_VARIADIC_ELEM(...) \
-    BOOST_PP_VARIADIC_ELEM(0,__VA_ARGS__) \
-/**/
+    #define BOOST_TTI_DETAIL_FIRST_VARIADIC_ELEM(...) \
+        BOOST_PP_VARIADIC_ELEM(0, __VA_ARGS__)        \
+        /**/
 
 #endif // BOOST_TTI_DETAIL_MACRO_FVE_HPP

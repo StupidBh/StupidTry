@@ -14,39 +14,37 @@
 #include <boost/url/grammar/lut_chars.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** The sub-delims character set
+        /** The sub-delims character set
 
-    @par Example
-    Character sets are used with rules and
-    the functions @ref grammar::find_if and
-    @ref grammar::find_if_not.
-    @code
-    system::result< decode_view > = grammar::parse( "Program%20Files", pct_encoded_rule( sub_delim_chars ) );
-    @endcode
+            @par Example
+            Character sets are used with rules and
+            the functions @ref grammar::find_if and
+            @ref grammar::find_if_not.
+            @code
+            system::result< decode_view > = grammar::parse( "Program%20Files", pct_encoded_rule( sub_delim_chars ) );
+            @endcode
 
-    @par BNF
-    @code
-    sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
-                  / "*" / "+" / "," / ";" / "="
-    @endcode
+            @par BNF
+            @code
+            sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
+                          / "*" / "+" / "," / ";" / "="
+            @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.2"
-        >2.2. Reserved Characters (rfc3986)</a>
+            @par Specification
+            @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.2"
+                >2.2. Reserved Characters (rfc3986)</a>
 
-    @see
-        @ref grammar::find_if,
-        @ref grammar::find_if_not,
-        @ref grammar::parse,
-        @ref pct_encoded_rule.
-*/
-constexpr
-grammar::lut_chars
-sub_delim_chars = "!$&()*+,;=\x27";
+            @see
+                @ref grammar::find_if,
+                @ref grammar::find_if_not,
+                @ref grammar::parse,
+                @ref pct_encoded_rule.
+        */
+        constexpr grammar::lut_chars sub_delim_chars = "!$&()*+,;=\x27";
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

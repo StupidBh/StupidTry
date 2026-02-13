@@ -5,12 +5,12 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER_HPP)
-#define BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER_HPP
+    #define BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER_HPP
 
-#include <boost/vmd/detail/match_identifier_common.hpp>
+    #include <boost/vmd/detail/match_identifier_common.hpp>
 
-#define BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER(id,key) \
-    BOOST_VMD_DETAIL_MATCH_IDENTIFIER_OP_CMP_IDS(id,key) \
-/**/
+    #define BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER(id, key) \
+        BOOST_VMD_DETAIL_MATCH_IDENTIFIER_OP_CMP_IDS(id, key) \
+        /**/
 
 #endif /* BOOST_VMD_DETAIL_MATCH_SINGLE_IDENTIFIER_HPP */

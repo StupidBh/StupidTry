@@ -10,8 +10,7 @@
 
 #include <boost/type_traits/integral_constant.hpp>
 
-namespace boost
-{
+namespace boost {
     template<typename T>
     struct is_future_type : false_type
     {

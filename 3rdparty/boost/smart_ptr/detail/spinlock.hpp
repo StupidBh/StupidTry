@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //
@@ -32,12 +32,12 @@
 
 #if defined(__clang__)
 
-// Old Clang versions have trouble with ATOMIC_FLAG_INIT
-# include <boost/smart_ptr/detail/spinlock_gcc_atomic.hpp>
+    // Old Clang versions have trouble with ATOMIC_FLAG_INIT
+    #include <boost/smart_ptr/detail/spinlock_gcc_atomic.hpp>
 
 #else
 
-# include <boost/smart_ptr/detail/spinlock_std_atomic.hpp>
+    #include <boost/smart_ptr/detail/spinlock_std_atomic.hpp>
 
 #endif
 

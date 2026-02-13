@@ -47,15 +47,15 @@ Disable Contract Compilation}).
     @c BOOST_CONTRACT_PRECONDITION(f) expands to code equivalent to the
     following (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_PRECONDITIONS} is defined):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_PRECONDITIONS
         .precondition(f)
     #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>f</b></c> is the nullay functor called by this library to
             check preconditions @c f().
             Assertions within this functor are usually programmed using
@@ -86,13 +86,13 @@ Disable Contract Compilation}).
     @c BOOST_CONTRACT_POSTCONDITION(f) expands to code equivalent to the
     following (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_POSTCONDITIONS} is defined):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_POSTCONDITIONS
         .postcondition(f)
     #endif
     @endcode
-    
+
     Where:
 
     @arg    <c><b>f</b></c> is the functor called by this library to check
@@ -126,19 +126,19 @@ Disable Contract Compilation}).
     /**
     Program exception guarantees that can be completely disabled at
     compile-time.
-    
+
     @c BOOST_CONTRACT_EXCEPT(f) expands to code equivalent to the following
     (note that no code is generated when @RefMacro{BOOST_CONTRACT_NO_EXCEPTS}
     is defined):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_EXCEPTS
         .except(f)
     #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>f</b></c> is the nullary functor called by this library to
             check exception guarantees @c f().
             Assertions within this functor are usually programmed using
@@ -170,13 +170,13 @@ Disable Contract Compilation}).
     @c BOOST_CONTRACT_OLD(f) expands to code equivalent to the following (note
     that no code is generated when @RefMacro{BOOST_CONTRACT_NO_OLDS} is
     defined):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_OLDS
         .old(f)
     #endif
     @endcode
-    
+
     Where:
 
     @arg    <c><b>f</b></c> is the nullary functor called by this library
@@ -245,7 +245,7 @@ Disable Contract Compilation}).
         ...
     };
     @endcode
-    
+
     This is an overloaded variadic macro and it can be used in the following
     different ways (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_OLDS} is defined).
@@ -259,19 +259,19 @@ Disable Contract Compilation}).
         boost::contract::old_ptr<old_type> old_var
     #endif
     @endcode
-    
+
     2\. <c>BOOST_CONTRACT_OLD_PTR(old_type)(old_var, old_expr)</c> expands to
         code equivalent to the following (this initializes the pointer to the
         old value copy, but not to be used for virtual public functions and
         public function overrides):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_OLDS
         boost::contract::old_ptr<old_type> old_var =
                 BOOST_CONTRACT_OLDOF(old_expr)
     #endif
     @endcode
-    
+
     3\. <c>BOOST_CONTRACT_OLD_PTR(old_type)(v, old_var, old_expr)</c> expands to
         code equivalent to the following (this initializes the pointer to the
         old value copy for virtual public functions and public function
@@ -283,9 +283,9 @@ Disable Contract Compilation}).
                 BOOST_CONTRACT_OLDOF(v, old_expr)
     #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>old_type</b></c> is the type of the pointed old value.
             This type must be copyable (i.e.,
             <c>boost::contract::is_old_value_copyable<old_type>::value</c> is
@@ -322,7 +322,7 @@ Disable Contract Compilation}).
     /**
     Program old values that can be completely disabled at compile-time for old
     value types that are not required to be copyable.
-    
+
     This is used to program old value copies for types that might or might not
     be copyable:
 
@@ -371,7 +371,7 @@ Disable Contract Compilation}).
         ...
     };
     @endcode
-    
+
     This is an overloaded variadic macro and it can be used in the following
     different ways (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_OLDS} is defined).
@@ -386,19 +386,19 @@ Disable Contract Compilation}).
         boost::contract::old_ptr_if_copyable<old_type> old_var
     #endif
     @endcode
-    
+
     2\. <c>BOOST_CONTRACT_OLD_PTR_IF_COPYABLE(old_type)(old_var, old_expr)</c>
         expands to code equivalent to the following (this initializes the
         pointer to the old value copy, but not to be used for virtual public
         functions and public function overrides):
-    
+
     @code
     #ifndef BOOST_CONTRACT_NO_OLDS
         boost::contract::old_ptr_if_copyable<old_type> old_var =
                 BOOST_CONTRACT_OLDOF(old_expr)
     #endif
     @endcode
-    
+
     3\. <c>BOOST_CONTRACT_OLD_PTR_IF_COPYABLE(old_type)(v, old_var,
         old_expr)</c> expands to code equivalent to the following (this
         initializes the pointer to the old value copy for virtual public
@@ -410,9 +410,9 @@ Disable Contract Compilation}).
                 BOOST_CONTRACT_OLDOF(v, old_expr)
     #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>old_type</b></c> is the type of the pointed old value.
             If this type is not copyable (i.e.,
             <c>boost::contract::is_old_value_copyable<old_type>::value</c> is
@@ -451,35 +451,28 @@ Disable Contract Compilation}).
 
     /* PRIVATE */
 
-    #define BOOST_CONTRACT_OLD_VAR_1(ptr) \
-        ptr
-    #define BOOST_CONTRACT_OLD_VAR_2(ptr, expr) \
-        ptr = BOOST_CONTRACT_OLDOF(expr)
-    #define BOOST_CONTRACT_OLD_VAR_3(v, ptr, expr) \
-        ptr = BOOST_CONTRACT_OLDOF(v, expr)
+    #define BOOST_CONTRACT_OLD_VAR_1(ptr)          ptr
+    #define BOOST_CONTRACT_OLD_VAR_2(ptr, expr)    ptr = BOOST_CONTRACT_OLDOF(expr)
+    #define BOOST_CONTRACT_OLD_VAR_3(v, ptr, expr) ptr = BOOST_CONTRACT_OLDOF(v, expr)
 
     #define BOOST_CONTRACT_OLD_VAR_(...) \
-        BOOST_PP_CAT(BOOST_PP_OVERLOAD(BOOST_CONTRACT_OLD_VAR_, __VA_ARGS__) \
-                (__VA_ARGS__), BOOST_PP_EMPTY())
+        BOOST_PP_CAT(BOOST_PP_OVERLOAD(BOOST_CONTRACT_OLD_VAR_, __VA_ARGS__)(__VA_ARGS__), BOOST_PP_EMPTY())
 
     /* PUBLIC */
-    
+
     #define BOOST_CONTRACT_OLD(...) .old(__VA_ARGS__)
 
-    #define BOOST_CONTRACT_OLD_PTR(...) \
-        boost::contract::old_ptr< __VA_ARGS__ > \
-        BOOST_CONTRACT_OLD_VAR_
+    #define BOOST_CONTRACT_OLD_PTR(...) boost::contract::old_ptr<__VA_ARGS__> BOOST_CONTRACT_OLD_VAR_
 
     #define BOOST_CONTRACT_OLD_PTR_IF_COPYABLE(...) \
-        boost::contract::old_ptr_if_copyable< __VA_ARGS__ > \
-        BOOST_CONTRACT_OLD_VAR_
+        boost::contract::old_ptr_if_copyable<__VA_ARGS__> BOOST_CONTRACT_OLD_VAR_
 #else
     #include <boost/preprocessor/tuple/eat.hpp>
-   
+
     #define BOOST_CONTRACT_OLD(...) /* nothing */
 
     #define BOOST_CONTRACT_OLD_PTR(...) BOOST_PP_TUPLE_EAT(0)
-    
+
     #define BOOST_CONTRACT_OLD_PTR_IF_COPYABLE(...) BOOST_PP_TUPLE_EAT(0)
 #endif
 
@@ -499,9 +492,9 @@ Disable Contract Compilation}).
             }
         #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <b>{ ... }</b> is the definition of the function that checks class
             invariants for public functions that are not static and not volatile
             (see @RefMacro{BOOST_CONTRACT_STATIC_INVARIANT} and
@@ -539,9 +532,9 @@ Disable Contract Compilation}).
             }
         #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <b>{ ... }</b> is the definition of the function that checks class
             invariants for volatile public functions
             (see @RefMacro{BOOST_CONTRACT_INVARIANT} and
@@ -562,7 +555,7 @@ Disable Contract Compilation}).
             Volatile Public Functions}
     */
     #define BOOST_CONTRACT_INVARIANT_VOLATILE(...)
-    
+
     /**
     Program static class invariants that can be completely disabled at
     compile-time.
@@ -578,9 +571,9 @@ Disable Contract Compilation}).
             }
         #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <b>{ ... }</b> is the definition of the function that checks class
             invariants for static public functions
             (see @RefMacro{BOOST_CONTRACT_INVARIANT} and
@@ -603,27 +596,24 @@ Disable Contract Compilation}).
 #elif !defined(BOOST_CONTRACT_NO_INVARIANTS)
     #include <boost/contract/core/config.hpp>
 
-    #define BOOST_CONTRACT_INVARIANT(...) \
-        void BOOST_CONTRACT_INVARIANT_FUNC() const __VA_ARGS__
+    #define BOOST_CONTRACT_INVARIANT(...) void BOOST_CONTRACT_INVARIANT_FUNC() const __VA_ARGS__
 
-    #define BOOST_CONTRACT_INVARIANT_VOLATILE(...) \
-        void BOOST_CONTRACT_INVARIANT_FUNC() const volatile __VA_ARGS__
-    
-    #define BOOST_CONTRACT_STATIC_INVARIANT(...) \
-        static void BOOST_CONTRACT_STATIC_INVARIANT_FUNC() __VA_ARGS__
+    #define BOOST_CONTRACT_INVARIANT_VOLATILE(...) void BOOST_CONTRACT_INVARIANT_FUNC() const volatile __VA_ARGS__
+
+    #define BOOST_CONTRACT_STATIC_INVARIANT(...) static void BOOST_CONTRACT_STATIC_INVARIANT_FUNC() __VA_ARGS__
 #else
-    #define BOOST_CONTRACT_INVARIANT(...) /* nothing */
+    #define BOOST_CONTRACT_INVARIANT(...)          /* nothing */
 
     #define BOOST_CONTRACT_INVARIANT_VOLATILE(...) /* nothing */
-    
-    #define BOOST_CONTRACT_STATIC_INVARIANT(...) /* nothing */
+
+    #define BOOST_CONTRACT_STATIC_INVARIANT(...)   /* nothing */
 #endif
 
 #ifdef BOOST_CONTRACT_DETAIL_DOXYGEN
     /**
     Program contracts that can be completely disabled at compile-time for
     constructors.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_POSTCONDITION},
     @RefMacro{BOOST_CONTRACT_EXCEPT}, and @RefMacro{BOOST_CONTRACT_OLD} to
     specify postconditions, exception guarantees, and old value copies at body
@@ -669,7 +659,7 @@ Disable Contract Compilation}).
     For optimization, this can be omitted for constructors that do not have
     postconditions and exception guarantees, within classes that have no
     invariants.
-            
+
     @c BOOST_CONTRACT_CONSTRUCTOR(obj) expands to code equivalent to the
     following (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_CONSTRUCTORS} is defined):
@@ -682,7 +672,7 @@ Disable Contract Compilation}).
     @endcode
 
     Where:
-    
+
     @arg    <c><b>obj</b></c> is the object @c this from the scope of the
             enclosing constructor declaring the contract.
             Constructors check all class invariants, including static and
@@ -707,8 +697,7 @@ Disable Contract Compilation}).
     #include <boost/contract/detail/name.hpp>
 
     #define BOOST_CONTRACT_CONSTRUCTOR(...) \
-        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::constructor(__VA_ARGS__)
+        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = boost::contract::constructor(__VA_ARGS__)
 #else
     #define BOOST_CONTRACT_CONSTRUCTOR(...) /* nothing */
 #endif
@@ -716,7 +705,7 @@ Disable Contract Compilation}).
 #ifdef BOOST_CONTRACT_DETAIL_DOXYGEN
     /**
     Program preconditions that can be disabled at compile-time for constructors.
-            
+
     This is used together with @RefMacro{BOOST_CONTRACT_CONSTRUCTOR} to specify
     contracts for constructors.
     Constructors that do not have preconditions do not use this macro.
@@ -766,9 +755,9 @@ Disable Contract Compilation}).
     #else // No-op call (likely optimized away, minimal to no overhead).
         boost::contract::constructor_precondition<class_type>()
     #endif
-    
+
     @endcode
-    
+
     Where:
 
     @arg    <c><b>class_type</b></c> is the type of the class containing the
@@ -795,23 +784,21 @@ Disable Contract Compilation}).
 #elif !defined(BOOST_CONTRACT_NO_PRECONDITIONS) // Not NO_CONSTRUCTORS here.
     // constructor_precondition.hpp already #included at top.
 
-    #define BOOST_CONTRACT_CONSTRUCTOR_PRECONDITION(...) \
-        boost::contract::constructor_precondition< __VA_ARGS__ >
+    #define BOOST_CONTRACT_CONSTRUCTOR_PRECONDITION(...) boost::contract::constructor_precondition<__VA_ARGS__>
 #else
     #include <boost/preprocessor/tuple/eat.hpp>
     // constructor_precondition.hpp always #included at top of this file.
 
     #define BOOST_CONTRACT_CONSTRUCTOR_PRECONDITION(...) \
         /* always use default ctor (i.e., do nothing) */ \
-        boost::contract::constructor_precondition< __VA_ARGS__ >() \
-        BOOST_PP_TUPLE_EAT(0)
+        boost::contract::constructor_precondition<__VA_ARGS__>() BOOST_PP_TUPLE_EAT(0)
 #endif
 
 #ifdef BOOST_CONTRACT_DETAIL_DOXYGEN
     /**
     Program contracts that can be completely disabled at compile-time for
     destructors.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_POSTCONDITION},
     @RefMacro{BOOST_CONTRACT_EXCEPT}, and @RefMacro{BOOST_CONTRACT_OLD} to
     specify postconditions, exception guarantees, and old value copies at body
@@ -849,7 +836,7 @@ Disable Contract Compilation}).
 
             ... // Destructor body.
         }
-        
+
         ...
     };
     @endcode
@@ -857,11 +844,11 @@ Disable Contract Compilation}).
     For optimization, this can be omitted for destructors that do not have
     postconditions and exception guarantees, within classes that have no
     invariants.
-    
+
     @c BOOST_CONTRACT_DESTRUCTOR(obj) expands to code equivalent to the
     following (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_DESTRUCTORS} is defined):
-    
+
     @code
         #ifndef BOOST_CONTRACT_NO_DESTRUCTORS
             boost::contract::check internal_var =
@@ -870,7 +857,7 @@ Disable Contract Compilation}).
     @endcode
 
     Where:
-    
+
     @arg    <c><b>obj</b></c> is the object @c this from the scope of the
             enclosing destructor declaring the contract.
             Destructors check all class invariants, including static and
@@ -896,8 +883,7 @@ Disable Contract Compilation}).
     #include <boost/contract/detail/name.hpp>
 
     #define BOOST_CONTRACT_DESTRUCTOR(...) \
-        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::destructor(__VA_ARGS__)
+        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = boost::contract::destructor(__VA_ARGS__)
 #else
     #define BOOST_CONTRACT_DESTRUCTOR(...) /* nothing */
 #endif
@@ -906,13 +892,13 @@ Disable Contract Compilation}).
     /**
     Program contracts that can be completely disabled at compile-time for
     (non-public) functions.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_PRECONDITION},
     @RefMacro{BOOST_CONTRACT_POSTCONDITION}, @RefMacro{BOOST_CONTRACT_EXCEPT},
     and @RefMacro{BOOST_CONTRACT_OLD} to specify preconditions, postconditions,
     exception guarantees, and old value copies at body that can be completely
     disabled at compile-time for (non-public) functions:
-    
+
     @code
     void f(...) {
         BOOST_CONTRACT_OLD_PTR(old_type)(old_var);
@@ -922,7 +908,7 @@ Disable Contract Compilation}).
                 ...
             })
             BOOST_CONTRACT_OLD([&] { // Optional.
-                old_var = BOOST_CONTRACT_OLDOF(old_expr);  
+                old_var = BOOST_CONTRACT_OLDOF(old_expr);
                 ...
             })
             BOOST_CONTRACT_POSTCONDITION([&] { // Optional.
@@ -938,7 +924,7 @@ Disable Contract Compilation}).
         ... // Function body.
     }
     @endcode
-    
+
     This can be used to program contracts for non-member functions but also for
     private and protected functions, lambda functions, loops, arbitrary blocks
     of code, etc.
@@ -948,21 +934,21 @@ Disable Contract Compilation}).
     @c BOOST_CONTRACT_FUNCTION() expands to code equivalent to the following
     (note that no code is generated when @RefMacro{BOOST_CONTRACT_NO_FUNCTIONS}
     is defined):
-    
+
     @code
         #ifndef BOOST_CONTRACT_NO_FUNCTIONS
             boost::contract::check internal_var =
                     boost::contract::function()
         #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>internal_var</b></c> is a variable name internally generated
             by this library (this name is unique but only on different line
             numbers so this macro cannot be expanded multiple times on the same
             line).
-    
+
     @see    @RefSect{extras.disable_contract_compilation__macro_interface_,
             Disable Contract Compilation},
             @RefSect{tutorial.non_member_functions, Non-Member Functions},
@@ -978,8 +964,7 @@ Disable Contract Compilation}).
     #include <boost/contract/detail/name.hpp>
 
     #define BOOST_CONTRACT_FUNCTION() \
-        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::function()
+        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = boost::contract::function()
 #else
     #include <boost/preprocessor/facilities/empty.hpp>
 
@@ -990,7 +975,7 @@ Disable Contract Compilation}).
     /**
     Program contracts that can be completely disabled at compile-time for static
     public functions.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_PRECONDITION},
     @RefMacro{BOOST_CONTRACT_POSTCONDITION}, @RefMacro{BOOST_CONTRACT_EXCEPT},
     and @RefMacro{BOOST_CONTRACT_OLD} to specify preconditions, postconditions,
@@ -1030,7 +1015,7 @@ Disable Contract Compilation}).
 
             ... // Function body.
         }
-        
+
         ...
     };
     @endcode
@@ -1038,20 +1023,20 @@ Disable Contract Compilation}).
     For optimization, this can be omitted for static public functions that do
     not have preconditions, postconditions and exception guarantees, within
     classes that have no static invariants.
-    
+
     @c BOOST_CONTRACT_STATIC_PUBLIC_FUNCTION(class_type) expands to code
     equivalent to the following (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_PUBLIC_FUNCTIONS} is defined):
-    
+
     @code
         #ifndef BOOST_CONTRACT_NO_PUBLIC_FUNCTIONS
             boost::contract::check internal_var =
                     boost::contract::public_function<class_type>()
         #endif
     @endcode
-    
+
     Where:
-    
+
     @arg    <c><b>class_type</b></c> is the type of the class containing the
             static public function declaring the contract.
             (This is a variadic macro parameter so it can contain commas not
@@ -1060,7 +1045,7 @@ Disable Contract Compilation}).
             by this library (this name is unique but only on different line
             numbers so this macro cannot be expanded multiple times on the same
             line).
-    
+
     @see    @RefSect{extras.disable_contract_compilation__macro_interface_,
             Disable Contract Compilation},
             @RefSect{tutorial.static_public_functions, Static Public Functions}
@@ -1070,7 +1055,7 @@ Disable Contract Compilation}).
     /**
     Program contracts that can be completely disabled at compile-time for
     non-static public functions that do not override.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_PRECONDITION},
     @RefMacro{BOOST_CONTRACT_POSTCONDITION}, @RefMacro{BOOST_CONTRACT_EXCEPT},
     and @RefMacro{BOOST_CONTRACT_OLD} to specify preconditions, postconditions,
@@ -1113,7 +1098,7 @@ Disable Contract Compilation}).
 
             ... // Function body (use `return result = return_expr`).
         }
-        
+
         // Virtual and void.
         virtual void g(..., boost::contract::virtual_* v = 0) {
             BOOST_CONTRACT_OLD_PTR(old_type)(old_var);
@@ -1125,10 +1110,10 @@ Disable Contract Compilation}).
                 })
                 ...
             ; // Trailing `;` is required.
-            
+
             ... // Function body.
         }
-        
+
         // Virtual and non-void.
         virtual t h(..., boost::contract::virtual_* v = 0) {
             t result;
@@ -1145,10 +1130,10 @@ Disable Contract Compilation}).
                 })
                 ...
             ; // Trailing `;` is required.
-            
+
             ... // Function body (use `return result = return_expr`).
         }
-        
+
         ...
     };
     @endcode
@@ -1159,7 +1144,7 @@ Disable Contract Compilation}).
     Virtual public functions should always use
     @RefMacro{BOOST_CONTRACT_PUBLIC_FUNCTION} otherwise this library will not
     be able to correctly use them for subcontracting.
-    
+
     This is an overloaded variadic macro and it can be used in the following
     different ways (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_PUBLIC_FUNCTIONS} is defined).
@@ -1174,7 +1159,7 @@ Disable Contract Compilation}).
                     boost::contract::public_function(obj)
         #endif
     @endcode
-    
+
     2\. <c>BOOST_CONTRACT_PUBLIC_FUNCTION(v, obj)</c> expands to code
         equivalent to the following (for virtual public functions that do not
         override, returning void):
@@ -1185,7 +1170,7 @@ Disable Contract Compilation}).
                     boost::contract::public_function(v, obj)
         #endif
     @endcode
-    
+
     3\. <c>BOOST_CONTRACT_PUBLIC_FUNCTION(v, r, obj)</c> expands to code
         equivalent to the following (for virtual public functions that do not
         override, not returning void):
@@ -1220,7 +1205,7 @@ Disable Contract Compilation}).
             by this library (this name is unique but only on different line
             numbers so this macro cannot be expanded multiple times on the same
             line).
-    
+
     @see    @RefSect{extras.disable_contract_compilation__macro_interface_,
             Disable Contract Compilation},
             @RefSect{tutorial.public_functions, Public Functions},
@@ -1228,11 +1213,11 @@ Disable Contract Compilation}).
             Virtual Public Functions}
     */
     #define BOOST_CONTRACT_PUBLIC_FUNCTION(...)
-    
+
     /**
     Program contracts that can be completely disabled at compile-time for
     public function overrides.
-    
+
     This is used together with @RefMacro{BOOST_CONTRACT_PRECONDITION},
     @RefMacro{BOOST_CONTRACT_POSTCONDITION}, @RefMacro{BOOST_CONTRACT_EXCEPT},
     and @RefMacro{BOOST_CONTRACT_OLD} to specify preconditions, postconditions,
@@ -1283,7 +1268,7 @@ Disable Contract Compilation}).
 
             ... // Function body.
         }
-        
+
         // Override from `b::g`, and void.
         t g(t_1 a_1, ..., t_n a_n, boost::contract::virtual_* v = 0) {
             t result;
@@ -1304,7 +1289,7 @@ Disable Contract Compilation}).
 
             ... // Function body (use `return result = return_expr`).
         }
-        
+
         ...
     };
     @endcode
@@ -1312,7 +1297,7 @@ Disable Contract Compilation}).
     Public function overrides should always use
     @RefMacro{BOOST_CONTRACT_PUBLIC_FUNCTION_OVERRIDE} otherwise this library
     will not be able to correctly use it for subcontracting.
-    
+
     This is an overloaded variadic macro and it can be used in the following
     different ways (note that no code is generated when
     @RefMacro{BOOST_CONTRACT_NO_PUBLIC_FUNCTIONS} is defined).
@@ -1327,7 +1312,7 @@ Disable Contract Compilation}).
                     public_function<override_type>(v, f, obj, ...)
         #endif
     @endcode
-    
+
     2\. <c>BOOST_CONTRACT_PUBLIC_FUNCTION_OVERRIDE(override_type)(v, r, f, obj,
         ...)</c> expands to code equivalent to the following (for public
         function overrides that do not return void):
@@ -1372,7 +1357,7 @@ Disable Contract Compilation}).
             by this library (this name is unique but only on different line
             numbers so this macro cannot be expanded multiple times on the same
             line).
-    
+
     @see    @RefSect{extras.disable_contract_compilation__macro_interface_,
             Disable Contract Compilation},
             @RefSect{tutorial.public_function_overrides__subcontracting_,
@@ -1383,25 +1368,23 @@ Disable Contract Compilation}).
     #include <boost/contract/public_function.hpp>
     #include <boost/contract/check.hpp>
     #include <boost/contract/detail/name.hpp>
-    
-    #define BOOST_CONTRACT_STATIC_PUBLIC_FUNCTION(...) \
+
+    #define BOOST_CONTRACT_STATIC_PUBLIC_FUNCTION(...)                    \
         boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::public_function< __VA_ARGS__ >()
+            boost::contract::public_function<__VA_ARGS__>()
 
     #define BOOST_CONTRACT_PUBLIC_FUNCTION(...) \
-        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::public_function(__VA_ARGS__)
+        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = boost::contract::public_function(__VA_ARGS__)
 
     #define BOOST_CONTRACT_PUBLIC_FUNCTION_OVERRIDE(...) \
-        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = \
-                boost::contract::public_function<__VA_ARGS__>
+        boost::contract::check BOOST_CONTRACT_DETAIL_NAME2(c, __LINE__) = boost::contract::public_function<__VA_ARGS__>
 #else
     #include <boost/preprocessor/tuple/eat.hpp>
-   
+
     #define BOOST_CONTRACT_STATIC_PUBLIC_FUNCTION(...) /* nothing */
 
-    #define BOOST_CONTRACT_PUBLIC_FUNCTION(...) /* nothing */
-    
+    #define BOOST_CONTRACT_PUBLIC_FUNCTION(...)        /* nothing */
+
     #define BOOST_CONTRACT_PUBLIC_FUNCTION_OVERRIDE(...) BOOST_PP_TUPLE_EAT(0)
 #endif
 

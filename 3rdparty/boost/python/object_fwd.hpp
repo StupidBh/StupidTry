@@ -3,16 +3,18 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef OBJECT_FWD_DWA2002724_HPP
-# define OBJECT_FWD_DWA2002724_HPP
+#define OBJECT_FWD_DWA2002724_HPP
 
-# include <boost/python/detail/prefix.hpp>
+#include <boost/python/detail/prefix.hpp>
 
-namespace boost { namespace python { 
-namespace api
-{
-  class object;
-}
-using api::object;
-}} // namespace boost::python
+namespace boost {
+    namespace python {
+        namespace api {
+            class object;
+        }
+
+        using api::object;
+    }
+}      // namespace boost
 
 #endif // OBJECT_FWD_DWA2002724_HPP

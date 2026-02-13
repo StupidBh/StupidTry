@@ -20,23 +20,12 @@
 
 // specialization for meta functions with safe<T> argument
 namespace boost {
-namespace safe_numerics {
+    namespace safe_numerics {
 
-template <
-    class T,
-    class P = native,
-    class E = default_exception_policy
->
-using safe = safe_base<
-    T,
-    ::std::numeric_limits<T>::min(),
-    ::std::numeric_limits<T>::max(),
-    P,
-    E
->;
+        template<class T, class P = native, class E = default_exception_policy>
+        using safe = safe_base<T, ::std::numeric_limits<T>::min(), ::std::numeric_limits<T>::max(), P, E>;
 
-} // safe_numerics
-} // boost
-
+    } // namespace safe_numerics
+} // namespace boost
 
 #endif // BOOST_NUMERIC_SAFE_INTEGER_HPP

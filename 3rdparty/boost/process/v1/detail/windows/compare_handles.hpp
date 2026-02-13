@@ -10,32 +10,45 @@
 #include <boost/winapi/file_management.hpp>
 #include <boost/process/v1/detail/config.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-inline bool compare_handles(boost::winapi::HANDLE_ lhs, boost::winapi::HANDLE_ rhs)
-{
-    if ( (lhs == ::boost::winapi::INVALID_HANDLE_VALUE_)
-      || (rhs == ::boost::winapi::INVALID_HANDLE_VALUE_))
-        return false;
+                    inline bool compare_handles(boost::winapi::HANDLE_ lhs, boost::winapi::HANDLE_ rhs)
+                    {
+                        if ((lhs == ::boost::winapi::INVALID_HANDLE_VALUE_) ||
+                            (rhs == ::boost::winapi::INVALID_HANDLE_VALUE_)) {
+                            return false;
+                        }
 
-    if (lhs == rhs)
-        return true;
+                        if (lhs == rhs) {
+                            return true;
+                        }
 
-    ::boost::winapi::BY_HANDLE_FILE_INFORMATION_ lhs_info{0,{0,0},{0,0},{0,0},0,0,0,0,0,0};
-    ::boost::winapi::BY_HANDLE_FILE_INFORMATION_ rhs_info{0,{0,0},{0,0},{0,0},0,0,0,0,0,0};
+                        ::boost::winapi::BY_HANDLE_FILE_INFORMATION_ lhs_info { 0, { 0, 0 }, { 0, 0 }, { 0, 0 }, 0,
+                                                                                0, 0,        0,        0,        0 };
+                        ::boost::winapi::BY_HANDLE_FILE_INFORMATION_ rhs_info { 0, { 0, 0 }, { 0, 0 }, { 0, 0 }, 0,
+                                                                                0, 0,        0,        0,        0 };
 
-    if (!::boost::winapi::GetFileInformationByHandle(lhs, &lhs_info))
-        ::boost::process::v1::detail::throw_last_error("GetFileInformationByHandle");
+                        if (!::boost::winapi::GetFileInformationByHandle(lhs, &lhs_info)) {
+                            ::boost::process::v1::detail::throw_last_error("GetFileInformationByHandle");
+                        }
 
-    if (!::boost::winapi::GetFileInformationByHandle(rhs, &rhs_info))
-        ::boost::process::v1::detail::throw_last_error("GetFileInformationByHandle");
+                        if (!::boost::winapi::GetFileInformationByHandle(rhs, &rhs_info)) {
+                            ::boost::process::v1::detail::throw_last_error("GetFileInformationByHandle");
+                        }
 
-    return     (lhs_info.nFileIndexHigh == rhs_info.nFileIndexHigh)
-            && (lhs_info.nFileIndexLow  == rhs_info.nFileIndexLow);
+                        return (lhs_info.nFileIndexHigh == rhs_info.nFileIndexHigh) &&
+                               (lhs_info.nFileIndexLow == rhs_info.nFileIndexLow);
+                    }
+
+                }
+            }
+        }
+    }
 }
-
-}}}}}
-
-
 
 #endif /* BOOST_PROCESS_DETAIL_WINDOWS_COMPARE_HANDLES_HPP_ */

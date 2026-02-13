@@ -14,23 +14,28 @@
 #include <boost/process/v1/detail/config.hpp>
 #include <boost/process/v1/detail/handler_base.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
 
-struct throw_on_error_ : ::boost::process::v1::detail::handler
-{
-    template <class Executor>
-    void on_error(Executor& exec, const std::error_code & ec) const
-    {
-        throw process_error(ec, "process creation failed");
+                struct throw_on_error_ : ::boost::process::v1::detail::handler
+                {
+                    template<class Executor>
+                    void on_error(Executor& exec, const std::error_code& ec) const
+                    {
+                        throw process_error(ec, "process creation failed");
+                    }
+
+                    const throw_on_error_& operator()() const { return *this; }
+                };
+
+            }
+
+            constexpr boost::process::v1::detail::throw_on_error_ throw_on_error;
+        }
     }
-
-    const throw_on_error_ &operator()() const {return *this;}
-};
-
 }
-
-constexpr boost::process::v1::detail::throw_on_error_ throw_on_error;
-
-}}}
 
 #endif

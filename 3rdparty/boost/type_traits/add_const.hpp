@@ -14,36 +14,39 @@
 
 namespace boost {
 
-// * convert a type T to const type - add_const<T>
-// this is not required since the result is always
-// the same as "T const", but it does suppress warnings
-// from some compilers:
+    // * convert a type T to const type - add_const<T>
+    // this is not required since the result is always
+    // the same as "T const", but it does suppress warnings
+    // from some compilers:
 
 #if defined(BOOST_MSVC)
-// This bogus warning will appear when add_const is applied to a
-// const volatile reference because we can't detect const volatile
-// references with MSVC6.
-#   pragma warning(push)
-#   pragma warning(disable:4181) // warning C4181: qualifier applied to reference type ignored
-#endif 
+    // This bogus warning will appear when add_const is applied to a
+    // const volatile reference because we can't detect const volatile
+    // references with MSVC6.
+    #pragma warning(push)
+    #pragma warning(disable: 4181) // warning C4181: qualifier applied to reference type ignored
+#endif
 
-   template <class T> struct add_const
-   {
-      typedef T const type;
-   };
+    template<class T>
+    struct add_const
+    {
+        typedef T const type;
+    };
 
 #if defined(BOOST_MSVC)
-#   pragma warning(pop)
-#endif 
+    #pragma warning(pop)
+#endif
 
-   template <class T> struct add_const<T&>
-   {
-      typedef T& type;
-   };
+    template<class T>
+    struct add_const<T&>
+    {
+        typedef T& type;
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-   template <class T> using add_const_t = typename add_const<T>::type;
+    template<class T>
+    using add_const_t = typename add_const<T>::type;
 
 #endif
 

@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -18,21 +18,23 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-namespace imperial {
+        namespace imperial {
 
-typedef scaled_base_unit<pound_base_unit, scale<112, static_rational<1> > > hundredweight_base_unit;
+            typedef scaled_base_unit<pound_base_unit, scale<112, static_rational<1>>> hundredweight_base_unit;
 
-} // namespace imperial
+        } // namespace imperial
 
-template<>
-struct base_unit_info<imperial::hundredweight_base_unit> {
-    static BOOST_CONSTEXPR const char* name()   { return("hundredweight"); }
-    static BOOST_CONSTEXPR const char* symbol() { return("cwt"); }
-};
+        template<>
+        struct base_unit_info<imperial::hundredweight_base_unit>
+        {
+            static BOOST_CONSTEXPR const char* name() { return ("hundredweight"); }
 
-} // namespace units
+            static BOOST_CONSTEXPR const char* symbol() { return ("cwt"); }
+        };
+
+    } // namespace units
 
 } // namespace boost
 

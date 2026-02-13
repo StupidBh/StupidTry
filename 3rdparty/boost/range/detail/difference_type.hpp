@@ -18,17 +18,15 @@
 // missing partial specialization  workaround.
 //////////////////////////////////////////////////////////////////////////////
 
-namespace boost 
-{
-    namespace range_detail 
-    {        
-        template< typename T >
+namespace boost {
+    namespace range_detail {
+        template<typename T>
         struct range_difference_type_;
 
         template<>
         struct range_difference_type_<std_container_>
         {
-            template< typename C >
+            template<typename C>
             struct pts
             {
                 typedef BOOST_DEDUCED_TYPENAME C::difference_type type;
@@ -38,17 +36,18 @@ namespace boost
         template<>
         struct range_difference_type_<std_pair_>
         {
-            template< typename P >
+            template<typename P>
             struct pts
             {
-                typedef BOOST_RANGE_DEDUCED_TYPENAME boost::iterator_difference< BOOST_DEDUCED_TYPENAME P::first_type>::type type;                
+                typedef BOOST_RANGE_DEDUCED_TYPENAME
+                    boost::iterator_difference<BOOST_DEDUCED_TYPENAME P::first_type>::type type;
             };
         };
 
         template<>
         struct range_difference_type_<array_>
         {
-            template< typename A >
+            template<typename A>
             struct pts
             {
                 typedef std::ptrdiff_t type;
@@ -57,8 +56,8 @@ namespace boost
 
         template<>
         struct range_difference_type_<char_array_>
-        { 
-            template< typename A >
+        {
+            template<typename A>
             struct pts
             {
                 typedef std::ptrdiff_t type;
@@ -68,51 +67,52 @@ namespace boost
         template<>
         struct range_difference_type_<char_ptr_>
         {
-            template< typename S >
+            template<typename S>
             struct pts
             {
                 typedef std::ptrdiff_t type;
-            };         
+            };
         };
-        
+
         template<>
         struct range_difference_type_<const_char_ptr_>
         {
-            template< typename S >
+            template<typename S>
             struct pts
             {
                 typedef std::ptrdiff_t type;
-            };         
+            };
         };
-        
+
         template<>
         struct range_difference_type_<wchar_t_ptr_>
         {
-            template< typename S >
+            template<typename S>
             struct pts
             {
                 typedef std::ptrdiff_t type;
-            };         
+            };
         };
-        
+
         template<>
         struct range_difference_type_<const_wchar_t_ptr_>
         {
-            template< typename S >
+            template<typename S>
             struct pts
             {
                 typedef std::ptrdiff_t type;
-            };         
+            };
         };
-        
-    } 
-    
-    template< typename C >
-    class range_difference
-    {
+
+    }
+
+    template<typename C>
+    class range_difference {
         typedef BOOST_RANGE_DEDUCED_TYPENAME range_detail::range<C>::type c_type;
+
     public:
-        typedef BOOST_RANGE_DEDUCED_TYPENAME range_detail::range_difference_type_<c_type>::BOOST_NESTED_TEMPLATE pts<C>::type type; 
+        typedef BOOST_RANGE_DEDUCED_TYPENAME range_detail::range_difference_type_<c_type>::BOOST_NESTED_TEMPLATE
+            pts<C>::type type;
     };
 
 }

@@ -5,27 +5,27 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_FUNCTION_TEMPLATE_GEN_HPP)
-#define BOOST_TTI_FUNCTION_TEMPLATE_GEN_HPP
+    #define BOOST_TTI_FUNCTION_TEMPLATE_GEN_HPP
 
-#include <boost/preprocessor/cat.hpp>
+    #include <boost/preprocessor/cat.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/// Generates the macro metafunction name for BOOST_TTI_HAS_FUNCTION_TEMPLATE.
-/**
-    name  = the name of the function template.
+    /// Generates the macro metafunction name for BOOST_TTI_HAS_FUNCTION_TEMPLATE.
+    /**
+        name  = the name of the function template.
 
-    returns = the generated macro metafunction name.
-*/
-#define BOOST_TTI_HAS_FUNCTION_TEMPLATE_GEN(name) \
-  BOOST_PP_CAT(has_function_template_,name) \
-/**/
+        returns = the generated macro metafunction name.
+    */
+    #define BOOST_TTI_HAS_FUNCTION_TEMPLATE_GEN(name) \
+        BOOST_PP_CAT(has_function_template_, name)    \
+        /**/
 
 #endif // BOOST_TTI_FUNCTION_TEMPLATE_GEN_HPP

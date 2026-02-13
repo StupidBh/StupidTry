@@ -9,26 +9,27 @@
     http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_OPTIONAL_IPP)
-#define BOOST_SPIRIT_OPTIONAL_IPP
+    #define BOOST_SPIRIT_OPTIONAL_IPP
 
-namespace boost { namespace spirit {
+namespace boost {
+    namespace spirit {
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //  optional class implementation
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename S>
-    optional<S>
-    operator!(parser<S> const& a)
-    {
-        return optional<S>(a.derived());
+        ///////////////////////////////////////////////////////////////////////////
+        //
+        //  optional class implementation
+        //
+        ///////////////////////////////////////////////////////////////////////////
+        template<typename S>
+        optional<S> operator!(parser<S> const& a)
+        {
+            return optional<S>(a.derived());
+        }
+
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+
     }
-
-BOOST_SPIRIT_CLASSIC_NAMESPACE_END
-
-}} // namespace boost::spirit
+} // namespace boost
 
 #endif

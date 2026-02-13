@@ -14,21 +14,22 @@
 //  See http://www.boost.org/libs/smart_ptr/ for documentation.
 //
 
-namespace boost
-{
+namespace boost {
 
-template<class T = void> struct owner_less
-{
-    typedef bool result_type;
-    typedef T first_argument_type;
-    typedef T second_argument_type;
-
-    template<class U, class V> bool operator()( U const & u, V const & v ) const noexcept
+    template<class T = void>
+    struct owner_less
     {
-        return u.owner_before( v );
-    }
-};
+        typedef bool result_type;
+        typedef T first_argument_type;
+        typedef T second_argument_type;
+
+        template<class U, class V>
+        bool operator()(U const& u, V const& v) const noexcept
+        {
+            return u.owner_before(v);
+        }
+    };
 
 } // namespace boost
 
-#endif  // #ifndef BOOST_SMART_PTR_OWNER_LESS_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_OWNER_LESS_HPP_INCLUDED

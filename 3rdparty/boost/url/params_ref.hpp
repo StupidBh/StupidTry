@@ -18,938 +18,855 @@
 #include <iterator>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
 #ifndef BOOST_URL_DOCS
-class url_base;
-class params_view;
+        class url_base;
+        class params_view;
 #endif
 
-/** A view representing query parameters in a URL
-
-    Objects of this type are used to interpret
-    the query parameters as a bidirectional view
-    of key/value pairs.
-    The view does not retain ownership of the
-    elements and instead references the original
-    url. The caller is responsible for ensuring
-    that the lifetime of the referenced url
-    extends until it is no longer referenced.
-    The view is modifiable; calling non-const
-    members causes changes to the referenced
-    url.
-
-    <br>
-
-    Percent escapes in strings returned when
-    dereferencing iterators are automatically
-    decoded.
-    Reserved characters in strings supplied
-    to modifier functions are automatically
-    percent-escaped.
-
-    @par Example
-    @code
-    url u( "?first=John&last=Doe" );
-
-    params_ref p = u.params();
-    @endcode
-
-    @par Iterator Invalidation
-    Changes to the underlying character buffer
-    can invalidate iterators which reference it.
-    Modifications made through the container
-    invalidate some or all iterators:
-    <br>
-
-    @li @ref append : Only `end()`.
-
-    @li @ref assign, @ref clear,
-        `operator=` : All elements.
-
-    @li @ref erase : Erased elements and all
-        elements after (including `end()`).
-
-    @li @ref insert : All elements at or after
-        the insertion point (including `end()`).
-
-    @li @ref replace, @ref set : Modified
-        elements and all elements
-        after (including `end()`).
-*/
-class BOOST_URL_DECL params_ref
-    : public params_base
-{
-    friend class url_base;
-
-    url_base* u_ = nullptr;
-
-    params_ref(
-        url_base& u,
-        encoding_opts opt) noexcept;
-
-public:
-    //--------------------------------------------
-    //
-    // Special Members
-    //
-    //--------------------------------------------
-
-    /** Constructor
-
-        After construction, both views
-        reference the same url. Ownership is not
-        transferred; the caller is responsible
-        for ensuring the lifetime of the url
-        extends until it is no longer
-        referenced.
-
-        @par Postconditions
-        @code
-        &this->url() == &other.url()
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        Throws nothing.
-
-        @param other The other view.
-    */
-    params_ref(
-        params_ref const& other) = default;
-
-    /** Constructor
-
-        After construction, both views will
-        reference the same url but this
-        instance will use the specified
-        @ref encoding_opts when the values
-        are decoded.
-
-        Ownership is not transferred; the
-        caller is responsible for ensuring
-        the lifetime of the url extends
-        until it is no longer referenced.
-
-        @par Postconditions
-        @code
-        &this->url() == &other.url()
-        @endcode
-
-        @par Complexity
-        Constant.
-
-        @par Exception Safety
-        Throws nothing.
-
-        @param other The other view.
-        @param opt The options for decoding. If
-        this parameter is omitted, `space_as_plus`
-        is used.
-
-    */
-    params_ref(
-        params_ref const& other,
-        encoding_opts opt) noexcept;
-
-    /** Assignment
-
-        The previous contents of this are
-        replaced by the contents of `other.
-
-        <br>
-        All iterators are invalidated.
-
-        @note
-        The strings referenced by `other`
-        must not come from the underlying url,
-        or else the behavior is undefined.
-
-        @par Effects
-        @code
-        this->assign( other.begin(), other.end() );
-        @endcode
-
-        @par Complexity
-        Linear in `other.buffer().size()`.
-
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
-
-        @param other The params to assign.
-        @return `*this`
-    */
-    params_ref&
-    operator=(
-        params_ref const& other);
-
-    /** Assignment
-
-        After assignment, the previous contents
-        of the query parameters are replaced by
-        the contents of the initializer-list.
-
-        @par Preconditions
-        None of character buffers referenced by
-        `init` may overlap the character buffer of
-        the underlying url, or else the behavior
-        is undefined.
-
-        @par Effects
-        @code
-        this->assign( init );
-        @endcode
-
-        @par Complexity
-        Linear in `init.size()`.
-
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
-
-        @param init The list of params to assign.
-        @return `*this`
-    */
-    params_ref&
-    operator=(
-        std::initializer_list<
-            param_view> init);
-
-    /** Conversion
-
-        @return A view of the query parameters.
-    */
-    operator
-    params_view() const noexcept;
-
-    //--------------------------------------------
-    //
-    // Observers
-    //
-    //--------------------------------------------
-
-    /** Return the referenced url
-
-        This function returns the url referenced
-        by the view.
-
-        @par Example
-        @code
-        url u( "?key=value" );
-
-        assert( &u.segments().url() == &u );
-        @endcode
-
-        @par Exception Safety
-        @code
-        Throws nothing.
-        @endcode
-
-        @return A reference to the url.
-    */
-    url_base&
-    url() const noexcept
-    {
-        return *u_;
-    }
-
-    //--------------------------------------------
-    //
-    // Modifiers
-    //
-    //--------------------------------------------
-
-    /** Clear the contents of the container
-
-        <br>
-        All iterators are invalidated.
-
-        @par Effects
-        @code
-        this->url().remove_query();
-        @endcode
-
-        @par Postconditions
-        @code
-        this->empty() == true && this->url().has_query() == false
-        @endcode
+        /** A view representing query parameters in a URL
+
+            Objects of this type are used to interpret
+            the query parameters as a bidirectional view
+            of key/value pairs.
+            The view does not retain ownership of the
+            elements and instead references the original
+            url. The caller is responsible for ensuring
+            that the lifetime of the referenced url
+            extends until it is no longer referenced.
+            The view is modifiable; calling non-const
+            members causes changes to the referenced
+            url.
+
+            <br>
+
+            Percent escapes in strings returned when
+            dereferencing iterators are automatically
+            decoded.
+            Reserved characters in strings supplied
+            to modifier functions are automatically
+            percent-escaped.
+
+            @par Example
+            @code
+            url u( "?first=John&last=Doe" );
+
+            params_ref p = u.params();
+            @endcode
+
+            @par Iterator Invalidation
+            Changes to the underlying character buffer
+            can invalidate iterators which reference it.
+            Modifications made through the container
+            invalidate some or all iterators:
+            <br>
+
+            @li @ref append : Only `end()`.
+
+            @li @ref assign, @ref clear,
+                `operator=` : All elements.
+
+            @li @ref erase : Erased elements and all
+                elements after (including `end()`).
+
+            @li @ref insert : All elements at or after
+                the insertion point (including `end()`).
+
+            @li @ref replace, @ref set : Modified
+                elements and all elements
+                after (including `end()`).
+        */
+        class BOOST_URL_DECL params_ref : public params_base {
+            friend class url_base;
+
+            url_base* u_ = nullptr;
+
+            params_ref(url_base& u, encoding_opts opt) noexcept;
+
+        public:
+            //--------------------------------------------
+            //
+            // Special Members
+            //
+            //--------------------------------------------
+
+            /** Constructor
+
+                After construction, both views
+                reference the same url. Ownership is not
+                transferred; the caller is responsible
+                for ensuring the lifetime of the url
+                extends until it is no longer
+                referenced.
+
+                @par Postconditions
+                @code
+                &this->url() == &other.url()
+                @endcode
+
+                @par Complexity
+                Constant.
+
+                @par Exception Safety
+                Throws nothing.
+
+                @param other The other view.
+            */
+            params_ref(params_ref const& other) = default;
+
+            /** Constructor
+
+                After construction, both views will
+                reference the same url but this
+                instance will use the specified
+                @ref encoding_opts when the values
+                are decoded.
+
+                Ownership is not transferred; the
+                caller is responsible for ensuring
+                the lifetime of the url extends
+                until it is no longer referenced.
 
-        @par Complexity
-        Constant.
+                @par Postconditions
+                @code
+                &this->url() == &other.url()
+                @endcode
 
-        @par Exception Safety
-        Throws nothing.
-    */
-    void
-    clear() noexcept;
+                @par Complexity
+                Constant.
 
-    //--------------------------------------------
+                @par Exception Safety
+                Throws nothing.
 
-    /** Assign elements
+                @param other The other view.
+                @param opt The options for decoding. If
+                this parameter is omitted, `space_as_plus`
+                is used.
 
-        This function replaces the entire
-        contents of the view with the params
-        in the <em>initializer-list</em>.
+            */
+            params_ref(params_ref const& other, encoding_opts opt) noexcept;
 
-        <br>
-        All iterators are invalidated.
+            /** Assignment
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                The previous contents of this are
+                replaced by the contents of `other.
 
-        @par Example
-        @code
-        url u;
+                <br>
+                All iterators are invalidated.
 
-        u.params().assign( {{ "first", "John" }, { "last", "Doe" }} );
-        @endcode
+                @note
+                The strings referenced by `other`
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        @par Complexity
-        Linear in `init.size()`.
+                @par Effects
+                @code
+                this->assign( other.begin(), other.end() );
+                @endcode
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Complexity
+                Linear in `other.buffer().size()`.
 
-        @param init The list of params to assign.
-    */
-    void
-    assign(
-        std::initializer_list<
-            param_view> init);
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-    /** Assign elements
+                @param other The params to assign.
+                @return `*this`
+            */
+            params_ref& operator=(params_ref const& other);
 
-        This function replaces the entire
-        contents of the view with the params
-        in the range.
+            /** Assignment
 
-        <br>
-        All iterators are invalidated.
+                After assignment, the previous contents
+                of the query parameters are replaced by
+                the contents of the initializer-list.
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                @par Preconditions
+                None of character buffers referenced by
+                `init` may overlap the character buffer of
+                the underlying url, or else the behavior
+                is undefined.
 
-        @par Mandates
-        @code
-        std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
-        @endcode
+                @par Effects
+                @code
+                this->assign( init );
+                @endcode
 
-        @par Complexity
-        Linear in the size of the range.
+                @par Complexity
+                Linear in `init.size()`.
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param first The first element to assign.
-        @param last One past the last element to assign.
-    */
-    template<class FwdIt>
-    void
-    assign(FwdIt first, FwdIt last);
+                @param init The list of params to assign.
+                @return `*this`
+            */
+            params_ref& operator=(std::initializer_list<param_view> init);
 
-    //--------------------------------------------
+            /** Conversion
 
-    /** Append elements
+                @return A view of the query parameters.
+            */
+            operator params_view() const noexcept;
 
-        This function appends a param to the view.
+            //--------------------------------------------
+            //
+            // Observers
+            //
+            //--------------------------------------------
 
-        <br>
-        The `end()` iterator is invalidated.
+            /** Return the referenced url
 
-        @par Example
-        @code
-        url u;
+                This function returns the url referenced
+                by the view.
 
-        u.params().append( { "first", "John" } );
-        @endcode
+                @par Example
+                @code
+                url u( "?key=value" );
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                assert( &u.segments().url() == &u );
+                @endcode
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Exception Safety
+                @code
+                Throws nothing.
+                @endcode
 
-        @return An iterator to the new element.
+                @return A reference to the url.
+            */
+            url_base& url() const noexcept { return *u_; }
 
-        @param p The param to append.
-    */
-    iterator
-    append(
-        param_view const& p);
+            //--------------------------------------------
+            //
+            // Modifiers
+            //
+            //--------------------------------------------
 
-    /** Append elements
+            /** Clear the contents of the container
 
-        This function appends the params in
-        an <em>initializer-list</em> to the view.
+                <br>
+                All iterators are invalidated.
 
-        <br>
-        The `end()` iterator is invalidated.
+                @par Effects
+                @code
+                this->url().remove_query();
+                @endcode
 
-        @par Example
-        @code
-        url u;
+                @par Postconditions
+                @code
+                this->empty() == true && this->url().has_query() == false
+                @endcode
 
-        u.params().append({ { "first", "John" }, { "last", "Doe" } });
-        @endcode
+                @par Complexity
+                Constant.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Exception Safety
+                Throws nothing.
+            */
+            void clear() noexcept;
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+            //--------------------------------------------
 
-        @return An iterator to the first new element.
+            /** Assign elements
 
-        @param init The list of params to append.
-    */
-    iterator
-    append(
-        std::initializer_list<
-            param_view> init);
+                This function replaces the entire
+                contents of the view with the params
+                in the <em>initializer-list</em>.
 
-    /** Append elements
+                <br>
+                All iterators are invalidated.
 
-        This function appends a range of params
-        to the view.
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        <br>
-        The `end()` iterator is invalidated.
+                @par Example
+                @code
+                url u;
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                u.params().assign( {{ "first", "John" }, { "last", "Doe" }} );
+                @endcode
 
-        @par Mandates
-        @code
-        std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
-        @endcode
+                @par Complexity
+                Linear in `init.size()`.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @param init The list of params to assign.
+            */
+            void assign(std::initializer_list<param_view> init);
 
-        @param first The first element to append.
-        @param last One past the last element to append.
-        @return An iterator to the first new element.
-    */
-    template<class FwdIt>
-    iterator
-    append(
-        FwdIt first, FwdIt last);
+            /** Assign elements
 
-    //--------------------------------------------
+                This function replaces the entire
+                contents of the view with the params
+                in the range.
 
-    /** Insert elements
+                <br>
+                All iterators are invalidated.
 
-        This function inserts a param
-        before the specified position.
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        <br>
-        All iterators that are equal to
-        `before` or come after are invalidated.
-
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
-
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Mandates
+                @code
+                std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
+                @endcode
 
-        @return An iterator to the inserted
-        element.
+                @par Complexity
+                Linear in the size of the range.
 
-        @param before An iterator before which
-        the param is inserted. This may
-        be equal to `end()`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param p The param to insert.
-    */
-    iterator
-    insert(
-        iterator before,
-        param_view const& p);
+                @param first The first element to assign.
+                @param last One past the last element to assign.
+            */
+            template<class FwdIt>
+            void assign(FwdIt first, FwdIt last);
 
-    /** Insert elements
+            //--------------------------------------------
 
-        This function inserts the params in
-        an <em>initializer-list</em> before
-        the specified position.
+            /** Append elements
 
-        <br>
-        All iterators that are equal to
-        `before` or come after are invalidated.
+                This function appends a param to the view.
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                <br>
+                The `end()` iterator is invalidated.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Example
+                @code
+                url u;
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                u.params().append( { "first", "John" } );
+                @endcode
 
-        @return An iterator to the first
-        element inserted, or `before` if
-        `init.size() == 0`.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @param before An iterator before which
-        the element is inserted. This may
-        be equal to `end()`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param init The list of params to insert.
-    */
-    iterator
-    insert(
-        iterator before,
-        std::initializer_list<
-            param_view> init);
+                @return An iterator to the new element.
 
-    /** Insert elements
+                @param p The param to append.
+            */
+            iterator append(param_view const& p);
 
-        This function inserts a range of
-        params before the specified position.
+            /** Append elements
 
-        <br>
-        All iterators that are equal to
-        `before` or come after are invalidated.
+                This function appends the params in
+                an <em>initializer-list</em> to the view.
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                <br>
+                The `end()` iterator is invalidated.
 
-        @par Mandates
-        @code
-        std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
-        @endcode
+                @par Example
+                @code
+                url u;
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                u.params().append({ { "first", "John" }, { "last", "Doe" } });
+                @endcode
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @return An iterator to the first
-        element inserted, or `before` if
-        `first == last`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param before An iterator before which
-        the element is inserted. This may
-        be equal to `end()`.
-        @param first The first element to insert.
-        @param last One past the last element to insert.
-        @return An iterator to the first element inserted, or `before` if `first == last`.
-    */
-    template<class FwdIt>
-    iterator
-    insert(
-        iterator before,
-        FwdIt first,
-        FwdIt last);
+                @return An iterator to the first new element.
 
-    //--------------------------------------------
+                @param init The list of params to append.
+            */
+            iterator append(std::initializer_list<param_view> init);
 
-    /** Erase elements
+            /** Append elements
 
-        This function removes an element from
-        the container.
+                This function appends a range of params
+                to the view.
 
-        <br>
-        All iterators that are equal to
-        `pos` or come after are invalidated.
+                <br>
+                The `end()` iterator is invalidated.
 
-        @par Example
-        @code
-        url u( "?first=John&last=Doe" );
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        params_ref::iterator it = u.params().erase( u.params().begin() );
+                @par Mandates
+                @code
+                std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
+                @endcode
 
-        assert( u.encoded_query() == "last=Doe" );
-        @endcode
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @par Exception Safety
-        Throws nothing.
+                @param first The first element to append.
+                @param last One past the last element to append.
+                @return An iterator to the first new element.
+            */
+            template<class FwdIt>
+            iterator append(FwdIt first, FwdIt last);
 
-        @return An iterator to one past
-        the removed element.
+            //--------------------------------------------
 
-        @param pos An iterator to the element.
-    */
-    iterator
-    erase(iterator pos) noexcept;
+            /** Insert elements
 
-    /** Erase elements
+                This function inserts a param
+                before the specified position.
 
-        This function removes a range of elements
-        from the container.
+                <br>
+                All iterators that are equal to
+                `before` or come after are invalidated.
 
-        <br>
-        All iterators that are equal to
-        `first` or come after are invalidated.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @par Exception Safety
-        Throws nothing.
+                @return An iterator to the inserted
+                element.
 
-        @param first The first element to remove.
-        @param last One past the last element to remove.
-        @return An iterator to one past the removed range.
-    */
-    iterator
-    erase(
-        iterator first,
-        iterator last) noexcept;
+                @param before An iterator before which
+                the param is inserted. This may
+                be equal to `end()`.
 
-    /** Erase elements
+                @param p The param to insert.
+            */
+            iterator insert(iterator before, param_view const& p);
 
-        <br>
-        All iterators are invalidated.
+            /** Insert elements
 
-        @par Postconditions
-        @code
-        this->count( key, ic ) == 0
-        @endcode
+                This function inserts the params in
+                an <em>initializer-list</em> before
+                the specified position.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                <br>
+                All iterators that are equal to
+                `before` or come after are invalidated.
 
-        @par Exception Safety
-        Throws nothing.
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        @return The number of elements removed
-        from the container.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @param key The key to match.
-        By default, a case-sensitive
-        comparison is used.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param ic An optional parameter. If
-        the value @ref ignore_case is passed
-        here, the comparison is
-        case-insensitive.
-    */
-    std::size_t
-    erase(
-        core::string_view key,
-        ignore_case_param ic = {}) noexcept;
+                @return An iterator to the first
+                element inserted, or `before` if
+                `init.size() == 0`.
 
-    //--------------------------------------------
+                @param before An iterator before which
+                the element is inserted. This may
+                be equal to `end()`.
 
-    /** Replace elements
+                @param init The list of params to insert.
+            */
+            iterator insert(iterator before, std::initializer_list<param_view> init);
 
-        This function replaces the contents
-        of the element at `pos` with the
-        specified param.
+            /** Insert elements
 
-        <br>
-        All iterators that are equal to
-        `pos` or come after are invalidated.
+                This function inserts a range of
+                params before the specified position.
 
-        @par Example
-        @code
-        url u( "?first=John&last=Doe" );
+                <br>
+                All iterators that are equal to
+                `before` or come after are invalidated.
 
-        u.params().replace( u.params().begin(), { "title", "Mr" });
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        assert( u.encoded_query() == "title=Mr&last=Doe" );
-        @endcode
+                @par Mandates
+                @code
+                std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
+                @endcode
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @return An iterator to the element.
+                @return An iterator to the first
+                element inserted, or `before` if
+                `first == last`.
 
-        @param pos An iterator to the element.
+                @param before An iterator before which
+                the element is inserted. This may
+                be equal to `end()`.
+                @param first The first element to insert.
+                @param last One past the last element to insert.
+                @return An iterator to the first element inserted, or `before` if `first == last`.
+            */
+            template<class FwdIt>
+            iterator insert(iterator before, FwdIt first, FwdIt last);
 
-        @param p The param to assign.
-    */
-    iterator
-    replace(
-        iterator pos,
-        param_view const& p);
+            //--------------------------------------------
 
-    /** Replace elements
+            /** Erase elements
 
-        This function replaces a range of
-        elements with the params in an
-        <em>initializer-list</em>.
+                This function removes an element from
+                the container.
 
-        <br>
-        All iterators that are equal to
-        `from` or come after are invalidated.
+                <br>
+                All iterators that are equal to
+                `pos` or come after are invalidated.
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                @par Example
+                @code
+                url u( "?first=John&last=Doe" );
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                params_ref::iterator it = u.params().erase( u.params().begin() );
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                assert( u.encoded_query() == "last=Doe" );
+                @endcode
 
-        @return An iterator to the first
-        element inserted, or one past `to` if
-        `init.size() == 0`.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @param from,to The range of elements
-        to replace.
+                @par Exception Safety
+                Throws nothing.
 
-        @param init The list of params to assign.
-    */
-    iterator
-    replace(
-        iterator from,
-        iterator to,
-        std::initializer_list<
-            param_view> init);
+                @return An iterator to one past
+                the removed element.
 
-    /** Replace elements
+                @param pos An iterator to the element.
+            */
+            iterator erase(iterator pos) noexcept;
 
-        This function replaces a range of
-        elements with a range of params.
+            /** Erase elements
 
-        <br>
-        All iterators that are equal to
-        `from` or come after are invalidated.
+                This function removes a range of elements
+                from the container.
 
-        @note
-        The strings referenced by the inputs
-        must not come from the underlying url,
-        or else the behavior is undefined.
+                <br>
+                All iterators that are equal to
+                `first` or come after are invalidated.
 
-        @par Mandates
-        @code
-        std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
-        @endcode
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Exception Safety
+                Throws nothing.
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @param first The first element to remove.
+                @param last One past the last element to remove.
+                @return An iterator to one past the removed range.
+            */
+            iterator erase(iterator first, iterator last) noexcept;
 
-        @return An iterator to the first
-        element inserted, or one past `to` if
-        `first == last`.
+            /** Erase elements
 
-        @param from The first element to replace.
-        @param to One past the last element to replace.
-        @param first The first element to insert.
-        @param last One past the last element to insert.
-        @return An iterator to the first element inserted, or one past `to` if `first == last`.
-    */
-    template<class FwdIt>
-    iterator
-    replace(
-        iterator from,
-        iterator to,
-        FwdIt first,
-        FwdIt last);
+                <br>
+                All iterators are invalidated.
 
-    //--------------------------------------------
+                @par Postconditions
+                @code
+                this->count( key, ic ) == 0
+                @endcode
 
-    /** Remove the value on an element
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        This function removes the value of
-        an element at the specified position.
-        After the call returns, `has_value`
-        for the element is false.
+                @par Exception Safety
+                Throws nothing.
 
-        <br>
-        All iterators that are equal to
-        `pos` or come after are invalidated.
+                @return The number of elements removed
+                from the container.
 
-        @par Example
-        @code
-        url u( "?first=John&last=Doe" );
+                @param key The key to match.
+                By default, a case-sensitive
+                comparison is used.
 
-        u.params().unset( u.params().begin() );
+                @param ic An optional parameter. If
+                the value @ref ignore_case is passed
+                here, the comparison is
+                case-insensitive.
+            */
+            std::size_t erase(core::string_view key, ignore_case_param ic = {}) noexcept;
 
-        assert( u.encoded_query() == "first&last=Doe" );
-        @endcode
+            //--------------------------------------------
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+            /** Replace elements
 
-        @par Exception Safety
-        Throws nothing.
+                This function replaces the contents
+                of the element at `pos` with the
+                specified param.
 
-        @return An iterator to the element.
+                <br>
+                All iterators that are equal to
+                `pos` or come after are invalidated.
 
-        @param pos An iterator to the element.
-    */
-    iterator
-    unset(
-        iterator pos) noexcept;
+                @par Example
+                @code
+                url u( "?first=John&last=Doe" );
 
-    /** Set a value
+                u.params().replace( u.params().begin(), { "title", "Mr" });
 
-        This function replaces the value of an
-        element at the specified position.
+                assert( u.encoded_query() == "title=Mr&last=Doe" );
+                @endcode
 
-        <br>
-        All iterators that are equal to
-        `pos` or come after are invalidated.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @par Example
-        @code
-        url u( "?id=42&id=69" );
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        u.params().set( u.params().begin(), "none" );
+                @return An iterator to the element.
 
-        assert( u.encoded_query() == "id=none&id=69" );
-        @endcode
+                @param pos An iterator to the element.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @param p The param to assign.
+            */
+            iterator replace(iterator pos, param_view const& p);
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+            /** Replace elements
 
-        @return An iterator to the element.
+                This function replaces a range of
+                elements with the params in an
+                <em>initializer-list</em>.
 
-        @param pos An iterator to the element.
+                <br>
+                All iterators that are equal to
+                `from` or come after are invalidated.
 
-        @param value The value to assign. The
-        empty string still counts as a value.
-        That is, `has_value` for the element
-        is true.
-    */
-    iterator
-    set(
-        iterator pos,
-        core::string_view value);
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-    /** Set a value
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        This function performs one of two
-        actions depending on the value of
-        `this->contains( key, ic )`.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @li If key is contained in the view
-        then one of the matching elements has
-        its value changed to the specified value.
-        The remaining elements with a matching
-        key are erased. Otherwise,
+                @return An iterator to the first
+                element inserted, or one past `to` if
+                `init.size() == 0`.
 
-        @li If `key` is not contained in the
-        view, then the function apppends the
-        param `{ key, value }`.
+                @param from,to The range of elements
+                to replace.
 
-        <br>
-        All iterators are invalidated.
+                @param init The list of params to assign.
+            */
+            iterator replace(iterator from, iterator to, std::initializer_list<param_view> init);
 
-        @par Example
-        @code
-        url u( "?id=42&id=69" );
+            /** Replace elements
 
-        u.params().set( "id", "none" );
+                This function replaces a range of
+                elements with a range of params.
 
-        assert( u.params().count( "id" ) == 1 );
-        @endcode
+                <br>
+                All iterators that are equal to
+                `from` or come after are invalidated.
 
-        @par Postconditions
-        @code
-        this->count( key, ic ) == 1 && this->find( key, ic )->value == value
-        @endcode
+                @note
+                The strings referenced by the inputs
+                must not come from the underlying url,
+                or else the behavior is undefined.
 
-        @par Complexity
-        Linear in `this->url().encoded_query().size()`.
+                @par Mandates
+                @code
+                std::is_convertible< std::iterator_traits< FwdIt >::reference_type, param_view >::value == true
+                @endcode
 
-        @par Exception Safety
-        Strong guarantee.
-        Calls to allocate may throw.
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
 
-        @return An iterator to the appended
-        or modified element.
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
 
-        @param key The key to match.
-        By default, a case-sensitive
-        comparison is used.
+                @return An iterator to the first
+                element inserted, or one past `to` if
+                `first == last`.
 
-        @param value The value to assign. The
-        empty string still counts as a value.
-        That is, `has_value` for the element
-        is true.
+                @param from The first element to replace.
+                @param to One past the last element to replace.
+                @param first The first element to insert.
+                @param last One past the last element to insert.
+                @return An iterator to the first element inserted, or one past `to` if `first == last`.
+            */
+            template<class FwdIt>
+            iterator replace(iterator from, iterator to, FwdIt first, FwdIt last);
 
-        @param ic An optional parameter. If
-        the value @ref ignore_case is passed
-        here, the comparison is
-        case-insensitive.
-    */
-    iterator
-    set(
-        core::string_view key,
-        core::string_view value,
-        ignore_case_param ic = {});
+            //--------------------------------------------
 
-    //--------------------------------------------
+            /** Remove the value on an element
 
-private:
-    template<class FwdIt>
-    void
-    assign(FwdIt first, FwdIt last,
-        std::forward_iterator_tag);
+                This function removes the value of
+                an element at the specified position.
+                After the call returns, `has_value`
+                for the element is false.
 
-    // Doxygen cannot render ` = delete`
-    template<class FwdIt>
-    void
-    assign(FwdIt first, FwdIt last,
-        std::input_iterator_tag) = delete;
+                <br>
+                All iterators that are equal to
+                `pos` or come after are invalidated.
 
-    template<class FwdIt>
-    iterator
-    insert(
-        iterator before,
-        FwdIt first,
-        FwdIt last,
-        std::forward_iterator_tag);
+                @par Example
+                @code
+                url u( "?first=John&last=Doe" );
 
-    // Doxygen cannot render ` = delete`
-    template<class FwdIt>
-    iterator
-    insert(
-        iterator before,
-        FwdIt first,
-        FwdIt last,
-        std::input_iterator_tag) = delete;
-};
+                u.params().unset( u.params().begin() );
 
-} // urls
-} // boost
+                assert( u.encoded_query() == "first&last=Doe" );
+                @endcode
+
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
+
+                @par Exception Safety
+                Throws nothing.
+
+                @return An iterator to the element.
+
+                @param pos An iterator to the element.
+            */
+            iterator unset(iterator pos) noexcept;
+
+            /** Set a value
+
+                This function replaces the value of an
+                element at the specified position.
+
+                <br>
+                All iterators that are equal to
+                `pos` or come after are invalidated.
+
+                @par Example
+                @code
+                url u( "?id=42&id=69" );
+
+                u.params().set( u.params().begin(), "none" );
+
+                assert( u.encoded_query() == "id=none&id=69" );
+                @endcode
+
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
+
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
+
+                @return An iterator to the element.
+
+                @param pos An iterator to the element.
+
+                @param value The value to assign. The
+                empty string still counts as a value.
+                That is, `has_value` for the element
+                is true.
+            */
+            iterator set(iterator pos, core::string_view value);
+
+            /** Set a value
+
+                This function performs one of two
+                actions depending on the value of
+                `this->contains( key, ic )`.
+
+                @li If key is contained in the view
+                then one of the matching elements has
+                its value changed to the specified value.
+                The remaining elements with a matching
+                key are erased. Otherwise,
+
+                @li If `key` is not contained in the
+                view, then the function apppends the
+                param `{ key, value }`.
+
+                <br>
+                All iterators are invalidated.
+
+                @par Example
+                @code
+                url u( "?id=42&id=69" );
+
+                u.params().set( "id", "none" );
+
+                assert( u.params().count( "id" ) == 1 );
+                @endcode
+
+                @par Postconditions
+                @code
+                this->count( key, ic ) == 1 && this->find( key, ic )->value == value
+                @endcode
+
+                @par Complexity
+                Linear in `this->url().encoded_query().size()`.
+
+                @par Exception Safety
+                Strong guarantee.
+                Calls to allocate may throw.
+
+                @return An iterator to the appended
+                or modified element.
+
+                @param key The key to match.
+                By default, a case-sensitive
+                comparison is used.
+
+                @param value The value to assign. The
+                empty string still counts as a value.
+                That is, `has_value` for the element
+                is true.
+
+                @param ic An optional parameter. If
+                the value @ref ignore_case is passed
+                here, the comparison is
+                case-insensitive.
+            */
+            iterator set(core::string_view key, core::string_view value, ignore_case_param ic = {});
+
+            //--------------------------------------------
+
+        private:
+            template<class FwdIt>
+            void assign(FwdIt first, FwdIt last, std::forward_iterator_tag);
+
+            // Doxygen cannot render ` = delete`
+            template<class FwdIt>
+            void assign(FwdIt first, FwdIt last, std::input_iterator_tag) = delete;
+
+            template<class FwdIt>
+            iterator insert(iterator before, FwdIt first, FwdIt last, std::forward_iterator_tag);
+
+            // Doxygen cannot render ` = delete`
+            template<class FwdIt>
+            iterator insert(iterator before, FwdIt first, FwdIt last, std::input_iterator_tag) = delete;
+        };
+
+    } // namespace urls
+} // namespace boost
 
 // This is in <boost/url/url_base.hpp>
 //

@@ -14,43 +14,47 @@
 
 namespace boost::redis {
 
-logger detail::make_stderr_logger(logger::level lvl, std::string prefix)
-{
-   return logger(lvl, [prefix = std::move(prefix)](logger::level, std::string_view msg) {
-      log_to_file(stderr, msg, prefix.c_str());
-   });
-}
+    logger detail::make_stderr_logger(logger::level lvl, std::string prefix)
+    {
+        return logger(lvl, [prefix = std::move(prefix)](logger::level, std::string_view msg) {
+            log_to_file(stderr, msg, prefix.c_str());
+        });
+    }
 
-connection::connection(executor_type ex, asio::ssl::context ctx, logger lgr)
-: impl_{std::move(ex), std::move(ctx), std::move(lgr)}
-{ }
+    connection::connection(executor_type ex, asio::ssl::context ctx, logger lgr) :
+        impl_ { std::move(ex), std::move(ctx), std::move(lgr) }
+    {
+    }
 
-void connection::async_run_impl(
-   config const& cfg,
-   logger&& l,
-   asio::any_completion_handler<void(boost::system::error_code)> token)
-{
-   // Avoid calling the basic_connection::async_run overload taking a logger
-   // because it generates deprecated messages when building this file
-   impl_.set_stderr_logger(l.lvl, cfg);
-   impl_.async_run(cfg, std::move(token));
-}
+    void connection::async_run_impl(
+        config const& cfg,
+        logger&& l,
+        asio::any_completion_handler<void(boost::system::error_code)> token)
+    {
+        // Avoid calling the basic_connection::async_run overload taking a logger
+        // because it generates deprecated messages when building this file
+        impl_.set_stderr_logger(l.lvl, cfg);
+        impl_.async_run(cfg, std::move(token));
+    }
 
-void connection::async_run_impl(
-   config const& cfg,
-   asio::any_completion_handler<void(boost::system::error_code)> token)
-{
-   impl_.async_run(cfg, std::move(token));
-}
+    void connection::async_run_impl(
+        config const& cfg,
+        asio::any_completion_handler<void(boost::system::error_code)> token)
+    {
+        impl_.async_run(cfg, std::move(token));
+    }
 
-void connection::async_exec_impl(
-   request const& req,
-   any_adapter&& adapter,
-   asio::any_completion_handler<void(boost::system::error_code, std::size_t)> token)
-{
-   impl_.async_exec(req, std::move(adapter), std::move(token));
-}
+    void connection::async_exec_impl(
+        request const& req,
+        any_adapter&& adapter,
+        asio::any_completion_handler<void(boost::system::error_code, std::size_t)> token)
+    {
+        impl_.async_exec(req, std::move(adapter), std::move(token));
+    }
 
-void connection::cancel(operation op) { impl_.cancel(op); }
+    void connection::cancel(operation op)
+    {
+        impl_.cancel(op);
+    }
 
-}  // namespace boost::redis
+} // namespace boost::redis

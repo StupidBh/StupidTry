@@ -42,55 +42,42 @@ namespace boost {
         implicitly moves data pointer, like for stream operation.
     */
     template<class Derived, class ValueType>
-    class eof_iterator : public iterator_facade<Derived, const ValueType,
-                                                forward_traversal_tag>
-    {
+    class eof_iterator : public iterator_facade<Derived, const ValueType, forward_traversal_tag> {
     public:
-        eof_iterator()
-        : m_at_eof(false)
-        {}
+        eof_iterator() :
+            m_at_eof(false)
+        {
+        }
 
     protected: // interface for derived
-
         /** Returns the reference which should be used by derived
             class to store the next value. */
-        ValueType& value()
-        {
-            return m_value;
-        }
+        ValueType& value() { return m_value; }
 
         /** Should be called by derived class to indicate that it can't
             produce next element. */
-        void found_eof()
-        {
-            m_at_eof = true;
-        }
-
+        void found_eof() { m_at_eof = true; }
 
     private: // iterator core operations
-#ifdef __DCC__ 
-        friend class boost::iterator_core_access; 
-#else 
-        friend class iterator_core_access; 	 
+#ifdef __DCC__
+        friend class boost::iterator_core_access;
+#else
+        friend class iterator_core_access;
 #endif
 
-        void increment()
-        {
-            static_cast<Derived&>(*this).get();
-        }
+        void increment() { static_cast<Derived&>(*this).get(); }
 
         bool equal(const eof_iterator& other) const
         {
-            if (m_at_eof && other.m_at_eof)
+            if (m_at_eof && other.m_at_eof) {
                 return true;
-            else
+            }
+            else {
                 return false;
+            }
         }
 
-        const ValueType& dereference() const
-        {
-            return m_value;
-        }
+        const ValueType& dereference() const { return m_value; }
 
         bool m_at_eof;
         ValueType m_value;

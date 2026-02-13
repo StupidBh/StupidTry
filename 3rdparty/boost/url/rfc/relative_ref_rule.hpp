@@ -15,52 +15,47 @@
 #include <boost/url/url_view.hpp>
 
 namespace boost {
-namespace urls {
-namespace implementation_defined {
-struct relative_ref_rule_t
-{
-    using value_type = url_view;
+    namespace urls {
+        namespace implementation_defined {
+            struct relative_ref_rule_t
+            {
+                using value_type = url_view;
 
-    BOOST_URL_DECL
-    auto
-    parse(
-        char const*& it,
-        char const* end
-            ) const noexcept ->
-        system::result<value_type>;
-};
-} // implementation_defined
+                BOOST_URL_DECL
+                auto parse(char const*& it, char const* end) const noexcept -> system::result<value_type>;
+            };
+        } // namespace implementation_defined
 
-/** Rule for relative-ref
+        /** Rule for relative-ref
 
-    @par Value Type
-    @code
-    using value_type = url_view;
-    @endcode
+            @par Value Type
+            @code
+            using value_type = url_view;
+            @endcode
 
-    @par Example
-    Rules are used with the function @ref grammar::parse.
-    @code
-    system::result< url_view > rv = grammar::parse( "images/dot.gif?v=hide#a", relative_ref_rule );
-    @endcode
+            @par Example
+            Rules are used with the function @ref grammar::parse.
+            @code
+            system::result< url_view > rv = grammar::parse( "images/dot.gif?v=hide#a", relative_ref_rule );
+            @endcode
 
-    @par BNF
-    @code
-    relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
-    @endcode
+            @par BNF
+            @code
+            relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+            @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.2"
-        >4.2. Relative Reference (rfc3986)</a>
+            @par Specification
+            @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-4.2"
+                >4.2. Relative Reference (rfc3986)</a>
 
-    @see
-        @ref grammar::parse,
-        @ref parse_relative_ref,
-        @ref url_view.
-*/
-constexpr implementation_defined::relative_ref_rule_t relative_ref_rule{};
+            @see
+                @ref grammar::parse,
+                @ref parse_relative_ref,
+                @ref url_view.
+        */
+        constexpr implementation_defined::relative_ref_rule_t relative_ref_rule {};
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

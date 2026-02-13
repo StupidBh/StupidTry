@@ -5,117 +5,109 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_ASSERT_IS_SEQ_HPP)
-#define BOOST_VMD_ASSERT_IS_SEQ_HPP
+    #define BOOST_VMD_ASSERT_IS_SEQ_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_ASSERT_IS_SEQ(sequence)
+    /** \def BOOST_VMD_ASSERT_IS_SEQ(sequence)
 
-    \brief Asserts that the sequence is a Boost PP seq.
+        \brief Asserts that the sequence is a Boost PP seq.
 
-    The macro checks that the sequence is a Boost PP seq.
-    If it is not a Boost PP seq, it forces a compiler error.
-    
-    The macro normally checks for a Boost PP seq only in 
-    debug mode. However an end-user can force the macro 
-    to check or not check by defining the macro 
-    BOOST_VMD_ASSERT_DATA to 1 or 0 respectively.
-  
-    sequence = a possible Boost PP seq.
+        The macro checks that the sequence is a Boost PP seq.
+        If it is not a Boost PP seq, it forces a compiler error.
 
-  @code
-  
-    returns  = Normally the macro returns nothing. 
-    
-               If the sequence is a Boost PP seq, nothing is 
-               output.
-              
-               For VC++, because there is no sure way of forcing  
-               a compiler error from within a macro without producing
-               output, if the sequence is not a Boost PP seq the 
-               macro forces a compiler error by outputting invalid C++.
-              
-               For all other compilers a compiler error is forced 
-               without producing output if the sequence is not a 
-               Boost PP seq.
-              
-  @endcode
-  
-*/
+        The macro normally checks for a Boost PP seq only in
+        debug mode. However an end-user can force the macro
+        to check or not check by defining the macro
+        BOOST_VMD_ASSERT_DATA to 1 or 0 respectively.
 
-/** \def BOOST_VMD_ASSERT_IS_SEQ_D(d,sequence)
+        sequence = a possible Boost PP seq.
 
-    \brief Asserts that the sequence is a Boost PP seq. Re-entrant version.
+      @code
 
-    The macro checks that the sequence is a Boost PP seq.
-    If it is not a Boost PP seq, it forces a compiler error.
-    
-    The macro normally checks for a Boost PP seq only in 
-    debug mode. However an end-user can force the macro 
-    to check or not check by defining the macro 
-    BOOST_VMD_ASSERT_DATA to 1 or 0 respectively.
+        returns  = Normally the macro returns nothing.
 
-    d        = The next available BOOST_PP_WHILE iteration. <br/>
-    sequence = a possible Boost PP seq.
+                   If the sequence is a Boost PP seq, nothing is
+                   output.
 
-  @code
-  
-    returns  = Normally the macro returns nothing. 
-    
-               If the sequence is a Boost PP seq, nothing is 
-               output.
-              
-               For VC++, because there is no sure way of forcing  
-               a compiler error from within a macro without producing
-               output, if the sequence is not a Boost PP seq the 
-               macro forces a compiler error by outputting invalid C++.
-              
-               For all other compilers a compiler error is forced 
-               without producing output if the sequence is not a 
-               Boost PP seq.
-              
-  @endcode
-  
-*/
+                   For VC++, because there is no sure way of forcing
+                   a compiler error from within a macro without producing
+                   output, if the sequence is not a Boost PP seq the
+                   macro forces a compiler error by outputting invalid C++.
 
-#if !BOOST_VMD_ASSERT_DATA
+                   For all other compilers a compiler error is forced
+                   without producing output if the sequence is not a
+                   Boost PP seq.
 
-#define BOOST_VMD_ASSERT_IS_SEQ(sequence)
-#define BOOST_VMD_ASSERT_IS_SEQ_D(d,sequence)
+      @endcode
 
-#else
+    */
 
-#include <boost/vmd/assert.hpp>
-#include <boost/vmd/is_seq.hpp>
+    /** \def BOOST_VMD_ASSERT_IS_SEQ_D(d,sequence)
 
-#define BOOST_VMD_ASSERT_IS_SEQ(sequence) \
-    BOOST_VMD_ASSERT \
-      ( \
-      BOOST_VMD_IS_SEQ(sequence), \
-      BOOST_VMD_ASSERT_IS_SEQ_ERROR \
-      ) \
-/**/
+        \brief Asserts that the sequence is a Boost PP seq. Re-entrant version.
 
-#define BOOST_VMD_ASSERT_IS_SEQ_D(d,sequence) \
-    BOOST_VMD_ASSERT \
-      ( \
-      BOOST_VMD_IS_SEQ_D(d,sequence), \
-      BOOST_VMD_ASSERT_IS_SEQ_ERROR \
-      ) \
-/**/
+        The macro checks that the sequence is a Boost PP seq.
+        If it is not a Boost PP seq, it forces a compiler error.
 
-#endif /* BOOST_VMD_ASSERT_DATA */
+        The macro normally checks for a Boost PP seq only in
+        debug mode. However an end-user can force the macro
+        to check or not check by defining the macro
+        BOOST_VMD_ASSERT_DATA to 1 or 0 respectively.
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_ASSERT_IS_SEQ_HPP */
+        d        = The next available BOOST_PP_WHILE iteration. <br/>
+        sequence = a possible Boost PP seq.
+
+      @code
+
+        returns  = Normally the macro returns nothing.
+
+                   If the sequence is a Boost PP seq, nothing is
+                   output.
+
+                   For VC++, because there is no sure way of forcing
+                   a compiler error from within a macro without producing
+                   output, if the sequence is not a Boost PP seq the
+                   macro forces a compiler error by outputting invalid C++.
+
+                   For all other compilers a compiler error is forced
+                   without producing output if the sequence is not a
+                   Boost PP seq.
+
+      @endcode
+
+    */
+
+        #if !BOOST_VMD_ASSERT_DATA
+
+            #define BOOST_VMD_ASSERT_IS_SEQ(sequence)
+            #define BOOST_VMD_ASSERT_IS_SEQ_D(d, sequence)
+
+        #else
+
+            #include <boost/vmd/assert.hpp>
+            #include <boost/vmd/is_seq.hpp>
+
+            #define BOOST_VMD_ASSERT_IS_SEQ(sequence)                                       \
+                BOOST_VMD_ASSERT(BOOST_VMD_IS_SEQ(sequence), BOOST_VMD_ASSERT_IS_SEQ_ERROR) \
+                /**/
+
+            #define BOOST_VMD_ASSERT_IS_SEQ_D(d, sequence)                                       \
+                BOOST_VMD_ASSERT(BOOST_VMD_IS_SEQ_D(d, sequence), BOOST_VMD_ASSERT_IS_SEQ_ERROR) \
+                /**/
+
+        #endif /* BOOST_VMD_ASSERT_DATA */
+
+    #endif     /* BOOST_PP_VARIADICS */
+#endif         /* BOOST_VMD_ASSERT_IS_SEQ_HPP */

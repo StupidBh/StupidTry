@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -19,30 +19,31 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-namespace angle {
+        namespace angle {
 
-struct steradian_base_unit : public base_unit<steradian_base_unit, solid_angle_dimension, -1>
-{
-    static std::string name()   { return("steradian"); }
-    static std::string symbol() { return("sr"); }
-};
+            struct steradian_base_unit : public base_unit<steradian_base_unit, solid_angle_dimension, -1>
+            {
+                static std::string name() { return ("steradian"); }
 
-} // namespace angle
+                static std::string symbol() { return ("sr"); }
+            };
 
-} // namespace units
+        } // namespace angle
+
+    } // namespace units
 
 } // namespace boost
 
 #if BOOST_UNITS_HAS_BOOST_TYPEOF
 
-#include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
+    #include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
 
 BOOST_TYPEOF_REGISTER_TYPE(boost::units::angle::steradian_base_unit)
 
 #endif
 
-//#include <boost/units/base_units/angle/conversions.hpp>
+// #include <boost/units/base_units/angle/conversions.hpp>
 
 #endif // BOOST_UNITS_ANGLE_STERADIAN_BASE_UNIT_HPP

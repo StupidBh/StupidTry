@@ -10,7 +10,7 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/mpl/sizeof.hpp>
@@ -18,65 +18,61 @@
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/proto/core.hpp>
 
-#define UNCV(x) typename remove_const<x>::type
-#define UNREF(x) typename remove_reference<x>::type
+#define UNCV(x)    typename remove_const<x>::type
+#define UNREF(x)   typename remove_reference<x>::type
 #define UNCVREF(x) UNCV(UNREF(x))
 
-namespace boost { namespace xpressive { namespace detail
-{
-    ///////////////////////////////////////////////////////////////////////////////
-    // regex operator tags
-    struct modifier_tag
-    {};
-
-}}}
-
-namespace boost { namespace xpressive { namespace grammar_detail
-{
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // as_modifier
-    template<typename Grammar, typename Callable = proto::callable>
-    struct as_modifier : proto::transform<as_modifier<Grammar, Callable> >
-    {
-        template<typename Expr, typename State, typename Data>
-        struct impl : proto::transform_impl<Expr, State, Data>
-        {
-            typedef
-                typename proto::result_of::value<
-                    typename proto::result_of::left<typename impl::expr>::type
-                >::type
-            modifier_type;
-
-            typedef
-                typename modifier_type::template apply<typename impl::data>::type
-            visitor_type;
-
-            typedef
-                typename proto::result_of::right<Expr>::type
-            expr_type;
-
-            typedef
-                typename Grammar::template impl<expr_type, State, visitor_type &>::result_type
-            result_type;
-
-            result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param state
-              , typename impl::data_param data
-            ) const
+namespace boost {
+    namespace xpressive {
+        namespace detail {
+            ///////////////////////////////////////////////////////////////////////////////
+            // regex operator tags
+            struct modifier_tag
             {
-                visitor_type new_visitor(proto::value(proto::left(expr)).call(data));
-                return typename Grammar::template impl<expr_type, State, visitor_type &>()(
-                    proto::right(expr)
-                  , state
-                  , new_visitor
-                );
-            }
-        };
-    };
+            };
 
-}}}
+        }
+    }
+}
+
+namespace boost {
+    namespace xpressive {
+        namespace grammar_detail {
+
+            ///////////////////////////////////////////////////////////////////////////////
+            // as_modifier
+            template<typename Grammar, typename Callable = proto::callable>
+            struct as_modifier : proto::transform<as_modifier<Grammar, Callable>>
+            {
+                template<typename Expr, typename State, typename Data>
+                struct impl : proto::transform_impl<Expr, State, Data>
+                {
+                    typedef typename proto::result_of::value<
+                        typename proto::result_of::left<typename impl::expr>::type>::type modifier_type;
+
+                    typedef typename modifier_type::template apply<typename impl::data>::type visitor_type;
+
+                    typedef typename proto::result_of::right<Expr>::type expr_type;
+
+                    typedef typename Grammar::template impl<expr_type, State, visitor_type&>::result_type result_type;
+
+                    result_type operator()(
+                        typename impl::expr_param expr,
+                        typename impl::state_param state,
+                        typename impl::data_param data) const
+                    {
+                        visitor_type new_visitor(proto::value(proto::left(expr)).call(data));
+                        return typename Grammar::template impl<expr_type, State, visitor_type&>()(
+                            proto::right(expr),
+                            state,
+                            new_visitor);
+                    }
+                };
+            };
+
+        }
+    }
+}
 
 #undef UNCV
 #undef UNREF

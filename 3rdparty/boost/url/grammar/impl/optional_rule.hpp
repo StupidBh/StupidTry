@@ -13,30 +13,27 @@
 #include <boost/url/grammar/error.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
+    namespace urls {
+        namespace grammar {
 
-template<class R>
-auto
-implementation_defined::optional_rule_t<R>::
-parse(
-    char const*& it,
-    char const* end) const ->
-        system::result<value_type>
-{
-    if(it == end)
-        return boost::none;
-    auto const it0 = it;
-    auto rv =
-        this->get().parse(it, end);
-    if(rv)
-        return value_type(*rv);
-    it = it0;
-    return boost::none;
-}
+            template<class R>
+            auto implementation_defined::optional_rule_t<R>::parse(char const*& it, char const* end) const
+                -> system::result<value_type>
+            {
+                if (it == end) {
+                    return boost::none;
+                }
+                auto const it0 = it;
+                auto rv = this->get().parse(it, end);
+                if (rv) {
+                    return value_type(*rv);
+                }
+                it = it0;
+                return boost::none;
+            }
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

@@ -9,13 +9,14 @@
 #include <boost/config.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-BOOST_CXX14_CONSTEXPR inline uuid nil_uuid() noexcept
-{
-    return {{}};
-}
+        BOOST_CXX14_CONSTEXPR inline uuid nil_uuid() noexcept
+        {
+            return { {} };
+        }
 
-}} // namespace boost::uuids
+    }
+}      // namespace boost
 
 #endif // #ifndef BOOST_UUID_DETAIL_NIL_UUID_INCLUDED

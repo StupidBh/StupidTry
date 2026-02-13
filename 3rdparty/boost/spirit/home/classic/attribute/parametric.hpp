@@ -14,131 +14,139 @@
 #include <boost/spirit/home/classic/core/composite/composite.hpp>
 #include <boost/spirit/home/classic/core/primitives/primitives.hpp>
 
-namespace boost { namespace spirit {
+namespace boost {
+    namespace spirit {
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //  f_chlit class [ functional version of chlit ]
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename ChGenT>
-    struct f_chlit : public char_parser<f_chlit<ChGenT> >
-    {
-        f_chlit(ChGenT chgen_)
-        : chgen(chgen_) {}
-
-        template <typename T>
-        bool test(T ch) const
-        { return ch == chgen(); }
-
-        ChGenT   chgen;
-    };
-
-    template <typename ChGenT>
-    inline f_chlit<ChGenT>
-    f_ch_p(ChGenT chgen)
-    { return f_chlit<ChGenT>(chgen); }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //  f_range class [ functional version of range ]
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename ChGenAT, typename ChGenBT>
-    struct f_range : public char_parser<f_range<ChGenAT, ChGenBT> >
-    {
-        f_range(ChGenAT first_, ChGenBT last_)
-        : first(first_), last(last_)
-        {}
-
-        template <typename T>
-        bool test(T ch) const
+        ///////////////////////////////////////////////////////////////////////////
+        //
+        //  f_chlit class [ functional version of chlit ]
+        //
+        ///////////////////////////////////////////////////////////////////////////
+        template<typename ChGenT>
+        struct f_chlit : public char_parser<f_chlit<ChGenT>>
         {
-            BOOST_SPIRIT_ASSERT(first() <= last());
-            return (ch >= first()) && (ch <= last());
+            f_chlit(ChGenT chgen_) :
+                chgen(chgen_)
+            {
+            }
+
+            template<typename T>
+            bool test(T ch) const
+            {
+                return ch == chgen();
+            }
+
+            ChGenT chgen;
+        };
+
+        template<typename ChGenT>
+        inline f_chlit<ChGenT> f_ch_p(ChGenT chgen)
+        {
+            return f_chlit<ChGenT>(chgen);
         }
 
-        ChGenAT first;
-        ChGenBT last;
-    };
-
-    template <typename ChGenAT, typename ChGenBT>
-    inline f_range<ChGenAT, ChGenBT>
-    f_range_p(ChGenAT first, ChGenBT last)
-    { return f_range<ChGenAT, ChGenBT>(first, last); }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //  f_chseq class [ functional version of chseq ]
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename IterGenAT, typename IterGenBT>
-    class f_chseq : public parser<f_chseq<IterGenAT, IterGenBT> >
-    {
-    public:
-
-        typedef f_chseq<IterGenAT, IterGenBT> self_t;
-
-        f_chseq(IterGenAT first_, IterGenBT last_)
-        : first(first_), last(last_) {}
-
-        template <typename ScannerT>
-        typename parser_result<self_t, ScannerT>::type
-        parse(ScannerT const& scan) const
+        ///////////////////////////////////////////////////////////////////////////
+        //
+        //  f_range class [ functional version of range ]
+        //
+        ///////////////////////////////////////////////////////////////////////////
+        template<typename ChGenAT, typename ChGenBT>
+        struct f_range : public char_parser<f_range<ChGenAT, ChGenBT>>
         {
-            typedef typename parser_result<self_t, ScannerT>::type result_t;
-            return impl::string_parser_parse<result_t>(first(), last(), scan);
+            f_range(ChGenAT first_, ChGenBT last_) :
+                first(first_),
+                last(last_)
+            {
+            }
+
+            template<typename T>
+            bool test(T ch) const
+            {
+                BOOST_SPIRIT_ASSERT(first() <= last());
+                return (ch >= first()) && (ch <= last());
+            }
+
+            ChGenAT first;
+            ChGenBT last;
+        };
+
+        template<typename ChGenAT, typename ChGenBT>
+        inline f_range<ChGenAT, ChGenBT> f_range_p(ChGenAT first, ChGenBT last)
+        {
+            return f_range<ChGenAT, ChGenBT>(first, last);
         }
 
-    private:
+        ///////////////////////////////////////////////////////////////////////////
+        //
+        //  f_chseq class [ functional version of chseq ]
+        //
+        ///////////////////////////////////////////////////////////////////////////
+        template<typename IterGenAT, typename IterGenBT>
+        class f_chseq : public parser<f_chseq<IterGenAT, IterGenBT>> {
+        public:
+            typedef f_chseq<IterGenAT, IterGenBT> self_t;
 
-        IterGenAT first;
-        IterGenBT last;
-    };
+            f_chseq(IterGenAT first_, IterGenBT last_) :
+                first(first_),
+                last(last_)
+            {
+            }
 
-    template <typename IterGenAT, typename IterGenBT>
-    inline f_chseq<IterGenAT, IterGenBT>
-    f_chseq_p(IterGenAT first, IterGenBT last)
-    { return f_chseq<IterGenAT, IterGenBT>(first, last); }
+            template<typename ScannerT>
+            typename parser_result<self_t, ScannerT>::type parse(ScannerT const& scan) const
+            {
+                typedef typename parser_result<self_t, ScannerT>::type result_t;
+                return impl::string_parser_parse<result_t>(first(), last(), scan);
+            }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    //  f_strlit class [ functional version of strlit ]
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename IterGenAT, typename IterGenBT>
-    class f_strlit : public parser<f_strlit<IterGenAT, IterGenBT> >
-    {
-    public:
+        private:
+            IterGenAT first;
+            IterGenBT last;
+        };
 
-        typedef f_strlit<IterGenAT, IterGenBT> self_t;
-
-        f_strlit(IterGenAT first, IterGenBT last)
-        : seq(first, last) {}
-
-        template <typename ScannerT>
-        typename parser_result<self_t, ScannerT>::type
-        parse(ScannerT const& scan) const
+        template<typename IterGenAT, typename IterGenBT>
+        inline f_chseq<IterGenAT, IterGenBT> f_chseq_p(IterGenAT first, IterGenBT last)
         {
-            typedef typename parser_result<self_t, ScannerT>::type result_t;
-            return impl::contiguous_parser_parse<result_t>
-                (seq, scan, scan);
+            return f_chseq<IterGenAT, IterGenBT>(first, last);
         }
 
-    private:
+        ///////////////////////////////////////////////////////////////////////////
+        //
+        //  f_strlit class [ functional version of strlit ]
+        //
+        ///////////////////////////////////////////////////////////////////////////
+        template<typename IterGenAT, typename IterGenBT>
+        class f_strlit : public parser<f_strlit<IterGenAT, IterGenBT>> {
+        public:
+            typedef f_strlit<IterGenAT, IterGenBT> self_t;
 
-        f_chseq<IterGenAT, IterGenBT> seq;
-    };
+            f_strlit(IterGenAT first, IterGenBT last) :
+                seq(first, last)
+            {
+            }
 
-    template <typename IterGenAT, typename IterGenBT>
-    inline f_strlit<IterGenAT, IterGenBT>
-    f_str_p(IterGenAT first, IterGenBT last)
-    { return f_strlit<IterGenAT, IterGenBT>(first, last); }
+            template<typename ScannerT>
+            typename parser_result<self_t, ScannerT>::type parse(ScannerT const& scan) const
+            {
+                typedef typename parser_result<self_t, ScannerT>::type result_t;
+                return impl::contiguous_parser_parse<result_t>(seq, scan, scan);
+            }
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+        private:
+            f_chseq<IterGenAT, IterGenBT> seq;
+        };
 
-}} // namespace BOOST_SPIRIT_CLASSIC_NS
+        template<typename IterGenAT, typename IterGenBT>
+        inline f_strlit<IterGenAT, IterGenBT> f_str_p(IterGenAT first, IterGenBT last)
+        {
+            return f_strlit<IterGenAT, IterGenBT>(first, last);
+        }
+
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+
+    }
+} // namespace boost
 
 #endif

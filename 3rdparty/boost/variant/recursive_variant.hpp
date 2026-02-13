@@ -37,135 +37,91 @@
 
 namespace boost {
 
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction specialization substitute
-//
-// Handles embedded variant types when substituting for recursive_variant_.
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction specialization substitute
+            //
+            // Handles embedded variant types when substituting for recursive_variant_.
+            //
 
-template <
-      BOOST_VARIANT_ENUM_PARAMS(typename T)
-    , typename RecursiveVariant
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)
-    >
-struct substitute<
-      ::boost::variant<
-          recursive_flag< T0 >
-        , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
-        >
-    , RecursiveVariant
-    , ::boost::recursive_variant_
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)
-    >
-{
-    typedef ::boost::variant<
-          recursive_flag< T0 >
-        , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
-        > type;
-};
+            template<
+                BOOST_VARIANT_ENUM_PARAMS(typename T),
+                typename RecursiveVariant BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)>
+            struct substitute<
+                ::boost::variant<recursive_flag<T0>, BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)>,
+                RecursiveVariant,
+                ::boost::recursive_variant_ BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)>
+            {
+                typedef ::boost::variant<recursive_flag<T0>, BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)> type;
+            };
 
-template <
-      BOOST_VARIANT_ENUM_PARAMS(typename T)
-    , typename RecursiveVariant
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)
-    >
-struct substitute<
-      ::boost::variant<
-          ::boost::detail::variant::over_sequence< T0 >
-        , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
-        >
-    , RecursiveVariant
-    , ::boost::recursive_variant_
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)
-    >
-{
-private:
+            template<
+                BOOST_VARIANT_ENUM_PARAMS(typename T),
+                typename RecursiveVariant BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)>
+            struct substitute<
+                ::boost::variant<::boost::detail::variant::over_sequence<T0>, BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)>,
+                RecursiveVariant,
+                ::boost::recursive_variant_ BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)>
+            {
+            private:
+                typedef T0 initial_types;
 
-    typedef T0 initial_types;
+                typedef typename mpl::transform<
+                    initial_types,
+                    mpl::protect<quoted_enable_recursive<RecursiveVariant, mpl::true_>>>::type types;
 
-    typedef typename mpl::transform<
-          initial_types
-        , mpl::protect< quoted_enable_recursive<RecursiveVariant,mpl::true_> >
-        >::type types;
+            public:
+                typedef typename mpl::if_<
+                    mpl::equal<initial_types, types, ::boost::is_same<mpl::_1, mpl::_2>>,
+                    ::boost::variant<::boost::detail::variant::over_sequence<T0>, BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)>,
+                    ::boost::variant<over_sequence<types>>>::type type;
+            };
 
-public:
+            template<
+                BOOST_VARIANT_ENUM_PARAMS(typename T),
+                typename RecursiveVariant BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)>
+            struct substitute<
+                ::boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+                RecursiveVariant,
+                ::boost::recursive_variant_ BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)>
+            {
+                typedef ::boost::variant<
+                    typename enable_recursive<T0, RecursiveVariant, mpl::true_>::type,
+                    typename enable_recursive<TN, RecursiveVariant, mpl::true_>::type...>
+                    type;
+            };
 
-    typedef typename mpl::if_<
-          mpl::equal<initial_types, types, ::boost::is_same<mpl::_1, mpl::_2> >
-        , ::boost::variant<
-              ::boost::detail::variant::over_sequence< T0 >
-            , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
-            >
-        , ::boost::variant< over_sequence<types> >
-        >::type type;
-};
+        }
+    } // namespace detail
 
-template <
-      BOOST_VARIANT_ENUM_PARAMS(typename T)
-    , typename RecursiveVariant
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)
-    >
-struct substitute<
-      ::boost::variant< BOOST_VARIANT_ENUM_PARAMS(T) >
-    , RecursiveVariant
-    , ::boost::recursive_variant_
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)
-    >
-{   
-    typedef ::boost::variant<
-        typename enable_recursive<   
-              T0              
-            , RecursiveVariant               
-            , mpl::true_                     
-        >::type,
-        typename enable_recursive<   
-              TN              
-            , RecursiveVariant               
-            , mpl::true_                     
-        >::type...  
-    > type;
-};
+    ///////////////////////////////////////////////////////////////////////////////
+    // metafunction make_recursive_variant
+    //
+    // See docs and boost/variant/variant_fwd.hpp for more information.
+    //
+    template<BOOST_VARIANT_ENUM_PARAMS(typename T)>
+    struct make_recursive_variant
+    {
+    public: // metafunction result
+        typedef boost::variant<detail::variant::recursive_flag<T0>, BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)> type;
+    };
 
-}} // namespace detail::variant
+    ///////////////////////////////////////////////////////////////////////////////
+    // metafunction make_recursive_variant_over
+    //
+    // See docs and boost/variant/variant_fwd.hpp for more information.
+    //
+    template<typename Types>
+    struct make_recursive_variant_over
+    {
+    private: // precondition assertions
+        BOOST_STATIC_ASSERT((::boost::mpl::is_sequence<Types>::value));
 
-///////////////////////////////////////////////////////////////////////////////
-// metafunction make_recursive_variant
-//
-// See docs and boost/variant/variant_fwd.hpp for more information.
-//
-template < BOOST_VARIANT_ENUM_PARAMS(typename T) >
-struct make_recursive_variant
-{
-public: // metafunction result
-
-    typedef boost::variant<
-          detail::variant::recursive_flag< T0 >
-        , BOOST_VARIANT_ENUM_SHIFTED_PARAMS(T)
-        > type;
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// metafunction make_recursive_variant_over
-//
-// See docs and boost/variant/variant_fwd.hpp for more information.
-//
-template <typename Types>
-struct make_recursive_variant_over
-{
-private: // precondition assertions
-
-    BOOST_STATIC_ASSERT(( ::boost::mpl::is_sequence<Types>::value ));
-
-public: // metafunction result
-
-    typedef typename make_recursive_variant<
-          detail::variant::over_sequence< Types >
-        >::type type;
-
-};
+    public: // metafunction result
+        typedef typename make_recursive_variant<detail::variant::over_sequence<Types>>::type type;
+    };
 
 } // namespace boost
 

@@ -5,18 +5,18 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_DETAIL_NULLPTR_HPP)
-#define BOOST_TTI_DETAIL_NULLPTR_HPP
+    #define BOOST_TTI_DETAIL_NULLPTR_HPP
 
-#include <boost/config.hpp>
+    #include <boost/config.hpp>
 
-#if defined(BOOST_NO_CXX11_NULLPTR)
+    #if defined(BOOST_NO_CXX11_NULLPTR)
 
-#define BOOST_TTI_DETAIL_NULLPTR 0
+        #define BOOST_TTI_DETAIL_NULLPTR 0
 
-#else // !BOOST_NO_CXX11_NULLPTR
+    #else // !BOOST_NO_CXX11_NULLPTR
 
-#define BOOST_TTI_DETAIL_NULLPTR nullptr
+        #define BOOST_TTI_DETAIL_NULLPTR nullptr
 
-#endif // BOOST_NO_CXX11_NULLPTR
+    #endif // BOOST_NO_CXX11_NULLPTR
 
-#endif // BOOST_TTI_DETAIL_NULLPTR_HPP
+#endif     // BOOST_TTI_DETAIL_NULLPTR_HPP

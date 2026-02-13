@@ -15,29 +15,21 @@
 #include <boost/url/url.hpp>
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-BOOST_URL_DECL
-void
-vformat_to(
-    url_base& u,
-    core::string_view fmt,
-    format_args args);
+            BOOST_URL_DECL
+            void vformat_to(url_base& u, core::string_view fmt, format_args args);
 
-inline
-url
-vformat(
-    core::string_view fmt,
-    format_args args)
-{
-    url u;
-    vformat_to(u, fmt, args);
-    return u;
-}
+            inline url vformat(core::string_view fmt, format_args args)
+            {
+                url u;
+                vformat_to(u, fmt, args);
+                return u;
+            }
 
-} // detail
-} // url
-} // boost
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

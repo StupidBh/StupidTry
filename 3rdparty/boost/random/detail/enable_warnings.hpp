@@ -14,9 +14,9 @@
 // No #include guard.  This header is intended to be included multiple times.
 
 #ifdef BOOST_MSVC
-#pragma warning(pop)
+    #pragma warning(pop)
 #endif
 
 #if defined(BOOST_GCC) && BOOST_GCC >= 40600
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif

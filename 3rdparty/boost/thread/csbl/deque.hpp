@@ -11,12 +11,10 @@
 
 #include <deque>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::deque;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::deque;
+    }
 }
 
 #endif // header

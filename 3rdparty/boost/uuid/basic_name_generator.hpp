@@ -11,12 +11,12 @@
 #include <boost/uuid/detail/basic_name_generator.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-// Only provided for compatibility with 1.85
-using detail::basic_name_generator;
+        // Only provided for compatibility with 1.85
+        using detail::basic_name_generator;
 
-} // uuids
-} // boost
+    } // namespace uuids
+} // namespace boost
 
 #endif // BOOST_UUID_BASIC_NAME_GENERATOR_HPP_INCLUDED

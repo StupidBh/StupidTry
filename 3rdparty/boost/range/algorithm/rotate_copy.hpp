@@ -16,28 +16,26 @@
 #include <boost/range/iterator.hpp>
 #include <algorithm>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-    /// \brief template function rotate
-    ///
-    /// range-based version of the rotate std algorithm
-    ///
-    /// \pre Rng meets the requirements for a Forward range
-    template<typename ForwardRange, typename OutputIterator>
-    inline OutputIterator rotate_copy(
-        const ForwardRange&                                             rng,
-        BOOST_DEDUCED_TYPENAME range_iterator<const ForwardRange>::type middle,
-        OutputIterator                                                  target
-        )
-    {
-        BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
-        return std::rotate_copy(boost::begin(rng), middle, boost::end(rng), target);
-    }
+        /// \brief template function rotate
+        ///
+        /// range-based version of the rotate std algorithm
+        ///
+        /// \pre Rng meets the requirements for a Forward range
+        template<typename ForwardRange, typename OutputIterator>
+        inline OutputIterator rotate_copy(
+            const ForwardRange& rng,
+            BOOST_DEDUCED_TYPENAME range_iterator<const ForwardRange>::type middle,
+            OutputIterator target)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((ForwardRangeConcept<const ForwardRange>));
+            return std::rotate_copy(boost::begin(rng), middle, boost::end(rng), target);
+        }
 
     } // namespace range
+
     using range::rotate_copy;
 } // namespace boost
 

@@ -14,69 +14,56 @@
 #include <boost/url/grammar/detail/charset.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
-namespace implementation_defined {
-struct vchars_t
-{
-    constexpr
-    bool
-    operator()(char c) const noexcept
-    {
-        return c >= 0x21 && c <= 0x7e;
-    }
+    namespace urls {
+        namespace grammar {
+            namespace implementation_defined {
+                struct vchars_t
+                {
+                    constexpr bool operator()(char c) const noexcept { return c >= 0x21 && c <= 0x7e; }
 
 #ifdef BOOST_URL_USE_SSE2
-    char const*
-    find_if(
-        char const* first,
-        char const* last) const noexcept
-    {
-        return detail::find_if_pred(
-            *this, first, last);
-    }
+                    char const* find_if(char const* first, char const* last) const noexcept
+                    {
+                        return detail::find_if_pred(*this, first, last);
+                    }
 
-    char const*
-    find_if_not(
-        char const* first,
-        char const* last) const noexcept
-    {
-        return detail::find_if_not_pred(
-            *this, first, last);
-    }
+                    char const* find_if_not(char const* first, char const* last) const noexcept
+                    {
+                        return detail::find_if_not_pred(*this, first, last);
+                    }
 #endif
-};
-} // implementation_defined
+                };
+            } // namespace implementation_defined
 
-/** The set of visible characters
+            /** The set of visible characters
 
-    @par Example
-    Character sets are used with rules and the
-    functions @ref find_if and @ref find_if_not.
-    @code
-    system::result< core::string_view > rv = parse( "JohnDoe", token_rule( vchars ) );
-    @endcode
+                @par Example
+                Character sets are used with rules and the
+                functions @ref find_if and @ref find_if_not.
+                @code
+                system::result< core::string_view > rv = parse( "JohnDoe", token_rule( vchars ) );
+                @endcode
 
-    @par BNF
-    @code
-    VCHAR       = 0x21-0x7E
-                ; visible (printing) characters
-    @endcode
+                @par BNF
+                @code
+                VCHAR       = 0x21-0x7E
+                            ; visible (printing) characters
+                @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1"
-        >B.1. Core Rules (rfc5234)</a>
+                @par Specification
+                @li <a href="https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1"
+                    >B.1. Core Rules (rfc5234)</a>
 
-    @see
-        @ref find_if,
-        @ref find_if_not,
-        @ref parse,
-        @ref token_rule.
-*/
-constexpr implementation_defined::vchars_t vchars{};
+                @see
+                    @ref find_if,
+                    @ref find_if_not,
+                    @ref parse,
+                    @ref token_rule.
+            */
+            constexpr implementation_defined::vchars_t vchars {};
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

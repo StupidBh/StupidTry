@@ -5,41 +5,41 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_IS_TUPLE_HPP)
-#define BOOST_VMD_IS_TUPLE_HPP
+    #define BOOST_VMD_IS_TUPLE_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-#include <boost/vmd/detail/is_tuple.hpp>
+        #include <boost/vmd/detail/is_tuple.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_IS_TUPLE(sequence)
+    /** \def BOOST_VMD_IS_TUPLE(sequence)
 
-    \brief Tests whether a sequence is a Boost PP tuple.
+        \brief Tests whether a sequence is a Boost PP tuple.
 
-    The macro checks to see if a sequence is a Boost PP tuple.
-    A Boost PP tuple is preprocessor tokens enclosed by a set of parentheses
-    with no preprocessing tokens before or after the parentheses.
-    
-    sequence = a possible tuple
+        The macro checks to see if a sequence is a Boost PP tuple.
+        A Boost PP tuple is preprocessor tokens enclosed by a set of parentheses
+        with no preprocessing tokens before or after the parentheses.
 
-    returns = 1 if the sequence is a Boost PP tuple,
-              0 if it is not.
-              
-*/
+        sequence = a possible tuple
 
-#define BOOST_VMD_IS_TUPLE(sequence) \
-    BOOST_VMD_DETAIL_IS_TUPLE(sequence) \
-/**/
+        returns = 1 if the sequence is a Boost PP tuple,
+                  0 if it is not.
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_IS_TUPLE_HPP */
+    */
+
+        #define BOOST_VMD_IS_TUPLE(sequence)    \
+            BOOST_VMD_DETAIL_IS_TUPLE(sequence) \
+            /**/
+
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_IS_TUPLE_HPP */

@@ -14,15 +14,16 @@
 #include <boost/type_erasure/detail/access.hpp>
 
 namespace boost {
-namespace type_erasure {
+    namespace type_erasure {
 
-/** Returns true for an empty @ref any. */
-template<class T>
-bool is_empty(const T& arg) {
-    return ::boost::type_erasure::detail::access::data(arg).data == 0;
-}
+        /** Returns true for an empty @ref any. */
+        template<class T>
+        bool is_empty(const T& arg)
+        {
+            return ::boost::type_erasure::detail::access::data(arg).data == 0;
+        }
 
-}
+    }
 }
 
 #endif

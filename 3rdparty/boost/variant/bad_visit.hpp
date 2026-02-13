@@ -19,24 +19,21 @@
 
 namespace boost {
 
-//////////////////////////////////////////////////////////////////////////
-// class bad_visit
-//
-// Exception thrown when a visitation attempt via apply_visitor fails due
-// to invalid visited subtype or contents.
-//
-struct BOOST_SYMBOL_VISIBLE bad_visit
-    : std::exception
-{
-public: // std::exception interface
-
-    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
+    //////////////////////////////////////////////////////////////////////////
+    // class bad_visit
+    //
+    // Exception thrown when a visitation attempt via apply_visitor fails due
+    // to invalid visited subtype or contents.
+    //
+    struct BOOST_SYMBOL_VISIBLE bad_visit : std::exception
     {
-        return "boost::bad_visit: "
-               "failed visitation using boost::apply_visitor";
-    }
-
-};
+    public: // std::exception interface
+        const char* what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
+        {
+            return "boost::bad_visit: "
+                   "failed visitation using boost::apply_visitor";
+        }
+    };
 
 } // namespace boost
 

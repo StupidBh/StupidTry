@@ -9,36 +9,35 @@
 
 #if __cplusplus >= 201103L
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-namespace
-qvm_to_string_detail
-    {
-    using std::to_string;
+        namespace qvm_to_string_detail {
+            using std::to_string;
+        }
+
     }
-
-} }
+}
 
 #else
 
-#include <sstream>
+    #include <sstream>
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-namespace
-qvm_to_string_detail
-    {
-    template <class T>
-    std::string
-    to_string( T const & x )
-        {
-        std::stringstream s;
-        s << x;
-        return s.str();
+        namespace qvm_to_string_detail {
+            template<class T>
+            std::string to_string(T const& x)
+            {
+                std::stringstream s;
+                s << x;
+                return s.str();
+            }
         }
-    }
 
-} }
+    }
+}
 
 #endif
 

@@ -9,7 +9,7 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
 #include <boost/stacktrace/frame.hpp>

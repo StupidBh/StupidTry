@@ -13,23 +13,21 @@
 #include <boost/core/detail/string_view.hpp>
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-// We use detail::to_sv(s) instead of core::string_view(s) whenever
-// we should convert to core::string_view.
-// This is a workaround for GCC >=8.0 <8.4
-// See: https://github.com/boostorg/url/issues/672
-template<class T>
-BOOST_CXX14_CONSTEXPR
-core::string_view
-to_sv(T const& t) noexcept
-{
-    return core::string_view(t);
-}
+            // We use detail::to_sv(s) instead of core::string_view(s) whenever
+            // we should convert to core::string_view.
+            // This is a workaround for GCC >=8.0 <8.4
+            // See: https://github.com/boostorg/url/issues/672
+            template<class T>
+            BOOST_CXX14_CONSTEXPR core::string_view to_sv(T const& t) noexcept
+            {
+                return core::string_view(t);
+            }
 
-} // detail
-} // urls
-} // boost
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

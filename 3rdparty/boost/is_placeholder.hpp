@@ -3,10 +3,9 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined( _MSC_VER ) && ( _MSC_VER >= 1020 )
-# pragma once
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    #pragma once
 #endif
-
 
 //  is_placeholder.hpp - TR1 is_placeholder metafunction
 //
@@ -17,14 +16,16 @@
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt
 
+namespace boost {
 
-namespace boost
-{
-
-template< class T > struct is_placeholder
-{
-    enum _vt { value = 0 };
-};
+    template<class T>
+    struct is_placeholder
+    {
+        enum _vt
+        {
+            value = 0
+        };
+    };
 
 } // namespace boost
 

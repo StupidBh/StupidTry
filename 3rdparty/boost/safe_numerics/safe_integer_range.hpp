@@ -18,43 +18,31 @@
 // higher level types implemented in terms of safe_base
 
 namespace boost {
-namespace safe_numerics {
+    namespace safe_numerics {
 
-/////////////////////////////////////////////////////////////////
-// safe_signed_range
+        /////////////////////////////////////////////////////////////////
+        // safe_signed_range
 
-template <
-    std::intmax_t Min,
-    std::intmax_t Max,
-    class P = native,
-    class E = default_exception_policy
->
-using safe_signed_range = safe_base<
-    typename utility::signed_stored_type<Min, Max>,
-    static_cast<typename utility::signed_stored_type<Min, Max> >(Min),
-    static_cast<typename utility::signed_stored_type<Min, Max> >(Max),
-    P,
-    E
->;
+        template<std::intmax_t Min, std::intmax_t Max, class P = native, class E = default_exception_policy>
+        using safe_signed_range = safe_base<
+            typename utility::signed_stored_type<Min, Max>,
+            static_cast<typename utility::signed_stored_type<Min, Max>>(Min),
+            static_cast<typename utility::signed_stored_type<Min, Max>>(Max),
+            P,
+            E>;
 
-/////////////////////////////////////////////////////////////////
-// safe_unsigned_range
+        /////////////////////////////////////////////////////////////////
+        // safe_unsigned_range
 
-template <
-    std::uintmax_t Min,
-    std::uintmax_t Max,
-    class P = native,
-    class E = default_exception_policy
->
-using safe_unsigned_range = safe_base<
-    typename utility::unsigned_stored_type<Min, Max>,
-    static_cast<typename utility::unsigned_stored_type<Min, Max> >(Min),
-    static_cast<typename utility::unsigned_stored_type<Min, Max> >(Max),
-    P,
-    E
->;
+        template<std::uintmax_t Min, std::uintmax_t Max, class P = native, class E = default_exception_policy>
+        using safe_unsigned_range = safe_base<
+            typename utility::unsigned_stored_type<Min, Max>,
+            static_cast<typename utility::unsigned_stored_type<Min, Max>>(Min),
+            static_cast<typename utility::unsigned_stored_type<Min, Max>>(Max),
+            P,
+            E>;
 
-} // safe_numerics
-} // boost
+    } // namespace safe_numerics
+} // namespace boost
 
 #endif // BOOST_NUMERIC_SAFE_RANGE_HPP

@@ -8,16 +8,14 @@
 #include <boost/core/yield_primitives.hpp>
 #include <boost/config/header_deprecated.hpp>
 
-BOOST_HEADER_DEPRECATED( "<boost/core/yield_primitives.hpp>" )
+BOOST_HEADER_DEPRECATED("<boost/core/yield_primitives.hpp>")
 
-namespace boost
-{
-namespace detail
-{
+namespace boost {
+    namespace detail {
 
-using boost::core::sp_thread_pause;
+        using boost::core::sp_thread_pause;
 
-} // namespace detail
+    } // namespace detail
 } // namespace boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_SP_THREAD_PAUSE_HPP_INCLUDED

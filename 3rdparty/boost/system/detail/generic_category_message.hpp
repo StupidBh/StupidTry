@@ -14,106 +14,101 @@
 #include <string>
 #include <cstring>
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-namespace detail
-{
+        namespace detail {
 
 #if defined(__GLIBC__)
 
-// glibc has two incompatible strerror_r definitions
+            // glibc has two incompatible strerror_r definitions
 
-inline char const * strerror_r_helper( char const * r, char const * ) noexcept
-{
-    return r;
-}
+            inline char const* strerror_r_helper(char const* r, char const*) noexcept
+            {
+                return r;
+            }
 
-inline char const * strerror_r_helper( int r, char const * buffer ) noexcept
-{
-    return r == 0? buffer: "Unknown error";
-}
+            inline char const* strerror_r_helper(int r, char const* buffer) noexcept
+            {
+                return r == 0 ? buffer : "Unknown error";
+            }
 
-inline char const * generic_error_category_message( int ev, char * buffer, std::size_t len ) noexcept
-{
-    if( buffer != nullptr )
-    {
-        return strerror_r_helper( strerror_r( ev, buffer, len ), buffer );
-    }
-    else
-    {
-        // strerror_r requires non-null buffer pointer
+            inline char const* generic_error_category_message(int ev, char* buffer, std::size_t len) noexcept
+            {
+                if (buffer != nullptr) {
+                    return strerror_r_helper(strerror_r(ev, buffer, len), buffer);
+                }
+                else {
+                    // strerror_r requires non-null buffer pointer
 
-        char tmp[ 1 ] = {};
-        char const* r = strerror_r_helper( strerror_r( ev, tmp, 0 ), buffer );
+                    char tmp[1] = {};
+                    char const* r = strerror_r_helper(strerror_r(ev, tmp, 0), buffer);
 
-        return r == tmp? nullptr: r;
-    }
-}
+                    return r == tmp ? nullptr : r;
+                }
+            }
 
-inline std::string generic_error_category_message( int ev )
-{
-    char buffer[ 128 ];
-    return generic_error_category_message( ev, buffer, sizeof( buffer ) );
-}
+            inline std::string generic_error_category_message(int ev)
+            {
+                char buffer[128];
+                return generic_error_category_message(ev, buffer, sizeof(buffer));
+            }
 
 #else // #if defined(__GLIBC__)
 
-// std::strerror is thread-safe on everything else, incl. Windows
+                // std::strerror is thread-safe on everything else, incl. Windows
 
-# if defined( BOOST_MSVC )
-#  pragma warning( push )
-#  pragma warning( disable: 4996 )
-# elif defined(__clang__) && defined(__has_warning)
-#  pragma clang diagnostic push
-#  if __has_warning("-Wdeprecated-declarations")
-#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#  endif
-# endif
+    #if defined(BOOST_MSVC)
+        #pragma warning(push)
+        #pragma warning(disable: 4996)
+    #elif defined(__clang__) && defined(__has_warning)
+        #pragma clang diagnostic push
+        #if __has_warning("-Wdeprecated-declarations")
+            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        #endif
+    #endif
 
-inline std::string generic_error_category_message( int ev )
-{
-    char const * m = std::strerror( ev );
-    return m? m: "Unknown error";
-}
+            inline std::string generic_error_category_message(int ev)
+            {
+                char const* m = std::strerror(ev);
+                return m ? m : "Unknown error";
+            }
 
-inline char const * generic_error_category_message( int ev, char * buffer, std::size_t len ) noexcept
-{
-    if( len == 0 )
-    {
-        return buffer;
-    }
+            inline char const* generic_error_category_message(int ev, char* buffer, std::size_t len) noexcept
+            {
+                if (len == 0) {
+                    return buffer;
+                }
 
-    if( len == 1 )
-    {
-        buffer[0] = 0;
-        return buffer;
-    }
+                if (len == 1) {
+                    buffer[0] = 0;
+                    return buffer;
+                }
 
-    char const * m = std::strerror( ev );
+                char const* m = std::strerror(ev);
 
-    if( m == 0 ) return "Unknown error";
+                if (m == 0) {
+                    return "Unknown error";
+                }
 
-    std::strncpy( buffer, m, len - 1 );
-    buffer[ len-1 ] = 0;
+                std::strncpy(buffer, m, len - 1);
+                buffer[len - 1] = 0;
 
-    return buffer;
-}
+                return buffer;
+            }
 
-# if defined( BOOST_MSVC )
-#  pragma warning( pop )
-# elif defined(__clang__) && defined(__has_warning)
-#  pragma clang diagnostic pop
-# endif
+    #if defined(BOOST_MSVC)
+        #pragma warning(pop)
+    #elif defined(__clang__) && defined(__has_warning)
+        #pragma clang diagnostic pop
+    #endif
 
 #endif // #if defined(__GLIBC__)
 
-} // namespace detail
+        } // namespace detail
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

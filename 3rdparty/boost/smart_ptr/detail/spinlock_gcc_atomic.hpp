@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 // Copyright 2008, 2020 Peter Dimov
@@ -15,80 +15,62 @@
 
 #if defined(BOOST_SP_REPORT_IMPLEMENTATION)
 
-#include <boost/config/pragma_message.hpp>
+    #include <boost/config/pragma_message.hpp>
 BOOST_PRAGMA_MESSAGE("Using __atomic spinlock")
 
 #endif
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-class spinlock
-{
-public:
+        class spinlock {
+        public:
+            // `bool` alignment is required for Apple PPC32
+            // https://github.com/boostorg/smart_ptr/issues/105
+            // https://github.com/PurpleI2P/i2pd/issues/1726
+            // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107590
 
-    // `bool` alignment is required for Apple PPC32
-    // https://github.com/boostorg/smart_ptr/issues/105
-    // https://github.com/PurpleI2P/i2pd/issues/1726
-    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107590
+            union
+            {
+                unsigned char v_;
+                bool align_;
+            };
 
-    union
-    {
-        unsigned char v_;
-        bool align_;
-    };
+        public:
+            bool try_lock() { return __atomic_test_and_set(&v_, __ATOMIC_ACQUIRE) == 0; }
 
-public:
+            void lock()
+            {
+                for (unsigned k = 0; !try_lock(); ++k) {
+                    boost::detail::yield(k);
+                }
+            }
 
-    bool try_lock()
-    {
-        return __atomic_test_and_set( &v_, __ATOMIC_ACQUIRE ) == 0;
-    }
+            void unlock() { __atomic_clear(&v_, __ATOMIC_RELEASE); }
 
-    void lock()
-    {
-        for( unsigned k = 0; !try_lock(); ++k )
-        {
-            boost::detail::yield( k );
-        }
-    }
+        public:
+            class scoped_lock {
+            private:
+                spinlock& sp_;
 
-    void unlock()
-    {
-        __atomic_clear( &v_, __ATOMIC_RELEASE );
-    }
+                scoped_lock(scoped_lock const&);
+                scoped_lock& operator=(scoped_lock const&);
 
-public:
+            public:
+                explicit scoped_lock(spinlock& sp) :
+                    sp_(sp)
+                {
+                    sp.lock();
+                }
 
-    class scoped_lock
-    {
-    private:
+                ~scoped_lock() { sp_.unlock(); }
+            };
+        };
 
-        spinlock & sp_;
-
-        scoped_lock( scoped_lock const & );
-        scoped_lock & operator=( scoped_lock const & );
-
-    public:
-
-        explicit scoped_lock( spinlock & sp ): sp_( sp )
-        {
-            sp.lock();
-        }
-
-        ~scoped_lock()
-        {
-            sp_.unlock();
-        }
-    };
-};
-
-} // namespace detail
+    } // namespace detail
 } // namespace boost
 
-#define BOOST_DETAIL_SPINLOCK_INIT {{0}}
+#define BOOST_DETAIL_SPINLOCK_INIT { { 0 } }
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_SPINLOCK_GCC_ATOMIC_HPP_INCLUDED

@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 //  boost/throw_exception.hpp
@@ -18,28 +18,30 @@
 #include <boost/config.hpp>
 
 #ifndef BOOST_NO_EXCEPTIONS
-#include <boost/throw_exception.hpp>
+    #include <boost/throw_exception.hpp>
 #endif
 
 namespace boost {
-namespace serialization {
+    namespace serialization {
 
 #ifdef BOOST_NO_EXCEPTIONS
 
-BOOST_NORETURN inline void throw_exception(std::exception const & e) {
-    ::boost::throw_exception(e);
-}
+        BOOST_NORETURN inline void throw_exception(std::exception const& e)
+        {
+            ::boost::throw_exception(e);
+        }
 
 #else
 
-template<class E>
-BOOST_NORETURN inline void throw_exception(E const & e){
-    throw e;
-}
+        template<class E>
+        BOOST_NORETURN inline void throw_exception(E const& e)
+        {
+            throw e;
+        }
 
 #endif
 
-} // namespace serialization
+    } // namespace serialization
 } // namespace boost
 
 #endif // #ifndef BOOST_SERIALIZATION_THROW_EXCEPTION_HPP_INCLUDED

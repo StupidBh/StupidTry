@@ -3,34 +3,37 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef IMPLICIT_DWA2002325_HPP
-# define IMPLICIT_DWA2002325_HPP
+#define IMPLICIT_DWA2002325_HPP
 
-# include <boost/python/detail/prefix.hpp>
-# include <boost/type.hpp>
-# include <boost/python/converter/implicit.hpp>
-# include <boost/python/converter/registry.hpp>
+#include <boost/python/detail/prefix.hpp>
+#include <boost/type.hpp>
+#include <boost/python/converter/implicit.hpp>
+#include <boost/python/converter/registry.hpp>
 #ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-# include <boost/python/converter/pytype_function.hpp>
+    #include <boost/python/converter/pytype_function.hpp>
 #endif
-# include <boost/python/type_id.hpp>
+#include <boost/python/type_id.hpp>
 
-namespace boost { namespace python { 
+namespace boost {
+    namespace python {
 
-template <class Source, class Target>
-void implicitly_convertible(boost::type<Source>* = 0, boost::type<Target>* = 0)
-{
-    typedef converter::implicit<Source,Target> functions;
-    
-    converter::registry::push_back(
-          &functions::convertible
-        , &functions::construct
-        , type_id<Target>()
+        template<class Source, class Target>
+        void implicitly_convertible(boost::type<Source>* = 0, boost::type<Target>* = 0)
+        {
+            typedef converter::implicit<Source, Target> functions;
+
+            converter::registry::push_back(
+                &functions::convertible,
+                &functions::construct,
+                type_id<Target>()
 #ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-        , &converter::expected_from_python_type_direct<Source>::get_pytype
+                    ,
+                &converter::expected_from_python_type_direct<Source>::get_pytype
 #endif
-        );
-}
+            );
+        }
 
-}} // namespace boost::python
+    }
+}      // namespace boost
 
 #endif // IMPLICIT_DWA2002325_HPP

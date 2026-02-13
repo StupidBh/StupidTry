@@ -32,28 +32,25 @@
 // `checking_prefix ## tokens` expand to unary (e.g., `(1)`) iff `tokens` start
 // with keyword to check.
 //==============================================================================
-#define BOOST_PROTO_DETAILS_KEYWORD_FACILITY_IS_FRONT(T, CHECKING_PREFIX)                           \
-    BOOST_PP_IS_UNARY(BOOST_PP_CAT(CHECKING_PREFIX, T))                                             \
+#define BOOST_PROTO_DETAILS_KEYWORD_FACILITY_IS_FRONT(T, CHECKING_PREFIX) \
+    BOOST_PP_IS_UNARY(BOOST_PP_CAT(CHECKING_PREFIX, T))                   \
     /**/
 
 //==============================================================================
 // `is_front_macro(tokens)` is 1 iff `tokens` start with keyword to remove.
 // `removing_prefix ## <keyword-to-remove>` must expand to nothing.
 //==============================================================================
-#define BOOST_PROTO_DETAILS_KEYWORD_FACILITY_REMOVE_FRONT(TOKENS, IS_FRONT_MACRO, REMOVING_PREFIX)  \
-    BOOST_PP_EXPAND( /* without EXPAND doesn't expand on MSVC */                                    \
-        BOOST_PP_IIF(                                                                               \
-            IS_FRONT_MACRO(TOKENS)                                                                  \
-          , BOOST_PP_CAT                                                                            \
-          , TOKENS BOOST_PP_TUPLE_EAT(2)                                                            \
-        )(REMOVING_PREFIX, TOKENS)                                                                  \
-    )                                                                                               \
+#define BOOST_PROTO_DETAILS_KEYWORD_FACILITY_REMOVE_FRONT(TOKENS, IS_FRONT_MACRO, REMOVING_PREFIX)    \
+    BOOST_PP_EXPAND(/* without EXPAND doesn't expand on MSVC */                                       \
+                    BOOST_PP_IIF(IS_FRONT_MACRO(TOKENS), BOOST_PP_CAT, TOKENS BOOST_PP_TUPLE_EAT(2))( \
+                        REMOVING_PREFIX,                                                              \
+                        TOKENS))                                                                      \
     /**/
 
-#define BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_IS_typename (1) /* unary */
-#define typename_BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_IS (1) /* unary */
-#define BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE_typename /* nothing */
-#define typename_BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE /* nothing */
+#define BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_IS_typename     (1) /* unary */
+#define typename_BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_IS     (1) /* unary */
+#define BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE_typename     /* nothing */
+#define typename_BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE     /* nothing */
 
 #define BOOST_PROTO_DETAILS_KEYWORD_IS_TYPENAME_FRONT(TOKENS)                                       \
     BOOST_PROTO_DETAILS_KEYWORD_FACILITY_IS_FRONT(TOKENS, BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_IS_) \
@@ -71,12 +68,11 @@
  * \param X Symbol to remove \c typename from
  */
 //==============================================================================
-#define BOOST_PROTO_REMOVE_TYPENAME(X)                                                              \
-    BOOST_PROTO_DETAILS_KEYWORD_FACILITY_REMOVE_FRONT(                                              \
-        X                                                                                           \
-      , BOOST_PROTO_DETAILS_KEYWORD_IS_TYPENAME_FRONT                                               \
-      , BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE_                                                \
-    )                                                                                               \
+#define BOOST_PROTO_REMOVE_TYPENAME(X)                 \
+    BOOST_PROTO_DETAILS_KEYWORD_FACILITY_REMOVE_FRONT( \
+        X,                                             \
+        BOOST_PROTO_DETAILS_KEYWORD_IS_TYPENAME_FRONT, \
+        BOOST_PROTO_DETAILS_KEYWORD_TYPENAME_REMOVE_)  \
     /**/
 
 #endif

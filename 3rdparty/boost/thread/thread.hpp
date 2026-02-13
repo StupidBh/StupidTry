@@ -12,5 +12,4 @@
 #include <boost/thread/thread_only.hpp>
 #include <boost/thread/detail/thread_group.hpp>
 
-
 #endif

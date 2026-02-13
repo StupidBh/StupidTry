@@ -1,9 +1,9 @@
-#ifndef  BOOST_SERIALIZATION_BOOST_UNORDERED_SET_HPP
+#ifndef BOOST_SERIALIZATION_BOOST_UNORDERED_SET_HPP
 #define BOOST_SERIALIZATION_BOOST_UNORDERED_SET_HPP
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
@@ -21,7 +21,6 @@
 BOOST_STATIC_ASSERT_MSG(
     false,
     "Boost.Unordered now provides its own Serialization support. "
-    "This header is no longer necessary and is now deprecated."
-)
+    "This header is no longer necessary and is now deprecated.")
 
 #endif // BOOST_SERIALIZATION_BOOST_UNORDERED_SET_HPP

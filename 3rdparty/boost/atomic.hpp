@@ -24,7 +24,7 @@
 #include <boost/atomic/fences.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 #endif

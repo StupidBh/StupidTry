@@ -21,125 +21,133 @@
 
 namespace boost::redis::resp3 {
 
-/** @brief Adds a bulk to the request.
- *  @relates boost::redis::request
- *
- *  This function is useful in serialization of your own data
- *  structures in a request. For example
- *
- *  @code
- *  void boost_redis_to_bulk(std::string& payload, mystruct const& obj)
- *  {
- *     auto const str = // Convert obj to a string.
- *     boost_redis_to_bulk(payload, str);
- *  }
- *  @endcode
- *
- *  @param payload Storage on which data will be copied into.
- *  @param data Data that will be serialized and stored in `payload`.
- */
-void boost_redis_to_bulk(std::string& payload, std::string_view data);
+    /** @brief Adds a bulk to the request.
+     *  @relates boost::redis::request
+     *
+     *  This function is useful in serialization of your own data
+     *  structures in a request. For example
+     *
+     *  @code
+     *  void boost_redis_to_bulk(std::string& payload, mystruct const& obj)
+     *  {
+     *     auto const str = // Convert obj to a string.
+     *     boost_redis_to_bulk(payload, str);
+     *  }
+     *  @endcode
+     *
+     *  @param payload Storage on which data will be copied into.
+     *  @param data Data that will be serialized and stored in `payload`.
+     */
+    void boost_redis_to_bulk(std::string& payload, std::string_view data);
 
-template <class T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-void boost_redis_to_bulk(std::string& payload, T n)
-{
-   auto const s = std::to_string(n);
-   boost::redis::resp3::boost_redis_to_bulk(payload, std::string_view{s});
-}
+    template<class T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
+    void boost_redis_to_bulk(std::string& payload, T n)
+    {
+        auto const s = std::to_string(n);
+        boost::redis::resp3::boost_redis_to_bulk(payload, std::string_view { s });
+    }
 
-template <class T>
-struct add_bulk_impl {
-   static void add(std::string& payload, T const& from)
-   {
-      using namespace boost::redis::resp3;
-      boost_redis_to_bulk(payload, from);
-   }
-};
+    template<class T>
+    struct add_bulk_impl
+    {
+        static void add(std::string& payload, T const& from)
+        {
+            using namespace boost::redis::resp3;
+            boost_redis_to_bulk(payload, from);
+        }
+    };
 
-template <class... Ts>
-struct add_bulk_impl<std::tuple<Ts...>> {
-   static void add(std::string& payload, std::tuple<Ts...> const& t)
-   {
-      auto f = [&](auto const&... vs) {
-         using namespace boost::redis::resp3;
-         (boost_redis_to_bulk(payload, vs), ...);
-      };
+    template<class... Ts>
+    struct add_bulk_impl<std::tuple<Ts...>>
+    {
+        static void add(std::string& payload, std::tuple<Ts...> const& t)
+        {
+            auto f = [&](auto const&... vs) {
+                using namespace boost::redis::resp3;
+                (boost_redis_to_bulk(payload, vs), ...);
+            };
 
-      std::apply(f, t);
-   }
-};
+            std::apply(f, t);
+        }
+    };
 
-template <class U, class V>
-struct add_bulk_impl<std::pair<U, V>> {
-   static void add(std::string& payload, std::pair<U, V> const& from)
-   {
-      using namespace boost::redis::resp3;
-      boost_redis_to_bulk(payload, from.first);
-      boost_redis_to_bulk(payload, from.second);
-   }
-};
+    template<class U, class V>
+    struct add_bulk_impl<std::pair<U, V>>
+    {
+        static void add(std::string& payload, std::pair<U, V> const& from)
+        {
+            using namespace boost::redis::resp3;
+            boost_redis_to_bulk(payload, from.first);
+            boost_redis_to_bulk(payload, from.second);
+        }
+    };
 
-void add_header(std::string& payload, type t, std::size_t size);
+    void add_header(std::string& payload, type t, std::size_t size);
 
-template <class T>
-void add_bulk(std::string& payload, T const& data)
-{
-   add_bulk_impl<T>::add(payload, data);
-}
+    template<class T>
+    void add_bulk(std::string& payload, T const& data)
+    {
+        add_bulk_impl<T>::add(payload, data);
+    }
 
-template <class>
-struct bulk_counter;
+    template<class>
+    struct bulk_counter;
 
-template <class>
-struct bulk_counter {
-   static constexpr auto size = 1U;
-};
+    template<class>
+    struct bulk_counter
+    {
+        static constexpr auto size = 1U;
+    };
 
-template <class T, class U>
-struct bulk_counter<std::pair<T, U>> {
-   static constexpr auto size = 2U;
-};
+    template<class T, class U>
+    struct bulk_counter<std::pair<T, U>>
+    {
+        static constexpr auto size = 2U;
+    };
 
-void add_blob(std::string& payload, std::string_view blob);
-void add_separator(std::string& payload);
+    void add_blob(std::string& payload, std::string_view blob);
+    void add_separator(std::string& payload);
 
-namespace detail {
+    namespace detail {
 
-template <class Adapter>
-void deserialize(std::string_view const& data, Adapter adapter, system::error_code& ec)
-{
-   adapter.on_init();
+        template<class Adapter>
+        void deserialize(std::string_view const& data, Adapter adapter, system::error_code& ec)
+        {
+            adapter.on_init();
 
-   parser parser;
-   while (!parser.done()) {
-      auto const res = parser.consume(data, ec);
-      if (ec)
-         return;
+            parser parser;
+            while (!parser.done()) {
+                auto const res = parser.consume(data, ec);
+                if (ec) {
+                    return;
+                }
 
-      BOOST_ASSERT(res.has_value());
+                BOOST_ASSERT(res.has_value());
 
-      adapter.on_node(res.value(), ec);
-      if (ec)
-         return;
-   }
+                adapter.on_node(res.value(), ec);
+                if (ec) {
+                    return;
+                }
+            }
 
-   BOOST_ASSERT(parser.get_consumed() == std::size(data));
+            BOOST_ASSERT(parser.get_consumed() == std::size(data));
 
-   adapter.on_done();
-}
+            adapter.on_done();
+        }
 
-template <class Adapter>
-void deserialize(std::string_view const& data, Adapter adapter)
-{
-   system::error_code ec;
-   deserialize(data, adapter, ec);
+        template<class Adapter>
+        void deserialize(std::string_view const& data, Adapter adapter)
+        {
+            system::error_code ec;
+            deserialize(data, adapter, ec);
 
-   if (ec)
-      BOOST_THROW_EXCEPTION(system::system_error{ec});
-}
+            if (ec) {
+                BOOST_THROW_EXCEPTION(system::system_error { ec });
+            }
+        }
 
-}  // namespace detail
+    } // namespace detail
 
-}  // namespace boost::redis::resp3
+} // namespace boost::redis::resp3
 
-#endif  // BOOST_REDIS_RESP3_SERIALIZATION_HPP
+#endif // BOOST_REDIS_RESP3_SERIALIZATION_HPP

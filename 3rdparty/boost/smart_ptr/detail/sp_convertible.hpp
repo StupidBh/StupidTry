@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //  detail/sp_convertible.hpp
@@ -18,59 +18,79 @@
 #include <boost/config.hpp>
 #include <cstddef>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-template< class Y, class T > struct sp_convertible
-{
-    typedef char (&yes) [1];
-    typedef char (&no)  [2];
+        template<class Y, class T>
+        struct sp_convertible
+        {
+            typedef char (&yes)[1];
+            typedef char (&no)[2];
 
-    static yes f( T* );
-    static no  f( ... );
+            static yes f(T*);
+            static no f(...);
 
-    enum _vt { value = sizeof( (f)( static_cast<Y*>(0) ) ) == sizeof(yes) };
-};
+            enum _vt
+            {
+                value = sizeof((f)(static_cast<Y*>(0))) == sizeof(yes)
+            };
+        };
 
-template< class Y, class T > struct sp_convertible< Y, T[] >
-{
-    enum _vt { value = false };
-};
+        template<class Y, class T>
+        struct sp_convertible<Y, T[]>
+        {
+            enum _vt
+            {
+                value = false
+            };
+        };
 
-template< class Y, class T > struct sp_convertible< Y[], T[] >
-{
-    enum _vt { value = sp_convertible< Y[1], T[1] >::value };
-};
+        template<class Y, class T>
+        struct sp_convertible<Y[], T[]>
+        {
+            enum _vt
+            {
+                value = sp_convertible < Y[1],
+                T[1] > ::value
+            };
+        };
 
-template< class Y, std::size_t N, class T > struct sp_convertible< Y[N], T[] >
-{
-    enum _vt { value = sp_convertible< Y[1], T[1] >::value };
-};
+        template<class Y, std::size_t N, class T>
+        struct sp_convertible<Y[N], T[]>
+        {
+            enum _vt
+            {
+                value = sp_convertible < Y[1],
+                T[1] > ::value
+            };
+        };
 
-struct sp_empty
-{
-};
+        struct sp_empty
+        {
+        };
 
-template< bool > struct sp_enable_if_convertible_impl;
+        template<bool>
+        struct sp_enable_if_convertible_impl;
 
-template<> struct sp_enable_if_convertible_impl<true>
-{
-    typedef sp_empty type;
-};
+        template<>
+        struct sp_enable_if_convertible_impl<true>
+        {
+            typedef sp_empty type;
+        };
 
-template<> struct sp_enable_if_convertible_impl<false>
-{
-};
+        template<>
+        struct sp_enable_if_convertible_impl<false>
+        {
+        };
 
-template< class Y, class T > struct sp_enable_if_convertible: public sp_enable_if_convertible_impl< sp_convertible< Y, T >::value >
-{
-};
+        template<class Y, class T>
+        struct sp_enable_if_convertible : public sp_enable_if_convertible_impl<sp_convertible<Y, T>::value>
+        {
+        };
 
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_DETAIL_SP_CONVERTIBLE_HPP_INCLUDED

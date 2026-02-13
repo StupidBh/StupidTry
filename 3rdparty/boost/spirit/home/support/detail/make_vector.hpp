@@ -9,13 +9,16 @@
 
 #include <boost/fusion/include/make_vector.hpp>
 
-namespace boost { namespace spirit { namespace detail
-{
-    namespace result_of
-    {
-        using fusion::result_of::make_vector;
+namespace boost {
+    namespace spirit {
+        namespace detail {
+            namespace result_of {
+                using fusion::result_of::make_vector;
+            }
+
+            using fusion::make_vector;
+        }
     }
-    using fusion::make_vector;
-}}}
+}
 
 #endif

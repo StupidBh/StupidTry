@@ -9,59 +9,55 @@
 #include <boost/qvm/assert.hpp>
 #include <boost/qvm/static_assert.hpp>
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-template <class T>
-struct
-quat
-    {
-    T a[4];
-    template <class R
+        template<class T>
+        struct quat
+        {
+            T a[4];
+            template<
+                class R
 #if __cplusplus >= 201103L
-        , class = typename enable_if<is_quat<R> >::type
+                ,
+                class = typename enable_if<is_quat<R>>::type
 #endif
-    >
-    operator R() const
+                >
+            operator R() const
+            {
+                R r;
+                assign(r, *this);
+                return r;
+            }
+        };
+
+        template<class Q>
+        struct quat_traits;
+
+        template<class T>
+        struct quat_traits<quat<T>>
         {
-        R r;
-        assign(r,*this);
-        return r;
-        }
-    };
+            typedef quat<T> this_quaternion;
+            typedef T scalar_type;
 
-template <class Q>
-struct quat_traits;
+            template<int I>
+            static BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL scalar_type read_element(this_quaternion const& x)
+            {
+                BOOST_QVM_STATIC_ASSERT(I >= 0);
+                BOOST_QVM_STATIC_ASSERT(I < 4);
+                return x.a[I];
+            }
 
-template <class T>
-struct
-quat_traits< quat<T> >
-    {
-    typedef quat<T> this_quaternion;
-    typedef T scalar_type;
+            template<int I>
+            static BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL scalar_type& write_element(this_quaternion& x)
+            {
+                BOOST_QVM_STATIC_ASSERT(I >= 0);
+                BOOST_QVM_STATIC_ASSERT(I < 4);
+                return x.a[I];
+            }
+        };
 
-    template <int I>
-    static
-    BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL
-    scalar_type
-    read_element( this_quaternion const & x )
-        {
-        BOOST_QVM_STATIC_ASSERT(I>=0);
-        BOOST_QVM_STATIC_ASSERT(I<4);
-        return x.a[I];
-        }
-
-    template <int I>
-    static
-    BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL
-    scalar_type &
-    write_element( this_quaternion & x )
-        {
-        BOOST_QVM_STATIC_ASSERT(I>=0);
-        BOOST_QVM_STATIC_ASSERT(I<4);
-        return x.a[I];
-        }
-    };
-
-} }
+    }
+}
 
 #endif

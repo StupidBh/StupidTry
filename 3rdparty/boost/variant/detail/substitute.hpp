@@ -25,142 +25,104 @@
 #include <boost/preprocessor/empty.hpp>
 
 namespace boost {
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction substitute
-//
-// Substitutes one type for another in the given type expression.
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction substitute
+            //
+            // Substitutes one type for another in the given type expression.
+            //
 
-//
-// primary template
-//
-template <
-      typename T, typename Dest, typename Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
-          typename Arity /* = ... (see substitute_fwd.hpp) */
-        )
-    >
-struct substitute
-{
-    typedef T type;
-};
+            //
+            // primary template
+            //
+            template<
+                typename T,
+                typename Dest,
+                typename Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
+                    typename Arity /* = ... (see substitute_fwd.hpp) */
+                    )>
+            struct substitute
+            {
+                typedef T type;
+            };
 
-//
-// tag substitution specializations
-//
+            //
+            // tag substitution specializations
+            //
 
-#define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(CV_) \
-    template <typename Dest, typename Source> \
-    struct substitute< \
-          CV_ Source \
-        , Dest \
-        , Source \
-          BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>) \
-        > \
-    { \
-        typedef CV_ Dest type; \
-    }; \
+#define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(CV_)                             \
+    template<typename Dest, typename Source>                                                    \
+    struct substitute<CV_ Source, Dest, Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)> \
+    {                                                                                           \
+        typedef CV_ Dest type;                                                                  \
+    };                                                                                          \
     /**/
 
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG( BOOST_PP_EMPTY() )
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(const)
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(volatile)
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(const volatile)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(BOOST_PP_EMPTY())
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(const)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(volatile)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG(const volatile)
 
 #undef BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_SUBSTITUTE_TAG
 
 //
 // pointer specializations
 //
-#define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(CV_) \
-    template <typename T, typename Dest, typename Source> \
-    struct substitute< \
-          T * CV_ \
-        , Dest \
-        , Source \
-          BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>) \
-        > \
-    { \
-        typedef typename substitute< \
-              T, Dest, Source \
-            >::type * CV_ type; \
-    }; \
+#define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(CV_)                          \
+    template<typename T, typename Dest, typename Source>                                     \
+    struct substitute<T * CV_, Dest, Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)> \
+    {                                                                                        \
+        typedef typename substitute<T, Dest, Source>::type* CV_ type;                        \
+    };                                                                                       \
     /**/
 
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER( BOOST_PP_EMPTY() )
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(const)
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(volatile)
-BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(const volatile)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(BOOST_PP_EMPTY())
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(const)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(volatile)
+            BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER(const volatile)
 
 #undef BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL_HANDLE_POINTER
 
-//
-// reference specializations
-//
-template <typename T, typename Dest, typename Source>
-struct substitute<
-      T&
-    , Dest
-    , Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)
-    >
-{
-    typedef typename substitute<
-          T, Dest, Source
-        >::type & type;
-};
+            //
+            // reference specializations
+            //
+            template<typename T, typename Dest, typename Source>
+            struct substitute<T&, Dest, Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)>
+            {
+                typedef typename substitute<T, Dest, Source>::type& type;
+            };
 
-//
-// template expression (i.e., F<...>) specializations
-//
+            //
+            // template expression (i.e., F<...>) specializations
+            //
 
-template <
-      template <typename...> class F
-    , typename... Ts
-    , typename Dest
-    , typename Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)
-    >
-struct substitute<
-      F<Ts...>
-    , Dest
-    , Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)
-    >
-{
-    typedef F<typename substitute<
-          Ts, Dest, Source
-        >::type...> type;
-};
+            template<
+                template<typename...> class F,
+                typename... Ts,
+                typename Dest,
+                typename Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(typename Arity)>
+            struct substitute<F<Ts...>, Dest, Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(Arity)>
+            {
+                typedef F<typename substitute<Ts, Dest, Source>::type...> type;
+            };
 
-//
-// function specializations
-//
-template <
-      typename R
-    , typename... A
-    , typename Dest
-    , typename Source
-    >
-struct substitute<
-      R (*)(A...)
-    , Dest
-    , Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)
-    >
-{
-private:
-    typedef typename substitute< R, Dest, Source >::type r;
+            //
+            // function specializations
+            //
+            template<typename R, typename... A, typename Dest, typename Source>
+            struct substitute<R (*)(A...), Dest, Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(mpl::int_<-1>)>
+            {
+            private:
+                typedef typename substitute<R, Dest, Source>::type r;
 
-public:
-    typedef r (*type)(typename substitute<
-          A, Dest, Source
-        >::type...);
-};
+            public:
+                typedef r (*type)(typename substitute<A, Dest, Source>::type...);
+            };
 
-}} // namespace detail::variant
+        }
+    } // namespace detail
 } // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_SUBSTITUTE_HPP

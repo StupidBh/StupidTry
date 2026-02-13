@@ -14,11 +14,10 @@
 
 namespace boost::redis {
 
-logger::logger(level l)
-: lvl{l}
-, fn{[](level, std::string_view msg) {
-   detail::log_to_file(stderr, msg);
-}}
-{ }
+    logger::logger(level l) :
+        lvl { l },
+        fn { [](level, std::string_view msg) { detail::log_to_file(stderr, msg); } }
+    {
+    }
 
-}  // namespace boost::redis
+} // namespace boost::redis

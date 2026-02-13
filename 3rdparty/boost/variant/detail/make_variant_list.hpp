@@ -19,24 +19,28 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/enum.hpp>
 
-namespace boost { namespace detail { namespace variant {
+namespace boost {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction make_variant_list
-//
-// Provides a MPL-compatible sequence with the specified non-void types
-// as arguments.
-//
-// Rationale: see class template convert_void (variant_fwd.hpp) and using-
-// declaration workaround (below).
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction make_variant_list
+            //
+            // Provides a MPL-compatible sequence with the specified non-void types
+            // as arguments.
+            //
+            // Rationale: see class template convert_void (variant_fwd.hpp) and using-
+            // declaration workaround (below).
+            //
 
-template < typename... T >
-struct make_variant_list
-{
-    typedef typename mpl::list< T... >::type type;
-};
+            template<typename... T>
+            struct make_variant_list
+            {
+                typedef typename mpl::list<T...>::type type;
+            };
 
-}}} // namespace boost::detail::variant
+        }
+    }
+}      // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_MAKE_VARIANT_LIST_HPP

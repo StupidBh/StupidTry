@@ -61,7 +61,7 @@
 #include <boost/type_traits/has_multiplies_assign.hpp>
 #include <boost/type_traits/has_negate.hpp>
 #if !defined(BOOST_BORLANDC) && (!(defined(__CUDACC__) && (__CUDACC_VER_MAJOR__ < 11)) || defined(__CUDA__))
-#include <boost/type_traits/has_new_operator.hpp>
+    #include <boost/type_traits/has_new_operator.hpp>
 #endif
 #include <boost/type_traits/has_not_equal_to.hpp>
 #include <boost/type_traits/has_nothrow_assign.hpp>
@@ -157,8 +157,8 @@
 #include <boost/type_traits/type_with_alignment.hpp>
 
 #if !(defined(__sgi) && defined(__EDG_VERSION__) && (__EDG_VERSION__ == 238))
-#include <boost/type_traits/integral_promotion.hpp>
-#include <boost/type_traits/promote.hpp>
+    #include <boost/type_traits/integral_promotion.hpp>
+    #include <boost/type_traits/promote.hpp>
 #endif
 
 #endif // BOOST_TYPE_TRAITS_HPP

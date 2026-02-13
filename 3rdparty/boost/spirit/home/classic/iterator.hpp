@@ -7,9 +7,9 @@
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_ITERATOR_MAIN_HPP)
-#define BOOST_SPIRIT_ITERATOR_MAIN_HPP
+    #define BOOST_SPIRIT_ITERATOR_MAIN_HPP
 
-#include <boost/spirit/home/classic/version.hpp>
+    #include <boost/spirit/home/classic/version.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -17,9 +17,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/spirit/home/classic/iterator/file_iterator.hpp>
-#include <boost/spirit/home/classic/iterator/fixed_size_queue.hpp>
-#include <boost/spirit/home/classic/iterator/position_iterator.hpp>
-#include <boost/spirit/home/classic/iterator/multi_pass.hpp>
+    #include <boost/spirit/home/classic/iterator/file_iterator.hpp>
+    #include <boost/spirit/home/classic/iterator/fixed_size_queue.hpp>
+    #include <boost/spirit/home/classic/iterator/position_iterator.hpp>
+    #include <boost/spirit/home/classic/iterator/multi_pass.hpp>
 
 #endif // !defined(BOOST_SPIRIT_ITERATOR_MAIN_HPP)

@@ -13,10 +13,16 @@
 
 namespace boost {
 
-#if defined( BOOST_CODEGEARC )
-   template <class T> struct is_compound : public integral_constant<bool, __is_compound(T)> {};
+#if defined(BOOST_CODEGEARC)
+    template<class T>
+    struct is_compound : public integral_constant<bool, __is_compound(T)>
+    {
+    };
 #else
-   template <class T> struct is_compound : public integral_constant<bool, ! ::boost::is_fundamental<T>::value> {};
+    template<class T>
+    struct is_compound : public integral_constant<bool, !::boost::is_fundamental<T>::value>
+    {
+    };
 #endif
 
 } // namespace boost

@@ -13,12 +13,10 @@
 
 // 20.7.3, pointer traits
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::pointer_traits;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::pointer_traits;
+    }
 }
 
 #endif // header

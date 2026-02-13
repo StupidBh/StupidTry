@@ -15,32 +15,33 @@
 #include <boost/type_erasure/static_binding.hpp>
 
 namespace boost {
-namespace type_erasure {
+    namespace type_erasure {
 
-/**
- * Maps a set of placeholders to actual types.
- */
-template<class PlaceholderList>
-class dynamic_binding
-{
-public:
-    template<class Map>
-    dynamic_binding(const static_binding<Map>&)
-    {
-        impl.template init<Map>();
-    }
-    template<class Concept, class Map>
-    dynamic_binding(const binding<Concept>& other, const static_binding<Map>&)
-    {
-        impl.template convert_from<Map>(*other.impl.table);
-    }
-private:
-    template<class Concept>
-    friend class binding;
-    typename ::boost::type_erasure::detail::make_dynamic_vtable<PlaceholderList>::type impl;
-};
+        /**
+         * Maps a set of placeholders to actual types.
+         */
+        template<class PlaceholderList>
+        class dynamic_binding {
+        public:
+            template<class Map>
+            dynamic_binding(const static_binding<Map>&)
+            {
+                impl.template init<Map>();
+            }
 
-}
+            template<class Concept, class Map>
+            dynamic_binding(const binding<Concept>& other, const static_binding<Map>&)
+            {
+                impl.template convert_from<Map>(*other.impl.table);
+            }
+
+        private:
+            template<class Concept>
+            friend class binding;
+            typename ::boost::type_erasure::detail::make_dynamic_vtable<PlaceholderList>::type impl;
+        };
+
+    }
 }
 
 #endif

@@ -25,4 +25,4 @@
  *  This page contains the documentation of the Aedis low-level API.
  */
 
-#endif  // BOOST_REDIS_HPP
+#endif // BOOST_REDIS_HPP

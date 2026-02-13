@@ -13,20 +13,21 @@
 #include <boost/winapi/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 // Windows CE define GetCurrentThread as an inline function in kfuncs.h
-#if !defined( BOOST_USE_WINDOWS_H ) && !defined( UNDER_CE )
-extern "C" {
-BOOST_WINAPI_IMPORT boost::winapi::HANDLE_ BOOST_WINAPI_WINAPI_CC GetCurrentThread(BOOST_WINAPI_DETAIL_VOID);
+#if !defined(BOOST_USE_WINDOWS_H) && !defined(UNDER_CE)
+extern "C"
+{
+    BOOST_WINAPI_IMPORT boost::winapi::HANDLE_ BOOST_WINAPI_WINAPI_CC GetCurrentThread(BOOST_WINAPI_DETAIL_VOID);
 }
 #endif
 
 namespace boost {
-namespace winapi {
-using ::GetCurrentThread;
-}
+    namespace winapi {
+        using ::GetCurrentThread;
+    }
 }
 
 #include <boost/winapi/detail/footer.hpp>

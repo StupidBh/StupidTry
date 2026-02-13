@@ -10,20 +10,17 @@
 
 BOOST_PROCESS_V2_BEGIN_NAMESPACE
 
-namespace posix
-{
+namespace posix {
 
-namespace detail
-{
+    namespace detail {
 
-// whitelist must be ordered
-BOOST_PROCESS_V2_DECL void close_all(const std::vector<int> & whitelist, 
-                                     error_code & ec);
+        // whitelist must be ordered
+        BOOST_PROCESS_V2_DECL void close_all(const std::vector<int>& whitelist, error_code& ec);
 
-}
+    }
 
 }
 
 BOOST_PROCESS_V2_END_NAMESPACE
 
-#endif //BOOST_PROCESS_V2_POSIX_DETAIL_CLOSE_HANDLES_HPP
+#endif // BOOST_PROCESS_V2_POSIX_DETAIL_CLOSE_HANDLES_HPP

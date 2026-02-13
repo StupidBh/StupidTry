@@ -11,22 +11,19 @@
 
 #if defined BOOST_THREAD_PROVIDES_INTERRUPTIONS
 
-namespace boost
-{
-    namespace this_thread
-    {
-        class BOOST_THREAD_DECL disable_interruption
-        {
-          bool interruption_was_enabled;
-          friend class restore_interruption;
+namespace boost {
+    namespace this_thread {
+        class BOOST_THREAD_DECL disable_interruption {
+            bool interruption_was_enabled;
+            friend class restore_interruption;
+
         public:
             BOOST_THREAD_NO_COPYABLE(disable_interruption)
             disable_interruption() BOOST_NOEXCEPT;
             ~disable_interruption() BOOST_NOEXCEPT;
         };
 
-        class BOOST_THREAD_DECL restore_interruption
-        {
+        class BOOST_THREAD_DECL restore_interruption {
         public:
             BOOST_THREAD_NO_COPYABLE(restore_interruption)
             explicit restore_interruption(disable_interruption& d) BOOST_NOEXCEPT;

@@ -14,38 +14,36 @@
 #include <boost/url/grammar/lut_chars.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** The gen-delims character set
+        /** The gen-delims character set
 
-    @par Example
-    Character sets are used with rules and
-    the functions @ref grammar::find_if and
-    @ref grammar::find_if_not.
-    @code
-    system::result< decode_view > rv = grammar::parse( "Program%20Files", pct_encoded_rule( gen_delim_chars ) );
-    @endcode
+            @par Example
+            Character sets are used with rules and
+            the functions @ref grammar::find_if and
+            @ref grammar::find_if_not.
+            @code
+            system::result< decode_view > rv = grammar::parse( "Program%20Files", pct_encoded_rule( gen_delim_chars ) );
+            @endcode
 
-    @par BNF
-    @code
-    gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
-    @endcode
+            @par BNF
+            @code
+            gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+            @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.2"
-        >2.2. Reserved Characters (rfc3986)</a>
+            @par Specification
+            @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-2.2"
+                >2.2. Reserved Characters (rfc3986)</a>
 
-    @see
-        @ref grammar::find_if,
-        @ref grammar::find_if_not,
-        @ref grammar::parse,
-        @ref pct_encoded_rule.
-*/
-constexpr
-grammar::lut_chars
-gen_delim_chars = ":/?#[]@";
+            @see
+                @ref grammar::find_if,
+                @ref grammar::find_if_not,
+                @ref grammar::parse,
+                @ref pct_encoded_rule.
+        */
+        constexpr grammar::lut_chars gen_delim_chars = ":/?#[]@";
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

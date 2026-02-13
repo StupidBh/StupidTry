@@ -16,8 +16,8 @@
 
 namespace boost {
 
-template< typename Block = unsigned long, typename AllocatorOrContainer = std::allocator< Block > >
-class dynamic_bitset;
+    template<typename Block = unsigned long, typename AllocatorOrContainer = std::allocator<Block>>
+    class dynamic_bitset;
 
 }
 

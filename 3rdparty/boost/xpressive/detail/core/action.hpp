@@ -10,30 +10,35 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/match_results.hpp> // for type_info_less
 
-namespace boost { namespace xpressive { namespace detail
-{
+namespace boost {
+    namespace xpressive {
+        namespace detail {
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // actionable
-    //
-    struct actionable
-    {
-        virtual ~actionable() {}
-        virtual void execute(action_args_type *) const {}
+            ///////////////////////////////////////////////////////////////////////////////
+            // actionable
+            //
+            struct actionable
+            {
+                virtual ~actionable() {}
 
-        actionable()
-          : next(0)
-        {}
+                virtual void execute(action_args_type*) const {}
 
-        actionable const *next;
-    };
+                actionable() :
+                    next(0)
+                {
+                }
 
-}}} // namespace boost::xpressive::detail
+                actionable const* next;
+            };
+
+        }
+    }
+} // namespace boost
 
 #endif

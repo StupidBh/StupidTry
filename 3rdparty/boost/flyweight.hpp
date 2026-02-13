@@ -10,7 +10,7 @@
 #define BOOST_FLYWEIGHT_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/flyweight/flyweight.hpp>

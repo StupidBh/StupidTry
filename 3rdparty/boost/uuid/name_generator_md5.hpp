@@ -10,19 +10,17 @@
 #include <boost/uuid/detail/md5.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-class name_generator_md5: public detail::basic_name_generator<detail::md5>
-{
-public:
+        class name_generator_md5 : public detail::basic_name_generator<detail::md5> {
+        public:
+            explicit name_generator_md5(uuid const& namespace_uuid) noexcept :
+                detail::basic_name_generator<detail::md5>(namespace_uuid)
+            {
+            }
+        };
 
-    explicit name_generator_md5( uuid const& namespace_uuid ) noexcept:
-        detail::basic_name_generator<detail::md5>( namespace_uuid )
-    {
-    }
-};
-
-} // uuids
-} // boost
+    } // namespace uuids
+} // namespace boost
 
 #endif // BOOST_UUID_NAME_GENERATOR_MD5_HPP_INCLUDED

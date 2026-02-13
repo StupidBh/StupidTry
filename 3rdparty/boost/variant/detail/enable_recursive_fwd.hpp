@@ -17,71 +17,60 @@
 
 #include <boost/mpl/bool_fwd.hpp>
 
-#   include <boost/mpl/bool.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace boost {
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) tag recursive_flag
-//
-// Signifies that the variant should perform recursive substituion.
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) tag recursive_flag
+            //
+            // Signifies that the variant should perform recursive substituion.
+            //
 
+            template<typename T>
+            struct recursive_flag
+            {
+                typedef T type;
+            };
 
-template <typename T>
-struct recursive_flag
-{
-    typedef T type;
-};
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction is_recursive_flag
+            //
+            // Signifies that the variant should perform recursive substituion.
+            //
 
+            template<typename T>
+            struct is_recursive_flag : mpl::false_
+            {
+            };
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction is_recursive_flag
-//
-// Signifies that the variant should perform recursive substituion.
-//
+            template<typename T>
+            struct is_recursive_flag<recursive_flag<T>> : mpl::true_
+            {
+            };
 
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction enable_recursive
+            //
+            // Attempts recursive_variant_ tag substitution, wrapping with
+            // boost::recursive_wrapper if substituion occurs w/ non-indirect result
+            // (i.e., not a reference or pointer) *and* NoWrapper is false_.
+            //
+            template<typename T, typename RecursiveVariant, typename NoWrapper = mpl::false_>
+            struct enable_recursive;
 
-template <typename T>
-struct is_recursive_flag
-    : mpl::false_
-{
-};
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction class quoted_enable_recursive
+            //
+            // Same behavior as enable_recursive metafunction (see above).
+            //
+            template<typename RecursiveVariant, typename NoWrapper = mpl::false_>
+            struct quoted_enable_recursive;
 
-template <typename T>
-struct is_recursive_flag< recursive_flag<T> >
-    : mpl::true_
-{
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction enable_recursive
-//
-// Attempts recursive_variant_ tag substitution, wrapping with
-// boost::recursive_wrapper if substituion occurs w/ non-indirect result
-// (i.e., not a reference or pointer) *and* NoWrapper is false_.
-//
-template <
-      typename T
-    , typename RecursiveVariant
-    , typename NoWrapper = mpl::false_
-    >
-struct enable_recursive;
-
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction class quoted_enable_recursive
-//
-// Same behavior as enable_recursive metafunction (see above).
-//
-template <
-      typename RecursiveVariant
-    , typename NoWrapper = mpl::false_
-    >
-struct quoted_enable_recursive;
-
-}} // namespace detail::variant
+        }
+    } // namespace detail
 } // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_ENABLE_RECURSIVE_FWD_HPP

@@ -16,73 +16,72 @@
 
 namespace H5 {
 
-/*! \class Group
-    \brief Class Group represents an HDF5 group.
-*/
-//  Inheritance: CommonFG/H5Object -> H5Location -> IdComponent
-class H5CPP_DLL Group : public H5Object, public CommonFG {
-  public:
-    // Close this group.
-    virtual void close() override;
+    /*! \class Group
+        \brief Class Group represents an HDF5 group.
+    */
+    //  Inheritance: CommonFG/H5Object -> H5Location -> IdComponent
+    class H5CPP_DLL Group : public H5Object, public CommonFG {
+    public:
+        // Close this group.
+        virtual void close() override;
 
-    ///\brief Returns this class name.
-    virtual H5std_string
-    fromClass() const override
-    {
-        return ("Group");
-    }
+        ///\brief Returns this class name.
+        virtual H5std_string fromClass() const override { return ("Group"); }
 
-    // Throw group exception.
-    virtual void throwException(const H5std_string &func_name, const H5std_string &msg) const override;
+        // Throw group exception.
+        virtual void throwException(const H5std_string& func_name, const H5std_string& msg) const override;
 
-    // for CommonFG to get the file id.
-    virtual hid_t getLocId() const override;
+        // for CommonFG to get the file id.
+        virtual hid_t getLocId() const override;
 
-    // Creates a group by way of dereference.
-    Group(const H5Location &loc, const void *ref, H5R_type_t ref_type = H5R_OBJECT,
-          const PropList &plist = PropList::DEFAULT);
-    // Removed in 1.10.1, because H5Location is baseclass
-    //        Group(const Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT, const PropList&
-    //        plist = PropList::DEFAULT);
+        // Creates a group by way of dereference.
+        Group(
+            const H5Location& loc,
+            const void* ref,
+            H5R_type_t ref_type = H5R_OBJECT,
+            const PropList& plist = PropList::DEFAULT);
+        // Removed in 1.10.1, because H5Location is baseclass
+        //        Group(const Attribute& attr, const void* ref, H5R_type_t ref_type = H5R_OBJECT, const PropList&
+        //        plist = PropList::DEFAULT);
 
-    // Returns the number of objects in this group.
-    hsize_t getNumObjs() const;
+        // Returns the number of objects in this group.
+        hsize_t getNumObjs() const;
 
-    // Opens an object within a group or a file, i.e., root group.
-    hid_t getObjId(const char *name, const PropList &plist = PropList::DEFAULT) const;
-    hid_t getObjId(const H5std_string &name, const PropList &plist = PropList::DEFAULT) const;
+        // Opens an object within a group or a file, i.e., root group.
+        hid_t getObjId(const char* name, const PropList& plist = PropList::DEFAULT) const;
+        hid_t getObjId(const H5std_string& name, const PropList& plist = PropList::DEFAULT) const;
 
-    // Closes an object opened by getObjId().
-    void closeObjId(hid_t obj_id) const;
+        // Closes an object opened by getObjId().
+        void closeObjId(hid_t obj_id) const;
 
-    // default constructor
-    Group();
+        // default constructor
+        Group();
 
-    // Copy constructor: same as the original Group.
-    Group(const Group &original);
+        // Copy constructor: same as the original Group.
+        Group(const Group& original);
 
-    // Gets the group id.
-    virtual hid_t getId() const override;
+        // Gets the group id.
+        virtual hid_t getId() const override;
 
-    // Destructor
-    virtual ~Group() override;
+        // Destructor
+        virtual ~Group() override;
 
-    // Copy assignment operator.
-    Group &operator=(const Group &original);
+        // Copy assignment operator.
+        Group& operator=(const Group& original);
 
-    // Creates a copy of an existing group using its id.
-    Group(const hid_t group_id);
+        // Creates a copy of an existing group using its id.
+        Group(const hid_t group_id);
 
-  protected:
+    protected:
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    // Sets the group id.
-    virtual void p_setId(const hid_t new_id) override;
+        // Sets the group id.
+        virtual void p_setId(const hid_t new_id) override;
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-  private:
-    hid_t id; // HDF5 group id
+    private:
+        hid_t id; // HDF5 group id
 
-}; // end of Group
+    }; // end of Group
 } // namespace H5
 
 #endif // H5Group_H

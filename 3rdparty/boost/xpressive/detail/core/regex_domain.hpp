@@ -14,11 +14,14 @@
 #include <boost/proto/domain.hpp>
 #include <boost/proto/generate.hpp>
 
-namespace boost { namespace xpressive { namespace detail
-{
-    struct regex_domain
-      : proto::domain<proto::default_generator, proto::not_<proto::address_of<proto::_> > >
-    {};
-}}}
+namespace boost {
+    namespace xpressive {
+        namespace detail {
+            struct regex_domain : proto::domain<proto::default_generator, proto::not_<proto::address_of<proto::_>>>
+            {
+            };
+        }
+    }
+}
 
 #endif

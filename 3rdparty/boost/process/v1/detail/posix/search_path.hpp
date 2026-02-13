@@ -18,27 +18,36 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
-inline boost::process::v1::filesystem::path search_path(
-        const boost::process::v1::filesystem::path &filename,
-        const std::vector<boost::process::v1::filesystem::path> &path)
-{
-    for (const boost::process::v1::filesystem::path & pp : path)
-    {
-        auto p = pp / filename;
+                    inline boost::process::v1::filesystem::path search_path(
+                        const boost::process::v1::filesystem::path& filename,
+                        const std::vector<boost::process::v1::filesystem::path>& path)
+                    {
+                        for (const boost::process::v1::filesystem::path& pp : path) {
+                            auto p = pp / filename;
 #if defined(BOOST_PROCESS_USE_STD_FS)
-        std::error_code ec;
+                            std::error_code ec;
 #else
-        boost::system::error_code ec;
+                            boost::system::error_code ec;
 #endif
-        bool file = boost::process::v1::filesystem::is_regular_file(p, ec);
-        if (!ec && file && ::access(p.c_str(), X_OK) == 0)
-            return p;
-    }
-    return "";
-}
+                            bool file = boost::process::v1::filesystem::is_regular_file(p, ec);
+                            if (!ec && file && ::access(p.c_str(), X_OK) == 0) {
+                                return p;
+                            }
+                        }
+                        return "";
+                    }
 
-}}}}}
+                }
+            }
+        }
+    }
+}
 
 #endif

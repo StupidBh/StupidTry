@@ -16,18 +16,19 @@
 #include <boost/config.hpp>
 
 #ifdef BOOST_NO_EXCEPTIONS
-#define BOOST_PTR_CONTAINER_NO_EXCEPTIONS
+    #define BOOST_PTR_CONTAINER_NO_EXCEPTIONS
 #endif
 
 #ifdef BOOST_PTR_CONTAINER_NO_EXCEPTIONS
 
-#define BOOST_PTR_CONTAINER_THROW_EXCEPTION( If, Ex, Msg ) BOOST_ASSERT( !(If) && Msg )
+    #define BOOST_PTR_CONTAINER_THROW_EXCEPTION(If, Ex, Msg) BOOST_ASSERT(!(If) && Msg)
 
 #else
 
-#define BOOST_PTR_CONTAINER_THROW_EXCEPTION( If, Ex, Msg ) if( (If) ) throw Ex ( Msg )
+    #define BOOST_PTR_CONTAINER_THROW_EXCEPTION(If, Ex, Msg) \
+        if ((If))                                            \
+        throw Ex(Msg)
 
 #endif // BOOST_PTR_CONTAINER_NO_EXCEPTIONS
-
 
 #endif

@@ -15,32 +15,32 @@
 
 namespace boost::redis {
 
-/** @brief Type used to ignore responses.
- *
- *  For example:
- *
- *  @code
- *  response<ignore_t, std::string, ignore_t> resp;
- *  @endcode
- *
- *  This will ignore the first and third responses. RESP3 errors won't be
- *  ignore but will cause `async_exec` to complete with an error.
- */
-using ignore_t = std::decay_t<decltype(std::ignore)>;
+    /** @brief Type used to ignore responses.
+     *
+     *  For example:
+     *
+     *  @code
+     *  response<ignore_t, std::string, ignore_t> resp;
+     *  @endcode
+     *
+     *  This will ignore the first and third responses. RESP3 errors won't be
+     *  ignore but will cause `async_exec` to complete with an error.
+     */
+    using ignore_t = std::decay_t<decltype(std::ignore)>;
 
-/** @brief Global ignore object.
- *
- *  Can be used to ignore responses to a request. For example:
- *
- *  @code
- *  co_await conn.async_exec(req, ignore);
- *  @endcode
- *
- *  RESP3 errors won't be ignore but will cause `async_exec` to
- *  complete with an error.
- */
-extern ignore_t ignore;
+    /** @brief Global ignore object.
+     *
+     *  Can be used to ignore responses to a request. For example:
+     *
+     *  @code
+     *  co_await conn.async_exec(req, ignore);
+     *  @endcode
+     *
+     *  RESP3 errors won't be ignore but will cause `async_exec` to
+     *  complete with an error.
+     */
+    extern ignore_t ignore;
 
-}  // namespace boost::redis
+} // namespace boost::redis
 
-#endif  // BOOST_REDIS_IGNORE_HPP
+#endif // BOOST_REDIS_IGNORE_HPP

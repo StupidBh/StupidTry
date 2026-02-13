@@ -16,56 +16,55 @@
 #include <boost/core/noncopyable.hpp>
 #include <boost/core/serialization.hpp>
 
-namespace boost{
-namespace unordered{
-namespace detail{
+namespace boost {
+    namespace unordered {
+        namespace detail {
 
-/* constructs a stack-based object from a serialization archive */
+            /* constructs a stack-based object from a serialization archive */
 
-template<typename T>
-struct archive_constructed:private noncopyable
-{
-  template<class Archive>
-  archive_constructed(const char* name,Archive& ar,unsigned int version)
-  {
-    core::load_construct_data_adl(ar,std::addressof(get()),version);
-    BOOST_TRY{
-      ar>>core::make_nvp(name,get());
-    }
-    BOOST_CATCH(...){
-      get().~T();
-      BOOST_RETHROW;
-    }
-    BOOST_CATCH_END
-  }
+            template<typename T>
+            struct archive_constructed : private noncopyable
+            {
+                template<class Archive>
+                archive_constructed(const char* name, Archive& ar, unsigned int version)
+                {
+                    core::load_construct_data_adl(ar, std::addressof(get()), version);
+                    BOOST_TRY
+                    {
+                        ar >> core::make_nvp(name, get());
+                    }
+                    BOOST_CATCH(...)
+                    {
+                        get().~T();
+                        BOOST_RETHROW;
+                    }
+                    BOOST_CATCH_END
+                }
 
-  ~archive_constructed()
-  {
-    get().~T();
-  }
+                ~archive_constructed() { get().~T(); }
 
-#if defined(BOOST_GCC)&&(BOOST_GCC>=4*10000+6*100)
-#define BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING
+#if defined(BOOST_GCC) && (BOOST_GCC >= 4 * 10000 + 6 * 100)
+    #define BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING
 #endif
 
 #if defined(BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-  T& get(){return *space.address();}
+                T& get() { return *space.address(); }
 
 #if defined(BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING)
-#pragma GCC diagnostic pop
-#undef BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING
+    #pragma GCC diagnostic pop
+    #undef BOOST_UNORDERED_IGNORE_WSTRICT_ALIASING
 #endif
 
-private:
-  opt_storage<T> space;
-};
+            private:
+                opt_storage<T> space;
+            };
 
-} /* namespace detail */
-} /* namespace unordered */
+        } /* namespace detail */
+    } /* namespace unordered */
 } /* namespace boost */
 
 #endif

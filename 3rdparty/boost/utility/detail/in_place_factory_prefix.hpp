@@ -25,8 +25,9 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/repetition/enum_trailing_params.hpp>
 
-#define BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_INIT(z,n,_) BOOST_PP_CAT(m_a,n) BOOST_PP_LPAREN() BOOST_PP_CAT(a,n) BOOST_PP_RPAREN()
-#define BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_DECL(z,n,_) BOOST_PP_CAT(A,n) const& BOOST_PP_CAT(m_a,n);
+#define BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_INIT(z, n, _) \
+    BOOST_PP_CAT(m_a, n) BOOST_PP_LPAREN() BOOST_PP_CAT(a, n) BOOST_PP_RPAREN()
+#define BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_DECL(z, n, _) BOOST_PP_CAT(A, n) const& BOOST_PP_CAT(m_a, n);
 
 #define BOOST_MAX_INPLACE_FACTORY_ARITY 10
 

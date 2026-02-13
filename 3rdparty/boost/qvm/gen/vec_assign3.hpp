@@ -10,41 +10,36 @@
 #include <boost/qvm/enable_if.hpp>
 #include <boost/qvm/vec_traits.hpp>
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-template <class A,class B>
-BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_OPERATIONS
-typename enable_if_c<
-    vec_traits<A>::dim==3 && vec_traits<B>::dim==3,
-    A &>::type
-assign( A & a, B const & b )
-    {
-    write_vec_element<0>(a,vec_traits<B>::template read_element<0>(b));
-    write_vec_element<1>(a,vec_traits<B>::template read_element<1>(b));
-    write_vec_element<2>(a,vec_traits<B>::template read_element<2>(b));
-    return a;
-    }
-
-namespace
-sfinae
-    {
-    using ::boost::qvm::assign;
-    }
-
-namespace
-qvm_detail
-    {
-    template <int D>
-    struct assign_vv_defined;
-
-    template <>
-    struct
-    assign_vv_defined<3>
+        template<class A, class B>
+        BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_OPERATIONS
+            typename enable_if_c<vec_traits<A>::dim == 3 && vec_traits<B>::dim == 3, A&>::type
+            assign(A& a, B const& b)
         {
-        static bool const value=true;
-        };
-    }
+            write_vec_element<0>(a, vec_traits<B>::template read_element<0>(b));
+            write_vec_element<1>(a, vec_traits<B>::template read_element<1>(b));
+            write_vec_element<2>(a, vec_traits<B>::template read_element<2>(b));
+            return a;
+        }
 
-} }
+        namespace sfinae {
+            using ::boost::qvm::assign;
+        }
+
+        namespace qvm_detail {
+            template<int D>
+            struct assign_vv_defined;
+
+            template<>
+            struct assign_vv_defined<3>
+            {
+                static bool const value = true;
+            };
+        }
+
+    }
+}
 
 #endif

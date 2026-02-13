@@ -12,14 +12,27 @@
 #ifndef BOOST_PTR_CONTAINER_DETAIL_SERIALIZE_XML_NAMES
 #define BOOST_PTR_CONTAINER_DETAIL_SERIALIZE_XML_NAMES
 
-namespace boost
-{
-    namespace ptr_container_detail
-    {
-        inline const char* count()  { return "count"; }
-        inline const char* item()   { return "item"; }
-        inline const char* first()  { return "first"; }
-        inline const char* second() { return "second"; }
+namespace boost {
+    namespace ptr_container_detail {
+        inline const char* count()
+        {
+            return "count";
+        }
+
+        inline const char* item()
+        {
+            return "item";
+        }
+
+        inline const char* first()
+        {
+            return "first";
+        }
+
+        inline const char* second()
+        {
+            return "second";
+        }
 
         template<class T>
         inline T const& serialize_as_const(T const& r)

@@ -11,13 +11,13 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/config.hpp>
 #include <boost/typeof/typeof.hpp>
 #ifndef BOOST_NO_STD_LOCALE
-# include <boost/typeof/std/locale.hpp>
+    #include <boost/typeof/std/locale.hpp>
 #endif
 #include <boost/proto/proto_typeof.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>

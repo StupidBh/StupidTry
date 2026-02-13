@@ -14,32 +14,30 @@
 #include <boost/variant2/variant.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** The type of variant used by the library
+        /** The type of variant used by the library
 
-    @warning This alias is no longer supported and
-    should not be used in new code. Please use
-    `boost::variant2::variant` instead.
+            @warning This alias is no longer supported and
+            should not be used in new code. Please use
+            `boost::variant2::variant` instead.
 
-    This alias is included for backwards
-    compatibility with earlier versions of the
-    library.
+            This alias is included for backwards
+            compatibility with earlier versions of the
+            library.
 
-    However, it will be removed in future releases,
-    and using it in new code is not recommended.
+            However, it will be removed in future releases,
+            and using it in new code is not recommended.
 
-    Please use the updated version instead to
-    ensure compatibility with future versions of
-    the library.
+            Please use the updated version instead to
+            ensure compatibility with future versions of
+            the library.
 
-*/
-template<class... Ts>
-using variant
-    BOOST_URL_DEPRECATED("Use variant2::variant instead") =
-    boost::variant2::variant<Ts...>;
+        */
+        template<class... Ts>
+        using variant BOOST_URL_DEPRECATED("Use variant2::variant instead") = boost::variant2::variant<Ts...>;
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

@@ -5,55 +5,56 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_IS_GENERAL_IDENTIFIER_HPP)
-#define BOOST_VMD_IS_GENERAL_IDENTIFIER_HPP
+    #define BOOST_VMD_IS_GENERAL_IDENTIFIER_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-#include <boost/vmd/detail/is_general_identifier.hpp>
+        #include <boost/vmd/detail/is_general_identifier.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_IS_GENERAL_IDENTIFIER(...)
+    /** \def BOOST_VMD_IS_GENERAL_IDENTIFIER(...)
 
-    \brief Tests whether a parameter is a general identifier.
+        \brief Tests whether a parameter is a general identifier.
 
-    ...       = variadic parameters
-    
-    The first variadic parameter is required and it is the input to test.
-    
-    Passing more than one variadic argument is an error.
+        ...       = variadic parameters
 
-  @code
-  
-    returns   = 1 if the parameter is any general identifier and only a single variadic argument is given, otherwise 0.
-                
-  @endcode
-  
-    The argument to the macro should be a single possible identifier
-    and not a VMD sequence of preprocessor tokens.
-  
-    If the input is not a VMD data type this macro could lead to
-    a preprocessor error. This is because the macro
-    uses preprocessor concatenation to determine if the input
-    is an identifier once it is determined that the input is not empty
-    and does not start with parenthesis. If the data being concatenated would
-    lead to an invalid preprocessor token the compiler can issue
-    a preprocessor error.
-    
-*/
+        The first variadic parameter is required and it is the input to test.
 
-#define BOOST_VMD_IS_GENERAL_IDENTIFIER(...) \
-    BOOST_VMD_DETAIL_IS_GENERAL_IDENTIFIER(__VA_ARGS__) \
-/**/
+        Passing more than one variadic argument is an error.
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_IS_GENERAL_IDENTIFIER_HPP */
+      @code
+
+        returns   = 1 if the parameter is any general identifier and only a single variadic argument is given, otherwise
+      0.
+
+      @endcode
+
+        The argument to the macro should be a single possible identifier
+        and not a VMD sequence of preprocessor tokens.
+
+        If the input is not a VMD data type this macro could lead to
+        a preprocessor error. This is because the macro
+        uses preprocessor concatenation to determine if the input
+        is an identifier once it is determined that the input is not empty
+        and does not start with parenthesis. If the data being concatenated would
+        lead to an invalid preprocessor token the compiler can issue
+        a preprocessor error.
+
+    */
+
+        #define BOOST_VMD_IS_GENERAL_IDENTIFIER(...)            \
+            BOOST_VMD_DETAIL_IS_GENERAL_IDENTIFIER(__VA_ARGS__) \
+            /**/
+
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_IS_GENERAL_IDENTIFIER_HPP */

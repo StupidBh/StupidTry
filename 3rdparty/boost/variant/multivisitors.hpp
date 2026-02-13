@@ -1,5 +1,5 @@
 //  Boost.Varaint
-//  Multivisitors defined here 
+//  Multivisitors defined here
 //
 //  See http://www.boost.org for most recent version, including documentation.
 //
@@ -13,7 +13,7 @@
 #define BOOST_VARIANT_MULTIVISITORS_HPP
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/config.hpp>
@@ -21,7 +21,7 @@
 
 #include <boost/variant/detail/multivisitors_cpp11_based.hpp>
 #if !defined(BOOST_NO_CXX14_DECLTYPE_AUTO) && !defined(BOOST_NO_CXX11_DECLTYPE_N3276)
-#   include <boost/variant/detail/multivisitors_cpp14_based.hpp>
+    #include <boost/variant/detail/multivisitors_cpp14_based.hpp>
 #endif
 
 #endif // BOOST_VARIANT_MULTIVISITORS_HPP

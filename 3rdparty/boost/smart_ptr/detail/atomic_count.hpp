@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //
@@ -45,17 +45,17 @@
 
 #include <boost/smart_ptr/detail/deprecated_macros.hpp>
 
-#if defined( BOOST_AC_DISABLE_THREADS )
-# include <boost/smart_ptr/detail/atomic_count_nt.hpp>
+#if defined(BOOST_AC_DISABLE_THREADS)
+    #include <boost/smart_ptr/detail/atomic_count_nt.hpp>
 
-#elif defined( BOOST_AC_USE_STD_ATOMIC )
-# include <boost/smart_ptr/detail/atomic_count_std_atomic.hpp>
+#elif defined(BOOST_AC_USE_STD_ATOMIC)
+    #include <boost/smart_ptr/detail/atomic_count_std_atomic.hpp>
 
-#elif defined( BOOST_SP_DISABLE_THREADS )
-# include <boost/smart_ptr/detail/atomic_count_nt.hpp>
+#elif defined(BOOST_SP_DISABLE_THREADS)
+    #include <boost/smart_ptr/detail/atomic_count_nt.hpp>
 
 #else
-# include <boost/smart_ptr/detail/atomic_count_std_atomic.hpp>
+    #include <boost/smart_ptr/detail/atomic_count_std_atomic.hpp>
 
 #endif
 

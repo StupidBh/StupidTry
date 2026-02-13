@@ -10,57 +10,59 @@
 #include <boost/asio/ts/netfwd.hpp>
 #include <memory>
 
-namespace boost { namespace asio {
+namespace boost {
+    namespace asio {
 
-class mutable_buffer;
-class mutable_buffers_1;
-class const_buffer;
-class const_buffers_1;
+        class mutable_buffer;
+        class mutable_buffers_1;
+        class const_buffer;
+        class const_buffers_1;
 
-template<typename Allocator>
-class basic_streambuf;
+        template<typename Allocator>
+        class basic_streambuf;
 
-typedef basic_streambuf<std::allocator<char>> streambuf;
+        typedef basic_streambuf<std::allocator<char>> streambuf;
 
-template <typename Handler>
-class basic_yield_context;
+        template<typename Handler>
+        class basic_yield_context;
 
-namespace windows {
+        namespace windows {
 
-template <typename Executor>
-class basic_stream_handle;
-typedef basic_stream_handle<any_io_executor> stream_handle;
+            template<typename Executor>
+            class basic_stream_handle;
+            typedef basic_stream_handle<any_io_executor> stream_handle;
 
-template <typename Executor>
-class basic_object_handle;
-typedef basic_object_handle<any_io_executor> object_handle;
+            template<typename Executor>
+            class basic_object_handle;
+            typedef basic_object_handle<any_io_executor> object_handle;
 
-} //windows
-} //asio
+        } // namespace windows
+    } // namespace asio
 
-namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-class async_pipe;
+                    class async_pipe;
 
-template<typename T>
-struct async_in_buffer;
+                    template<typename T>
+                    struct async_in_buffer;
 
-template<int p1, int p2, typename Buffer>
-struct async_out_buffer;
+                    template<int p1, int p2, typename Buffer>
+                    struct async_out_buffer;
 
-template<int p1, int p2, typename Type>
-struct async_out_future;
+                    template<int p1, int p2, typename Type>
+                    struct async_out_future;
 
-} // windows
-} // detail
+                } // namespace windows
+            } // namespace detail
 
-using ::boost::process::v1::detail::windows::async_pipe;
+            using ::boost::process::v1::detail::windows::async_pipe;
 
-} // v1
-} // process
-} // boost
-
-
-
+        } // v1
+    } // namespace process
+} // namespace boost
 
 #endif /* BOOST_PROCESS_DETAIL_WINDOWS_ASIO_FWD_HPP_ */

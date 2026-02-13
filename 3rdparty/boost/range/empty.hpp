@@ -12,23 +12,21 @@
 #define BOOST_RANGE_EMPTY_HPP
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/range/config.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
-namespace boost 
-{ 
+namespace boost {
 
-    template< class T >
-    inline bool empty( const T& r )
+    template<class T>
+    inline bool empty(const T& r)
     {
-        return boost::begin( r ) == boost::end( r );
+        return boost::begin(r) == boost::end(r);
     }
 
-} // namespace 'boost'
-
+} // namespace boost
 
 #endif

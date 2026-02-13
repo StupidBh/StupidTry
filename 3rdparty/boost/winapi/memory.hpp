@@ -13,7 +13,7 @@
 #include <boost/winapi/local_memory.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 #endif // BOOST_WINAPI_MEMORY_HPP_INCLUDED_

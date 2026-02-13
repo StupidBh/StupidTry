@@ -5,26 +5,24 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-namespace
-qvm_detail
-    {
-    template <class T>
-    struct
-    remove_const
-        {
-        typedef T type;
-        };
+        namespace qvm_detail {
+            template<class T>
+            struct remove_const
+            {
+                typedef T type;
+            };
 
-    template <class T>
-    struct
-    remove_const<T const>
-        {
-        typedef T type;
-        };
+            template<class T>
+            struct remove_const<T const>
+            {
+                typedef T type;
+            };
+        }
+
     }
-
-} }
+}
 
 #endif

@@ -11,22 +11,20 @@
 
 #include <tuple>
 
-namespace boost
-{
-  namespace csbl
-  {
-    // 20.4.2, class template tuple:
-    using ::std::tuple;
-    using ::std::get;
-    using ::std::make_tuple;
-    using ::std::tuple_size;
-    // 20.4.2.4, tuple creation functions:
-    // 20.4.2.5, tuple helper classes:
-    // 20.4.2.6, element access:
-    // 20.4.2.7, relational operators:
-    // 20.4.2.8, allocator-related traits
-    // 20.4.2.9, specialized algorithms:
-  }
+namespace boost {
+    namespace csbl {
+        // 20.4.2, class template tuple:
+        using ::std::get;
+        using ::std::make_tuple;
+        using ::std::tuple;
+        using ::std::tuple_size;
+        // 20.4.2.4, tuple creation functions:
+        // 20.4.2.5, tuple helper classes:
+        // 20.4.2.6, element access:
+        // 20.4.2.7, relational operators:
+        // 20.4.2.8, allocator-related traits
+        // 20.4.2.9, specialized algorithms:
+    }
 }
 
 #endif // header

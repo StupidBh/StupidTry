@@ -16,31 +16,37 @@
 #include <boost/type_index/stl_type_index.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-# pragma once
+    #pragma once
 #endif
 
 #if !defined(BOOST_USE_MODULES) || defined(BOOST_TYPE_INDEX_INTERFACE_UNIT)
 
-namespace boost { namespace typeindex { namespace detail {
+namespace boost {
+    namespace typeindex {
+        namespace detail {
 
-BOOST_TYPE_INDEX_BEGIN_MODULE_EXPORT
+            BOOST_TYPE_INDEX_BEGIN_MODULE_EXPORT
 
-template <class T>
-inline const stl_type_index::type_info_t& stl_construct_typeid_ref(const T*) noexcept {
-    return typeid(T);
-}
+            template<class T>
+            inline const stl_type_index::type_info_t& stl_construct_typeid_ref(const T*) noexcept
+            {
+                return typeid(T);
+            }
 
-BOOST_TYPE_INDEX_END_MODULE_EXPORT
+            BOOST_TYPE_INDEX_END_MODULE_EXPORT
 
-}}} // namespace boost::typeindex::detail
+        }
+    }
+}      // namespace boost
 
-#endif  // #if !defined(BOOST_USE_MODULES) || defined(BOOST_TYPE_INDEX_INTERFACE_UNIT)
+#endif // #if !defined(BOOST_USE_MODULES) || defined(BOOST_TYPE_INDEX_INTERFACE_UNIT)
 
 /// @cond
-#define BOOST_TYPE_INDEX_REGISTER_CLASS                                                                               \
-    virtual const boost::typeindex::stl_type_index::type_info_t& boost_type_index_type_id_runtime_() const noexcept { \
-        return boost::typeindex::detail::stl_construct_typeid_ref(this);                                              \
-    }                                                                                                                 \
+#define BOOST_TYPE_INDEX_REGISTER_CLASS                                                                             \
+    virtual const boost::typeindex::stl_type_index::type_info_t& boost_type_index_type_id_runtime_() const noexcept \
+    {                                                                                                               \
+        return boost::typeindex::detail::stl_construct_typeid_ref(this);                                            \
+    }                                                                                                               \
 /**/
 /// @endcond
 

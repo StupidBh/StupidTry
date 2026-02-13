@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //  bind.hpp - binds function objects to arguments
@@ -31,29 +31,28 @@
 
 #ifndef BOOST_BIND_NO_PLACEHOLDERS
 
-#if !defined(BOOST_BIND_GLOBAL_PLACEHOLDERS)
+    #if !defined(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 BOOST_PRAGMA_MESSAGE(
-  "The practice of declaring the Bind placeholders (_1, _2, ...) "
-  "in the global namespace is deprecated. Please use "
-  "<boost/bind/bind.hpp> + using namespace boost::placeholders, "
-  "or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior."
-)
+    "The practice of declaring the Bind placeholders (_1, _2, ...) "
+    "in the global namespace is deprecated. Please use "
+    "<boost/bind/bind.hpp> + using namespace boost::placeholders, "
+    "or define BOOST_BIND_GLOBAL_PLACEHOLDERS to retain the current behavior.")
 
-#endif
+    #endif
 
-#if defined(BOOST_CLANG)
-# pragma clang diagnostic push
-# if  __has_warning("-Wheader-hygiene")
-#  pragma clang diagnostic ignored "-Wheader-hygiene"
-# endif
-#endif
+    #if defined(BOOST_CLANG)
+        #pragma clang diagnostic push
+        #if __has_warning("-Wheader-hygiene")
+            #pragma clang diagnostic ignored "-Wheader-hygiene"
+        #endif
+    #endif
 
 using namespace boost::placeholders;
 
-#if defined(BOOST_CLANG)
-# pragma clang diagnostic pop
-#endif
+    #if defined(BOOST_CLANG)
+        #pragma clang diagnostic pop
+    #endif
 
 #endif // #ifndef BOOST_BIND_NO_PLACEHOLDERS
 

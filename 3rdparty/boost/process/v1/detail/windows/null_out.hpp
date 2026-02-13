@@ -17,62 +17,76 @@
 #include <boost/process/v1/detail/used_handles.hpp>
 #include <boost/process/v1/detail/windows/file_descriptor.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-template<int p1, int p2>
-struct null_out : public ::boost::process::v1::detail::handler_base, ::boost::process::v1::detail::uses_handles
-{
-    file_descriptor sink {"NUL", file_descriptor::write}; //works because it gets destroyed AFTER launch.
+                    template<int p1, int p2>
+                    struct null_out :
+                        public ::boost::process::v1::detail::handler_base,
+                        ::boost::process::v1::detail::uses_handles
+                    {
+                        file_descriptor sink {
+                            "NUL",
+                            file_descriptor::write
+                        }; // works because it gets destroyed AFTER launch.
 
-    ::boost::winapi::HANDLE_ get_used_handles() const { return sink.handle(); }
+                        ::boost::winapi::HANDLE_ get_used_handles() const { return sink.handle(); }
 
-    template <typename WindowsExecutor>
-    void on_setup(WindowsExecutor &e) const;
-};
+                        template<typename WindowsExecutor>
+                        void on_setup(WindowsExecutor& e) const;
+                    };
 
-template<>
-template<typename WindowsExecutor>
-void null_out<1,-1>::on_setup(WindowsExecutor &e) const
-{
-    boost::winapi::SetHandleInformation(sink.handle(),
-              boost::winapi::HANDLE_FLAG_INHERIT_,
-              boost::winapi::HANDLE_FLAG_INHERIT_);
+                    template<>
+                    template<typename WindowsExecutor>
+                    void null_out<1, -1>::on_setup(WindowsExecutor& e) const
+                    {
+                        boost::winapi::SetHandleInformation(
+                            sink.handle(),
+                            boost::winapi::HANDLE_FLAG_INHERIT_,
+                            boost::winapi::HANDLE_FLAG_INHERIT_);
 
-    e.startup_info.hStdOutput = sink.handle();
-    e.startup_info.dwFlags   |= ::boost::winapi::STARTF_USESTDHANDLES_;
-    e.inherit_handles = true;
+                        e.startup_info.hStdOutput = sink.handle();
+                        e.startup_info.dwFlags |= ::boost::winapi::STARTF_USESTDHANDLES_;
+                        e.inherit_handles = true;
+                    }
 
+                    template<>
+                    template<typename WindowsExecutor>
+                    void null_out<2, -1>::on_setup(WindowsExecutor& e) const
+                    {
+                        boost::winapi::SetHandleInformation(
+                            sink.handle(),
+                            boost::winapi::HANDLE_FLAG_INHERIT_,
+                            boost::winapi::HANDLE_FLAG_INHERIT_);
+
+                        e.startup_info.hStdError = sink.handle();
+                        e.startup_info.dwFlags |= ::boost::winapi::STARTF_USESTDHANDLES_;
+                        e.inherit_handles = true;
+                    }
+
+                    template<>
+                    template<typename WindowsExecutor>
+                    void null_out<1, 2>::on_setup(WindowsExecutor& e) const
+                    {
+                        boost::winapi::SetHandleInformation(
+                            sink.handle(),
+                            boost::winapi::HANDLE_FLAG_INHERIT_,
+                            boost::winapi::HANDLE_FLAG_INHERIT_);
+
+                        e.startup_info.hStdOutput = sink.handle();
+                        e.startup_info.hStdError = sink.handle();
+                        e.startup_info.dwFlags |= ::boost::winapi::STARTF_USESTDHANDLES_;
+                        e.inherit_handles = true;
+                    }
+
+                }
+            }
+        }
+    }
 }
-
-template<>
-template<typename WindowsExecutor>
-void null_out<2,-1>::on_setup(WindowsExecutor &e) const
-{
-    boost::winapi::SetHandleInformation(sink.handle(),
-              boost::winapi::HANDLE_FLAG_INHERIT_,
-              boost::winapi::HANDLE_FLAG_INHERIT_);
-
-    e.startup_info.hStdError = sink.handle();
-    e.startup_info.dwFlags  |= ::boost::winapi::STARTF_USESTDHANDLES_;
-    e.inherit_handles = true;
-
-}
-
-template<>
-template<typename WindowsExecutor>
-void null_out<1,2>::on_setup(WindowsExecutor &e) const
-{
-    boost::winapi::SetHandleInformation(sink.handle(),
-            boost::winapi::HANDLE_FLAG_INHERIT_,
-            boost::winapi::HANDLE_FLAG_INHERIT_);
-
-    e.startup_info.hStdOutput = sink.handle();
-    e.startup_info.hStdError  = sink.handle();
-    e.startup_info.dwFlags   |= ::boost::winapi::STARTF_USESTDHANDLES_;
-    e.inherit_handles = true;
-
-}
-
-}}}}}
 
 #endif

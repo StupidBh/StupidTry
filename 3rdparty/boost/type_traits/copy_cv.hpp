@@ -15,23 +15,24 @@
 #include <boost/type_traits/add_volatile.hpp>
 #include <boost/type_traits/conditional.hpp>
 
-namespace boost
-{
+namespace boost {
 
-template<class T, class U> struct copy_cv
-{
-private:
+    template<class T, class U>
+    struct copy_cv
+    {
+    private:
+        typedef typename boost::conditional<boost::is_const<U>::value, typename boost::add_const<T>::type, T>::type CT;
 
-    typedef typename boost::conditional<boost::is_const<U>::value, typename boost::add_const<T>::type, T>::type CT;
-
-public:
-
-    typedef typename boost::conditional<boost::is_volatile<U>::value, typename boost::add_volatile<CT>::type, CT>::type type;
-};
+    public:
+        typedef
+            typename boost::conditional<boost::is_volatile<U>::value, typename boost::add_volatile<CT>::type, CT>::type
+                type;
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-   template <class T, class U> using copy_cv_t = typename copy_cv<T, U>::type;
+    template<class T, class U>
+    using copy_cv_t = typename copy_cv<T, U>::type;
 
 #endif
 

@@ -17,32 +17,29 @@
 #include <boost/range/end.hpp>
 #include <boost/assert.hpp>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-template< class Container, class Range >
-inline Container& insert( Container& on,
-                          BOOST_DEDUCED_TYPENAME Container::iterator before,
-                          const Range& from )
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<Container> ));
-    BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<Range> ));
-    on.insert( before, boost::begin(from), boost::end(from) );
-    return on;
-}
+        template<class Container, class Range>
+        inline Container& insert(Container& on, BOOST_DEDUCED_TYPENAME Container::iterator before, const Range& from)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((ForwardRangeConcept<Container>));
+            BOOST_RANGE_CONCEPT_ASSERT((SinglePassRangeConcept<Range>));
+            on.insert(before, boost::begin(from), boost::end(from));
+            return on;
+        }
 
-template< class Container, class Range >
-inline Container& insert( Container& on, const Range& from )
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<Container> ));
-    BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<Range> ));
-    on.insert(boost::begin(from), boost::end(from));
-    return on;
-}
+        template<class Container, class Range>
+        inline Container& insert(Container& on, const Range& from)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((ForwardRangeConcept<Container>));
+            BOOST_RANGE_CONCEPT_ASSERT((SinglePassRangeConcept<Range>));
+            on.insert(boost::begin(from), boost::end(from));
+            return on;
+        }
 
     } // namespace range
+
     using range::insert;
 } // namespace boost
 

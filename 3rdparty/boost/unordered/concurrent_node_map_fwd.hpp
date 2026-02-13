@@ -20,48 +20,50 @@
 #include <memory>
 
 #ifndef BOOST_NO_CXX17_HDR_MEMORY_RESOURCE
-#include <memory_resource>
+    #include <memory_resource>
 #endif
 
 namespace boost {
-  namespace unordered {
+    namespace unordered {
 
-    template <class Key, class T, class Hash = boost::hash<Key>,
-      class Pred = std::equal_to<Key>,
-      class Allocator = std::allocator<std::pair<Key const, T> > >
-    class concurrent_node_map;
+        template<
+            class Key,
+            class T,
+            class Hash = boost::hash<Key>,
+            class Pred = std::equal_to<Key>,
+            class Allocator = std::allocator<std::pair<Key const, T>>>
+        class concurrent_node_map;
 
-    template <class Key, class T, class Hash, class KeyEqual, class Allocator>
-    bool operator==(
-      concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& lhs,
-      concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& rhs);
+        template<class Key, class T, class Hash, class KeyEqual, class Allocator>
+        bool operator==(
+            concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& lhs,
+            concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& rhs);
 
-    template <class Key, class T, class Hash, class KeyEqual, class Allocator>
-    bool operator!=(
-      concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& lhs,
-      concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& rhs);
+        template<class Key, class T, class Hash, class KeyEqual, class Allocator>
+        bool operator!=(
+            concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& lhs,
+            concurrent_node_map<Key, T, Hash, KeyEqual, Allocator> const& rhs);
 
-    template <class Key, class T, class Hash, class Pred, class Alloc>
-    void swap(concurrent_node_map<Key, T, Hash, Pred, Alloc>& x,
-      concurrent_node_map<Key, T, Hash, Pred, Alloc>& y)
-      noexcept(noexcept(x.swap(y)));
+        template<class Key, class T, class Hash, class Pred, class Alloc>
+        void swap(
+            concurrent_node_map<Key, T, Hash, Pred, Alloc>& x,
+            concurrent_node_map<Key, T, Hash, Pred, Alloc>& y) noexcept(noexcept(x.swap(y)));
 
-    template <class K, class T, class H, class P, class A, class Predicate>
-    typename concurrent_node_map<K, T, H, P, A>::size_type erase_if(
-      concurrent_node_map<K, T, H, P, A>& c, Predicate pred);
+        template<class K, class T, class H, class P, class A, class Predicate>
+        typename concurrent_node_map<K, T, H, P, A>::size_type
+            erase_if(concurrent_node_map<K, T, H, P, A>& c, Predicate pred);
 
 #ifndef BOOST_NO_CXX17_HDR_MEMORY_RESOURCE
-    namespace pmr {
-      template <class Key, class T, class Hash = boost::hash<Key>,
-        class Pred = std::equal_to<Key> >
-      using concurrent_node_map = boost::unordered::concurrent_node_map<Key, T,
-        Hash, Pred, std::pmr::polymorphic_allocator<std::pair<Key const, T> > >;
-    } // namespace pmr
+        namespace pmr {
+            template<class Key, class T, class Hash = boost::hash<Key>, class Pred = std::equal_to<Key>>
+            using concurrent_node_map = boost::unordered::
+                concurrent_node_map<Key, T, Hash, Pred, std::pmr::polymorphic_allocator<std::pair<Key const, T>>>;
+        } // namespace pmr
 #endif
 
-  } // namespace unordered
+    } // namespace unordered
 
-  using boost::unordered::concurrent_node_map;
+    using boost::unordered::concurrent_node_map;
 } // namespace boost
 
 #endif // BOOST_UNORDERED_CONCURRENT_NODE_MAP_FWD_HPP

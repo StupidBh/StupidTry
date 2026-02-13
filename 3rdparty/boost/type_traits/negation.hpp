@@ -14,10 +14,11 @@ or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 namespace boost {
 
-template<class T>
-struct negation
-    : integral_constant<bool, !bool(T::value)> { };
+    template<class T>
+    struct negation : integral_constant<bool, !bool(T::value)>
+    {
+    };
 
-} /* boost */
+} // namespace boost
 
 #endif

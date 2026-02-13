@@ -20,7 +20,6 @@
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/utility/enable_if.hpp>
 
-
 //  Base-from-member arity configuration macro  ------------------------------//
 
 // The following macro determines how many arguments will be in the largest
@@ -34,9 +33,8 @@
 // Contributed by Jonathan Turkanis
 
 #ifndef BOOST_BASE_FROM_MEMBER_MAX_ARITY
-#define BOOST_BASE_FROM_MEMBER_MAX_ARITY  10
+    #define BOOST_BASE_FROM_MEMBER_MAX_ARITY 10
 #endif
-
 
 //  An iteration of a constructor template for base_from_member  -------------//
 
@@ -48,126 +46,122 @@
 // This macro should only persist within this file.
 
 #ifndef BOOST_UTILITY_DOCS
-#define BOOST_PRIVATE_CTR_DEF( z, n, data )                   \
-    template < BOOST_PP_ENUM_PARAMS(n, typename T) >          \
-    base_from_member( BOOST_PP_ENUM_BINARY_PARAMS(n, T, x) )  \
-        : member( BOOST_PP_ENUM_PARAMS(n, x) )                \
-        {}                                                    \
-    /**/
+    #define BOOST_PRIVATE_CTR_DEF(z, n, data)                    \
+        template<BOOST_PP_ENUM_PARAMS(n, typename T)>            \
+        base_from_member(BOOST_PP_ENUM_BINARY_PARAMS(n, T, x)) : \
+            member(BOOST_PP_ENUM_PARAMS(n, x))                   \
+        {                                                        \
+        }                                                        \
+        /**/
 #endif // BOOST_UTILITY_DOCS
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-//  Type-unmarking class template  -------------------------------------------//
+        //  Type-unmarking class template  -------------------------------------------//
 
-// Type-trait to get the raw type, i.e. the type without top-level reference nor
-// cv-qualification, from a type expression.  Mainly for function arguments, any
-// reference part is stripped first.
+        // Type-trait to get the raw type, i.e. the type without top-level reference nor
+        // cv-qualification, from a type expression.  Mainly for function arguments, any
+        // reference part is stripped first.
 
-// Contributed by Daryle Walker
+        // Contributed by Daryle Walker
 
-template < typename T >
-struct remove_cv_ref
-{
-    typedef typename ::boost::remove_cv<typename
-     ::boost::remove_reference<T>::type>::type  type;
+        template<typename T>
+        struct remove_cv_ref
+        {
+            typedef typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type type;
 
-};  // boost::detail::remove_cv_ref
+        }; // boost::detail::remove_cv_ref
 
-//  Unmarked-type comparison class template  ---------------------------------//
+        //  Unmarked-type comparison class template  ---------------------------------//
 
-// Type-trait to check if two type expressions have the same raw type.
+        // Type-trait to check if two type expressions have the same raw type.
 
-// Contributed by Daryle Walker, based on a work-around by Luc Danton
+        // Contributed by Daryle Walker, based on a work-around by Luc Danton
 
-template < typename T, typename U >
-struct is_related
-    : public ::boost::is_same<
-     typename ::boost::detail::remove_cv_ref<T>::type,
-     typename ::boost::detail::remove_cv_ref<U>::type >
-{};
+        template<typename T, typename U>
+        struct is_related :
+            public ::boost::is_same<
+                typename ::boost::detail::remove_cv_ref<T>::type,
+                typename ::boost::detail::remove_cv_ref<U>::type>
+        {
+        };
 
-//  Enable-if-on-unidentical-unmarked-type class template  -------------------//
+        //  Enable-if-on-unidentical-unmarked-type class template  -------------------//
 
-// Enable-if on the first two type expressions NOT having the same raw type.
+        // Enable-if on the first two type expressions NOT having the same raw type.
 
-// Contributed by Daryle Walker, based on a work-around by Luc Danton
+        // Contributed by Daryle Walker, based on a work-around by Luc Danton
 
 #ifndef BOOST_NO_CXX11_VARIADIC_TEMPLATES
-template<typename ...T>
-struct enable_if_unrelated
-    : public ::boost::enable_if_c<true>
-{};
+        template<typename... T>
+        struct enable_if_unrelated : public ::boost::enable_if_c<true>
+        {
+        };
 
-template<typename T, typename U, typename ...U2>
-struct enable_if_unrelated<T, U, U2...>
-    : public ::boost::disable_if< ::boost::detail::is_related<T, U> >
-{};
+        template<typename T, typename U, typename... U2>
+        struct enable_if_unrelated<T, U, U2...> : public ::boost::disable_if<::boost::detail::is_related<T, U>>
+        {
+        };
 #endif
 
-}  // namespace boost::detail
+    } // namespace detail
 
+    //  Base-from-member class template  -----------------------------------------//
 
-//  Base-from-member class template  -----------------------------------------//
+    // Helper to initialize a base object so a derived class can use this
+    // object in the initialization of another base class.  Used by
+    // Dietmar Kuehl from ideas by Ron Klatcho to solve the problem of a
+    // base class needing to be initialized by a member.
 
-// Helper to initialize a base object so a derived class can use this
-// object in the initialization of another base class.  Used by
-// Dietmar Kuehl from ideas by Ron Klatcho to solve the problem of a
-// base class needing to be initialized by a member.
+    // Contributed by Daryle Walker
 
-// Contributed by Daryle Walker
+    template<typename MemberType, int UniqueID = 0>
+    class base_from_member {
+    protected:
+        MemberType member;
 
-template < typename MemberType, int UniqueID = 0 >
-class base_from_member
-{
-protected:
-    MemberType  member;
-
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && \
-    !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && \
-    !defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS) && \
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && \
+    !defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS) &&                                   \
     !(defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 4))
-    template <typename ...T, typename EnableIf = typename
-     ::boost::detail::enable_if_unrelated<base_from_member, T...>::type>
-    explicit BOOST_CONSTEXPR base_from_member( T&& ...x )
-        BOOST_NOEXCEPT_IF( BOOST_NOEXCEPT_EXPR(::new ((void*) 0) MemberType(
-         static_cast<T&&>(x)... )) )  // no std::is_nothrow_constructible...
-        : member( static_cast<T&&>(x)... )     // ...nor std::forward needed
-        {}
+        template<
+            typename... T,
+            typename EnableIf = typename ::boost::detail::enable_if_unrelated<base_from_member, T...>::type>
+        explicit BOOST_CONSTEXPR base_from_member(T&&... x) BOOST_NOEXCEPT_IF(BOOST_NOEXCEPT_EXPR(
+            ::new ((void*)0) MemberType(static_cast<T&&>(x)...))) // no std::is_nothrow_constructible...
+            :
+            member(static_cast<T&&>(x)...)                        // ...nor std::forward needed
+        {
+        }
 #else
-    base_from_member()
-        : member()
-        {}
+        base_from_member() :
+            member()
+        {
+        }
 
-    template < typename T0 > explicit base_from_member( T0 x0 ) : member( x0 ) {}
-    BOOST_PP_REPEAT_FROM_TO( 2, BOOST_PP_INC(BOOST_BASE_FROM_MEMBER_MAX_ARITY),
-     BOOST_PRIVATE_CTR_DEF, _ )
+        template<typename T0>
+        explicit base_from_member(T0 x0) :
+            member(x0)
+        {
+        }
+        BOOST_PP_REPEAT_FROM_TO(2, BOOST_PP_INC(BOOST_BASE_FROM_MEMBER_MAX_ARITY), BOOST_PRIVATE_CTR_DEF, _)
 #endif
 
-};  // boost::base_from_member
+    }; // boost::base_from_member
 
-template < typename MemberType, int UniqueID >
-class base_from_member<MemberType&, UniqueID>
-{
-protected:
-    MemberType& member;
+    template<typename MemberType, int UniqueID>
+    class base_from_member<MemberType&, UniqueID> {
+    protected:
+        MemberType& member;
 
-    explicit BOOST_CONSTEXPR base_from_member( MemberType& x )
-        BOOST_NOEXCEPT
-        : member( x )
-        {}
+        explicit BOOST_CONSTEXPR base_from_member(MemberType& x) BOOST_NOEXCEPT : member(x) {}
 
-};  // boost::base_from_member
+    }; // boost::base_from_member
 
-}  // namespace boost
-
+} // namespace boost
 
 // Undo any private macros
 #undef BOOST_PRIVATE_CTR_DEF
 
-
-#endif  // BOOST_UTILITY_BASE_FROM_MEMBER_HPP
+#endif // BOOST_UTILITY_BASE_FROM_MEMBER_HPP

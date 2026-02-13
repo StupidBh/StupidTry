@@ -1,9 +1,9 @@
-#ifndef  BOOST_SERIALIZATION_VOID_CAST_FWD_HPP
+#ifndef BOOST_SERIALIZATION_VOID_CAST_FWD_HPP
 #define BOOST_SERIALIZATION_VOID_CAST_FWD_HPP
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
@@ -21,17 +21,14 @@
 #include <boost/serialization/force_include.hpp>
 
 namespace boost {
-namespace serialization {
-namespace void_cast_detail{
-class void_caster;
-} // namespace void_cast_detail
-template<class Derived, class Base>
-BOOST_DLLEXPORT
-inline const void_cast_detail::void_caster & void_cast_register(
-    const Derived * dnull = NULL,
-    const Base * bnull = NULL
-) BOOST_USED;
-} // namespace serialization
+    namespace serialization {
+        namespace void_cast_detail {
+            class void_caster;
+        } // namespace void_cast_detail
+        template<class Derived, class Base>
+        BOOST_DLLEXPORT inline const void_cast_detail::void_caster&
+            void_cast_register(const Derived* dnull = NULL, const Base* bnull = NULL) BOOST_USED;
+    } // namespace serialization
 } // namespace boost
 
 #endif // BOOST_SERIALIZATION_VOID_CAST_HPP

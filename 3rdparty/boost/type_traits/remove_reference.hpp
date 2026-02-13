@@ -14,43 +14,66 @@
 
 namespace boost {
 
-
-namespace detail{
-//
-// We can't filter out rvalue_references at the same level as
-// references or we get ambiguities from msvc:
-//
-template <class T>
-struct remove_rvalue_ref
-{
-   typedef T type;
-};
+    namespace detail {
+        //
+        // We can't filter out rvalue_references at the same level as
+        // references or we get ambiguities from msvc:
+        //
+        template<class T>
+        struct remove_rvalue_ref
+        {
+            typedef T type;
+        };
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-template <class T>
-struct remove_rvalue_ref<T&&>
-{
-   typedef T type;
-};
+        template<class T>
+        struct remove_rvalue_ref<T&&>
+        {
+            typedef T type;
+        };
 #endif
 
-} // namespace detail
+    } // namespace detail
 
-template <class T> struct remove_reference{ typedef typename boost::detail::remove_rvalue_ref<T>::type type; };
-template <class T> struct remove_reference<T&>{ typedef T type; };
+    template<class T>
+    struct remove_reference
+    {
+        typedef typename boost::detail::remove_rvalue_ref<T>::type type;
+    };
+
+    template<class T>
+    struct remove_reference<T&>
+    {
+        typedef T type;
+    };
 
 #if defined(BOOST_ILLEGAL_CV_REFERENCES)
-// these are illegal specialisations; cv-qualifies applied to
-// references have no effect according to [8.3.2p1],
-// C++ Builder requires them though as it treats cv-qualified
-// references as distinct types...
-template <class T> struct remove_reference<T&const>{ typedef T type; };
-template <class T> struct remove_reference<T&volatile>{ typedef T type; };
-template <class T> struct remove_reference<T&const volatile>{ typedef T type; };
+    // these are illegal specialisations; cv-qualifies applied to
+    // references have no effect according to [8.3.2p1],
+    // C++ Builder requires them though as it treats cv-qualified
+    // references as distinct types...
+    template<class T>
+    struct remove_reference<T& const>
+    {
+        typedef T type;
+    };
+
+    template<class T>
+    struct remove_reference<T& volatile>
+    {
+        typedef T type;
+    };
+
+    template<class T>
+    struct remove_reference<T& const volatile>
+    {
+        typedef T type;
+    };
 #endif
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-   template <class T> using remove_reference_t = typename remove_reference<T>::type;
+    template<class T>
+    using remove_reference_t = typename remove_reference<T>::type;
 
 #endif
 

@@ -8,54 +8,42 @@
 #include <boost/assert.hpp>
 #include <mutex>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-class lightweight_mutex
-{
-private:
+        class lightweight_mutex {
+        private:
+            std::mutex m_;
 
-    std::mutex m_;
+            lightweight_mutex(lightweight_mutex const&);
+            lightweight_mutex& operator=(lightweight_mutex const&);
 
-    lightweight_mutex(lightweight_mutex const &);
-    lightweight_mutex & operator=(lightweight_mutex const &);
+        public:
+            lightweight_mutex() {}
 
-public:
+            class scoped_lock;
+            friend class scoped_lock;
 
-    lightweight_mutex()
-    {
-    }
+            class scoped_lock {
+            private:
+                std::mutex& m_;
 
-    class scoped_lock;
-    friend class scoped_lock;
+                scoped_lock(scoped_lock const&);
+                scoped_lock& operator=(scoped_lock const&);
 
-    class scoped_lock
-    {
-    private:
+            public:
+                scoped_lock(lightweight_mutex& m) :
+                    m_(m.m_)
+                {
+                    m_.lock();
+                }
 
-        std::mutex & m_;
+                ~scoped_lock() { m_.unlock(); }
+            };
+        };
 
-        scoped_lock(scoped_lock const &);
-        scoped_lock & operator=(scoped_lock const &);
-
-    public:
-
-        scoped_lock( lightweight_mutex & m ): m_( m.m_ )
-        {
-            m_.lock();
-        }
-
-        ~scoped_lock()
-        {
-            m_.unlock();
-        }
-    };
-};
-
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 

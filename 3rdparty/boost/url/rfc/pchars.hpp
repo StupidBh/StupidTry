@@ -15,37 +15,36 @@
 #include <boost/url/rfc/unreserved_chars.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** The path character set
+        /** The path character set
 
-    @par Example
-    Character sets are used with rules and
-    the functions @ref grammar::find_if and
-    @ref grammar::find_if_not.
-    @code
-    system::result< decode_view > rv = grammar::parse( "Program%20Files", pchars );
-    @endcode
+            @par Example
+            Character sets are used with rules and
+            the functions @ref grammar::find_if and
+            @ref grammar::find_if_not.
+            @code
+            system::result< decode_view > rv = grammar::parse( "Program%20Files", pchars );
+            @endcode
 
-    @par BNF
-    @code
-    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
-    @endcode
+            @par BNF
+            @code
+            pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+            @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
-        >3.3. Path (rfc3986)</a>
+            @par Specification
+            @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
+                >3.3. Path (rfc3986)</a>
 
-    @see
-        @ref grammar::find_if,
-        @ref grammar::find_if_not,
-        @ref grammar::parse,
-        @ref pct_encoded_rule.
-*/
-constexpr auto pchars =
-    unreserved_chars + sub_delim_chars + ':' + '@';
+            @see
+                @ref grammar::find_if,
+                @ref grammar::find_if_not,
+                @ref grammar::parse,
+                @ref pct_encoded_rule.
+        */
+        constexpr auto pchars = unreserved_chars + sub_delim_chars + ':' + '@';
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

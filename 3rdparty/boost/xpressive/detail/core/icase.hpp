@@ -14,29 +14,30 @@
 #include <boost/xpressive/detail/core/linker.hpp>
 #include <boost/xpressive/detail/utility/ignore_unused.hpp>
 
-namespace boost { namespace xpressive { namespace regex_constants
-{
+namespace boost {
+    namespace xpressive {
+        namespace regex_constants {
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Makes a sub-expression case-insensitive.
-///
-/// Use icase() to make a sub-expression case-insensitive. For instance,
-/// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
-/// "bar" irrespective of case.
-detail::modifier_op<detail::icase_modifier> const icase = {{}, regex_constants::icase_};
+            ///////////////////////////////////////////////////////////////////////////////
+            /// \brief Makes a sub-expression case-insensitive.
+            ///
+            /// Use icase() to make a sub-expression case-insensitive. For instance,
+            /// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
+            /// "bar" irrespective of case.
+            detail::modifier_op<detail::icase_modifier> const icase = { {}, regex_constants::icase_ };
 
-} // namespace regex_constants
+        } // namespace regex_constants
 
-using regex_constants::icase;
+        using regex_constants::icase;
 
-namespace detail
-{
-    inline void ignore_unused_icase()
-    {
-        detail::ignore_unused(icase);
+        namespace detail {
+            inline void ignore_unused_icase()
+            {
+                detail::ignore_unused(icase);
+            }
+        }
+
     }
-}
-
-}} // namespace boost::xpressive
+} // namespace boost
 
 #endif

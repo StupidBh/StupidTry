@@ -17,53 +17,52 @@
 
 namespace boost::redis::detail {
 
-class read_buffer {
-public:
-   using span_type = span<char>;
+    class read_buffer {
+    public:
+        using span_type = span<char>;
 
-   struct consume_result {
-      std::size_t consumed;
-      std::size_t rotated;
-   };
+        struct consume_result
+        {
+            std::size_t consumed;
+            std::size_t rotated;
+        };
 
-   // See config.hpp for the meaning of these parameters.
-   struct config {
-      std::size_t read_buffer_append_size = 4096u;
-      std::size_t max_read_size = static_cast<std::size_t>(-1);
-   };
+        // See config.hpp for the meaning of these parameters.
+        struct config
+        {
+            std::size_t read_buffer_append_size = 4096u;
+            std::size_t max_read_size = static_cast<std::size_t>(-1);
+        };
 
-   // Prepare the buffer to receive more data.
-   [[nodiscard]]
-   auto prepare() -> system::error_code;
+        // Prepare the buffer to receive more data.
+        [[nodiscard]] auto prepare() -> system::error_code;
 
-   [[nodiscard]]
-   auto get_prepared() noexcept -> span_type;
+        [[nodiscard]] auto get_prepared() noexcept -> span_type;
 
-   void commit(std::size_t read_size);
+        void commit(std::size_t read_size);
 
-   [[nodiscard]]
-   auto get_commited() const noexcept -> std::string_view;
+        [[nodiscard]] auto get_commited() const noexcept -> std::string_view;
 
-   void clear();
+        void clear();
 
-   // Consumes committed data by rotating the remaining data to the
-   // front of the buffer.
-   auto consume(std::size_t size) -> consume_result;
+        // Consumes committed data by rotating the remaining data to the
+        // front of the buffer.
+        auto consume(std::size_t size) -> consume_result;
 
-   void reserve(std::size_t n);
+        void reserve(std::size_t n);
 
-   friend bool operator==(read_buffer const& lhs, read_buffer const& rhs);
+        friend bool operator==(read_buffer const& lhs, read_buffer const& rhs);
 
-   friend bool operator!=(read_buffer const& lhs, read_buffer const& rhs);
+        friend bool operator!=(read_buffer const& lhs, read_buffer const& rhs);
 
-   void set_config(config const& cfg) noexcept { cfg_ = cfg; };
+        void set_config(config const& cfg) noexcept { cfg_ = cfg; };
 
-private:
-   config cfg_ = config{};
-   std::vector<char> buffer_;
-   std::size_t append_buf_begin_ = 0;
-};
+    private:
+        config cfg_ = config {};
+        std::vector<char> buffer_;
+        std::size_t append_buf_begin_ = 0;
+    };
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
-#endif  // BOOST_REDIS_READ_BUFFER_HPP
+#endif // BOOST_REDIS_READ_BUFFER_HPP

@@ -9,19 +9,17 @@
 #include <boost/uuid/detail/nil_uuid.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-// generate a nil uuid
-struct nil_generator
-{
-    using result_type = uuid;
-    
-    uuid operator()() const noexcept
-    {
-        return {{}};
+        // generate a nil uuid
+        struct nil_generator
+        {
+            using result_type = uuid;
+
+            uuid operator()() const noexcept { return { {} }; }
+        };
+
     }
-};
-
-}} // namespace boost::uuids
+}      // namespace boost
 
 #endif // BOOST_UUID_NIL_GENERATOR_HPP_INCLUDED

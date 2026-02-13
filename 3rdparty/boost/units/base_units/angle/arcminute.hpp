@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -17,20 +17,22 @@
 #include <boost/units/base_units/angle/degree.hpp>
 
 namespace boost {
-namespace units {
-namespace angle {
+    namespace units {
+        namespace angle {
 
-typedef scaled_base_unit<degree_base_unit, scale<60, static_rational<-1> > >  arcminute_base_unit;
+            typedef scaled_base_unit<degree_base_unit, scale<60, static_rational<-1>>> arcminute_base_unit;
 
-}
+        }
 
-template<>
-struct base_unit_info<angle::arcminute_base_unit> {
-    static BOOST_CONSTEXPR const char* name()   { return("arcminute"); }
-    static BOOST_CONSTEXPR const char* symbol() { return("'"); }
-};
+        template<>
+        struct base_unit_info<angle::arcminute_base_unit>
+        {
+            static BOOST_CONSTEXPR const char* name() { return ("arcminute"); }
 
-}
+            static BOOST_CONSTEXPR const char* symbol() { return ("'"); }
+        };
+
+    }
 }
 
 #endif // BOOST_UNIT_BASE_UNITS_ANGLE_ARCMINUTE_HPP_INCLUDED

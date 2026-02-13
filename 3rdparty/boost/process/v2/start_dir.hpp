@@ -19,31 +19,31 @@ BOOST_PROCESS_V2_BEGIN_NAMESPACE
 /// Initializer for the starting directory of a subprocess to be launched.
 struct process_start_dir
 {
-  filesystem::path start_dir;
+    filesystem::path start_dir;
 
-  process_start_dir(filesystem::path start_dir) : start_dir(std::move(start_dir))
-  {
-  }
+    process_start_dir(filesystem::path start_dir) :
+        start_dir(std::move(start_dir))
+    {
+    }
 
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-  error_code on_setup(windows::default_launcher & launcher, 
-                      const filesystem::path &, const std::wstring &)
-  {
-    launcher.current_directory = start_dir;
-    return error_code {};
-  };
+    error_code on_setup(windows::default_launcher& launcher, const filesystem::path&, const std::wstring&)
+    {
+        launcher.current_directory = start_dir;
+        return error_code {};
+    };
 
 #else
-  error_code on_exec_setup(posix::default_launcher & /*launcher*/,
-                           const filesystem::path &, const char * const *)
-  {
-    if (::chdir(start_dir.c_str()) == -1)
-      return detail::get_last_error();
-    else
-      return error_code ();
-  }
+    error_code on_exec_setup(posix::default_launcher& /*launcher*/, const filesystem::path&, const char* const*)
+    {
+        if (::chdir(start_dir.c_str()) == -1) {
+            return detail::get_last_error();
+        }
+        else {
+            return error_code();
+        }
+    }
 #endif
-
 };
 
 BOOST_PROCESS_V2_END_NAMESPACE

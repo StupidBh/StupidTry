@@ -13,12 +13,10 @@
 
 // 20.7.7, uses_allocator
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::uses_allocator;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::uses_allocator;
+    }
 }
 
 #endif // header

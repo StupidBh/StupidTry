@@ -8,31 +8,32 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-# pragma once
+    #pragma once
 #endif
 
 namespace boost {
 
-namespace detail {
+    namespace detail {
 
-template<class T> struct icast_identity
-{
-    using type = T;
-};
+        template<class T>
+        struct icast_identity
+        {
+            using type = T;
+        };
 
-} // namespace detail
+    } // namespace detail
 
-// implementation originally suggested by C. Green in
-// http://lists.boost.org/MailArchives/boost/msg00886.php
+    // implementation originally suggested by C. Green in
+    // http://lists.boost.org/MailArchives/boost/msg00886.php
 
-// The use of identity creates a non-deduced form, so that the
-// explicit template argument must be supplied
-template <typename T>
-constexpr T implicit_cast (typename boost::detail::icast_identity<T>::type x) {
-    return x;
-}
+    // The use of identity creates a non-deduced form, so that the
+    // explicit template argument must be supplied
+    template<typename T>
+    constexpr T implicit_cast(typename boost::detail::icast_identity<T>::type x)
+    {
+        return x;
+    }
 
 } // namespace boost
-
 
 #endif // BOOST_IMPLICIT_CAST_DWA200356_HPP

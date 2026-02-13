@@ -15,17 +15,17 @@ or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 namespace boost {
 
-template<class T, class U>
-struct copy_cv_ref {
-    typedef typename copy_reference<typename copy_cv<T,
-        typename remove_reference<U>::type >::type, U>::type type;
-};
+    template<class T, class U>
+    struct copy_cv_ref
+    {
+        typedef typename copy_reference<typename copy_cv<T, typename remove_reference<U>::type>::type, U>::type type;
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
-template<class T, class U>
-using copy_cv_ref_t = typename copy_cv_ref<T, U>::type;
+    template<class T, class U>
+    using copy_cv_ref_t = typename copy_cv_ref<T, U>::type;
 #endif
 
-} /* boost */
+} // namespace boost
 
 #endif

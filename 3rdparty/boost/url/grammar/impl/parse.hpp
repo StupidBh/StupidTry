@@ -14,54 +14,40 @@
 #include <boost/url/grammar/type_traits.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
+    namespace urls {
+        namespace grammar {
 
-template<BOOST_URL_CONSTRAINT(Rule) R>
-BOOST_URL_NO_INLINE
-auto
-parse(
-    char const*& it,
-    char const* end,
-    R const& r) ->
-        system::result<typename R::value_type>
-{
-    // If this goes off, it means the rule
-    // passed in did not meet the requirements.
-    // Please check the documentation.
-    static_assert(
-        is_rule<R>::value,
-        "Rule requirements not met");
+            template<BOOST_URL_CONSTRAINT(Rule) R>
+            BOOST_URL_NO_INLINE auto parse(char const*& it, char const* end, R const& r)
+                -> system::result<typename R::value_type>
+            {
+                // If this goes off, it means the rule
+                // passed in did not meet the requirements.
+                // Please check the documentation.
+                static_assert(is_rule<R>::value, "Rule requirements not met");
 
-    return r.parse(it, end);
-}
+                return r.parse(it, end);
+            }
 
-template<BOOST_URL_CONSTRAINT(Rule) R>
-BOOST_URL_NO_INLINE
-auto
-parse(
-    core::string_view s,
-    R const& r) ->
-        system::result<typename R::value_type>
-{
-    // If this goes off, it means the rule
-    // passed in did not meet the requirements.
-    // Please check the documentation.
-    static_assert(
-        is_rule<R>::value,
-        "Rule requirements not met");
+            template<BOOST_URL_CONSTRAINT(Rule) R>
+            BOOST_URL_NO_INLINE auto parse(core::string_view s, R const& r) -> system::result<typename R::value_type>
+            {
+                // If this goes off, it means the rule
+                // passed in did not meet the requirements.
+                // Please check the documentation.
+                static_assert(is_rule<R>::value, "Rule requirements not met");
 
-    auto it = s.data();
-    auto const end = it + s.size();
-    auto rv = r.parse(it, end);
-    if( rv &&
-        it != end)
-        return error::leftover;
-    return rv;
-}
+                auto it = s.data();
+                auto const end = it + s.size();
+                auto rv = r.parse(it, end);
+                if (rv && it != end) {
+                    return error::leftover;
+                }
+                return rv;
+            }
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

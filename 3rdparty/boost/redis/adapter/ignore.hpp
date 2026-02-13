@@ -14,25 +14,27 @@
 
 namespace boost::redis::adapter {
 
-/** @brief An adapter that ignores responses.
- *
- *  RESP3 errors won't be ignored.
- */
-struct ignore {
-   void on_init() { }
-   void on_done() { }
+    /** @brief An adapter that ignores responses.
+     *
+     *  RESP3 errors won't be ignored.
+     */
+    struct ignore
+    {
+        void on_init() {}
 
-   void on_node(resp3::basic_node<std::string_view> const& nd, system::error_code& ec)
-   {
-      switch (nd.data_type) {
-         case resp3::type::simple_error: ec = redis::error::resp3_simple_error; break;
-         case resp3::type::blob_error:   ec = redis::error::resp3_blob_error; break;
-         case resp3::type::null:         ec = redis::error::resp3_null; break;
-         default:                        ;
-      }
-   }
-};
+        void on_done() {}
 
-}  // namespace boost::redis::adapter
+        void on_node(resp3::basic_node<std::string_view> const& nd, system::error_code& ec)
+        {
+            switch (nd.data_type) {
+            case resp3::type::simple_error: ec = redis::error::resp3_simple_error; break;
+            case resp3::type::blob_error  : ec = redis::error::resp3_blob_error; break;
+            case resp3::type::null        : ec = redis::error::resp3_null; break;
+            default                       :;
+            }
+        }
+    };
 
-#endif  // BOOST_REDIS_ADAPTER_IGNORE_HPP
+} // namespace boost::redis::adapter
+
+#endif // BOOST_REDIS_ADAPTER_IGNORE_HPP

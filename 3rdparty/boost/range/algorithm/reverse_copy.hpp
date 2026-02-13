@@ -16,24 +16,23 @@
 #include <boost/iterator/iterator_concepts.hpp>
 #include <algorithm>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-/// \brief template function reverse_copy
-///
-/// range-based version of the reverse_copy std algorithm
-///
-/// \pre BidirectionalRange is a model of the BidirectionalRangeConcept
-template<class BidirectionalRange, class OutputIterator>
-inline OutputIterator reverse_copy(const BidirectionalRange& rng, OutputIterator out)
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( BidirectionalRangeConcept<const BidirectionalRange> ));
-    return std::reverse_copy(boost::begin(rng), boost::end(rng), out);
-}
+        /// \brief template function reverse_copy
+        ///
+        /// range-based version of the reverse_copy std algorithm
+        ///
+        /// \pre BidirectionalRange is a model of the BidirectionalRangeConcept
+        template<class BidirectionalRange, class OutputIterator>
+        inline OutputIterator reverse_copy(const BidirectionalRange& rng, OutputIterator out)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((BidirectionalRangeConcept<const BidirectionalRange>));
+            return std::reverse_copy(boost::begin(rng), boost::end(rng), out);
+        }
 
     } // namespace range
+
     using range::reverse_copy;
 } // namespace boost
 

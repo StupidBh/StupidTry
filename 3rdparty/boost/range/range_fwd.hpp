@@ -10,10 +10,9 @@
 #ifndef BOOST_RANGE_RANGE_FWD_HPP_INCLUDED
 #define BOOST_RANGE_RANGE_FWD_HPP_INCLUDED
 
-namespace boost
-{
+namespace boost {
 
-// Extension points
+    // Extension points
     template<typename C, typename Enabler>
     struct range_iterator;
 
@@ -23,14 +22,14 @@ namespace boost
     template<typename C, typename Enabler>
     struct range_const_iterator;
 
-// Core classes
+    // Core classes
     template<typename IteratorT>
     class iterator_range;
 
     template<typename ForwardRange>
     class sub_range;
 
-// Meta-functions
+    // Meta-functions
     template<typename T>
     struct range_category;
 

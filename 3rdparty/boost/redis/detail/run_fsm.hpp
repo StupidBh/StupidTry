@@ -16,47 +16,47 @@
 
 namespace boost::redis::detail {
 
-// Forward decls
-struct connection_state;
+    // Forward decls
+    struct connection_state;
 
-// What should we do next?
-enum class run_action_type
-{
-   done,                   // Call the final handler
-   immediate,              // Call asio::async_immediate
-   connect,                // Transport connection establishment
-   parallel_group,         // Run the reader, writer and friends
-   cancel_receive,         // Cancel the receiver channel
-   wait_for_reconnection,  // Sleep for the reconnection period
-};
+    // What should we do next?
+    enum class run_action_type
+    {
+        done,                  // Call the final handler
+        immediate,             // Call asio::async_immediate
+        connect,               // Transport connection establishment
+        parallel_group,        // Run the reader, writer and friends
+        cancel_receive,        // Cancel the receiver channel
+        wait_for_reconnection, // Sleep for the reconnection period
+    };
 
-struct run_action {
-   run_action_type type;
-   system::error_code ec;
+    struct run_action
+    {
+        run_action_type type;
+        system::error_code ec;
 
-   run_action(run_action_type type) noexcept
-   : type{type}
-   { }
+        run_action(run_action_type type) noexcept :
+            type { type }
+        {
+        }
 
-   run_action(system::error_code ec) noexcept
-   : type{run_action_type::done}
-   , ec{ec}
-   { }
-};
+        run_action(system::error_code ec) noexcept :
+            type { run_action_type::done },
+            ec { ec }
+        {
+        }
+    };
 
-class run_fsm {
-   int resume_point_{0};
-   system::error_code stored_ec_;
+    class run_fsm {
+        int resume_point_ { 0 };
+        system::error_code stored_ec_;
 
-public:
-   run_fsm() = default;
+    public:
+        run_fsm() = default;
 
-   run_action resume(
-      connection_state& st,
-      system::error_code ec,
-      asio::cancellation_type_t cancel_state);
-};
+        run_action resume(connection_state& st, system::error_code ec, asio::cancellation_type_t cancel_state);
+    };
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
-#endif  // BOOST_REDIS_CONNECTOR_HPP
+#endif // BOOST_REDIS_CONNECTOR_HPP

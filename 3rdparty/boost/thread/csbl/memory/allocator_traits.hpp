@@ -13,12 +13,10 @@
 
 // 20.7.8, allocator traits
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::allocator_traits;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::allocator_traits;
+    }
 }
 
 #endif // header

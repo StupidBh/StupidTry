@@ -16,27 +16,29 @@
 #include <boost/config.hpp>
 
 namespace boost {
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) function template cast_storage
-//
-// Casts the given storage to the specified type, but with qualification.
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) function template cast_storage
+            //
+            // Casts the given storage to the specified type, but with qualification.
+            //
 
-template <typename T>
-inline T& cast_storage(void* storage)
-{
-    return *static_cast<T*>(storage);
-}
+            template<typename T>
+            inline T& cast_storage(void* storage)
+            {
+                return *static_cast<T*>(storage);
+            }
 
-template <typename T>
-inline const T& cast_storage(const void* storage)
-{
-    return *static_cast<const T*>(storage);
-}
+            template<typename T>
+            inline const T& cast_storage(const void* storage)
+            {
+                return *static_cast<const T*>(storage);
+            }
 
-}} // namespace detail::variant
+        }
+    } // namespace detail
 } // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_CAST_STORAGE_HPP

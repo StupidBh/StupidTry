@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //
@@ -20,69 +20,51 @@
 
 #if defined(BOOST_SP_REPORT_IMPLEMENTATION)
 
-#include <boost/config/pragma_message.hpp>
+    #include <boost/config/pragma_message.hpp>
 BOOST_PRAGMA_MESSAGE("Using std::atomic spinlock")
 
 #endif
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-class spinlock
-{
-public:
+        class spinlock {
+        public:
+            std::atomic_flag v_;
 
-    std::atomic_flag v_;
+        public:
+            bool try_lock() noexcept { return !v_.test_and_set(std::memory_order_acquire); }
 
-public:
+            void lock() noexcept
+            {
+                for (unsigned k = 0; !try_lock(); ++k) {
+                    boost::detail::yield(k);
+                }
+            }
 
-    bool try_lock() noexcept
-    {
-        return !v_.test_and_set( std::memory_order_acquire );
-    }
+            void unlock() noexcept { v_.clear(std::memory_order_release); }
 
-    void lock() noexcept
-    {
-        for( unsigned k = 0; !try_lock(); ++k )
-        {
-            boost::detail::yield( k );
-        }
-    }
+        public:
+            class scoped_lock {
+            private:
+                spinlock& sp_;
 
-    void unlock() noexcept
-    {
-        v_ .clear( std::memory_order_release );
-    }
+                scoped_lock(scoped_lock const&);
+                scoped_lock& operator=(scoped_lock const&);
 
-public:
+            public:
+                explicit scoped_lock(spinlock& sp) noexcept :
+                    sp_(sp)
+                {
+                    sp.lock();
+                }
 
-    class scoped_lock
-    {
-    private:
+                ~scoped_lock() /*noexcept*/ { sp_.unlock(); }
+            };
+        };
 
-        spinlock & sp_;
-
-        scoped_lock( scoped_lock const & );
-        scoped_lock & operator=( scoped_lock const & );
-
-    public:
-
-        explicit scoped_lock( spinlock & sp ) noexcept: sp_( sp )
-        {
-            sp.lock();
-        }
-
-        ~scoped_lock() /*noexcept*/
-        {
-            sp_.unlock();
-        }
-    };
-};
-
-} // namespace detail
+    } // namespace detail
 } // namespace boost
 
 #define BOOST_DETAIL_SPINLOCK_INIT { ATOMIC_FLAG_INIT }

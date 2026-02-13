@@ -16,7 +16,6 @@
 //  Re-issued here under the Boost Software License, with permission of the original
 //  author (Andrei Alexandrescu).
 
-
 #ifndef BOOST_VARIANT_DETAIL_MOVE_HPP
 #define BOOST_VARIANT_DETAIL_MOVE_HPP
 
@@ -24,27 +23,29 @@
 #include <boost/detail/workaround.hpp>
 #include <utility>
 
-namespace boost { namespace detail { namespace variant {
+namespace boost {
+    namespace detail {
+        namespace variant {
 
-using std::move;
+            using std::move;
 
-//////////////////////////////////////////////////////////////////////////
-// function template move_swap
-//
-// Swaps using Koenig lookup but falls back to move-swap for primitive
-// types and on non-conforming compilers.
-//
+            //////////////////////////////////////////////////////////////////////////
+            // function template move_swap
+            //
+            // Swaps using Koenig lookup but falls back to move-swap for primitive
+            // types and on non-conforming compilers.
+            //
 
-template <typename T>
-inline void move_swap(T& lhs, T& rhs)
-{
-    using std::swap;
-    swap(lhs, rhs);
-}
+            template<typename T>
+            inline void move_swap(T& lhs, T& rhs)
+            {
+                using std::swap;
+                swap(lhs, rhs);
+            }
 
-}}} // namespace boost::detail::variant
+        }
+    }
+}      // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_MOVE_HPP
-
-
 

@@ -9,23 +9,25 @@
 
 #include <boost/config/abi_prefix.hpp>
 
-namespace boost
-{
-  struct defer_lock_t
-  {
-  };
-  struct try_to_lock_t
-  {
-  };
-  struct adopt_lock_t
-  {
-  };
+namespace boost {
+    struct defer_lock_t
+    {
+    };
 
-  BOOST_CONSTEXPR_OR_CONST defer_lock_t defer_lock = {};
-  BOOST_CONSTEXPR_OR_CONST try_to_lock_t try_to_lock = {};
-  BOOST_CONSTEXPR_OR_CONST adopt_lock_t adopt_lock = {};
+    struct try_to_lock_t
+    {
+    };
+
+    struct adopt_lock_t
+    {
+    };
+
+    BOOST_CONSTEXPR_OR_CONST defer_lock_t defer_lock = {};
+    BOOST_CONSTEXPR_OR_CONST try_to_lock_t try_to_lock = {};
+    BOOST_CONSTEXPR_OR_CONST adopt_lock_t adopt_lock = {};
 
 }
+
 #include <boost/config/abi_suffix.hpp>
 
 #endif

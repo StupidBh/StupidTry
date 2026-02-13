@@ -28,4 +28,4 @@
 #include "H5PTpublic.h" /* packet table */
 #include "H5LDpublic.h" /* lite dataset */
 
-#endif /*HDF5_HL_H*/
+#endif                  /*HDF5_HL_H*/

@@ -16,22 +16,22 @@
 
 namespace boost::redis::detail {
 
-// Shared by several ipp files
-inline void log_to_file(FILE* f, std::string_view msg, const char* prefix = "(Boost.Redis) ")
-{
-   // If the message is empty, data() might return a null pointer
-   const char* msg_ptr = msg.empty() ? "" : msg.data();
+    // Shared by several ipp files
+    inline void log_to_file(FILE* f, std::string_view msg, const char* prefix = "(Boost.Redis) ")
+    {
+        // If the message is empty, data() might return a null pointer
+        const char* msg_ptr = msg.empty() ? "" : msg.data();
 
-   // Precision should be an int when passed to fprintf. Technically,
-   // message could be larger than INT_MAX. Impose a sane limit on message sizes
-   // to prevent memory problems
-   auto precision = static_cast<int>((std::min)(msg.size(), static_cast<std::size_t>(0xffffu)));
+        // Precision should be an int when passed to fprintf. Technically,
+        // message could be larger than INT_MAX. Impose a sane limit on message sizes
+        // to prevent memory problems
+        auto precision = static_cast<int>((std::min)(msg.size(), static_cast<std::size_t>(0xffffu)));
 
-   // Log the message. None of our messages should contain NULL bytes, so this should be OK.
-   // We choose fprintf over std::clog because it's safe in multi-threaded environments.
-   std::fprintf(f, "%s%.*s\n", prefix, precision, msg_ptr);
-}
+        // Log the message. None of our messages should contain NULL bytes, so this should be OK.
+        // We choose fprintf over std::clog because it's safe in multi-threaded environments.
+        std::fprintf(f, "%s%.*s\n", prefix, precision, msg_ptr);
+    }
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
 #endif

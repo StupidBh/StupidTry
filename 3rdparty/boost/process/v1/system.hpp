@@ -28,131 +28,140 @@
 #include <condition_variable>
 
 #if defined(BOOST_POSIX_API)
-#include <boost/process/v1/posix.hpp>
+    #include <boost/process/v1/posix.hpp>
 #endif
 
 namespace boost {
 
-namespace process { BOOST_PROCESS_V1_INLINE namespace v1 {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
 
-namespace detail
-{
-
-struct system_impl_success_check : handler
-{
-    bool succeeded = false;
-
-    template<typename Exec>
-    void on_success(Exec &) { succeeded = true; }
-};
-
-template<typename IoService, typename ...Args>
-inline int system_impl(
-        std::true_type, /*needs ios*/
-        std::true_type, /*has io_context*/
-        Args && ...args)
-{
-    IoService & ios = ::boost::process::v1::detail::get_io_context_var(args...);
-
-    system_impl_success_check check;
-
-    std::atomic_bool exited{false};
-
-    child c(std::forward<Args>(args)...,
-            check,
-            ::boost::process::v1::on_exit(
-                [&](int, const std::error_code&)
+                struct system_impl_success_check : handler
                 {
-                    boost::asio::post(ios.get_executor(), [&]{exited.store(true);});
-                }));
-    if (!c.valid() || !check.succeeded)
-        return -1;
+                    bool succeeded = false;
 
-    while (!exited.load())
-        ios.poll();
+                    template<typename Exec>
+                    void on_success(Exec&)
+                    {
+                        succeeded = true;
+                    }
+                };
 
-    return c.exit_code();
-}
+                template<typename IoService, typename... Args>
+                inline int system_impl(
+                    std::true_type, /*needs ios*/
+                    std::true_type, /*has io_context*/
+                    Args&&... args)
+                {
+                    IoService& ios = ::boost::process::v1::detail::get_io_context_var(args...);
 
-template<typename IoService, typename ...Args>
-inline int system_impl(
-        std::true_type,  /*needs ios */
-        std::false_type, /*has io_context*/
-        Args && ...args)
-{
-    IoService ios;
-    child c(ios, std::forward<Args>(args)...);
-    if (!c.valid())
-        return -1;
+                    system_impl_success_check check;
 
-    ios.run();
-    if (c.running())
-        c.wait();
-    return c.exit_code();
-}
+                    std::atomic_bool exited { false };
 
+                    child c(
+                        std::forward<Args>(args)...,
+                        check,
+                        ::boost::process::v1::on_exit([&](int, const std::error_code&) {
+                            boost::asio::post(ios.get_executor(), [&] { exited.store(true); });
+                        }));
+                    if (!c.valid() || !check.succeeded) {
+                        return -1;
+                    }
 
-template<typename IoService, typename ...Args>
-inline int system_impl(
-        std::false_type, /*needs ios*/
-        std::true_type, /*has io_context*/
-        Args && ...args)
-{
-    child c(std::forward<Args>(args)...);
-    if (!c.valid())
-        return -1;
-    c.wait();
-    return c.exit_code();
-}
+                    while (!exited.load()) {
+                        ios.poll();
+                    }
 
-template<typename IoService, typename ...Args>
-inline int system_impl(
-        std::false_type, /*has async */
-        std::false_type, /*has io_context*/
-        Args && ...args)
-{
-    child c(std::forward<Args>(args)...
+                    return c.exit_code();
+                }
+
+                template<typename IoService, typename... Args>
+                inline int system_impl(
+                    std::true_type,  /*needs ios */
+                    std::false_type, /*has io_context*/
+                    Args&&... args)
+                {
+                    IoService ios;
+                    child c(ios, std::forward<Args>(args)...);
+                    if (!c.valid()) {
+                        return -1;
+                    }
+
+                    ios.run();
+                    if (c.running()) {
+                        c.wait();
+                    }
+                    return c.exit_code();
+                }
+
+                template<typename IoService, typename... Args>
+                inline int system_impl(
+                    std::false_type, /*needs ios*/
+                    std::true_type,  /*has io_context*/
+                    Args&&... args)
+                {
+                    child c(std::forward<Args>(args)...);
+                    if (!c.valid()) {
+                        return -1;
+                    }
+                    c.wait();
+                    return c.exit_code();
+                }
+
+                template<typename IoService, typename... Args>
+                inline int system_impl(
+                    std::false_type, /*has async */
+                    std::false_type, /*has io_context*/
+                    Args&&... args)
+                {
+                    child c(
+                        std::forward<Args>(args)...
 #if defined(BOOST_POSIX_API)
-            ,::boost::process::v1::posix::sig.dfl()
+                        ,
+                        ::boost::process::v1::posix::sig.dfl()
 #endif
-            );
-    if (!c.valid())
-        return -1;
-    c.wait();
-    return c.exit_code();
+                    );
+                    if (!c.valid()) {
+                        return -1;
+                    }
+                    c.wait();
+                    return c.exit_code();
+                }
+
+            }
+
+            /** Launches a process and waits for its exit.
+            It works as std::system, though it allows
+            all the properties boost.process provides. It will execute the process and wait for it's exit; then return
+            the exit_code.
+
+            \code{.cpp}
+            int ret = system("ls");
+            \endcode
+
+            \attention Using this function with synchronous pipes leads to many potential deadlocks.
+
+            When using this function with an asynchronous properties and NOT passing an io_context object,
+            the system function will create one and run it. When the io_context is passed to the function,
+            the system function will check if it is active, and call the io_context::run function if not.
+
+            */
+            template<typename... Args>
+            inline int system(Args && ... args)
+            {
+                typedef typename ::boost::process::v1::detail::needs_io_context<Args...>::type need_ios;
+                typedef typename ::boost::process::v1::detail::has_io_context<Args...>::type has_ios;
+                return ::boost::process::v1::detail::system_impl<boost::asio::io_context>(
+                    need_ios(),
+                    has_ios(),
+                    std::forward<Args>(args)...);
+            }
+        }
+    }
 }
-
-}
-
-/** Launches a process and waits for its exit.
-It works as std::system, though it allows
-all the properties boost.process provides. It will execute the process and wait for it's exit; then return the exit_code.
-
-\code{.cpp}
-int ret = system("ls");
-\endcode
-
-\attention Using this function with synchronous pipes leads to many potential deadlocks.
-
-When using this function with an asynchronous properties and NOT passing an io_context object,
-the system function will create one and run it. When the io_context is passed to the function,
-the system function will check if it is active, and call the io_context::run function if not.
-
-*/
-template<typename ...Args>
-inline int system(Args && ...args)
-{
-    typedef typename ::boost::process::v1::detail::needs_io_context<Args...>::type
-            need_ios;
-    typedef typename ::boost::process::v1::detail::has_io_context<Args...>::type
-            has_ios;
-    return ::boost::process::v1::detail::system_impl<boost::asio::io_context>(
-            need_ios(), has_ios(),
-            std::forward<Args>(args)...);
-}
-
-
-}}}
 
 #endif
 

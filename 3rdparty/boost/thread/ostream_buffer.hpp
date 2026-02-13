@@ -3,7 +3,6 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_THREAD_OSTREAM_BUFFER_HPP
 #define BOOST_THREAD_OSTREAM_BUFFER_HPP
 
@@ -13,30 +12,26 @@
 
 #include <boost/config/abi_prefix.hpp>
 
-namespace boost
-{
+namespace boost {
 
-  template <typename OStream>
-  class ostream_buffer
-  {
-  public:
-    typedef std::basic_ostringstream<typename OStream::char_type, typename OStream::traits_type> stream_type;
-    ostream_buffer(OStream& os) :
-      os_(os)
-    {
-    }
-    ~ostream_buffer()
-    {
-      os_ << o_str_.str();
-    }
-    stream_type& stream()
-    {
-      return o_str_;
-    }
-  private:
-    OStream& os_;
-    stream_type o_str_;
-  };
+    template<typename OStream>
+    class ostream_buffer {
+    public:
+        typedef std::basic_ostringstream<typename OStream::char_type, typename OStream::traits_type> stream_type;
+
+        ostream_buffer(OStream& os) :
+            os_(os)
+        {
+        }
+
+        ~ostream_buffer() { os_ << o_str_.str(); }
+
+        stream_type& stream() { return o_str_; }
+
+    private:
+        OStream& os_;
+        stream_type o_str_;
+    };
 
 }
 

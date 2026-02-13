@@ -17,80 +17,72 @@
 
 //
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-namespace detail
-{
+        namespace detail {
 
-inline bool std_category::equivalent( int code, const std::error_condition & condition ) const noexcept
-{
-    if( condition.category() == *this )
-    {
-        boost::system::error_condition bn( condition.value(), *pc_ );
-        return pc_->equivalent( code, bn );
-    }
-    else if( condition.category() == std::generic_category() || condition.category() == boost::system::generic_category() )
-    {
-        boost::system::error_condition bn( condition.value(), boost::system::generic_category() );
-        return pc_->equivalent( code, bn );
-    }
+            inline bool std_category::equivalent(int code, const std::error_condition& condition) const noexcept
+            {
+                if (condition.category() == *this) {
+                    boost::system::error_condition bn(condition.value(), *pc_);
+                    return pc_->equivalent(code, bn);
+                }
+                else if (
+                    condition.category() == std::generic_category() ||
+                    condition.category() == boost::system::generic_category()) {
+                    boost::system::error_condition bn(condition.value(), boost::system::generic_category());
+                    return pc_->equivalent(code, bn);
+                }
 
 #ifndef BOOST_NO_RTTI
 
-    else if( std_category const* pc2 = dynamic_cast< std_category const* >( &condition.category() ) )
-    {
-        boost::system::error_condition bn( condition.value(), *pc2->pc_ );
-        return pc_->equivalent( code, bn );
-    }
+                else if (std_category const* pc2 = dynamic_cast<std_category const*>(&condition.category())) {
+                    boost::system::error_condition bn(condition.value(), *pc2->pc_);
+                    return pc_->equivalent(code, bn);
+                }
 
 #endif
 
-    else
-    {
-        return default_error_condition( code ) == condition;
-    }
-}
+                else {
+                    return default_error_condition(code) == condition;
+                }
+            }
 
-inline bool std_category::equivalent( const std::error_code & code, int condition ) const noexcept
-{
-    if( code.category() == *this )
-    {
-        boost::system::error_code bc( code.value(), *pc_ );
-        return pc_->equivalent( bc, condition );
-    }
-    else if( code.category() == std::generic_category() || code.category() == boost::system::generic_category() )
-    {
-        boost::system::error_code bc( code.value(), boost::system::generic_category() );
-        return pc_->equivalent( bc, condition );
-    }
+            inline bool std_category::equivalent(const std::error_code& code, int condition) const noexcept
+            {
+                if (code.category() == *this) {
+                    boost::system::error_code bc(code.value(), *pc_);
+                    return pc_->equivalent(bc, condition);
+                }
+                else if (
+                    code.category() == std::generic_category() ||
+                    code.category() == boost::system::generic_category()) {
+                    boost::system::error_code bc(code.value(), boost::system::generic_category());
+                    return pc_->equivalent(bc, condition);
+                }
 
 #ifndef BOOST_NO_RTTI
 
-    else if( std_category const* pc2 = dynamic_cast< std_category const* >( &code.category() ) )
-    {
-        boost::system::error_code bc( code.value(), *pc2->pc_ );
-        return pc_->equivalent( bc, condition );
-    }
+                else if (std_category const* pc2 = dynamic_cast<std_category const*>(&code.category())) {
+                    boost::system::error_code bc(code.value(), *pc2->pc_);
+                    return pc_->equivalent(bc, condition);
+                }
 
 #endif
 
-    else if( *pc_ == boost::system::generic_category() )
-    {
-        return std::generic_category().equivalent( code, condition );
-    }
-    else
-    {
-        return false;
-    }
-}
+                else if (*pc_ == boost::system::generic_category()) {
+                    return std::generic_category().equivalent(code, condition);
+                }
+                else {
+                    return false;
+                }
+            }
 
-} // namespace detail
+        } // namespace detail
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

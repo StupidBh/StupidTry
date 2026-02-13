@@ -8,7 +8,7 @@
 #define BOOST_SPIRIT_REPOSITORY_KARMA_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/repository/home/karma/directive.hpp>

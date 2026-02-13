@@ -15,75 +15,75 @@
 #include <stdexcept>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** Error codes returned the library
-*/
-enum class error
-{
-    // VFALCO 3 space indent or
-    // else Doxygen malfunctions
+        /** Error codes returned the library
+         */
+        enum class error
+        {
+            // VFALCO 3 space indent or
+            // else Doxygen malfunctions
 
-    /**
-     * The operation completed successfully.
-    */
-    success = 0,
+            /**
+             * The operation completed successfully.
+             */
+            success = 0,
 
-    /**
-     * Null encountered in pct-encoded.
-    */
-    illegal_null,
+            /**
+             * Null encountered in pct-encoded.
+             */
+            illegal_null,
 
-    /**
-     * Illegal reserved character in encoded string.
-    */
-    illegal_reserved_char,
+            /**
+             * Illegal reserved character in encoded string.
+             */
+            illegal_reserved_char,
 
-    /**
-     * A grammar element was not in canonical form.
-    */
-    non_canonical,
+            /**
+             * A grammar element was not in canonical form.
+             */
+            non_canonical,
 
-    //--------------------------------------------
+            //--------------------------------------------
 
-    /**
-     * Bad hexadecimal digit.
+            /**
+             * Bad hexadecimal digit.
 
-       This error condition is fatal.
-    */
-    bad_pct_hexdig,
+               This error condition is fatal.
+            */
+            bad_pct_hexdig,
 
-    /**
-     * The percent-encoded sequence is incomplete.
+            /**
+             * The percent-encoded sequence is incomplete.
 
-       This error condition is fatal.
-    */
-    incomplete_encoding,
+               This error condition is fatal.
+            */
+            incomplete_encoding,
 
-    /**
-     * Missing hexadecimal digit.
+            /**
+             * Missing hexadecimal digit.
 
-       This error condition is fatal.
-    */
-    missing_pct_hexdig,
+               This error condition is fatal.
+            */
+            missing_pct_hexdig,
 
-    /**
-     * No space in output buffer
+            /**
+             * No space in output buffer
 
-       This error is returned when a provided
-       output buffer was too small to hold
-       the complete result of an algorithm.
-    */
-    no_space,
+               This error is returned when a provided
+               output buffer was too small to hold
+               the complete result of an algorithm.
+            */
+            no_space,
 
-    /**
-     * The URL is not a base URL
-    */
-    not_a_base
-};
+            /**
+             * The URL is not a base URL
+             */
+            not_a_base
+        };
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #include <boost/url/impl/error.hpp>
 

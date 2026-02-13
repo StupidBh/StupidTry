@@ -8,24 +8,23 @@
 #define BOOST_THREAD_EXECUTORS_WORK_HPP
 
 #include <boost/thread/detail/config.hpp>
-#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && defined BOOST_THREAD_USES_MOVE
+#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && \
+    defined BOOST_THREAD_USES_MOVE
 
-#include <boost/thread/detail/nullary_function.hpp>
-#include <boost/thread/csbl/functional.hpp>
+    #include <boost/thread/detail/nullary_function.hpp>
+    #include <boost/thread/csbl/functional.hpp>
 
-namespace boost
-{
-  namespace executors
-  {
-    typedef detail::nullary_function<void()> work;
+namespace boost {
+    namespace executors {
+        typedef detail::nullary_function<void()> work;
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-    typedef detail::nullary_function<void()> work_pq;
-    //typedef csbl::function<void()> work_pq;
-#else
-    typedef csbl::function<void()> work_pq;
-#endif
-  }
+    #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        typedef detail::nullary_function<void()> work_pq;
+                // typedef csbl::function<void()> work_pq;
+    #else
+        typedef csbl::function<void()> work_pq;
+    #endif
+    }
 } // namespace boost
 
 #endif

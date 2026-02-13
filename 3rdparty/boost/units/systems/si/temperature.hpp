@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -15,18 +15,18 @@
 
 namespace boost {
 
-namespace units { 
+    namespace units {
 
-namespace si {
+        namespace si {
 
-typedef unit<temperature_dimension,si::system>   temperature;
-    
-BOOST_UNITS_STATIC_CONSTANT(kelvin,temperature);    
-BOOST_UNITS_STATIC_CONSTANT(kelvins,temperature);   
+            typedef unit<temperature_dimension, si::system> temperature;
 
-} // namespace si
+            BOOST_UNITS_STATIC_CONSTANT(kelvin, temperature);
+            BOOST_UNITS_STATIC_CONSTANT(kelvins, temperature);
 
-} // namespace units
+        } // namespace si
+
+    } // namespace units
 
 } // namespace boost
 

@@ -8,28 +8,26 @@
 #include <boost/qvm/config.hpp>
 #include <boost/qvm/assert.hpp>
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-template <class>
-struct quat_traits;
+        template<class>
+        struct quat_traits;
 
-template <class QuatType,class ScalarType>
-struct
-quat_traits_defaults
-    {
-    typedef QuatType quat_type;
-    typedef ScalarType scalar_type;
-
-    template <int I>
-    static
-    BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL
-    scalar_type
-    read_element( quat_type const & x )
+        template<class QuatType, class ScalarType>
+        struct quat_traits_defaults
         {
-        return quat_traits<quat_type>::template write_element<I>(const_cast<quat_type &>(x));
-        }
-    };
+            typedef QuatType quat_type;
+            typedef ScalarType scalar_type;
 
-} }
+            template<int I>
+            static BOOST_QVM_CONSTEXPR BOOST_QVM_INLINE_CRITICAL scalar_type read_element(quat_type const& x)
+            {
+                return quat_traits<quat_type>::template write_element<I>(const_cast<quat_type&>(x));
+            }
+        };
+
+    }
+}
 
 #endif

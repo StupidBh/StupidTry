@@ -18,34 +18,34 @@
 #include <boost/scope/detail/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 #if (defined(__cpp_lib_is_final) && (__cpp_lib_is_final >= 201402l)) || \
     (defined(BOOST_MSSTL_VERSION) && (BOOST_MSSTL_VERSION >= 140) && (BOOST_CXX_VERSION >= 201402l))
 
 namespace boost {
-namespace scope {
-namespace detail {
+    namespace scope {
+        namespace detail {
 
-using std::is_final;
+            using std::is_final;
 
-} // namespace detail
-} // namespace scope
+        } // namespace detail
+    } // namespace scope
 } // namespace boost
 
 #else
 
-#include <boost/type_traits/is_final.hpp>
+    #include <boost/type_traits/is_final.hpp>
 
 namespace boost {
-namespace scope {
-namespace detail {
+    namespace scope {
+        namespace detail {
 
-using boost::is_final;
+            using boost::is_final;
 
-} // namespace detail
-} // namespace scope
+        } // namespace detail
+    } // namespace scope
 } // namespace boost
 
 #endif

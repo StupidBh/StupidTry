@@ -16,9 +16,10 @@
 
 #if defined(BOOST_NO_STDC_NAMESPACE)
 
-#include <iostream>
-#include <cstddef> // std::size_t
-namespace std{
+    #include <iostream>
+    #include <cstddef> // std::size_t
+
+namespace std {
     using ::size_t;
 } // namespace std
 #endif
@@ -27,22 +28,20 @@ namespace std{
 
 #ifndef BOOST_NO_CXX11_HDR_ARRAY
 
-#include <array>
-#include <boost/serialization/nvp.hpp>
+    #include <array>
+    #include <boost/serialization/nvp.hpp>
 
-namespace boost { namespace serialization {
+namespace boost {
+    namespace serialization {
 
-template <class Archive, class T, std::size_t N>
-void serialize(Archive& ar, std::array<T,N>& a, const unsigned int /* version */)
-{
-    ar & boost::serialization::make_nvp(
-        "elems",
-        *static_cast<T (*)[N]>(static_cast<void *>(a.data()))
-    );
-
-}
-} } // end namespace boost::serialization
+        template<class Archive, class T, std::size_t N>
+        void serialize(Archive& ar, std::array<T, N>& a, const unsigned int /* version */)
+        {
+            ar& boost::serialization::make_nvp("elems", *static_cast<T(*)[N]>(static_cast<void*>(a.data())));
+        }
+    }
+}      // namespace boost
 
 #endif // BOOST_NO_CXX11_HDR_ARRAY
 
-#endif //BOOST_SERIALIZATION_ARRAY_HPP
+#endif // BOOST_SERIALIZATION_ARRAY_HPP

@@ -9,7 +9,7 @@
 #define BOOST_SPIRIT_INCLUDE_SUPPORT_COPY
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/home/qi/copy.hpp>

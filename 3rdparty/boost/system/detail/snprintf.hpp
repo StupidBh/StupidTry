@@ -12,17 +12,14 @@
 
 //
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-using std::snprintf;
+            using std::snprintf;
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #endif // #ifndef BOOST_SYSTEM_DETAIL_SNPRINTF_HPP_INCLUDED

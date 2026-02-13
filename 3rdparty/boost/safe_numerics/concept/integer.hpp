@@ -10,12 +10,12 @@
 #include "numeric.hpp"
 
 namespace boost {
-namespace safe_numerics {
+    namespace safe_numerics {
 
-template<class T>
-using Integer = std::integral_constant<bool, Numeric<T>() && std::numeric_limits<T>::is_integer>;
+        template<class T>
+        using Integer = std::integral_constant<bool, Numeric<T>() && std::numeric_limits<T>::is_integer>;
 
-} // safe_numerics
-} // boost
+    } // namespace safe_numerics
+} // namespace boost
 
 #endif // BOOST_NUMERIC_CONCEPT_INTEGER_HPP

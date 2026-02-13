@@ -14,13 +14,11 @@
 #include <boost/thread/csbl/memory/config.hpp>
 #include <boost/smart_ptr/make_unique.hpp>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::unique_ptr;
-    using ::boost::make_unique;
-  }
+namespace boost {
+    namespace csbl {
+        using ::boost::make_unique;
+        using ::std::unique_ptr;
+    }
 }
 
 #endif // header

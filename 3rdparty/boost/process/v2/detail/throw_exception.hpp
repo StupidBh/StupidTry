@@ -9,26 +9,25 @@
 
 #if !defined(BOOST_PROCESS_V2_STANDALONE)
 
-#include <boost/throw_exception.hpp>
+    #include <boost/throw_exception.hpp>
 
 #endif
 
 BOOST_PROCESS_V2_BEGIN_NAMESPACE
 
-namespace detail
-{
+namespace detail {
 
 #if defined(BOOST_PROCESS_V2_STANDALONE)
 
-template <typename Exception>
-inline void throw_exception(const Exception& e)
-{
-    throw e;
-}
+    template<typename Exception>
+    inline void throw_exception(const Exception& e)
+    {
+        throw e;
+    }
 
 #else
 
-using boost::throw_exception;
+    using boost::throw_exception;
 
 #endif
 
@@ -36,4 +35,4 @@ using boost::throw_exception;
 
 BOOST_PROCESS_V2_END_NAMESPACE
 
-#endif //BOOST_PROCESS_V2_DETAIL_THROW_EXCEPTION_HPP
+#endif // BOOST_PROCESS_V2_DETAIL_THROW_EXCEPTION_HPP

@@ -9,7 +9,7 @@
 #define BOOST_SPIRIT_REPOSITORY_QI_NONTERMINAL_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/repository/home/qi/nonterminal/subrule.hpp>

@@ -5,27 +5,27 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_MEMBER_TYPE_GEN_HPP)
-#define BOOST_TTI_MEMBER_TYPE_GEN_HPP
+    #define BOOST_TTI_MEMBER_TYPE_GEN_HPP
 
-#include <boost/preprocessor/cat.hpp>
+    #include <boost/preprocessor/cat.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/// Generates the macro metafunction name for BOOST_TTI_MEMBER_TYPE.
-/**
-    name  = the name of the inner type.
+    /// Generates the macro metafunction name for BOOST_TTI_MEMBER_TYPE.
+    /**
+        name  = the name of the inner type.
 
-    returns = the generated macro metafunction name.
-*/
-#define BOOST_TTI_MEMBER_TYPE_GEN(name) \
-  BOOST_PP_CAT(member_type_,name) \
-/**/
-  
+        returns = the generated macro metafunction name.
+    */
+    #define BOOST_TTI_MEMBER_TYPE_GEN(name) \
+        BOOST_PP_CAT(member_type_, name)    \
+        /**/
+
 #endif // BOOST_TTI_MEMBER_TYPE_GEN_HPP

@@ -5,53 +5,53 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_SIZE_HPP)
-#define BOOST_VMD_SIZE_HPP
+    #define BOOST_VMD_SIZE_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-#include <boost/vmd/detail/sequence_size.hpp>
+        #include <boost/vmd/detail/sequence_size.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_SIZE(sequence)
+    /** \def BOOST_VMD_SIZE(sequence)
 
-    \brief Returns the size of a sequence.
+        \brief Returns the size of a sequence.
 
-    sequence  = A sequence to test.
+        sequence  = A sequence to test.
 
-    returns   = If the sequence is empty returns 0, else returns the number of elements
-                in the sequence.
-    
-*/
+        returns   = If the sequence is empty returns 0, else returns the number of elements
+                    in the sequence.
 
-#define BOOST_VMD_SIZE(sequence) \
-    BOOST_VMD_DETAIL_SEQUENCE_SIZE(sequence) \
-/**/
+    */
 
-/** \def BOOST_VMD_SIZE_D(d,sequence)
+        #define BOOST_VMD_SIZE(sequence)             \
+            BOOST_VMD_DETAIL_SEQUENCE_SIZE(sequence) \
+            /**/
 
-    \brief Returns the size of a sequence. Re-entrant version.
+    /** \def BOOST_VMD_SIZE_D(d,sequence)
 
-    d         = The next available BOOST_PP_WHILE iteration. <br/>
-    sequence  = A sequence to test.
+        \brief Returns the size of a sequence. Re-entrant version.
 
-    returns   = If the sequence is empty returns 0, else returns the number of elements
-                in the sequence.
-    
-*/
+        d         = The next available BOOST_PP_WHILE iteration. <br/>
+        sequence  = A sequence to test.
 
-#define BOOST_VMD_SIZE_D(d,sequence) \
-    BOOST_VMD_DETAIL_SEQUENCE_SIZE_D(d,sequence) \
-/**/
+        returns   = If the sequence is empty returns 0, else returns the number of elements
+                    in the sequence.
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_SIZE_HPP */
+    */
+
+        #define BOOST_VMD_SIZE_D(d, sequence)             \
+            BOOST_VMD_DETAIL_SEQUENCE_SIZE_D(d, sequence) \
+            /**/
+
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_SIZE_HPP */

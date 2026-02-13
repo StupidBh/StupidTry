@@ -20,129 +20,126 @@
 #include <cstddef>
 
 #ifndef BOOST_NO_AUTO_PTR
-# include <memory>          // for std::auto_ptr
+    #include <memory> // for std::auto_ptr
 #endif
 
-#if defined( BOOST_SP_DISABLE_DEPRECATED )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#if defined(BOOST_SP_DISABLE_DEPRECATED)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-namespace boost
-{
+namespace boost {
 
-//  scoped_ptr mimics a built-in pointer except that it guarantees deletion
-//  of the object pointed to, either on destruction of the scoped_ptr or via
-//  an explicit reset(). scoped_ptr is a simple solution for simple needs;
-//  use shared_ptr or std::auto_ptr if your needs are more complex.
+    //  scoped_ptr mimics a built-in pointer except that it guarantees deletion
+    //  of the object pointed to, either on destruction of the scoped_ptr or via
+    //  an explicit reset(). scoped_ptr is a simple solution for simple needs;
+    //  use shared_ptr or std::auto_ptr if your needs are more complex.
 
-template<class T> class scoped_ptr // noncopyable
-{
-private:
-
-    T * px;
-
-    scoped_ptr(scoped_ptr const &);
-    scoped_ptr & operator=(scoped_ptr const &);
-
-    typedef scoped_ptr<T> this_type;
-
-    void operator==( scoped_ptr const& ) const;
-    void operator!=( scoped_ptr const& ) const;
-
-public:
-
-    typedef T element_type;
-
-    explicit scoped_ptr( T * p = 0 ) noexcept : px( p )
+    template<class T>
+    class scoped_ptr // noncopyable
     {
-    }
+    private:
+        T* px;
+
+        scoped_ptr(scoped_ptr const&);
+        scoped_ptr& operator=(scoped_ptr const&);
+
+        typedef scoped_ptr<T> this_type;
+
+        void operator==(scoped_ptr const&) const;
+        void operator!=(scoped_ptr const&) const;
+
+    public:
+        typedef T element_type;
+
+        explicit scoped_ptr(T* p = 0) noexcept :
+            px(p)
+        {
+        }
 
 #ifndef BOOST_NO_AUTO_PTR
 
-    explicit scoped_ptr( std::auto_ptr<T> p ) noexcept : px( p.release() )
-    {
-    }
+        explicit scoped_ptr(std::auto_ptr<T> p) noexcept :
+            px(p.release())
+        {
+        }
 
 #endif
 
-    ~scoped_ptr() noexcept
+        ~scoped_ptr() noexcept { boost::checked_delete(px); }
+
+        void reset(T* p = 0) BOOST_SP_NOEXCEPT_WITH_ASSERT
+        {
+            BOOST_ASSERT(p == 0 || p != px); // catch self-reset errors
+            this_type(p).swap(*this);
+        }
+
+        T& operator*() const BOOST_SP_NOEXCEPT_WITH_ASSERT
+        {
+            BOOST_ASSERT(px != 0);
+            return *px;
+        }
+
+        T* operator->() const BOOST_SP_NOEXCEPT_WITH_ASSERT
+        {
+            BOOST_ASSERT(px != 0);
+            return px;
+        }
+
+        T* get() const noexcept { return px; }
+
+        explicit operator bool() const noexcept { return px != 0; }
+
+        void swap(scoped_ptr& b) noexcept
+        {
+            T* tmp = b.px;
+            b.px = px;
+            px = tmp;
+        }
+    };
+
+    template<class T>
+    inline bool operator==(scoped_ptr<T> const& p, std::nullptr_t) noexcept
     {
-        boost::checked_delete( px );
+        return p.get() == 0;
     }
 
-    void reset(T * p = 0) BOOST_SP_NOEXCEPT_WITH_ASSERT
+    template<class T>
+    inline bool operator==(std::nullptr_t, scoped_ptr<T> const& p) noexcept
     {
-        BOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
-        this_type(p).swap(*this);
+        return p.get() == 0;
     }
 
-    T & operator*() const BOOST_SP_NOEXCEPT_WITH_ASSERT
+    template<class T>
+    inline bool operator!=(scoped_ptr<T> const& p, std::nullptr_t) noexcept
     {
-        BOOST_ASSERT( px != 0 );
-        return *px;
+        return p.get() != 0;
     }
 
-    T * operator->() const BOOST_SP_NOEXCEPT_WITH_ASSERT
+    template<class T>
+    inline bool operator!=(std::nullptr_t, scoped_ptr<T> const& p) noexcept
     {
-        BOOST_ASSERT( px != 0 );
-        return px;
+        return p.get() != 0;
     }
 
-    T * get() const noexcept
+    template<class T>
+    inline void swap(scoped_ptr<T>& a, scoped_ptr<T>& b) noexcept
     {
-        return px;
+        a.swap(b);
     }
 
-    explicit operator bool () const noexcept
+    // get_pointer(p) is a generic way to say p.get()
+
+    template<class T>
+    inline T* get_pointer(scoped_ptr<T> const& p) noexcept
     {
-        return px != 0;
+        return p.get();
     }
-
-    void swap(scoped_ptr & b) noexcept
-    {
-        T * tmp = b.px;
-        b.px = px;
-        px = tmp;
-    }
-};
-
-template<class T> inline bool operator==( scoped_ptr<T> const & p, std::nullptr_t ) noexcept
-{
-    return p.get() == 0;
-}
-
-template<class T> inline bool operator==( std::nullptr_t, scoped_ptr<T> const & p ) noexcept
-{
-    return p.get() == 0;
-}
-
-template<class T> inline bool operator!=( scoped_ptr<T> const & p, std::nullptr_t ) noexcept
-{
-    return p.get() != 0;
-}
-
-template<class T> inline bool operator!=( std::nullptr_t, scoped_ptr<T> const & p ) noexcept
-{
-    return p.get() != 0;
-}
-
-template<class T> inline void swap(scoped_ptr<T> & a, scoped_ptr<T> & b) noexcept
-{
-    a.swap(b);
-}
-
-// get_pointer(p) is a generic way to say p.get()
-
-template<class T> inline T * get_pointer(scoped_ptr<T> const & p) noexcept
-{
-    return p.get();
-}
 
 } // namespace boost
 
-#if defined( BOOST_SP_DISABLE_DEPRECATED )
-#pragma GCC diagnostic pop
+#if defined(BOOST_SP_DISABLE_DEPRECATED)
+    #pragma GCC diagnostic pop
 #endif
 
 #endif // #ifndef BOOST_SMART_PTR_SCOPED_PTR_HPP_INCLUDED

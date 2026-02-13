@@ -11,82 +11,79 @@
 //  fernando_cacciola@hotmail.com
 //
 #ifndef BOOST_UTILITY_INPLACE_FACTORY_04APR2007_HPP
-#ifndef BOOST_PP_IS_ITERATING
+    #ifndef BOOST_PP_IS_ITERATING
 
-#include <boost/utility/detail/in_place_factory_prefix.hpp>
+        #include <boost/utility/detail/in_place_factory_prefix.hpp>
 
 namespace boost {
 
-class in_place_factory_base {} ;
+    class in_place_factory_base {};
 
-#ifndef BOOST_UTILITY_DOCS
-#define  BOOST_PP_ITERATION_LIMITS (0, BOOST_MAX_INPLACE_FACTORY_ARITY)
-#define  BOOST_PP_FILENAME_1 <boost/utility/in_place_factory.hpp>
-#endif // BOOST_UTILITY_DOCS
+        #ifndef BOOST_UTILITY_DOCS
+            #define BOOST_PP_ITERATION_LIMITS (0, BOOST_MAX_INPLACE_FACTORY_ARITY)
+            #define BOOST_PP_FILENAME_1       <boost/utility/in_place_factory.hpp>
+        #endif // BOOST_UTILITY_DOCS
 
-#include BOOST_PP_ITERATE()
+        #include BOOST_PP_ITERATE()
 
 } // namespace boost
 
-#include <boost/utility/detail/in_place_factory_suffix.hpp>
+        #include <boost/utility/detail/in_place_factory_suffix.hpp>
 
-#ifndef BOOST_UTILITY_DOCS
-#define BOOST_UTILITY_INPLACE_FACTORY_04APR2007_HPP
-#endif
+        #ifndef BOOST_UTILITY_DOCS
+            #define BOOST_UTILITY_INPLACE_FACTORY_04APR2007_HPP
+        #endif
 
-#else
-#define N BOOST_PP_ITERATION()
+    #else
+        #define N BOOST_PP_ITERATION()
 
-#if N
-template< BOOST_PP_ENUM_PARAMS(N, class A) >
-#endif
-class BOOST_PP_CAT(in_place_factory,N)
-  : 
-  public in_place_factory_base
-{
+        #if N
+template<BOOST_PP_ENUM_PARAMS(N, class A)>
+        #endif
+class BOOST_PP_CAT(in_place_factory, N) :
+    public in_place_factory_base {
 public:
+    explicit BOOST_PP_CAT(in_place_factory, N)(BOOST_PP_ENUM_BINARY_PARAMS(N, A, const& a))
+        #if N > 0
+        :
+        BOOST_PP_ENUM(N, BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_INIT, _)
+        #endif
+    {
+    }
 
-  explicit BOOST_PP_CAT(in_place_factory,N)
-      ( BOOST_PP_ENUM_BINARY_PARAMS(N,A,const& a) )
-#if N > 0
-    : BOOST_PP_ENUM(N, BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_INIT, _)
-#endif
-  {}
+    template<class T>
+    void* apply(void* address) const
+    {
+        return new (address) T(BOOST_PP_ENUM_PARAMS(N, m_a));
+    }
 
-  template<class T>
-  void* apply(void* address) const
-  {
-    return new(address) T( BOOST_PP_ENUM_PARAMS(N, m_a) );
-  }
+    template<class T>
+    void* apply(void* address, std::size_t n) const
+    {
+        for (char* next = address = this->BOOST_NESTED_TEMPLATE apply<T>(address); !!--n;) {
+            this->BOOST_NESTED_TEMPLATE apply<T>(next = next + sizeof(T));
+        }
+        return address;
+    }
 
-  template<class T>
-  void* apply(void* address, std::size_t n) const
-  {
-    for(char* next = address = this->BOOST_NESTED_TEMPLATE apply<T>(address);
-        !! --n;)
-      this->BOOST_NESTED_TEMPLATE apply<T>(next = next+sizeof(T));
-    return address; 
-  }
-
-  BOOST_PP_REPEAT(N, BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_DECL, _)
+    BOOST_PP_REPEAT(N, BOOST_DEFINE_INPLACE_FACTORY_CLASS_MEMBER_DECL, _)
 };
 
-#if N > 0
-template< BOOST_PP_ENUM_PARAMS(N, class A) >
-inline BOOST_PP_CAT(in_place_factory,N)< BOOST_PP_ENUM_PARAMS(N, A) >
-in_place( BOOST_PP_ENUM_BINARY_PARAMS(N, A, const& a) )
+        #if N > 0
+template<BOOST_PP_ENUM_PARAMS(N, class A)>
+inline BOOST_PP_CAT(in_place_factory, N)<BOOST_PP_ENUM_PARAMS(N, A)> in_place(
+    BOOST_PP_ENUM_BINARY_PARAMS(N, A, const& a))
 {
-  return BOOST_PP_CAT(in_place_factory,N)< BOOST_PP_ENUM_PARAMS(N, A) >
-      ( BOOST_PP_ENUM_PARAMS(N, a) );
+    return BOOST_PP_CAT(in_place_factory, N)<BOOST_PP_ENUM_PARAMS(N, A)>(BOOST_PP_ENUM_PARAMS(N, a));
 }
-#else
+        #else
 inline in_place_factory0 in_place()
 {
-  return in_place_factory0();
+    return in_place_factory0();
 }
-#endif
+        #endif
 
-#undef N
-#endif
+        #undef N
+    #endif
 #endif
 

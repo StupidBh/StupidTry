@@ -14,88 +14,89 @@
 #include <boost/core/pointer_traits.hpp>
 
 namespace boost {
-  namespace unordered {
-    namespace detail {
-      namespace foa {
+    namespace unordered {
+        namespace detail {
+            namespace foa {
 
-        template <class Key, class VoidPtr> struct node_set_types
-        {
-          using key_type = Key;
-          using init_type = Key;
-          using value_type = Key;
+                template<class Key, class VoidPtr>
+                struct node_set_types
+                {
+                    using key_type = Key;
+                    using init_type = Key;
+                    using value_type = Key;
 
-          static Key const& extract(value_type const& key) { return key; }
+                    static Key const& extract(value_type const& key) { return key; }
 
-          using element_type = foa::element_type<value_type, VoidPtr>;
+                    using element_type = foa::element_type<value_type, VoidPtr>;
 
-          using types = node_set_types<Key, VoidPtr>;
-          using constructibility_checker = set_types_constructibility<types>;
+                    using types = node_set_types<Key, VoidPtr>;
+                    using constructibility_checker = set_types_constructibility<types>;
 
-          static value_type& value_from(element_type const& x) { return *x.p; }
-          static Key const& extract(element_type const& k) { return *k.p; }
-          static element_type&& move(element_type& x) { return std::move(x); }
-          static value_type&& move(value_type& x) { return std::move(x); }
+                    static value_type& value_from(element_type const& x) { return *x.p; }
 
-          template <class A>
-          static void construct(
-            A& al, element_type* p, element_type const& copy)
-          {
-            construct(al, p, detail::as_const(*copy.p));
-          }
+                    static Key const& extract(element_type const& k) { return *k.p; }
 
-          template <typename Allocator>
-          static void construct(
-            Allocator&, element_type* p, element_type&& x) noexcept
-          {
-            p->p = x.p;
-            x.p = nullptr;
-          }
+                    static element_type&& move(element_type& x) { return std::move(x); }
 
-          template <class A, class... Args>
-          static void construct(A& al, value_type* p, Args&&... args)
-          {
-            constructibility_checker::check(al, p, std::forward<Args>(args)...);
-            boost::allocator_construct(al, p, std::forward<Args>(args)...);
-          }
+                    static value_type&& move(value_type& x) { return std::move(x); }
 
-          template <class A, class... Args>
-          static void construct(A& al, element_type* p, Args&&... args)
-          {
-            p->p = boost::allocator_allocate(al, 1);
-            BOOST_TRY
-            {
-              auto address = boost::to_address(p->p);
-              constructibility_checker::check(
-                al, address, std::forward<Args>(args)...);
-              boost::allocator_construct(
-                al, address, std::forward<Args>(args)...);
-            }
-            BOOST_CATCH(...)
-            {
-              boost::allocator_deallocate(al, p->p, 1);
-              BOOST_RETHROW
-            }
-            BOOST_CATCH_END
-          }
+                    template<class A>
+                    static void construct(A& al, element_type* p, element_type const& copy)
+                    {
+                        construct(al, p, detail::as_const(*copy.p));
+                    }
 
-          template <class A> static void destroy(A& al, value_type* p) noexcept
-          {
-            boost::allocator_destroy(al, p);
-          }
+                    template<typename Allocator>
+                    static void construct(Allocator&, element_type* p, element_type&& x) noexcept
+                    {
+                        p->p = x.p;
+                        x.p = nullptr;
+                    }
 
-          template <class A>
-          static void destroy(A& al, element_type* p) noexcept
-          {
-            if (p->p) {
-              destroy(al, boost::to_address(p->p));
-              boost::allocator_deallocate(al, p->p, 1);
-            }
-          }
-        };
+                    template<class A, class... Args>
+                    static void construct(A& al, value_type* p, Args&&... args)
+                    {
+                        constructibility_checker::check(al, p, std::forward<Args>(args)...);
+                        boost::allocator_construct(al, p, std::forward<Args>(args)...);
+                    }
 
-      } // namespace foa
-    } // namespace detail
-  } // namespace unordered
+                    template<class A, class... Args>
+                    static void construct(A& al, element_type* p, Args&&... args)
+                    {
+                        p->p = boost::allocator_allocate(al, 1);
+                        BOOST_TRY
+                        {
+                            auto address = boost::to_address(p->p);
+                            constructibility_checker::check(al, address, std::forward<Args>(args)...);
+                            boost::allocator_construct(al, address, std::forward<Args>(args)...);
+                        }
+                        BOOST_CATCH(...)
+                        {
+                            boost::allocator_deallocate(al, p->p, 1);
+                            BOOST_RETHROW
+                        }
+                        BOOST_CATCH_END
+                    }
+
+                    template<class A>
+                    static void destroy(A& al, value_type* p) noexcept
+                    {
+                        boost::allocator_destroy(al, p);
+                    }
+
+                    template<class A>
+                    static void destroy(A& al, element_type* p) noexcept
+                    {
+                        if (p->p) {
+                            destroy(al, boost::to_address(p->p));
+                            boost::allocator_deallocate(al, p->p, 1);
+                        }
+                    }
+                };
+
+            } // namespace foa
+        } // namespace detail
+    } // namespace unordered
 } // namespace boost
 
 #endif // BOOST_UNORDERED_DETAIL_FOA_NODE_SET_TYPES_HPP

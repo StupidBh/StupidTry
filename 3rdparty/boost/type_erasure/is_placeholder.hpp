@@ -15,26 +15,31 @@
 
 namespace boost {
 
-namespace type_erasure {
+    namespace type_erasure {
 
 #ifdef BOOST_TYPE_ERASURE_DOXYGEN
 
-/** A metafunction that indicates whether a type is a @ref placeholder. */
-template<class T>
-struct is_placeholder {};
+        /** A metafunction that indicates whether a type is a @ref placeholder. */
+        template<class T>
+        struct is_placeholder
+        {
+        };
 
 #else
 
-template<class T, class Enable = void>
-struct is_placeholder : ::boost::mpl::false_ {};
+        template<class T, class Enable = void>
+        struct is_placeholder : ::boost::mpl::false_
+        {
+        };
 
-template<class T>
-struct is_placeholder<T, typename T::_boost_type_erasure_is_placeholder> :
-    ::boost::mpl::true_ {};
+        template<class T>
+        struct is_placeholder<T, typename T::_boost_type_erasure_is_placeholder> : ::boost::mpl::true_
+        {
+        };
 
 #endif
 
-}
+    }
 }
 
 #endif

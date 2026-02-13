@@ -5,7 +5,6 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-
 #ifndef BOOST_DLL_DLL_HPP
 #define BOOST_DLL_DLL_HPP
 
@@ -20,7 +19,7 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-# pragma once
+    #pragma once
 #endif
 
 #endif // BOOST_DLL_DLL_HPP

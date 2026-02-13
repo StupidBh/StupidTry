@@ -11,19 +11,17 @@
 #include <boost/uuid/detail/sha1.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-class name_generator_sha1: public detail::basic_name_generator<detail::sha1>
-{
-public:
+        class name_generator_sha1 : public detail::basic_name_generator<detail::sha1> {
+        public:
+            explicit name_generator_sha1(uuid const& namespace_uuid) noexcept :
+                detail::basic_name_generator<detail::sha1>(namespace_uuid)
+            {
+            }
+        };
 
-    explicit name_generator_sha1( uuid const& namespace_uuid ) noexcept:
-        detail::basic_name_generator<detail::sha1>( namespace_uuid )
-    {
-    }
-};
-
-} // uuids
-} // boost
+    } // namespace uuids
+} // namespace boost
 
 #endif // BOOST_UUID_NAME_GENERATOR_SHA1_HPP_INCLUDED

@@ -19,34 +19,34 @@
 #include <boost/range/iterator_range.hpp>
 #include <algorithm>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-/// \brief template function copy
-///
-/// range-based version of the copy std algorithm
-///
-/// \pre SinglePassRange is a model of the SinglePassRangeConcept
-/// \pre OutputIterator is a model of the OutputIteratorConcept
-/// \pre 0 <= n <= distance(rng)
-template< class SinglePassRange, class Size, class OutputIterator >
-inline OutputIterator copy_n(const SinglePassRange& rng, Size n, OutputIterator out)
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange> ));
-    BOOST_ASSERT( n <= static_cast<Size>(::boost::distance(rng)) );
-    BOOST_ASSERT( n >= static_cast<Size>(0) );
+        /// \brief template function copy
+        ///
+        /// range-based version of the copy std algorithm
+        ///
+        /// \pre SinglePassRange is a model of the SinglePassRangeConcept
+        /// \pre OutputIterator is a model of the OutputIteratorConcept
+        /// \pre 0 <= n <= distance(rng)
+        template<class SinglePassRange, class Size, class OutputIterator>
+        inline OutputIterator copy_n(const SinglePassRange& rng, Size n, OutputIterator out)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((SinglePassRangeConcept<const SinglePassRange>));
+            BOOST_ASSERT(n <= static_cast<Size>(::boost::distance(rng)));
+            BOOST_ASSERT(n >= static_cast<Size>(0));
 
-    BOOST_DEDUCED_TYPENAME range_iterator<const SinglePassRange>::type source = ::boost::begin(rng);
+            BOOST_DEDUCED_TYPENAME range_iterator<const SinglePassRange>::type source = ::boost::begin(rng);
 
-    for (Size i = 0; i < n; ++i, ++out, ++source)
-        *out = *source;
+            for (Size i = 0; i < n; ++i, ++out, ++source) {
+                *out = *source;
+            }
 
-    return out;
-}
+            return out;
+        }
 
     } // namespace range
+
     using ::boost::range::copy_n;
 } // namespace boost
 

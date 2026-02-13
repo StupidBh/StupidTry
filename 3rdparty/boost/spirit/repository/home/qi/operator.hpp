@@ -9,7 +9,7 @@
 #define BOOST_SPIRIT_REPOSITORY_QI_OPERATOR_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/repository/home/qi/operator/keywords.hpp>

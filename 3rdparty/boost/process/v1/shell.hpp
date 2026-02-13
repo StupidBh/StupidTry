@@ -15,9 +15,9 @@
 #include <boost/process/v1/detail/traits/wchar_t.hpp>
 
 #if defined(BOOST_POSIX_API)
-#include <boost/process/v1/detail/posix/shell_path.hpp>
+    #include <boost/process/v1/detail/posix/shell_path.hpp>
 #elif defined(BOOST_WINDOWS_API)
-#include <boost/process/v1/detail/windows/shell_path.hpp>
+    #include <boost/process/v1/detail/windows/shell_path.hpp>
 #endif
 
 /** \file boost/process/shell.hpp
@@ -37,54 +37,63 @@ namespace boost {
 
  */
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
 
+                struct shell_
+                {
+                    constexpr shell_() {}
 
-struct shell_
-{
-    constexpr shell_() {}
+                    boost::process::v1::filesystem::path operator()() const
+                    {
+                        return boost::process::v1::detail::api::shell_path();
+                    }
 
-    boost::process::v1::filesystem::path operator()() const
-    {
-        return boost::process::v1::detail::api::shell_path();
+                    boost::process::v1::filesystem::path operator()(std::error_code& ec) const noexcept
+                    {
+                        return boost::process::v1::detail::api::shell_path(ec);
+                    }
+                };
+
+                template<>
+                struct is_wchar_t<shell_> : is_wchar_t<boost::process::v1::filesystem::path>
+                {
+                };
+
+            }
+
+            /**
+            The shell property enables to launch a program through the shell of the system.
+
+            \code{.cpp}
+            system("gcc", shell);
+            \endcode
+
+            The shell argument goes without any expression. The operator() is overloaded, to
+            obtain the path of the system shell.
+
+            \code{.cpp}
+            auto shell_cmd = shell();
+            //avoid exceptions
+            std::error_code ec;
+            shell_cmd = shell(ec);
+            \endcode
+
+            \attention Launching through the shell will NOT provide proper error handling, i.e.
+            you will get an error via the return code.
+
+            \attention Executing shell commands that incorporate unsanitized input from an untrusted source makes a
+            program vulnerable to shell injection, a serious security flaw which can result in arbitrary command
+            execution. For this reason, the use of `shell` is strongly discouraged in cases where the command string is
+            constructed from external input:
+
+            */
+            constexpr ::boost::process::v1::detail::shell_ shell;
+        }
     }
-    boost::process::v1::filesystem::path operator()(std::error_code & ec) const noexcept
-    {
-        return boost::process::v1::detail::api::shell_path(ec);
-    }
-};
-
-template<>
-struct is_wchar_t<shell_> : is_wchar_t<boost::process::v1::filesystem::path>
-{
-};
-
 }
-/**
-The shell property enables to launch a program through the shell of the system.
-
-\code{.cpp}
-system("gcc", shell);
-\endcode
-
-The shell argument goes without any expression. The operator() is overloaded, to
-obtain the path of the system shell.
-
-\code{.cpp}
-auto shell_cmd = shell();
-//avoid exceptions
-std::error_code ec;
-shell_cmd = shell(ec);
-\endcode
-
-\attention Launching through the shell will NOT provide proper error handling, i.e.
-you will get an error via the return code.
-
-\attention Executing shell commands that incorporate unsanitized input from an untrusted source makes a program vulnerable to shell injection, a serious security flaw which can result in arbitrary command execution. For this reason, the use of `shell` is strongly discouraged in cases where the command string is constructed from external input:
-
-*/
-constexpr ::boost::process::v1::detail::shell_ shell;
-
-}}}
 
 #endif

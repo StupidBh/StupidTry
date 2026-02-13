@@ -5,27 +5,27 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_STATIC_MEMBER_DATA_GEN_HPP)
-#define BOOST_TTI_STATIC_MEMBER_DATA_GEN_HPP
+    #define BOOST_TTI_STATIC_MEMBER_DATA_GEN_HPP
 
-#include <boost/preprocessor/cat.hpp>
+    #include <boost/preprocessor/cat.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/// Generates the macro metafunction name for BOOST_TTI_HAS_STATIC_MEMBER_DATA.
-/**
-    name  = the name of the static member data.
+    /// Generates the macro metafunction name for BOOST_TTI_HAS_STATIC_MEMBER_DATA.
+    /**
+        name  = the name of the static member data.
 
-    returns = the generated macro metafunction name.
-*/
-#define BOOST_TTI_HAS_STATIC_MEMBER_DATA_GEN(name) \
-  BOOST_PP_CAT(has_static_member_data_,name) \
-/**/
+        returns = the generated macro metafunction name.
+    */
+    #define BOOST_TTI_HAS_STATIC_MEMBER_DATA_GEN(name) \
+        BOOST_PP_CAT(has_static_member_data_, name)    \
+        /**/
 
 #endif // BOOST_TTI_STATIC_MEMBER_DATA_GEN_HPP

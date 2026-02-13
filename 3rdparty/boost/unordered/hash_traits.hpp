@@ -16,12 +16,12 @@
 
 BOOST_HEADER_DEPRECATED("<boost/container_hash/hash_is_avalanching.hpp>")
 
-namespace boost{
-namespace unordered{
+namespace boost {
+    namespace unordered {
 
-using boost::hash_is_avalanching;
+        using boost::hash_is_avalanching;
 
-} /* namespace unordered */
+    } /* namespace unordered */
 } /* namespace boost */
 
 #endif

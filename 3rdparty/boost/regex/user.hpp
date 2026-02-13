@@ -3,18 +3,18 @@
  * Copyright (c) 1998-2002
  * John Maddock
  *
- * Use, modification and distribution are subject to the 
- * Boost Software License, Version 1.0. (See accompanying file 
+ * Use, modification and distribution are subject to the
+ * Boost Software License, Version 1.0. (See accompanying file
  * LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  *
  */
- 
- /*
-  *   LOCATION:    see http://www.boost.org for most recent version.
-  *   FILE         user.hpp
-  *   VERSION      see <boost/version.hpp>
-  *   DESCRIPTION: User settable options.
-  */
+
+/*
+ *   LOCATION:    see http://www.boost.org for most recent version.
+ *   FILE         user.hpp
+ *   VERSION      see <boost/version.hpp>
+ *   DESCRIPTION: User settable options.
+ */
 
 // define if you want the regex library to use the C locale
 // even on Win32:
@@ -40,7 +40,7 @@
 
 // define this if templates with switch statements cause problems:
 // #define BOOST_REGEX_NO_TEMPLATE_SWITCH_MERGE
- 
+
 // define this to disable Win32 support when available:
 // #define BOOST_REGEX_NO_W32
 
@@ -68,8 +68,8 @@
 // #define BOOST_REGEX_MAX_BLOCKS 1024
 
 // define this if you want to set the maximum number of memory blocks
-// cached by the non-recursive algorithm: Normally this is 16, but can be 
-// higher if you have multiple threads all using boost.regex, or lower 
+// cached by the non-recursive algorithm: Normally this is 16, but can be
+// higher if you have multiple threads all using boost.regex, or lower
 // if you don't want boost.regex to cache memory.
 // #define BOOST_REGEX_MAX_CACHE_BLOCKS 16
 
@@ -84,6 +84,6 @@
 // define this if you want regex to use __cdecl calling convensions, even when __fastcall is available:
 // #define BOOST_REGEX_NO_FASTCALL
 
-// define this to control how deep non-avoidable recursive function calls can go, typical expressions 
+// define this to control how deep non-avoidable recursive function calls can go, typical expressions
 // and format strings should only recurse a handful of times, this is mainly to prevent DOS type attacks.
 // #define BOOST_REGEX_MAX_RECURSION_DEPTH 100

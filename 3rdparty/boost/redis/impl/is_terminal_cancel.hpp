@@ -13,11 +13,11 @@
 
 namespace boost::redis::detail {
 
-constexpr bool is_terminal_cancel(asio::cancellation_type_t cancel_state)
-{
-   return (cancel_state & asio::cancellation_type_t::terminal) != asio::cancellation_type_t::none;
-}
+    constexpr bool is_terminal_cancel(asio::cancellation_type_t cancel_state)
+    {
+        return (cancel_state & asio::cancellation_type_t::terminal) != asio::cancellation_type_t::none;
+    }
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
 #endif

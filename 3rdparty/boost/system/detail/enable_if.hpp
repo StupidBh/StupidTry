@@ -7,17 +7,14 @@
 
 #include <type_traits>
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-using std::enable_if;
+            using std::enable_if;
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #endif // #ifndef BOOST_SYSTEM_DETAIL_ENABLE_IF_HPP_INCLUDED

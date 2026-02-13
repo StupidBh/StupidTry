@@ -7,20 +7,17 @@
 
 #include <cstddef>
 
-namespace boost
-{
+namespace boost {
 
-template<class T> struct owner_hash
-{
-    typedef std::size_t result_type;
-    typedef T argument_type;
-
-    std::size_t operator()( T const & t ) const noexcept
+    template<class T>
+    struct owner_hash
     {
-        return t.owner_hash_value();
-    }
-};
+        typedef std::size_t result_type;
+        typedef T argument_type;
+
+        std::size_t operator()(T const& t) const noexcept { return t.owner_hash_value(); }
+    };
 
 } // namespace boost
 
-#endif  // #ifndef BOOST_SMART_PTR_OWNER_HASH_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_OWNER_HASH_HPP_INCLUDED

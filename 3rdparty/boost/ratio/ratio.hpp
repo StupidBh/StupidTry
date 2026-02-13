@@ -35,15 +35,14 @@ time2_demo contained this comment:
 #include <boost/ratio/ratio_fwd.hpp>
 #include <boost/ratio/detail/gcd_lcm.hpp>
 
-namespace boost
-{
+namespace boost {
 
-// extension used by Chrono
+    // extension used by Chrono
 
-template <class R1, class R2> using ratio_gcd = typename ratio<
-    ratio_detail::gcd<R1::num, R2::num>::value,
-    ratio_detail::lcm<R1::den, R2::den>::value>::type;
+    template<class R1, class R2>
+    using ratio_gcd =
+        typename ratio<ratio_detail::gcd<R1::num, R2::num>::value, ratio_detail::lcm<R1::den, R2::den>::value>::type;
 
-}  // namespace boost
+} // namespace boost
 
-#endif  // BOOST_RATIO_RATIO_HPP
+#endif // BOOST_RATIO_RATIO_HPP

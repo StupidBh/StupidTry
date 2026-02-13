@@ -7,7 +7,7 @@
 #define BOOST_SPIRIT_KARMA_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/home/karma/char.hpp>

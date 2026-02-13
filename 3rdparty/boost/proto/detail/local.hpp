@@ -7,40 +7,39 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_PROTO_LOCAL_MACRO
-# error "local iteration target macro is not defined"
+    #error "local iteration target macro is not defined"
 #endif
 
 #ifndef BOOST_PROTO_LOCAL_LIMITS
-# define BOOST_PROTO_LOCAL_LIMITS (1, BOOST_PROTO_MAX_ARITY)
+    #define BOOST_PROTO_LOCAL_LIMITS (1, BOOST_PROTO_MAX_ARITY)
 #endif
 
 #ifndef BOOST_PROTO_LOCAL_typename_A
-# define BOOST_PROTO_LOCAL_typename_A BOOST_PROTO_typename_A
+    #define BOOST_PROTO_LOCAL_typename_A BOOST_PROTO_typename_A
 #endif
 
 #ifndef BOOST_PROTO_LOCAL_A
-# define BOOST_PROTO_LOCAL_A BOOST_PROTO_A_const_ref
+    #define BOOST_PROTO_LOCAL_A BOOST_PROTO_A_const_ref
 #endif
 
 #ifndef BOOST_PROTO_LOCAL_A_a
-# define BOOST_PROTO_LOCAL_A_a BOOST_PROTO_A_const_ref_a
+    #define BOOST_PROTO_LOCAL_A_a BOOST_PROTO_A_const_ref_a
 #endif
 
 #ifndef BOOST_PROTO_LOCAL_a
-# define BOOST_PROTO_LOCAL_a BOOST_PROTO_ref_a
+    #define BOOST_PROTO_LOCAL_a BOOST_PROTO_ref_a
 #endif
 
 #define BOOST_PP_LOCAL_LIMITS BOOST_PROTO_LOCAL_LIMITS
 
 #define BOOST_PP_LOCAL_MACRO(N)       \
-  BOOST_PROTO_LOCAL_MACRO(            \
-      N                               \
-    , BOOST_PROTO_LOCAL_typename_A    \
-    , BOOST_PROTO_LOCAL_A             \
-    , BOOST_PROTO_LOCAL_A_a           \
-    , BOOST_PROTO_LOCAL_a             \
-  )                                   \
-  /**/
+    BOOST_PROTO_LOCAL_MACRO(          \
+        N,                            \
+        BOOST_PROTO_LOCAL_typename_A, \
+        BOOST_PROTO_LOCAL_A,          \
+        BOOST_PROTO_LOCAL_A_a,        \
+        BOOST_PROTO_LOCAL_a)          \
+    /**/
 
 #include BOOST_PP_LOCAL_ITERATE()
 

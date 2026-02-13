@@ -11,12 +11,10 @@
 
 #include <queue>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::queue;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::queue;
+    }
 }
 
 #endif // header

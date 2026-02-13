@@ -19,16 +19,17 @@
 
 namespace boost::redis::detail {
 
-// Contains all the members in connection that don't depend on the Executor.
-// Makes implementing sans-io algorithms easier
-struct connection_state {
-   buffered_logger logger;
-   config cfg{};
-   multiplexer mpx{};
-   std::string setup_diagnostic{};
-   request ping_req{};
-};
+    // Contains all the members in connection that don't depend on the Executor.
+    // Makes implementing sans-io algorithms easier
+    struct connection_state
+    {
+        buffered_logger logger;
+        config cfg {};
+        multiplexer mpx {};
+        std::string setup_diagnostic {};
+        request ping_req {};
+    };
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
-#endif  // BOOST_REDIS_CONNECTOR_HPP
+#endif // BOOST_REDIS_CONNECTOR_HPP

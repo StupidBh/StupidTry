@@ -34,7 +34,7 @@ File:	ADF.h
         Project: CGNS
         Author: Tom Dickens   865-6122    tpd6908@yak.ca.boeing.com
         Date: 3/2/1995
-	Purpose: Provide prototype declarations for the ADF-Core routines.
+    Purpose: Provide prototype declarations for the ADF-Core routines.
   ----------------------------------------------------------------------
   ----------------------------------------------------------------------
 
@@ -46,271 +46,187 @@ File:	ADF.h
 #include "cgnstypes.h"
 
 #if defined(_WIN32) && defined(BUILD_DLL)
-# define EXTERN extern __declspec(dllexport)
+    #define EXTERN extern __declspec(dllexport)
 #else
-# define EXTERN extern
+    #define EXTERN extern
 #endif
 
 /***********************************************************************
-	Defines:  These defines are used within the ADF core routines
-	to specify the size in bytes of various items.
+    Defines:  These defines are used within the ADF core routines
+    to specify the size in bytes of various items.
    Caution:  Simply changing a define here may not correctly adjust the
-	ADF core code.  These sizes are provided for reference only!
+    ADF core code.  These sizes are provided for reference only!
 ***********************************************************************/
-#define ADF_DATA_TYPE_LENGTH        32
-#define ADF_CGIO_DATA_TYPE_LENGTH    2
-#define ADF_DATE_LENGTH             32
+#define ADF_DATA_TYPE_LENGTH      32
+#define ADF_CGIO_DATA_TYPE_LENGTH 2
+#define ADF_DATE_LENGTH           32
 #define ADF_FILENAME_LENGTH       1024
-#define ADF_FORMAT_LENGTH           20
-#define ADF_LABEL_LENGTH            32
-#define ADF_MAXIMUM_LINK_DEPTH     100
-#define ADF_MAX_DIMENSIONS          12
-#define ADF_MAX_ERROR_STR_LENGTH    80
+#define ADF_FORMAT_LENGTH         20
+#define ADF_LABEL_LENGTH          32
+#define ADF_MAXIMUM_LINK_DEPTH    100
+#define ADF_MAX_DIMENSIONS        12
+#define ADF_MAX_ERROR_STR_LENGTH  80
 #define ADF_MAX_LINK_DATA_SIZE    4096
-#define ADF_NAME_LENGTH             32
-#define ADF_STATUS_LENGTH           32
-#define ADF_VERSION_LENGTH          32
+#define ADF_NAME_LENGTH           32
+#define ADF_STATUS_LENGTH         32
+#define ADF_VERSION_LENGTH        32
 
 /***********************************************************************
-	Prototypes for Interface Routines
+    Prototypes for Interface Routines
 ***********************************************************************/
 
-#if defined (__cplusplus)
-    extern "C" {
+#if defined(__cplusplus)
+extern "C"
+{
 #endif
 
-EXTERN	void	ADF_Children_Names(
-			const double PID,
-			const int istart,
-			const int ilen,
-			const int name_length,
-			int *ilen_ret,
-			char *names,
-			int *error_return ) ;
+    EXTERN void ADF_Children_Names(
+        const double PID,
+        const int istart,
+        const int ilen,
+        const int name_length,
+        int* ilen_ret,
+        char* names,
+        int* error_return);
 
-EXTERN	void	ADF_Children_IDs(
-			const double PID,
-			const int istart,
-			const int ilen,
-			int *ilen_ret,
-			double *IDs,
-			int *error_return ) ;
+    EXTERN void ADF_Children_IDs(
+        const double PID,
+        const int istart,
+        const int ilen,
+        int* ilen_ret,
+        double* IDs,
+        int* error_return);
 
-EXTERN	void	ADF_Create(
-			const double PID,
-			const char *name,
-			double *ID,
-			int *error_return ) ;
+    EXTERN void ADF_Create(const double PID, const char* name, double* ID, int* error_return);
 
-EXTERN	void	ADF_Database_Close(
-			const double ID,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Close(const double ID, int* error_return);
 
-EXTERN	void	ADF_Database_Delete(
-			const char *filename,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Delete(const char* filename, int* error_return);
 
-EXTERN	void	ADF_Database_Garbage_Collection(
-			const double ID,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Garbage_Collection(const double ID, int* error_return);
 
-EXTERN	void	ADF_Database_Get_Format(
-			const double Root_ID,
-			char *format,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Get_Format(const double Root_ID, char* format, int* error_return);
 
-EXTERN	void	ADF_Database_Open(
-			const char *filename,
-			const char *status,
-			const char *format,
-			double *root_ID,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Open(
+        const char* filename,
+        const char* status,
+        const char* format,
+        double* root_ID,
+        int* error_return);
 
-EXTERN	void	ADF_Database_Valid(
-			const char *filename,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Valid(const char* filename, int* error_return);
 
-EXTERN	void	ADF_Database_Set_Format(
-			const double Root_ID,
-			const char *format,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Set_Format(const double Root_ID, const char* format, int* error_return);
 
-EXTERN	void	ADF_Database_Version(
-			const double Root_ID,
-			char *version,
-			char *creation_date,
-			char *modification_date,
-			int *error_return ) ;
+    EXTERN void ADF_Database_Version(
+        const double Root_ID,
+        char* version,
+        char* creation_date,
+        char* modification_date,
+        int* error_return);
 
-EXTERN	void	ADF_Delete(
-			const double PID,
-			const double ID,
-			int *error_return ) ;
+    EXTERN void ADF_Delete(const double PID, const double ID, int* error_return);
 
-EXTERN	void	ADF_Error_Message(
-			const int error_return_input,
-			char *error_string ) ;
+    EXTERN void ADF_Error_Message(const int error_return_input, char* error_string);
 
-EXTERN	void	ADF_Flush_to_Disk(
-			const double ID,
-			int *error_return ) ;
+    EXTERN void ADF_Flush_to_Disk(const double ID, int* error_return);
 
-EXTERN	void	ADF_Get_Data_Type(
-			const double ID,
-			char *data_type,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Data_Type(const double ID, char* data_type, int* error_return);
 
-EXTERN	void	ADF_Get_Dimension_Values(
-			const double ID,
-			cgsize_t dim_vals[],
-			int *error_return ) ;
+    EXTERN void ADF_Get_Dimension_Values(const double ID, cgsize_t dim_vals[], int* error_return);
 
-EXTERN	void	ADF_Get_Error_State(
-			int *error_state,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Error_State(int* error_state, int* error_return);
 
-EXTERN	void	ADF_Get_Label(
-			const double ID,
-			char *label,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Label(const double ID, char* label, int* error_return);
 
-EXTERN	void	ADF_Get_Link_Path(
-			const double ID,
-			char *filename,
-			char *link_path,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Link_Path(const double ID, char* filename, char* link_path, int* error_return);
 
-EXTERN	void	ADF_Get_Name(
-			const double ID,
-			char *name,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Name(const double ID, char* name, int* error_return);
 
-EXTERN	void	ADF_Get_Node_ID(
-			const double PID,
-			const char *name,
-			double *ID,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Node_ID(const double PID, const char* name, double* ID, int* error_return);
 
-EXTERN	void	ADF_Get_Number_of_Dimensions(
-			const double ID,
-			int *num_dims,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Number_of_Dimensions(const double ID, int* num_dims, int* error_return);
 
-EXTERN	void	ADF_Get_Root_ID(
-			const double ID,
-			double *Root_ID,
-			int *error_return ) ;
+    EXTERN void ADF_Get_Root_ID(const double ID, double* Root_ID, int* error_return);
 
-EXTERN	void	ADF_Is_Link(
-			const double ID,
-			int *link_path_length,
-			int *error_return ) ;
+    EXTERN void ADF_Is_Link(const double ID, int* link_path_length, int* error_return);
 
-EXTERN	void	ADF_Library_Version(
-			char *version,
-			int *error_return ) ;
+    EXTERN void ADF_Library_Version(char* version, int* error_return);
 
-EXTERN	void	ADF_Link(
-			const double PID,
-			const char *name,
-			const char *file,
-			const char *name_in_file,
-			double *ID,
-			int *error_return ) ;
+    EXTERN void ADF_Link(
+        const double PID,
+        const char* name,
+        const char* file,
+        const char* name_in_file,
+        double* ID,
+        int* error_return);
 
-EXTERN	void	ADF_Link_Size(
-			const double ID,
-			int *len_file,
-			int *len_name,
-			int *error_return ) ;
+    EXTERN void ADF_Link_Size(const double ID, int* len_file, int* len_name, int* error_return);
 
-EXTERN	void	ADF_Move_Child(
-			const double PID,
-			const double ID,
-			const double NPID,
-			int *error_return ) ;
+    EXTERN void ADF_Move_Child(const double PID, const double ID, const double NPID, int* error_return);
 
-EXTERN	void	ADF_Number_of_Children(
-			const double ID,
-			int *num_children,
-			int *error_return ) ;
+    EXTERN void ADF_Number_of_Children(const double ID, int* num_children, int* error_return);
 
-EXTERN	void	ADF_Put_Dimension_Information(
-			const double ID,
-			const char *data_type,
-			const int dims,
-			const cgsize_t dim_vals[],
-			int *error_return ) ;
+    EXTERN void ADF_Put_Dimension_Information(
+        const double ID,
+        const char* data_type,
+        const int dims,
+        const cgsize_t dim_vals[],
+        int* error_return);
 
-EXTERN	void	ADF_Put_Name(
-			const double PID,
-			const double ID,
-			const char *name,
-			int *error_return ) ;
+    EXTERN void ADF_Put_Name(const double PID, const double ID, const char* name, int* error_return);
 
-EXTERN	void	ADF_Read_All_Data(
-			const double ID,
-                        const char *m_data_type,
-			char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Read_All_Data(const double ID, const char* m_data_type, char* data, int* error_return);
 
-EXTERN	void	ADF_Read_Block_Data(
-			const double ID,
-			const cgsize_t b_start,
-			const cgsize_t b_end,
-			char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Read_Block_Data(
+        const double ID,
+        const cgsize_t b_start,
+        const cgsize_t b_end,
+        char* data,
+        int* error_return);
 
-EXTERN	void	ADF_Read_Data(
-			const double ID,
-			const cgsize_t s_start[],
-			const cgsize_t s_end[],
-			const cgsize_t s_stride[],
-			const int m_num_dims,
-			const cgsize_t m_dims[],
-			const cgsize_t m_start[],
-			const cgsize_t m_end[],
-			const cgsize_t m_stride[],
-                        const char *m_data_type,
-			char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Read_Data(
+        const double ID,
+        const cgsize_t s_start[],
+        const cgsize_t s_end[],
+        const cgsize_t s_stride[],
+        const int m_num_dims,
+        const cgsize_t m_dims[],
+        const cgsize_t m_start[],
+        const cgsize_t m_end[],
+        const cgsize_t m_stride[],
+        const char* m_data_type,
+        char* data,
+        int* error_return);
 
-EXTERN	void	ADF_Set_Error_State(
-			const int error_state,
-			int *error_return ) ;
+    EXTERN void ADF_Set_Error_State(const int error_state, int* error_return);
 
-EXTERN	void	ADF_Set_Label(
-			const double ID,
-			const char *label,
-			int *error_return ) ;
+    EXTERN void ADF_Set_Label(const double ID, const char* label, int* error_return);
 
-EXTERN	void	ADF_Write_All_Data(
-			const double ID,
-			const char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Write_All_Data(const double ID, const char* data, int* error_return);
 
-EXTERN	void	ADF_Write_Block_Data(
-			const double ID,
-			const cgsize_t b_start,
-			const cgsize_t b_end,
-			char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Write_Block_Data(
+        const double ID,
+        const cgsize_t b_start,
+        const cgsize_t b_end,
+        char* data,
+        int* error_return);
 
-EXTERN	void	ADF_Write_Data(
-			const double ID,
-			const cgsize_t s_start[],
-			const cgsize_t s_end[],
-			const cgsize_t s_stride[],
-			const int m_num_dims,
-			const cgsize_t m_dims[],
-			const cgsize_t m_start[],
-			const cgsize_t m_end[],
-			const cgsize_t m_stride[],
-			const char *data,
-			int *error_return ) ;
+    EXTERN void ADF_Write_Data(
+        const double ID,
+        const cgsize_t s_start[],
+        const cgsize_t s_end[],
+        const cgsize_t s_stride[],
+        const int m_num_dims,
+        const cgsize_t m_dims[],
+        const cgsize_t m_start[],
+        const cgsize_t m_end[],
+        const cgsize_t m_stride[],
+        const char* data,
+        int* error_return);
 
-#if defined (__cplusplus)
-    }
+#if defined(__cplusplus)
+}
 #endif
 
 #undef EXTERN
@@ -320,17 +236,17 @@ EXTERN	void	ADF_Write_Data(
     These values need to be kept in sync with the error strings in
     file ADF_interface.c
 ***********************************************************************/
-    /** Don't use zero since you can assign zero to a pointer **/
+/** Don't use zero since you can assign zero to a pointer **/
 #define NO_ERROR                       -1
-#define NUMBER_LESS_THAN_MINIMUM        1
-#define NUMBER_GREATER_THAN_MAXIMUM     2
-#define STRING_LENGTH_ZERO              3
-#define STRING_LENGTH_TOO_BIG           4
-#define STRING_NOT_A_HEX_STRING         5
-#define TOO_MANY_ADF_FILES_OPENED       6
-#define ADF_FILE_STATUS_NOT_RECOGNIZED  7
-#define FILE_OPEN_ERROR                 8
-#define ADF_FILE_NOT_OPENED             9
+#define NUMBER_LESS_THAN_MINIMUM       1
+#define NUMBER_GREATER_THAN_MAXIMUM    2
+#define STRING_LENGTH_ZERO             3
+#define STRING_LENGTH_TOO_BIG          4
+#define STRING_NOT_A_HEX_STRING        5
+#define TOO_MANY_ADF_FILES_OPENED      6
+#define ADF_FILE_STATUS_NOT_RECOGNIZED 7
+#define FILE_OPEN_ERROR                8
+#define ADF_FILE_NOT_OPENED            9
 #define FILE_INDEX_OUT_OF_RANGE        10
 #define BLOCK_OFFSET_OUT_OF_RANGE      11
 #define NULL_STRING_POINTER            12

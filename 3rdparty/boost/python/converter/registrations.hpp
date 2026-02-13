@@ -3,97 +3,101 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef REGISTRATIONS_DWA2002223_HPP
-# define REGISTRATIONS_DWA2002223_HPP
+#define REGISTRATIONS_DWA2002223_HPP
 
-# include <boost/python/detail/prefix.hpp>
+#include <boost/python/detail/prefix.hpp>
 
-# include <boost/python/type_id.hpp>
+#include <boost/python/type_id.hpp>
 
-# include <boost/python/converter/convertible_function.hpp>
-# include <boost/python/converter/constructor_function.hpp>
-# include <boost/python/converter/to_python_function_type.hpp>
+#include <boost/python/converter/convertible_function.hpp>
+#include <boost/python/converter/constructor_function.hpp>
+#include <boost/python/converter/to_python_function_type.hpp>
 
-# include <boost/detail/workaround.hpp>
+#include <boost/detail/workaround.hpp>
 
-namespace boost { namespace python { namespace converter { 
+namespace boost {
+    namespace python {
+        namespace converter {
 
-struct lvalue_from_python_chain
-{
-    convertible_function convert;
-    lvalue_from_python_chain* next;
-};
+            struct lvalue_from_python_chain
+            {
+                convertible_function convert;
+                lvalue_from_python_chain* next;
+            };
 
-struct rvalue_from_python_chain
-{
-    convertible_function convertible;
-    constructor_function construct;
-    PyTypeObject const* (*expected_pytype)();
-    rvalue_from_python_chain* next;
-};
+            struct rvalue_from_python_chain
+            {
+                convertible_function convertible;
+                constructor_function construct;
+                PyTypeObject const* (*expected_pytype)();
+                rvalue_from_python_chain* next;
+            };
 
-struct BOOST_PYTHON_DECL registration
-{
- public: // member functions
-    explicit registration(type_info target, bool is_shared_ptr = false);
-   ~registration();
-    
-    // Convert the appropriately-typed data to Python
-    PyObject* to_python(void const volatile*) const;
+            struct BOOST_PYTHON_DECL registration
+            {
+            public: // member functions
+                explicit registration(type_info target, bool is_shared_ptr = false);
+                ~registration();
 
-    // Return the class object, or raise an appropriate Python
-    // exception if no class has been registered.
-    PyTypeObject* get_class_object() const;
+                // Convert the appropriately-typed data to Python
+                PyObject* to_python(void const volatile*) const;
 
-    // Return common denominator of the python class objects, 
-    // convertable to target. Inspects the m_class_object and the value_chains.
-    PyTypeObject const* expected_from_python_type() const;
-    PyTypeObject const* to_python_target_type() const;
+                // Return the class object, or raise an appropriate Python
+                // exception if no class has been registered.
+                PyTypeObject* get_class_object() const;
 
- public: // data members. So sue me.
-    const python::type_info target_type;
+                // Return common denominator of the python class objects,
+                // convertable to target. Inspects the m_class_object and the value_chains.
+                PyTypeObject const* expected_from_python_type() const;
+                PyTypeObject const* to_python_target_type() const;
 
-    // The chain of eligible from_python converters when an lvalue is required
-    lvalue_from_python_chain* lvalue_chain;
+            public: // data members. So sue me.
+                const python::type_info target_type;
 
-    // The chain of eligible from_python converters when an rvalue is acceptable
-    rvalue_from_python_chain* rvalue_chain;
-    
-    // The class object associated with this type
-    PyTypeObject* m_class_object;
+                // The chain of eligible from_python converters when an lvalue is required
+                lvalue_from_python_chain* lvalue_chain;
 
-    // The unique to_python converter for the associated C++ type.
-    to_python_function_t m_to_python;
-    PyTypeObject const* (*m_to_python_target_type)();
+                // The chain of eligible from_python converters when an rvalue is acceptable
+                rvalue_from_python_chain* rvalue_chain;
 
+                // The class object associated with this type
+                PyTypeObject* m_class_object;
 
-    // True iff this type is a shared_ptr.  Needed for special rvalue
-    // from_python handling.
-    const bool is_shared_ptr;
+                // The unique to_python converter for the associated C++ type.
+                to_python_function_t m_to_python;
+                PyTypeObject const* (*m_to_python_target_type)();
 
-# if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
- private:
-    void operator=(registration); // This is not defined, and just keeps MWCW happy.
-# endif 
-};
+                // True iff this type is a shared_ptr.  Needed for special rvalue
+                // from_python handling.
+                const bool is_shared_ptr;
 
-//
-// implementations
-//
-inline registration::registration(type_info target_type, bool is_shared_ptr)
-    : target_type(target_type)
-      , lvalue_chain(0)
-      , rvalue_chain(0)
-      , m_class_object(0)
-      , m_to_python(0)
-      , m_to_python_target_type(0)
-      , is_shared_ptr(is_shared_ptr)
-{}
+#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
+            private:
+                void operator=(registration); // This is not defined, and just keeps MWCW happy.
+#endif
+            };
 
-inline bool operator<(registration const& lhs, registration const& rhs)
-{
-    return lhs.target_type < rhs.target_type;
-}
+            //
+            // implementations
+            //
+            inline registration::registration(type_info target_type, bool is_shared_ptr) :
+                target_type(target_type),
+                lvalue_chain(0),
+                rvalue_chain(0),
+                m_class_object(0),
+                m_to_python(0),
+                m_to_python_target_type(0),
+                is_shared_ptr(is_shared_ptr)
+            {
+            }
 
-}}} // namespace boost::python::converter
+            inline bool operator<(registration const& lhs, registration const& rhs)
+            {
+                return lhs.target_type < rhs.target_type;
+            }
+
+        }
+    }
+}      // namespace boost
 
 #endif // REGISTRATIONS_DWA2002223_HPP

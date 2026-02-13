@@ -23,78 +23,63 @@
 #include <boost/scope/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 namespace boost {
-namespace scope {
-namespace detail {
+    namespace scope {
+        namespace detail {
 
-//! The class allows to place data members in the tail padding of type \a T if the user's class derives from it
-template<
-    typename T,
-    typename Tag = void,
-    bool = detail::conjunction< std::is_class< T >, detail::negation< detail::is_final< T > > >::value
->
-class compact_storage :
-    private T
-{
-public:
-    template< typename... Args >
-    constexpr compact_storage(Args&&... args) noexcept(std::is_nothrow_constructible< T, Args... >::value) :
-        T(static_cast< Args&& >(args)...)
-    {
-    }
+            //! The class allows to place data members in the tail padding of type \a T if the user's class derives from
+            //! it
+            template<
+                typename T,
+                typename Tag = void,
+                bool = detail::conjunction<std::is_class<T>, detail::negation<detail::is_final<T>>>::value>
+            class compact_storage : private T {
+            public:
+                template<typename... Args>
+                constexpr compact_storage(Args&&... args) noexcept(std::is_nothrow_constructible<T, Args...>::value) :
+                    T(static_cast<Args&&>(args)...)
+                {
+                }
 
-    compact_storage(compact_storage&&) = default;
-    compact_storage& operator= (compact_storage&&) = default;
+                compact_storage(compact_storage&&) = default;
+                compact_storage& operator=(compact_storage&&) = default;
 
-    compact_storage(compact_storage const&) = default;
-    compact_storage& operator= (compact_storage const&) = default;
+                compact_storage(compact_storage const&) = default;
+                compact_storage& operator=(compact_storage const&) = default;
 
-    T& get() noexcept
-    {
-        return *static_cast< T* >(this);
-    }
+                T& get() noexcept { return *static_cast<T*>(this); }
 
-    T const& get() const noexcept
-    {
-        return *static_cast< const T* >(this);
-    }
-};
+                T const& get() const noexcept { return *static_cast<const T*>(this); }
+            };
 
-template< typename T, typename Tag >
-class compact_storage< T, Tag, false >
-{
-private:
-    T m_data;
+            template<typename T, typename Tag>
+            class compact_storage<T, Tag, false> {
+            private:
+                T m_data;
 
-public:
-    template< typename... Args >
-    constexpr compact_storage(Args&&... args) noexcept(std::is_nothrow_constructible< T, Args... >::value) :
-        m_data(static_cast< Args&& >(args)...)
-    {
-    }
+            public:
+                template<typename... Args>
+                constexpr compact_storage(Args&&... args) noexcept(std::is_nothrow_constructible<T, Args...>::value) :
+                    m_data(static_cast<Args&&>(args)...)
+                {
+                }
 
-    compact_storage(compact_storage&&) = default;
-    compact_storage& operator= (compact_storage&&) = default;
+                compact_storage(compact_storage&&) = default;
+                compact_storage& operator=(compact_storage&&) = default;
 
-    compact_storage(compact_storage const&) = default;
-    compact_storage& operator= (compact_storage const&) = default;
+                compact_storage(compact_storage const&) = default;
+                compact_storage& operator=(compact_storage const&) = default;
 
-    T& get() noexcept
-    {
-        return m_data;
-    }
+                T& get() noexcept { return m_data; }
 
-    T const& get() const noexcept
-    {
-        return m_data;
-    }
-};
+                T const& get() const noexcept { return m_data; }
+            };
 
-} // namespace detail
-} // namespace scope
+        } // namespace detail
+    } // namespace scope
 } // namespace boost
 
 #include <boost/scope/detail/footer.hpp>

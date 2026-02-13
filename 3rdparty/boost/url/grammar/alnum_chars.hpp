@@ -14,77 +14,64 @@
 #include <boost/url/grammar/detail/charset.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
-namespace implementation_defined {
-struct alnum_chars_t
-{
-    constexpr
-    bool
-    operator()(char c) const noexcept
-    {
-        return
-            (c >= '0' && c <= '9') ||
-            (c >= 'A' && c <= 'Z') ||
-            (c >= 'a' && c <= 'z');
-    }
+    namespace urls {
+        namespace grammar {
+            namespace implementation_defined {
+                struct alnum_chars_t
+                {
+                    constexpr bool operator()(char c) const noexcept
+                    {
+                        return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+                    }
 
 #ifdef BOOST_URL_USE_SSE2
-    char const*
-    find_if(
-        char const* first,
-        char const* last) const noexcept
-    {
-        return detail::find_if_pred(
-            *this, first, last);
-    }
+                    char const* find_if(char const* first, char const* last) const noexcept
+                    {
+                        return detail::find_if_pred(*this, first, last);
+                    }
 
-    char const*
-    find_if_not(
-        char const* first,
-        char const* last) const noexcept
-    {
-        return detail::find_if_not_pred(
-            *this, first, last);
-    }
+                    char const* find_if_not(char const* first, char const* last) const noexcept
+                    {
+                        return detail::find_if_not_pred(*this, first, last);
+                    }
 #endif
-};
-} // implementation_defined
+                };
+            } // namespace implementation_defined
 
-/** The set of letters and digits
+            /** The set of letters and digits
 
-    @par Example
-    Character sets are used with rules and the
-    functions @ref find_if and @ref find_if_not.
-    @code
-    system::result< core::string_view > = parse( "Johnny42", token_rule( alnumchars ) );
-    @endcode
+                @par Example
+                Character sets are used with rules and the
+                functions @ref find_if and @ref find_if_not.
+                @code
+                system::result< core::string_view > = parse( "Johnny42", token_rule( alnumchars ) );
+                @endcode
 
-    @par BNF
-    @code
-    ALNUM       = ALPHA / DIGIT
+                @par BNF
+                @code
+                ALNUM       = ALPHA / DIGIT
 
-    ALPHA       = %x41-5A / %x61-7A
-                ; A-Z / a-z
+                ALPHA       = %x41-5A / %x61-7A
+                            ; A-Z / a-z
 
-    DIGIT       = %x30-39
-                ; 0-9
-    @endcode
+                DIGIT       = %x30-39
+                            ; 0-9
+                @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1"
-        >B.1. Core Rules (rfc5234)</a>
+                @par Specification
+                @li <a href="https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1"
+                    >B.1. Core Rules (rfc5234)</a>
 
-    @see
-        @ref find_if,
-        @ref find_if_not,
-        @ref parse,
-        @ref token_rule.
-*/
-constexpr implementation_defined::alnum_chars_t alnum_chars{};
+                @see
+                    @ref find_if,
+                    @ref find_if_not,
+                    @ref parse,
+                    @ref token_rule.
+            */
+            constexpr implementation_defined::alnum_chars_t alnum_chars {};
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

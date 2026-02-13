@@ -12,56 +12,49 @@
 
 #include <boost/config/abi_prefix.hpp>
 
-namespace boost
-{
-    namespace pthread
-    {
-        class pthread_mutex_scoped_lock
-        {
+namespace boost {
+    namespace pthread {
+        class pthread_mutex_scoped_lock {
             pthread_mutex_t* m;
             bool locked;
+
         public:
-            explicit pthread_mutex_scoped_lock(pthread_mutex_t* m_) BOOST_NOEXCEPT:
-                m(m_),locked(true)
+            explicit pthread_mutex_scoped_lock(pthread_mutex_t* m_) BOOST_NOEXCEPT : m(m_), locked(true)
             {
                 BOOST_VERIFY(!posix::pthread_mutex_lock(m));
             }
+
             void unlock() BOOST_NOEXCEPT
             {
                 BOOST_VERIFY(!posix::pthread_mutex_unlock(m));
-                locked=false;
+                locked = false;
             }
+
             void unlock_if_locked() BOOST_NOEXCEPT
             {
-              if(locked)
-              {
-                  unlock();
-              }
-            }
-            ~pthread_mutex_scoped_lock() BOOST_NOEXCEPT
-            {
-                if(locked)
-                {
+                if (locked) {
                     unlock();
                 }
             }
 
+            ~pthread_mutex_scoped_lock() BOOST_NOEXCEPT
+            {
+                if (locked) {
+                    unlock();
+                }
+            }
         };
 
-        class pthread_mutex_scoped_unlock
-        {
+        class pthread_mutex_scoped_unlock {
             pthread_mutex_t* m;
+
         public:
-            explicit pthread_mutex_scoped_unlock(pthread_mutex_t* m_) BOOST_NOEXCEPT:
-                m(m_)
+            explicit pthread_mutex_scoped_unlock(pthread_mutex_t* m_) BOOST_NOEXCEPT : m(m_)
             {
                 BOOST_VERIFY(!posix::pthread_mutex_unlock(m));
             }
-            ~pthread_mutex_scoped_unlock() BOOST_NOEXCEPT
-            {
-                BOOST_VERIFY(!posix::pthread_mutex_lock(m));
-            }
 
+            ~pthread_mutex_scoped_unlock() BOOST_NOEXCEPT { BOOST_VERIFY(!posix::pthread_mutex_lock(m)); }
         };
     }
 }

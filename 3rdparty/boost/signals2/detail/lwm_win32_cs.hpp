@@ -15,14 +15,14 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/assert.hpp>
 
 #ifdef BOOST_USE_WINDOWS_H
 
-#include <windows.h>
+    #include <windows.h>
 
 #else
 
@@ -30,100 +30,100 @@ struct _RTL_CRITICAL_SECTION;
 
 #endif
 
-namespace boost
-{
+namespace boost {
 
-namespace signals2
-{
+    namespace signals2 {
 
-namespace detail
-{
+        namespace detail {
 
 #ifndef BOOST_USE_WINDOWS_H
 
-struct critical_section
-{
-    struct critical_section_debug * DebugInfo;
-    long LockCount;
-    long RecursionCount;
-    void * OwningThread;
-    void * LockSemaphore;
-#if defined(_WIN64)
-    unsigned __int64 SpinCount;
-#else
-    unsigned long SpinCount;
-#endif
-};
+            struct critical_section
+            {
+                struct critical_section_debug* DebugInfo;
+                long LockCount;
+                long RecursionCount;
+                void* OwningThread;
+                void* LockSemaphore;
+    #if defined(_WIN64)
+                unsigned __int64 SpinCount;
+    #else
+                unsigned long SpinCount;
+    #endif
+            };
 
-extern "C" __declspec(dllimport) void __stdcall InitializeCriticalSection(::_RTL_CRITICAL_SECTION *);
-extern "C" __declspec(dllimport) void __stdcall EnterCriticalSection(::_RTL_CRITICAL_SECTION *);
-extern "C" __declspec(dllimport) int __stdcall TryEnterCriticalSection(::_RTL_CRITICAL_SECTION *);
-extern "C" __declspec(dllimport) void __stdcall LeaveCriticalSection(::_RTL_CRITICAL_SECTION *);
-extern "C" __declspec(dllimport) void __stdcall DeleteCriticalSection(::_RTL_CRITICAL_SECTION *);
+            extern "C" __declspec(dllimport) void __stdcall InitializeCriticalSection(::_RTL_CRITICAL_SECTION*);
+            extern "C" __declspec(dllimport) void __stdcall EnterCriticalSection(::_RTL_CRITICAL_SECTION*);
+            extern "C" __declspec(dllimport) int __stdcall TryEnterCriticalSection(::_RTL_CRITICAL_SECTION*);
+            extern "C" __declspec(dllimport) void __stdcall LeaveCriticalSection(::_RTL_CRITICAL_SECTION*);
+            extern "C" __declspec(dllimport) void __stdcall DeleteCriticalSection(::_RTL_CRITICAL_SECTION*);
 
-typedef ::_RTL_CRITICAL_SECTION rtl_critical_section;
+            typedef ::_RTL_CRITICAL_SECTION rtl_critical_section;
 
-#else // #ifndef BOOST_USE_WINDOWS_H
+#else  // #ifndef BOOST_USE_WINDOWS_H
 
-typedef ::CRITICAL_SECTION critical_section;
+            typedef ::CRITICAL_SECTION critical_section;
 
-using ::InitializeCriticalSection;
-using ::EnterCriticalSection;
-using ::TryEnterCriticalSection;
-using ::LeaveCriticalSection;
-using ::DeleteCriticalSection;
+            using ::DeleteCriticalSection;
+            using ::EnterCriticalSection;
+            using ::InitializeCriticalSection;
+            using ::LeaveCriticalSection;
+            using ::TryEnterCriticalSection;
 
-typedef ::CRITICAL_SECTION rtl_critical_section;
+            typedef ::CRITICAL_SECTION rtl_critical_section;
 
 #endif // #ifndef BOOST_USE_WINDOWS_H
 
-} // namespace detail
+        } // namespace detail
 
-class mutex
-{
-private:
+        class mutex {
+        private:
+            boost::signals2::detail::critical_section cs_;
 
-    boost::signals2::detail::critical_section cs_;
+            mutex(mutex const&);
+            mutex& operator=(mutex const&);
 
-    mutex(mutex const &);
-    mutex & operator=(mutex const &);
+        public:
+            mutex()
+            {
+                boost::signals2::detail::InitializeCriticalSection(
+                    reinterpret_cast<boost::signals2::detail::rtl_critical_section*>(&cs_));
+            }
 
-public:
+            ~mutex()
+            {
+                boost::signals2::detail::DeleteCriticalSection(
+                    reinterpret_cast<boost::signals2::detail::rtl_critical_section*>(&cs_));
+            }
 
-    mutex()
-    {
-        boost::signals2::detail::InitializeCriticalSection(reinterpret_cast< boost::signals2::detail::rtl_critical_section* >(&cs_)); 
-    }
+            void lock()
+            {
+                boost::signals2::detail::EnterCriticalSection(
+                    reinterpret_cast<boost::signals2::detail::rtl_critical_section*>(&cs_));
+            }
 
-    ~mutex()
-    {
-        boost::signals2::detail::DeleteCriticalSection(reinterpret_cast< boost::signals2::detail::rtl_critical_section* >(&cs_)); 
-    }
-
-    void lock()
-    {
-        boost::signals2::detail::EnterCriticalSection(reinterpret_cast< boost::signals2::detail::rtl_critical_section* >(&cs_)); 
-    }
 // TryEnterCriticalSection only exists on Windows NT 4.0 and later
 #if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400))
-    bool try_lock()
-    {
-        return boost::signals2::detail::TryEnterCriticalSection(reinterpret_cast< boost::signals2::detail::rtl_critical_section* >(&cs_)) != 0;
-    }
+            bool try_lock()
+            {
+                return boost::signals2::detail::TryEnterCriticalSection(
+                           reinterpret_cast<boost::signals2::detail::rtl_critical_section*>(&cs_)) != 0;
+            }
 #else
-    bool try_lock()
-    {
-        BOOST_ASSERT(false);
-        return false;
-    }
+            bool try_lock()
+            {
+                BOOST_ASSERT(false);
+                return false;
+            }
 #endif
-    void unlock()
-    {
-        boost::signals2::detail::LeaveCriticalSection(reinterpret_cast< boost::signals2::detail::rtl_critical_section* >(&cs_));
-    }
-};
+            void unlock()
+            {
+                boost::signals2::detail::LeaveCriticalSection(
+                    reinterpret_cast<boost::signals2::detail::rtl_critical_section*>(&cs_));
+            }
+        };
 
-} // namespace signals2
+    } // namespace signals2
 
 } // namespace boost
 

@@ -14,60 +14,55 @@
 #include <boost/url/error_types.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
-namespace implementation_defined {
-struct dec_octet_rule_t
-{
-    using value_type = unsigned char;
+    namespace urls {
+        namespace grammar {
+            namespace implementation_defined {
+                struct dec_octet_rule_t
+                {
+                    using value_type = unsigned char;
 
-    BOOST_URL_DECL
-    auto
-    parse(
-        char const*& it,
-        char const* end
-            ) const noexcept ->
-        system::result<value_type>;
-};
-}
+                    BOOST_URL_DECL
+                    auto parse(char const*& it, char const* end) const noexcept -> system::result<value_type>;
+                };
+            }
 
-/** Match a decimal octet
+            /** Match a decimal octet
 
-    A decimal octet is precise way of
-    saying a number from 0 to 255. These
-    are commonly used in IPv4 addresses.
+                A decimal octet is precise way of
+                saying a number from 0 to 255. These
+                are commonly used in IPv4 addresses.
 
-    @par Value Type
-    @code
-    using value_type = unsigned char;
-    @endcode
+                @par Value Type
+                @code
+                using value_type = unsigned char;
+                @endcode
 
-    @par Example
-    Rules are used with the function @ref parse.
-    @code
-    system::result< unsigned char > rv = parse( "255", dec_octet_rule );
-    @endcode
+                @par Example
+                Rules are used with the function @ref parse.
+                @code
+                system::result< unsigned char > rv = parse( "255", dec_octet_rule );
+                @endcode
 
-    @par BNF
-    @code
-    dec-octet   = DIGIT                 ; 0-9
-                / %x31-39 DIGIT         ; 10-99
-                / "1" 2DIGIT            ; 100-199
-                / "2" %x30-34 DIGIT     ; 200-249
-                / "25" %x30-35          ; 250-255
-    @endcode
+                @par BNF
+                @code
+                dec-octet   = DIGIT                 ; 0-9
+                            / %x31-39 DIGIT         ; 10-99
+                            / "1" 2DIGIT            ; 100-199
+                            / "2" %x30-34 DIGIT     ; 200-249
+                            / "25" %x30-35          ; 250-255
+                @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2"
-        >3.2.2.  Host (rfc3986)</a>
+                @par Specification
+                @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2"
+                    >3.2.2.  Host (rfc3986)</a>
 
-    @see
-        @ref parse.
-*/
-constexpr implementation_defined::dec_octet_rule_t dec_octet_rule{};
+                @see
+                    @ref parse.
+            */
+            constexpr implementation_defined::dec_octet_rule_t dec_octet_rule {};
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

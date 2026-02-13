@@ -9,14 +9,12 @@
 
 BOOST_PROCESS_V2_BEGIN_NAMESPACE
 
-namespace detail
-{
+namespace detail {
 
-BOOST_PROCESS_V2_DECL error_code get_last_error();
+    BOOST_PROCESS_V2_DECL error_code get_last_error();
 
 }
 
 BOOST_PROCESS_V2_END_NAMESPACE
 
-
-#endif //BOOST_PROCESS_V2_DETAIL_LAST_ERROR_HPP
+#endif // BOOST_PROCESS_V2_DETAIL_LAST_ERROR_HPP

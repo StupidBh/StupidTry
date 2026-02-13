@@ -18,28 +18,25 @@
 #include <boost/pointee.hpp>
 
 namespace boost {
-namespace detail {
+    namespace detail {
 
-template< typename P >
-struct smart_ptr_reference
-{
-    using type = boost::pointee_t< P >&;
-};
+        template<typename P>
+        struct smart_ptr_reference
+        {
+            using type = boost::pointee_t<P>&;
+        };
 
-} // namespace detail
+    } // namespace detail
 
-template< typename P >
-struct indirect_reference :
-    std::conditional<
-        detail::is_incrementable< P >::value,
-        iterator_reference< P >,
-        detail::smart_ptr_reference< P >
-    >::type
-{
-};
+    template<typename P>
+    struct indirect_reference :
+        std::conditional<detail::is_incrementable<P>::value, iterator_reference<P>, detail::smart_ptr_reference<P>>::
+            type
+    {
+    };
 
-template< typename P >
-using indirect_reference_t = typename indirect_reference< P >::type;
+    template<typename P>
+    using indirect_reference_t = typename indirect_reference<P>::type;
 
 } // namespace boost
 

@@ -25,64 +25,46 @@
 
 namespace boost {
 
-//////////////////////////////////////////////////////////////////////////
-// function template visitor_ptr
-//
-// Adapts a function pointer for use as visitor capable of handling
-// values of a single type. Throws bad_visit if inappropriately applied.
-//
-template <typename T, typename R>
-class visitor_ptr_t
-    : public static_visitor<R>
-{
-private: // representation
+    //////////////////////////////////////////////////////////////////////////
+    // function template visitor_ptr
+    //
+    // Adapts a function pointer for use as visitor capable of handling
+    // values of a single type. Throws bad_visit if inappropriately applied.
+    //
+    template<typename T, typename R>
+    class visitor_ptr_t : public static_visitor<R> {
+    private: // representation
+        typedef R (*visitor_t)(T);
 
-    typedef R (*visitor_t)(T);
+        visitor_t visitor_;
 
-    visitor_t visitor_;
+    public: // typedefs
+        typedef R result_type;
 
-public: // typedefs
+    private: // private typedefs
+        typedef
+            typename mpl::eval_if<is_reference<T>, mpl::identity<T>, add_reference<const T>>::type argument_fwd_type;
 
-    typedef R result_type;
+    public: // structors
+        explicit visitor_ptr_t(visitor_t visitor) BOOST_NOEXCEPT : visitor_(visitor) {}
 
-private: // private typedefs
+    public: // static visitor interfaces
+        template<typename U>
+        result_type operator()(const U&) const
+        {
+            boost::throw_exception(bad_visit());
+        }
 
-    typedef typename mpl::eval_if<
-          is_reference<T>
-        , mpl::identity<T>
-        , add_reference<const T>
-        >::type argument_fwd_type;
+    public: // static visitor interfaces, cont.
+        result_type operator()(argument_fwd_type operand) const { return visitor_(operand); }
+    };
 
-public: // structors
-
-    explicit visitor_ptr_t(visitor_t visitor) BOOST_NOEXCEPT
-      : visitor_(visitor)
+    template<typename R, typename T>
+    inline visitor_ptr_t<T, R> visitor_ptr(R (*visitor)(T))
     {
+        return visitor_ptr_t<T, R>(visitor);
     }
-
-public: // static visitor interfaces
-
-    template <typename U>
-    result_type operator()(const U&) const
-    {
-        boost::throw_exception(bad_visit());
-    }
-
-public: // static visitor interfaces, cont.
-
-    result_type operator()(argument_fwd_type operand) const
-    {
-        return visitor_(operand);
-    }
-
-};
-
-template <typename R, typename T>
-inline visitor_ptr_t<T,R> visitor_ptr(R (*visitor)(T))
-{
-    return visitor_ptr_t<T,R>(visitor);
-}
 
 } // namespace boost
 
-#endif// BOOST_VISITOR_VISITOR_PTR_HPP
+#endif // BOOST_VISITOR_VISITOR_PTR_HPP

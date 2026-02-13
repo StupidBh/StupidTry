@@ -9,7 +9,7 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
 #include <boost/stacktrace/safe_dump_to.hpp>
@@ -21,9 +21,12 @@
 #include <boost/winapi/handles.hpp>
 #include <boost/winapi/access_rights.hpp>
 
-namespace boost { namespace stacktrace { namespace detail {
+namespace boost {
+    namespace stacktrace {
+        namespace detail {
 
-std::size_t dump(void* /*fd*/, const native_frame_ptr_t* /*frames*/, std::size_t /*frames_count*/) noexcept {
+            std::size_t dump(void* /*fd*/, const native_frame_ptr_t* /*frames*/, std::size_t /*frames_count*/) noexcept
+            {
 #if 0 // This code potentially could cause deadlocks (according to the MSDN). Disabled
     boost::winapi::DWORD_ written;
     const boost::winapi::DWORD_ bytes_to_write = static_cast<boost::winapi::DWORD_>(
@@ -35,10 +38,12 @@ std::size_t dump(void* /*fd*/, const native_frame_ptr_t* /*frames*/, std::size_t
 
     return frames_count;
 #endif
-    return 0;
-}
+                return 0;
+            }
 
-std::size_t dump(const char* /*file*/, const native_frame_ptr_t* /*frames*/, std::size_t /*frames_count*/) noexcept {
+            std::size_t
+                dump(const char* /*file*/, const native_frame_ptr_t* /*frames*/, std::size_t /*frames_count*/) noexcept
+            {
 #if 0 // This code causing deadlocks on some platforms. Disabled
     void* const fd = boost::winapi::CreateFileA(
         file,
@@ -58,9 +63,11 @@ std::size_t dump(const char* /*file*/, const native_frame_ptr_t* /*frames*/, std
     boost::winapi::CloseHandle(fd);
     return size;
 #endif
-    return 0;
-}
+                return 0;
+            }
 
-}}} // namespace boost::stacktrace::detail
+        }
+    }
+}      // namespace boost
 
 #endif // BOOST_STACKTRACE_DETAIL_SAFE_DUMP_WIN_IPP

@@ -13,57 +13,51 @@
 #include <boost/system/api_config.hpp>
 
 #if !defined(BOOST_POSIX_API) && !defined(BOOST_WINDOWS_API)
-#  error BOOST_POSIX_API or BOOST_WINDOWS_API must be defined
+    #error BOOST_POSIX_API or BOOST_WINDOWS_API must be defined
 #endif
 
 #if defined(BOOST_WINDOWS_API)
 
-#include <boost/system/detail/system_category_message_win32.hpp>
+    #include <boost/system/detail/system_category_message_win32.hpp>
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-inline std::string system_error_category_message( int ev )
-{
-    return system_category_message_win32( ev );
-}
+            inline std::string system_error_category_message(int ev)
+            {
+                return system_category_message_win32(ev);
+            }
 
-inline char const * system_error_category_message( int ev, char * buffer, std::size_t len ) noexcept
-{
-    return system_category_message_win32( ev, buffer, len );
-}
+            inline char const* system_error_category_message(int ev, char* buffer, std::size_t len) noexcept
+            {
+                return system_category_message_win32(ev, buffer, len);
+            }
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #else // #if defined(BOOST_WINDOWS_API)
 
-#include <boost/system/detail/generic_category_message.hpp>
+    #include <boost/system/detail/generic_category_message.hpp>
 
-namespace boost
-{
-namespace system
-{
-namespace detail
-{
+namespace boost {
+    namespace system {
+        namespace detail {
 
-inline std::string system_error_category_message( int ev )
-{
-    return generic_error_category_message( ev );
-}
+            inline std::string system_error_category_message(int ev)
+            {
+                return generic_error_category_message(ev);
+            }
 
-inline char const * system_error_category_message( int ev, char * buffer, std::size_t len ) noexcept
-{
-    return generic_error_category_message( ev, buffer, len );
-}
+            inline char const* system_error_category_message(int ev, char* buffer, std::size_t len) noexcept
+            {
+                return generic_error_category_message(ev, buffer, len);
+            }
 
-} // namespace detail
-} // namespace system
+        } // namespace detail
+    } // namespace system
 } // namespace boost
 
 #endif // #if defined(BOOST_WINDOWS_API)

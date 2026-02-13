@@ -11,17 +11,20 @@
 
 #include <stdexcept>
 
-namespace boost{
-namespace unordered{
-namespace detail{
+namespace boost {
+    namespace unordered {
+        namespace detail {
 
-struct bad_archive_exception:std::runtime_error
-{
-  bad_archive_exception():std::runtime_error("Invalid or corrupted archive"){}
-};
+            struct bad_archive_exception : std::runtime_error
+            {
+                bad_archive_exception() :
+                    std::runtime_error("Invalid or corrupted archive")
+                {
+                }
+            };
 
-} /* namespace detail */
-} /* namespace unordered */
+        } /* namespace detail */
+    } /* namespace unordered */
 } /* namespace boost */
 
 #endif

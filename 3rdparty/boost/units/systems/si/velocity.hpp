@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -16,20 +16,20 @@
 
 namespace boost {
 
-namespace units { 
+    namespace units {
 
-namespace si {
+        namespace si {
 
-typedef unit<velocity_dimension,si::system>      velocity;
-    
-BOOST_UNITS_STATIC_CONSTANT(meter_per_second,velocity); 
-BOOST_UNITS_STATIC_CONSTANT(meters_per_second,velocity);    
-BOOST_UNITS_STATIC_CONSTANT(metre_per_second,velocity); 
-BOOST_UNITS_STATIC_CONSTANT(metres_per_second,velocity);    
+            typedef unit<velocity_dimension, si::system> velocity;
 
-} // namespace si
+            BOOST_UNITS_STATIC_CONSTANT(meter_per_second, velocity);
+            BOOST_UNITS_STATIC_CONSTANT(meters_per_second, velocity);
+            BOOST_UNITS_STATIC_CONSTANT(metre_per_second, velocity);
+            BOOST_UNITS_STATIC_CONSTANT(metres_per_second, velocity);
 
-} // namespace units
+        } // namespace si
+
+    } // namespace units
 
 } // namespace boost
 

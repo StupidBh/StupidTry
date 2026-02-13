@@ -12,18 +12,18 @@
 #define BOOST_RANGE_REFERENCE_TYPE_HPP
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/range/config.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 
-namespace boost
-{
-    template< class T >
-    struct range_reference : iterator_reference< typename range_iterator<T>::type >
-    { };
+namespace boost {
+    template<class T>
+    struct range_reference : iterator_reference<typename range_iterator<T>::type>
+    {
+    };
 }
 
 #endif

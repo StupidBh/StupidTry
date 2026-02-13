@@ -3,19 +3,21 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef RETURN_VALUE_POLICY_DWA2002131_HPP
-# define RETURN_VALUE_POLICY_DWA2002131_HPP
+#define RETURN_VALUE_POLICY_DWA2002131_HPP
 
-# include <boost/python/detail/prefix.hpp>
-# include <boost/python/default_call_policies.hpp>
+#include <boost/python/detail/prefix.hpp>
+#include <boost/python/default_call_policies.hpp>
 
-namespace boost { namespace python { 
+namespace boost {
+    namespace python {
 
-template <class ResultConverterGenerator, class BasePolicy_ = default_call_policies>
-struct return_value_policy : BasePolicy_
-{
-    typedef ResultConverterGenerator result_converter;
-};
+        template<class ResultConverterGenerator, class BasePolicy_ = default_call_policies>
+        struct return_value_policy : BasePolicy_
+        {
+            typedef ResultConverterGenerator result_converter;
+        };
 
-}} // namespace boost::python
+    }
+}      // namespace boost
 
 #endif // RETURN_VALUE_POLICY_DWA2002131_HPP

@@ -16,68 +16,56 @@
 
 //
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-namespace detail
-{
+        namespace detail {
 
-template<unsigned Id> struct id_wrapper {};
+            template<unsigned Id>
+            struct id_wrapper
+            {
+            };
 
-class BOOST_SYMBOL_VISIBLE std_category: public std::error_category
-{
-private:
+            class BOOST_SYMBOL_VISIBLE std_category : public std::error_category {
+            private:
+                boost::system::error_category const* pc_;
 
-    boost::system::error_category const * pc_;
+            public:
+                boost::system::error_category const& original_category() const noexcept { return *pc_; }
 
-public:
-
-    boost::system::error_category const & original_category() const noexcept
-    {
-        return *pc_;
-    }
-
-public:
-
-    template<unsigned Id>
-    explicit std_category( boost::system::error_category const * pc, id_wrapper<Id> ): pc_( pc )
-    {
+            public:
+                template<unsigned Id>
+                explicit std_category(boost::system::error_category const* pc, id_wrapper<Id>) :
+                    pc_(pc)
+                {
 #if defined(_MSC_VER) && defined(_CPPLIB_VER) && _MSC_VER >= 1900 && _MSC_VER < 2000
 
-        // We used to assign to the protected _Addr member of std::error_category
-        // here when Id != 0, but this should never happen now because this code
-        // path is no longer used
+                    // We used to assign to the protected _Addr member of std::error_category
+                    // here when Id != 0, but this should never happen now because this code
+                    // path is no longer used
 
-        static_assert( Id == 0, "This constructor should only be called with Id == 0 under MS STL 14.0+" );
+                    static_assert(Id == 0, "This constructor should only be called with Id == 0 under MS STL 14.0+");
 
 #endif
-    }
+                }
 
-    const char * name() const noexcept BOOST_OVERRIDE
-    {
-        return pc_->name();
-    }
+                const char* name() const noexcept BOOST_OVERRIDE { return pc_->name(); }
 
-    std::string message( int ev ) const BOOST_OVERRIDE
-    {
-        return pc_->message( ev );
-    }
+                std::string message(int ev) const BOOST_OVERRIDE { return pc_->message(ev); }
 
-    std::error_condition default_error_condition( int ev ) const noexcept BOOST_OVERRIDE
-    {
-        return pc_->default_error_condition( ev );
-    }
+                std::error_condition default_error_condition(int ev) const noexcept BOOST_OVERRIDE
+                {
+                    return pc_->default_error_condition(ev);
+                }
 
-    inline bool equivalent( int code, const std::error_condition & condition ) const noexcept BOOST_OVERRIDE;
-    inline bool equivalent( const std::error_code & code, int condition ) const noexcept BOOST_OVERRIDE;
-};
+                inline bool equivalent(int code, const std::error_condition& condition) const noexcept BOOST_OVERRIDE;
+                inline bool equivalent(const std::error_code& code, int condition) const noexcept BOOST_OVERRIDE;
+            };
 
-} // namespace detail
+        } // namespace detail
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

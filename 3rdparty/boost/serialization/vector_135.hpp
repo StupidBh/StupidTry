@@ -9,16 +9,15 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-
-#ifndef  BOOST_SERIALIZATION_VECTOR_135_HPP
+#ifndef BOOST_SERIALIZATION_VECTOR_135_HPP
 #define BOOST_SERIALIZATION_VECTOR_135_HPP
 
 #ifdef BOOST_SERIALIZATION_VECTOR_VERSIONED
-#if BOOST_SERIALIZATION_VECTOR_VERSION != 4
-#error "Boost.Serialization cannot be compatible with both 1.35 and 1.36-1.40 files"
-#endif
+    #if BOOST_SERIALIZATION_VECTOR_VERSION != 4
+        #error "Boost.Serialization cannot be compatible with both 1.35 and 1.36-1.40 files"
+    #endif
 #else
-#define BOOST_SERIALIZATION_VECTOR_VERSIONED(V) (V>4)
+    #define BOOST_SERIALIZATION_VECTOR_VERSIONED(V) (V > 4)
 #endif
 
 #include <boost/serialization/vector.hpp>

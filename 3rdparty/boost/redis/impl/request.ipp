@@ -10,31 +10,35 @@
 
 namespace boost::redis::detail {
 
-auto has_response(std::string_view cmd) -> bool
-{
-   if (cmd == "SUBSCRIBE")
-      return true;
-   if (cmd == "PSUBSCRIBE")
-      return true;
-   if (cmd == "UNSUBSCRIBE")
-      return true;
-   if (cmd == "PUNSUBSCRIBE")
-      return true;
-   return false;
-}
+    auto has_response(std::string_view cmd) -> bool
+    {
+        if (cmd == "SUBSCRIBE") {
+            return true;
+        }
+        if (cmd == "PSUBSCRIBE") {
+            return true;
+        }
+        if (cmd == "UNSUBSCRIBE") {
+            return true;
+        }
+        if (cmd == "PUNSUBSCRIBE") {
+            return true;
+        }
+        return false;
+    }
 
-request make_hello_request()
-{
-   request req;
-   req.push("HELLO", "3");
-   return req;
-}
+    request make_hello_request()
+    {
+        request req;
+        req.push("HELLO", "3");
+        return req;
+    }
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
 void boost::redis::request::append(const request& other)
 {
-   payload_ += other.payload_;
-   commands_ += other.commands_;
-   expected_responses_ += other.expected_responses_;
+    payload_ += other.payload_;
+    commands_ += other.commands_;
+    expected_responses_ += other.expected_responses_;
 }

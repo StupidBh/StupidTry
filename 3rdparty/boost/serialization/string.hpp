@@ -1,9 +1,9 @@
-#ifndef  BOOST_SERIALIZATION_STRING_HPP
+#ifndef BOOST_SERIALIZATION_STRING_HPP
 #define BOOST_SERIALIZATION_STRING_HPP
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8

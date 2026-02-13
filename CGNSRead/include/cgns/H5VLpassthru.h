@@ -29,17 +29,19 @@
 #define H5VL_PASSTHRU_VERSION 0
 
 /* Pass-through VOL connector info */
-typedef struct H5VL_pass_through_info_t {
+typedef struct H5VL_pass_through_info_t
+{
     hid_t under_vol_id;   /* VOL ID for under VOL */
-    void *under_vol_info; /* VOL info for under VOL */
+    void* under_vol_info; /* VOL info for under VOL */
 } H5VL_pass_through_info_t;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Global variable to hold the VOL connector ID */
-H5_DLLVAR hid_t H5VL_PASSTHRU_g;
+    /* Global variable to hold the VOL connector ID */
+    H5_DLLVAR hid_t H5VL_PASSTHRU_g;
 
 #ifdef __cplusplus
 }

@@ -12,25 +12,31 @@
 #define BOOST_TYPE_ERASURE_STATIC_BINDING_HPP_INCLUDED
 
 namespace boost {
-namespace type_erasure {
+    namespace type_erasure {
 
-/**
- * Represents a mapping from placeholders to the actual types
- * that they bind to.
- *
- * \pre @c Map must be an MPL map whose keys are placeholders.
- */
-template<class Map>
-struct static_binding { typedef Map map_type; };
+        /**
+         * Represents a mapping from placeholders to the actual types
+         * that they bind to.
+         *
+         * \pre @c Map must be an MPL map whose keys are placeholders.
+         */
+        template<class Map>
+        struct static_binding
+        {
+            typedef Map map_type;
+        };
 
-/**
- * A convenience function to prevent constructor calls
- * from being parsed as function declarations.
- */
-template<class Map>
-static_binding<Map> make_binding() { return static_binding<Map>(); }
+        /**
+         * A convenience function to prevent constructor calls
+         * from being parsed as function declarations.
+         */
+        template<class Map>
+        static_binding<Map> make_binding()
+        {
+            return static_binding<Map>();
+        }
 
-}
+    }
 }
 
 #endif

@@ -3,20 +3,21 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef TO_PYTHON_CONVERTER_DWA200221_HPP
-# define TO_PYTHON_CONVERTER_DWA200221_HPP
+#define TO_PYTHON_CONVERTER_DWA200221_HPP
 
-# include <boost/python/detail/prefix.hpp>
+#include <boost/python/detail/prefix.hpp>
 
-# include <boost/python/converter/registry.hpp>
-# include <boost/python/converter/as_to_python_function.hpp>
+#include <boost/python/converter/registry.hpp>
+#include <boost/python/converter/as_to_python_function.hpp>
 #ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-# include <boost/python/converter/pytype_function.hpp>
+    #include <boost/python/converter/pytype_function.hpp>
 #endif
-# include <boost/python/type_id.hpp>
+#include <boost/python/type_id.hpp>
 
-namespace boost { namespace python { 
+namespace boost {
+    namespace python {
 
-#if 0 //get_pytype member detection
+#if 0 // get_pytype member detection
 namespace detail
 {
     typedef char yes_type;
@@ -44,51 +45,43 @@ namespace detail
 }
 #endif
 
-template < class T, class Conversion, bool has_get_pytype=false >
-struct to_python_converter 
-{
+        template<class T, class Conversion, bool has_get_pytype = false>
+        struct to_python_converter
+        {
 #ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-    typedef boost::mpl::bool_<has_get_pytype> HasGetPytype;
+            typedef boost::mpl::bool_<has_get_pytype> HasGetPytype;
 
-    static PyTypeObject const* get_pytype_1(boost::mpl::true_ *)
-    {
-        return Conversion::get_pytype();
-    }
+            static PyTypeObject const* get_pytype_1(boost::mpl::true_*) { return Conversion::get_pytype(); }
 
-    static PyTypeObject const* get_pytype_1(boost::mpl::false_ *)
-    {
-        return 0;
-    }
-    static PyTypeObject const* get_pytype_impl()
-    {
-        return get_pytype_1((HasGetPytype*)0);
-    }
+            static PyTypeObject const* get_pytype_1(boost::mpl::false_*) { return 0; }
+
+            static PyTypeObject const* get_pytype_impl() { return get_pytype_1((HasGetPytype*)0); }
 #endif
-    
-    to_python_converter();
-};
 
-//
-// implementation
-//
+            to_python_converter();
+        };
 
-template <class T, class Conversion ,bool has_get_pytype>
-to_python_converter<T,Conversion, has_get_pytype>::to_python_converter()
-{
-    typedef converter::as_to_python_function<
-        T, Conversion
-        > normalized;
-            
-    converter::registry::insert(
-        &normalized::convert
-        , type_id<T>()
+        //
+        // implementation
+        //
+
+        template<class T, class Conversion, bool has_get_pytype>
+        to_python_converter<T, Conversion, has_get_pytype>::to_python_converter()
+        {
+            typedef converter::as_to_python_function<T, Conversion> normalized;
+
+            converter::registry::insert(
+                &normalized::convert,
+                type_id<T>()
 #ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-        , &get_pytype_impl
+                    ,
+                &get_pytype_impl
 #endif
-        );
-}
+            );
+        }
 
-}} // namespace boost::python
+    }
+}      // namespace boost
 
 #endif // TO_PYTHON_CONVERTER_DWA200221_HPP
 

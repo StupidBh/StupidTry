@@ -19,38 +19,35 @@
 #include <boost/assert/source_location.hpp>
 #include <boost/config.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-// make_* functions for errc::errc_t
+        // make_* functions for errc::errc_t
 
-namespace errc
-{
+        namespace errc {
 
-// explicit conversion:
-BOOST_SYSTEM_CONSTEXPR inline error_code make_error_code( errc_t e ) noexcept
-{
-    return error_code( e, generic_category() );
-}
+            // explicit conversion:
+            BOOST_SYSTEM_CONSTEXPR inline error_code make_error_code(errc_t e) noexcept
+            {
+                return error_code(e, generic_category());
+            }
 
-// explicit conversion:
-inline error_code make_error_code( errc_t e, boost::source_location const * loc ) noexcept
-{
-    return error_code( e, generic_category(), loc );
-}
+            // explicit conversion:
+            inline error_code make_error_code(errc_t e, boost::source_location const* loc) noexcept
+            {
+                return error_code(e, generic_category(), loc);
+            }
 
-// implicit conversion:
-BOOST_SYSTEM_CONSTEXPR inline error_condition make_error_condition( errc_t e ) noexcept
-{
-    return error_condition( e, generic_category() );
-}
+            // implicit conversion:
+            BOOST_SYSTEM_CONSTEXPR inline error_condition make_error_condition(errc_t e) noexcept
+            {
+                return error_condition(e, generic_category());
+            }
 
-} // namespace errc
+        } // namespace errc
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

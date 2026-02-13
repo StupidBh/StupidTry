@@ -12,20 +12,21 @@
 #include <boost/winapi/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 // Windows CE define GetCurrentProcessId as an inline function in kfuncs.h
-#if !defined( BOOST_USE_WINDOWS_H ) && !defined( UNDER_CE )
-extern "C" {
-BOOST_WINAPI_IMPORT boost::winapi::DWORD_ BOOST_WINAPI_WINAPI_CC GetCurrentProcessId(BOOST_WINAPI_DETAIL_VOID);
+#if !defined(BOOST_USE_WINDOWS_H) && !defined(UNDER_CE)
+extern "C"
+{
+    BOOST_WINAPI_IMPORT boost::winapi::DWORD_ BOOST_WINAPI_WINAPI_CC GetCurrentProcessId(BOOST_WINAPI_DETAIL_VOID);
 }
 #endif
 
 namespace boost {
-namespace winapi {
-using ::GetCurrentProcessId;
-}
+    namespace winapi {
+        using ::GetCurrentProcessId;
+    }
 }
 
 #include <boost/winapi/detail/footer.hpp>

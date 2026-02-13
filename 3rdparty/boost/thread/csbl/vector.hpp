@@ -11,12 +11,10 @@
 
 #include <vector>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::vector;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::vector;
+    }
 }
 
 #endif // header

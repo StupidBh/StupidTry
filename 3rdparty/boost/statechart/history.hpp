@@ -6,11 +6,7 @@
 // ing file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <boost/statechart/shallow_history.hpp>
 #include <boost/statechart/deep_history.hpp>
-
-
 
 #endif

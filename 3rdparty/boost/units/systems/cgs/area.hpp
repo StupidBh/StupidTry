@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -16,20 +16,20 @@
 
 namespace boost {
 
-namespace units { 
+    namespace units {
 
-namespace cgs {
+        namespace cgs {
 
-typedef unit<area_dimension,cgs::system>     area;
-    
-BOOST_UNITS_STATIC_CONSTANT(square_centimeter,area);
-BOOST_UNITS_STATIC_CONSTANT(square_centimeters,area);
-BOOST_UNITS_STATIC_CONSTANT(square_centimetre,area);
-BOOST_UNITS_STATIC_CONSTANT(square_centimetres,area);
+            typedef unit<area_dimension, cgs::system> area;
 
-} // namespace cgs
+            BOOST_UNITS_STATIC_CONSTANT(square_centimeter, area);
+            BOOST_UNITS_STATIC_CONSTANT(square_centimeters, area);
+            BOOST_UNITS_STATIC_CONSTANT(square_centimetre, area);
+            BOOST_UNITS_STATIC_CONSTANT(square_centimetres, area);
 
-} // namespace units
+        } // namespace cgs
+
+    } // namespace units
 
 } // namespace boost
 

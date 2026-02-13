@@ -12,29 +12,33 @@ or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/type_traits/conditional.hpp>
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-#include <boost/type_traits/integral_constant.hpp>
+    #include <boost/type_traits/integral_constant.hpp>
 #endif
 
 namespace boost {
 
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-template<class...>
-struct disjunction
-    : false_type { };
+    template<class...>
+    struct disjunction : false_type
+    {
+    };
 
-template<class T>
-struct disjunction<T>
-    : T { };
+    template<class T>
+    struct disjunction<T> : T
+    {
+    };
 
-template<class T, class... U>
-struct disjunction<T, U...>
-    : conditional<bool(T::value), T, disjunction<U...> >::type { };
+    template<class T, class... U>
+    struct disjunction<T, U...> : conditional<bool(T::value), T, disjunction<U...>>::type
+    {
+    };
 #else
-template<class T, class U>
-struct disjunction
-    : conditional<bool(T::value), T, U>::type { };
+    template<class T, class U>
+    struct disjunction : conditional<bool(T::value), T, U>::type
+    {
+    };
 #endif
 
-} /* boost */
+} // namespace boost
 
 #endif

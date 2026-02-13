@@ -19,100 +19,116 @@
 #include <boost/python/detail/type_traits.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
 
-namespace boost { namespace python { namespace numpy {
+namespace boost {
+    namespace python {
+        namespace numpy {
 
-/**
- *  @brief A boost.python "object manager" (subclass of object) for numpy.dtype.
- *
- *  @todo This could have a lot more interesting accessors.
- */
-class BOOST_NUMPY_DECL dtype : public object {
-  static python::detail::new_reference convert(object::object_cref arg, bool align);
-public:
+            /**
+             *  @brief A boost.python "object manager" (subclass of object) for numpy.dtype.
+             *
+             *  @todo This could have a lot more interesting accessors.
+             */
+            class BOOST_NUMPY_DECL dtype : public object {
+                static python::detail::new_reference convert(object::object_cref arg, bool align);
 
-  /// @brief Convert an arbitrary Python object to a data-type descriptor object.
-  template <typename T>
-  explicit dtype(T arg, bool align=false) : object(convert(arg, align)) {}
+            public:
+                /// @brief Convert an arbitrary Python object to a data-type descriptor object.
+                template<typename T>
+                explicit dtype(T arg, bool align = false) :
+                    object(convert(arg, align))
+                {
+                }
 
-  /**
-   *  @brief Get the built-in numpy dtype associated with the given scalar template type.
-   *
-   *  This is perhaps the most useful part of the numpy API: it returns the dtype object
-   *  corresponding to a built-in C++ type.  This should work for any integer or floating point
-   *  type supported by numpy, and will also work for std::complex if 
-   *  sizeof(std::complex<T>) == 2*sizeof(T).
-   *
-   *  It can also be useful for users to add explicit specializations for POD structs
-   *  that return field-based dtypes.
-   */
-  template <typename T> static dtype get_builtin();
+                /**
+                 *  @brief Get the built-in numpy dtype associated with the given scalar template type.
+                 *
+                 *  This is perhaps the most useful part of the numpy API: it returns the dtype object
+                 *  corresponding to a built-in C++ type.  This should work for any integer or floating point
+                 *  type supported by numpy, and will also work for std::complex if
+                 *  sizeof(std::complex<T>) == 2*sizeof(T).
+                 *
+                 *  It can also be useful for users to add explicit specializations for POD structs
+                 *  that return field-based dtypes.
+                 */
+                template<typename T>
+                static dtype get_builtin();
 
-  /// @brief Return the size of the data type in bytes.
-  int get_itemsize() const;
+                /// @brief Return the size of the data type in bytes.
+                int get_itemsize() const;
 
-  /**
-   *  @brief Compare two dtypes for equivalence.
-   *
-   *  This is more permissive than equality tests.  For instance, if long and int are the same
-   *  size, the dtypes corresponding to each will be equivalent, but not equal.
-   */
-  friend BOOST_NUMPY_DECL bool equivalent(dtype const & a, dtype const & b);
+                /**
+                 *  @brief Compare two dtypes for equivalence.
+                 *
+                 *  This is more permissive than equality tests.  For instance, if long and int are the same
+                 *  size, the dtypes corresponding to each will be equivalent, but not equal.
+                 */
+                friend BOOST_NUMPY_DECL bool equivalent(dtype const& a, dtype const& b);
 
-  /**
-   *  @brief Register from-Python converters for NumPy's built-in array scalar types.
-   *
-   *  This is usually called automatically by initialize(), and shouldn't be called twice
-   *  (doing so just adds unused converters to the Boost.Python registry).
-   */
-  static void register_scalar_converters();
+                /**
+                 *  @brief Register from-Python converters for NumPy's built-in array scalar types.
+                 *
+                 *  This is usually called automatically by initialize(), and shouldn't be called twice
+                 *  (doing so just adds unused converters to the Boost.Python registry).
+                 */
+                static void register_scalar_converters();
 
-  BOOST_PYTHON_FORWARD_OBJECT_CONSTRUCTORS(dtype, object);
+                BOOST_PYTHON_FORWARD_OBJECT_CONSTRUCTORS(dtype, object);
+            };
 
-};
+            BOOST_NUMPY_DECL bool equivalent(dtype const& a, dtype const& b);
 
-BOOST_NUMPY_DECL bool equivalent(dtype const & a, dtype const & b);
+            namespace detail {
 
-namespace detail
-{
+                template<int bits, bool isUnsigned>
+                dtype get_int_dtype();
 
-template <int bits, bool isUnsigned> dtype get_int_dtype();
+                template<int bits>
+                dtype get_float_dtype();
 
-template <int bits> dtype get_float_dtype();
+                template<int bits>
+                dtype get_complex_dtype();
 
-template <int bits> dtype get_complex_dtype();
+                template<typename T, bool isInt = boost::is_integral<T>::value>
+                struct builtin_dtype;
 
-template <typename T, bool isInt=boost::is_integral<T>::value>
-struct builtin_dtype;
+                template<typename T>
+                struct builtin_dtype<T, true>
+                {
+                    static dtype get() { return get_int_dtype<8 * sizeof(T), boost::is_unsigned<T>::value>(); }
+                };
 
-template <typename T>
-struct builtin_dtype<T,true> {
-  static dtype get() { return get_int_dtype< 8*sizeof(T), boost::is_unsigned<T>::value >(); }
-};
+                template<>
+                struct BOOST_NUMPY_DECL builtin_dtype<bool, true>
+                {
+                    static dtype get();
+                };
 
-template <>
-struct BOOST_NUMPY_DECL builtin_dtype<bool,true> {
-  static dtype get();
-};
+                template<typename T>
+                struct builtin_dtype<T, false>
+                {
+                    static dtype get() { return get_float_dtype<8 * sizeof(T)>(); }
+                };
 
-template <typename T>
-struct builtin_dtype<T,false> {
-  static dtype get() { return get_float_dtype< 8*sizeof(T) >(); }
-};
+                template<typename T>
+                struct builtin_dtype<std::complex<T>, false>
+                {
+                    static dtype get() { return get_complex_dtype<16 * sizeof(T)>(); }
+                };
 
-template <typename T>
-struct builtin_dtype< std::complex<T>, false > {
-  static dtype get() { return get_complex_dtype< 16*sizeof(T) >(); }  
-};
+            } // namespace detail
 
-} // namespace detail
+            template<typename T>
+            inline dtype dtype::get_builtin()
+            {
+                return detail::builtin_dtype<T>::get();
+            }
 
-template <typename T>
-inline dtype dtype::get_builtin() { return detail::builtin_dtype<T>::get(); }
+        } // namespace numpy
 
-} // namespace boost::python::numpy
-
-namespace converter {
-NUMPY_OBJECT_MANAGER_TRAITS(numpy::dtype);
-}}} // namespace boost::python::converter
+        namespace converter {
+            NUMPY_OBJECT_MANAGER_TRAITS(numpy::dtype);
+        }
+    }
+} // namespace boost
 
 #endif

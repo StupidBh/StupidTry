@@ -15,88 +15,113 @@
 #include <boost/process/v1/detail/used_handles.hpp>
 #include <array>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
+                    struct close_fd_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
+                    {
+                        close_fd_(int fd) :
+                            fd_(fd)
+                        {
+                        }
 
-struct close_fd_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
-{
-    close_fd_(int fd) : fd_(fd) {}
+                        template<class PosixExecutor>
+                        void on_exec_setup(PosixExecutor& e) const
+                        {
+                            if (::close(fd_) == -1) {
+                                e.set_error(::boost::process::v1::detail::get_last_error(), "close() failed");
+                            }
+                        }
 
-    template <class PosixExecutor>
-    void on_exec_setup(PosixExecutor& e) const
-    {
-        if (::close(fd_) == -1)
-            e.set_error(::boost::process::v1::detail::get_last_error(), "close() failed");
-    }
+                        int get_used_handles() { return fd_; }
 
-    int get_used_handles() {return fd_;}
+                    private:
+                        int fd_;
+                    };
 
+                    template<class Range>
+                    struct close_fds_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
+                    {
+                    public:
+                        close_fds_(const Range& fds) :
+                            fds_(fds)
+                        {
+                        }
 
-private:
-    int fd_;
-};
+                        template<class PosixExecutor>
+                        void on_exec_setup(PosixExecutor& e) const
+                        {
+                            for (auto& fd_ : fds_) {
+                                if (::close(fd_) == -1) {
+                                    e.set_error(::boost::process::v1::detail::get_last_error(), "close() failed");
+                                    break;
+                                }
+                            }
+                        }
 
-template <class Range>
-struct close_fds_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
-{
-public:
-    close_fds_(const Range &fds) : fds_(fds) {}
+                        Range& get_used_handles() { return fds_; }
 
-    template <class PosixExecutor>
-    void on_exec_setup(PosixExecutor& e) const
-    {
-        for (auto & fd_ : fds_)
-            if (::close(fd_) == -1)
-            {
-                 e.set_error(::boost::process::v1::detail::get_last_error(), "close() failed");
-                 break;
+                    private:
+                        Range fds_;
+                    };
+
+                    template<class FileDescriptor>
+                    struct bind_fd_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
+                    {
+                    public:
+                        bind_fd_(int id, const FileDescriptor& fd) :
+                            id_(id),
+                            fd_(fd)
+                        {
+                        }
+
+                        template<class PosixExecutor>
+                        void on_exec_setup(PosixExecutor& e) const
+                        {
+                            if (::dup2(fd_, id_) == -1) {
+                                e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
+                            }
+                        }
+
+                        std::array<int, 2> get_used_handles() { return { id_, fd_ }; }
+
+                    private:
+                        int id_;
+                        FileDescriptor fd_;
+                    };
+
+                    struct fd_
+                    {
+                        constexpr fd_() {};
+
+                        close_fd_ close(int _fd) const { return close_fd_(_fd); }
+
+                        close_fds_<std::vector<int>> close(const std::initializer_list<int>& vec) const
+                        {
+                            return std::vector<int>(vec);
+                        }
+
+                        template<typename Range>
+                        close_fds_<Range> close(const Range& r) const
+                        {
+                            return r;
+                        }
+
+                        template<class FileDescriptor>
+                        bind_fd_<FileDescriptor> bind(int id, const FileDescriptor& fd) const
+                        {
+                            return { id, fd };
+                        }
+                    };
+
+                }
             }
+        }
     }
-
-    Range& get_used_handles() {return fds_;}
-
-private:
-    Range fds_;
-};
-
-
-
-template <class FileDescriptor>
-struct bind_fd_ : handler_base_ext, ::boost::process::v1::detail::uses_handles
-{
-public:
-    bind_fd_(int id, const FileDescriptor &fd) : id_(id), fd_(fd) {}
-
-    template <class PosixExecutor>
-    void on_exec_setup(PosixExecutor& e) const
-    {
-        if (::dup2(fd_, id_) == -1)
-             e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
-    }
-
-    std::array<int, 2> get_used_handles() {return {id_, fd_};}
-
-
-private:
-    int id_;
-    FileDescriptor fd_;
-};
-
-
-struct fd_
-{
-    constexpr fd_() {};
-    close_fd_ close(int _fd) const {return close_fd_(_fd);}
-    close_fds_<std::vector<int>> close(const std::initializer_list<int> & vec) const {return std::vector<int>(vec);}
-    template<typename Range>
-    close_fds_<Range> close(const Range & r) const {return r;}
-
-    template <class FileDescriptor>
-    bind_fd_<FileDescriptor> bind(int id, const FileDescriptor & fd) const {return {id, fd};}
-
-};
-
-
-}}}}}
+}
 
 #endif

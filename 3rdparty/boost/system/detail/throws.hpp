@@ -10,49 +10,46 @@
 //
 //  See library home page at http://www.boost.org/libs/system
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-class error_code;
+        class error_code;
 
-} // namespace system
+    } // namespace system
 
-// boost::throws()
+    // boost::throws()
 
-namespace detail
-{
+    namespace detail {
 
-//  Misuse of the error_code object is turned into a noisy failure by
-//  poisoning the reference. This particular implementation doesn't
-//  produce warnings or errors from popular compilers, is very efficient
-//  (as determined by inspecting generated code), and does not suffer
-//  from order of initialization problems. In practice, it also seems
-//  cause user function error handling implementation errors to be detected
-//  very early in the development cycle.
+        //  Misuse of the error_code object is turned into a noisy failure by
+        //  poisoning the reference. This particular implementation doesn't
+        //  produce warnings or errors from popular compilers, is very efficient
+        //  (as determined by inspecting generated code), and does not suffer
+        //  from order of initialization problems. In practice, it also seems
+        //  cause user function error handling implementation errors to be detected
+        //  very early in the development cycle.
 
-inline system::error_code* throws()
-{
-    // See github.com/boostorg/system/pull/12 by visigoth for why the return
-    // is poisoned with nonzero rather than (0). A test, test_throws_usage(),
-    // has been added to error_code_test.cpp, and as visigoth mentioned it
-    // fails on clang for release builds with a return of 0 but works fine
-    // with (1).
-    // Since the undefined behavior sanitizer (-fsanitize=undefined) does not
-    // allow a reference to be formed to the unaligned address of (1), we use
-    // (8) instead.
+        inline system::error_code* throws()
+        {
+            // See github.com/boostorg/system/pull/12 by visigoth for why the return
+            // is poisoned with nonzero rather than (0). A test, test_throws_usage(),
+            // has been added to error_code_test.cpp, and as visigoth mentioned it
+            // fails on clang for release builds with a return of 0 but works fine
+            // with (1).
+            // Since the undefined behavior sanitizer (-fsanitize=undefined) does not
+            // allow a reference to be formed to the unaligned address of (1), we use
+            // (8) instead.
 
-    return reinterpret_cast<system::error_code*>(8);
-}
+            return reinterpret_cast<system::error_code*>(8);
+        }
 
-} // namespace detail
+    } // namespace detail
 
-inline system::error_code& throws()
-{
-    return *detail::throws();
-}
+    inline system::error_code& throws()
+    {
+        return *detail::throws();
+    }
 
 } // namespace boost
 

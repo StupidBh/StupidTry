@@ -19,75 +19,81 @@
 #include <memory>
 #include <functional>
 
-namespace boost
-{
-  namespace detail
-  {
-    class function_wrapper
-    {
-      struct impl_base
-      {
-        virtual void call()=0;
-        virtual ~impl_base()
-        {
-        }
-      };
-      typedef boost::csbl::unique_ptr<impl_base> impl_base_type;
-      impl_base_type impl;
-      template <typename F>
-      struct impl_type: impl_base
-      {
-        F f;
-        impl_type(F const &f_)
-          : f(f_)
-        {}
-        impl_type(BOOST_THREAD_RV_REF(F) f_)
-          : f(boost::move(f_))
-        {}
+namespace boost {
+    namespace detail {
+        class function_wrapper {
+            struct impl_base
+            {
+                virtual void call() = 0;
 
-        void call()
-        {
-          if (impl) f();
-        }
-      };
-    public:
-      BOOST_THREAD_MOVABLE_ONLY(function_wrapper)
+                virtual ~impl_base() {}
+            };
 
-//#if ! defined  BOOST_NO_CXX11_RVALUE_REFERENCES
-      template<typename F>
-      function_wrapper(F const& f):
-      impl(new impl_type<F>(f))
-      {}
-//#endif
-      template<typename F>
-      function_wrapper(BOOST_THREAD_RV_REF(F) f):
-      impl(new impl_type<F>(boost::forward<F>(f)))
-      {}
-      function_wrapper(BOOST_THREAD_RV_REF(function_wrapper) other) BOOST_NOEXCEPT :
-      impl(other.impl)
-      {
-        other.impl = 0;
-      }
-      function_wrapper()
-        : impl(0)
-      {
-      }
-      ~function_wrapper()
-      {
-      }
+            typedef boost::csbl::unique_ptr<impl_base> impl_base_type;
+            impl_base_type impl;
 
-      function_wrapper& operator=(BOOST_THREAD_RV_REF(function_wrapper) other) BOOST_NOEXCEPT
-      {
-        impl=other.impl;
-        other.impl=0;
-        return *this;
-      }
+            template<typename F>
+            struct impl_type : impl_base
+            {
+                F f;
 
-      void operator()()
-      { impl->call();}
+                impl_type(F const& f_) :
+                    f(f_)
+                {
+                }
 
-    };
-  }
+                impl_type(BOOST_THREAD_RV_REF(F) f_) :
+                    f(boost::move(f_))
+                {
+                }
+
+                void call()
+                {
+                    if (impl) {
+                        f();
+                    }
+                }
+            };
+
+        public:
+            BOOST_THREAD_MOVABLE_ONLY(function_wrapper)
+
+            // #if ! defined  BOOST_NO_CXX11_RVALUE_REFERENCES
+            template<typename F>
+            function_wrapper(F const& f) :
+                impl(new impl_type<F>(f))
+            {
+            }
+
+            // #endif
+            template<typename F>
+            function_wrapper(BOOST_THREAD_RV_REF(F) f) :
+                impl(new impl_type<F>(boost::forward<F>(f)))
+            {
+            }
+
+            function_wrapper(BOOST_THREAD_RV_REF(function_wrapper) other) BOOST_NOEXCEPT : impl(other.impl)
+            {
+                other.impl = 0;
+            }
+
+            function_wrapper() :
+                impl(0)
+            {
+            }
+
+            ~function_wrapper() {}
+
+            function_wrapper& operator=(BOOST_THREAD_RV_REF(function_wrapper) other) BOOST_NOEXCEPT
+            {
+                impl = other.impl;
+                other.impl = 0;
+                return *this;
+            }
+
+            void operator()() { impl->call(); }
+        };
+    }
 }
 
 #endif // header

@@ -5,37 +5,37 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_EMPTY_HPP)
-#define BOOST_VMD_EMPTY_HPP
+    #define BOOST_VMD_EMPTY_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_EMPTY(...)
+    /** \def BOOST_VMD_EMPTY(...)
 
-    \brief Outputs emptiness.
+        \brief Outputs emptiness.
 
-    ... = any variadic parameters. The parameters are ignored.
-    
-    This macro is used to output emptiness ( nothing ) no matter
-    what is passed to it.
-    
-    If you use this macro to return a result, as in 'result BOOST_VMD_EMPTY'
-    subsequently invoked, you should surround the result with 
-    BOOST_VMD_IDENTITY_RESULT to smooth over a VC++ problem.
-    
-*/
-    
-#define BOOST_VMD_EMPTY(...)
+        ... = any variadic parameters. The parameters are ignored.
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_EMPTY_HPP */
+        This macro is used to output emptiness ( nothing ) no matter
+        what is passed to it.
+
+        If you use this macro to return a result, as in 'result BOOST_VMD_EMPTY'
+        subsequently invoked, you should surround the result with
+        BOOST_VMD_IDENTITY_RESULT to smooth over a VC++ problem.
+
+    */
+
+        #define BOOST_VMD_EMPTY(...)
+
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_EMPTY_HPP */

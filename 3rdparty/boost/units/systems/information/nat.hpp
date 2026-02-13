@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2014 Erik Erlandson
@@ -14,20 +14,20 @@
 #include <boost/units/base_units/information/nat.hpp>
 
 namespace boost {
-namespace units { 
-namespace information {
+    namespace units {
+        namespace information {
 
-namespace hu {
-namespace nat {
-typedef unit<information_dimension, make_system<nat_base_unit>::type> info;
-} // namespace bit
-} // namespace hu
+            namespace hu {
+                namespace nat {
+                    typedef unit<information_dimension, make_system<nat_base_unit>::type> info;
+                } // namespace nat
+            } // namespace hu
 
-BOOST_UNITS_STATIC_CONSTANT(nat, hu::nat::info);
-BOOST_UNITS_STATIC_CONSTANT(nats, hu::nat::info);
+            BOOST_UNITS_STATIC_CONSTANT(nat, hu::nat::info);
+            BOOST_UNITS_STATIC_CONSTANT(nats, hu::nat::info);
 
-} // namespace information
-} // namespace units
+        } // namespace information
+    } // namespace units
 } // namespace boost
 
 #endif // BOOST_UNITS_SYSTEMS_INFORMATION_NAT_HPP_INCLUDED

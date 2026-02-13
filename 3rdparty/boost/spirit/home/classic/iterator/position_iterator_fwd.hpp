@@ -7,54 +7,48 @@
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_POSITION_ITERATOR_FWD_HPP)
-#define BOOST_SPIRIT_POSITION_ITERATOR_FWD_HPP
+    #define BOOST_SPIRIT_POSITION_ITERATOR_FWD_HPP
 
-#include <string>
-#include <iterator> // for std::iterator_traits
-#include <boost/spirit/home/classic/namespace.hpp>
-#include <boost/spirit/home/classic/core/nil.hpp>
+    #include <string>
+    #include <iterator> // for std::iterator_traits
+    #include <boost/spirit/home/classic/namespace.hpp>
+    #include <boost/spirit/home/classic/core/nil.hpp>
 
-namespace boost { namespace spirit {
+namespace boost {
+    namespace spirit {
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
-    template <typename String = std::string> 
-    struct file_position_base;
-    
-    typedef file_position_base<std::string> file_position;
+        template<typename String = std::string>
+        struct file_position_base;
 
-    template <typename String = std::string> 
-    struct file_position_without_column_base;
+        typedef file_position_base<std::string> file_position;
 
-    typedef file_position_without_column_base<std::string> file_position_without_column;
+        template<typename String = std::string>
+        struct file_position_without_column_base;
 
-    template <
-        typename ForwardIteratorT,
-        typename PositionT = file_position_base<
-            std::basic_string<
-                typename std::iterator_traits<ForwardIteratorT>::value_type
-            > 
-        >,
-        typename SelfT = nil_t
-    >
-    class position_iterator;
+        typedef file_position_without_column_base<std::string> file_position_without_column;
 
-    template
-    <
-        typename ForwardIteratorT,
-        typename PositionT = file_position_base<
-            std::basic_string<
-                typename std::iterator_traits<ForwardIteratorT>::value_type
-            > 
-        >
-    >
-    class position_iterator2;
+        template<
+            typename ForwardIteratorT,
+            typename PositionT =
+                file_position_base<std::basic_string<typename std::iterator_traits<ForwardIteratorT>::value_type>>,
+            typename SelfT = nil_t>
+        class position_iterator;
 
-    template <typename PositionT> class position_policy;
+        template<
+            typename ForwardIteratorT,
+            typename PositionT =
+                file_position_base<std::basic_string<typename std::iterator_traits<ForwardIteratorT>::value_type>>>
+        class position_iterator2;
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+        template<typename PositionT>
+        class position_policy;
 
-}} // namespace BOOST_SPIRIT_CLASSIC_NS
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+
+    }
+} // namespace boost
 
 #endif
 

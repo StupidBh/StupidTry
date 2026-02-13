@@ -13,42 +13,40 @@
 
 namespace boost::redis::detail {
 
-/** @brief Writes a request synchronously.
- *
- *  @param stream Stream to write the request to.
- *  @param req Request to write.
- */
-template <class SyncWriteStream>
-auto write(SyncWriteStream& stream, request const& req)
-{
-   return asio::write(stream, asio::buffer(req.payload()));
-}
+    /** @brief Writes a request synchronously.
+     *
+     *  @param stream Stream to write the request to.
+     *  @param req Request to write.
+     */
+    template<class SyncWriteStream>
+    auto write(SyncWriteStream& stream, request const& req)
+    {
+        return asio::write(stream, asio::buffer(req.payload()));
+    }
 
-template <class SyncWriteStream>
-auto write(SyncWriteStream& stream, request const& req, system::error_code& ec)
-{
-   return asio::write(stream, asio::buffer(req.payload()), ec);
-}
+    template<class SyncWriteStream>
+    auto write(SyncWriteStream& stream, request const& req, system::error_code& ec)
+    {
+        return asio::write(stream, asio::buffer(req.payload()), ec);
+    }
 
-/** @brief Writes a request asynchronously.
- *
- *  @param stream Stream to write the request to.
- *  @param req Request to write.
- *  @param token Asio completion token.
- */
-template <
-   class AsyncWriteStream,
-   class CompletionToken =
-      asio::default_completion_token_t<typename AsyncWriteStream::executor_type> >
-auto async_write(
-   AsyncWriteStream& stream,
-   request const& req,
-   CompletionToken&& token =
-      asio::default_completion_token_t<typename AsyncWriteStream::executor_type>{})
-{
-   return asio::async_write(stream, asio::buffer(req.payload()), token);
-}
+    /** @brief Writes a request asynchronously.
+     *
+     *  @param stream Stream to write the request to.
+     *  @param req Request to write.
+     *  @param token Asio completion token.
+     */
+    template<
+        class AsyncWriteStream,
+        class CompletionToken = asio::default_completion_token_t<typename AsyncWriteStream::executor_type>>
+    auto async_write(
+        AsyncWriteStream& stream,
+        request const& req,
+        CompletionToken&& token = asio::default_completion_token_t<typename AsyncWriteStream::executor_type> {})
+    {
+        return asio::async_write(stream, asio::buffer(req.payload()), token);
+    }
 
-}  // namespace boost::redis::detail
+} // namespace boost::redis::detail
 
-#endif  // BOOST_REDIS_WRITE_HPP
+#endif // BOOST_REDIS_WRITE_HPP

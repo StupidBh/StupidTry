@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -15,27 +15,29 @@
 /// \brief Returns a unique type for every unit.
 
 namespace boost {
-namespace units {
+    namespace units {
 
 #ifdef BOOST_UNITS_DOXYGEN
 
-/// Returns a unique type for every unit.
-template<class Unit>
-struct reduce_unit {
-    typedef detail::unspecified type;
-};
+        /// Returns a unique type for every unit.
+        template<class Unit>
+        struct reduce_unit
+        {
+            typedef detail::unspecified type;
+        };
 
 #else
 
-// default implementation: return Unit unchanged.
-template<class Unit>
-struct reduce_unit {
-    typedef Unit type;
-};
+        // default implementation: return Unit unchanged.
+        template<class Unit>
+        struct reduce_unit
+        {
+            typedef Unit type;
+        };
 
 #endif
 
-}
+    }
 }
 
 #endif

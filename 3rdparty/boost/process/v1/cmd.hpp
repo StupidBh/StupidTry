@@ -18,9 +18,9 @@
 #include <boost/process/v1/detail/traits/wchar_t.hpp>
 
 #if defined(BOOST_POSIX_API)
-#include <boost/process/v1/detail/posix/cmd.hpp>
+    #include <boost/process/v1/detail/posix/cmd.hpp>
 #elif defined(BOOST_WINDOWS_API)
-#include <boost/process/v1/detail/windows/cmd.hpp>
+    #include <boost/process/v1/detail/windows/cmd.hpp>
 #endif
 
 /** \file boost/process/cmd.hpp
@@ -38,84 +38,86 @@ namespace boost {
 \endxmlonly
 */
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+
+                struct cmd_
+                {
+                    constexpr cmd_() = default;
+
+                    template<typename Char>
+                    inline api::cmd_setter_<Char> operator()(const Char* s) const
+                    {
+                        return api::cmd_setter_<Char>(s);
+                    }
+
+                    template<typename Char>
+                    inline api::cmd_setter_<Char> operator=(const Char* s) const
+                    {
+                        return api::cmd_setter_<Char>(s);
+                    }
+
+                    template<typename Char>
+                    inline api::cmd_setter_<Char> operator()(const std::basic_string<Char>& s) const
+                    {
+                        return api::cmd_setter_<Char>(s);
+                    }
+
+                    template<typename Char>
+                    inline api::cmd_setter_<Char> operator=(const std::basic_string<Char>& s) const
+                    {
+                        return api::cmd_setter_<Char>(s);
+                    }
+                };
+
+                template<>
+                struct is_wchar_t<api::cmd_setter_<wchar_t>> : std::true_type
+                {
+                };
+
+                template<>
+                struct char_converter<char, api::cmd_setter_<wchar_t>>
+                {
+                    static api::cmd_setter_<char> conv(const api::cmd_setter_<wchar_t>& in)
+                    {
+                        return { ::boost::process::v1::detail::convert(in.str()) };
+                    }
+                };
+
+                template<>
+                struct char_converter<wchar_t, api::cmd_setter_<char>>
+                {
+                    static api::cmd_setter_<wchar_t> conv(const api::cmd_setter_<char>& in)
+                    {
+                        return { ::boost::process::v1::detail::convert(in.str()) };
+                    }
+                };
+
+            }
+
+            /** The cmd property allows to explicitly set commands for the execution.
+
+            The overload form applies when only one string is passed to a launching function.
+            The string will be internally parsed and split at spaces.
+
+            The following expressions are valid, with `value` being either a C-String or
+            a `std::basic_string` with `char` or `wchar_t`.
+
+            \code{.cpp}
+            cmd="value";
+            cmd(value);
+            \endcode
+
+            The property can only be used for assignments.
 
 
-struct cmd_
-{
-    constexpr cmd_() = default;
-
-    template<typename Char>
-    inline api::cmd_setter_<Char> operator()(const Char *s) const
-    {        return api::cmd_setter_<Char>(s);
+             */
+            constexpr static ::boost::process::v1::detail::cmd_ cmd;
+        }
     }
-    template<typename Char>
-    inline api::cmd_setter_<Char> operator= (const Char *s) const
-    {
-        return api::cmd_setter_<Char>(s);
-    }
-
-    template<typename Char>
-    inline api::cmd_setter_<Char> operator()(const std::basic_string<Char> &s) const
-    {
-        return api::cmd_setter_<Char>(s);
-    }
-    template<typename Char>
-    inline api::cmd_setter_<Char> operator= (const std::basic_string<Char> &s) const
-    {
-        return api::cmd_setter_<Char>(s);
-    }
-};
-
-template<> struct is_wchar_t<api::cmd_setter_<wchar_t>> : std::true_type {};
-
-
-
-template<>
-struct char_converter<char, api::cmd_setter_<wchar_t>>
-{
-    static api::cmd_setter_<char> conv(const api::cmd_setter_<wchar_t> & in)
-    {
-        return { ::boost::process::v1::detail::convert(in.str()) };
-    }
-};
-
-template<>
-struct char_converter<wchar_t, api::cmd_setter_<char>>
-{
-    static api::cmd_setter_<wchar_t> conv(const api::cmd_setter_<char> & in)
-    {
-        return { ::boost::process::v1::detail::convert(in.str()) };
-    }
-};
-
-
-
-
-
-
 }
-
-
-/** The cmd property allows to explicitly set commands for the execution.
-
-The overload form applies when only one string is passed to a launching function.
-The string will be internally parsed and split at spaces.
-
-The following expressions are valid, with `value` being either a C-String or
-a `std::basic_string` with `char` or `wchar_t`.
-
-\code{.cpp}
-cmd="value";
-cmd(value);
-\endcode
-
-The property can only be used for assignments.
-
-
- */
-constexpr static ::boost::process::v1::detail::cmd_ cmd;
-
-}}}
 
 #endif

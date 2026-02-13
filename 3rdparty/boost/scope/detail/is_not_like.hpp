@@ -19,29 +19,46 @@
 #include <boost/scope/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 namespace boost {
-namespace scope {
-namespace detail {
+    namespace scope {
+        namespace detail {
 
-//! The type trait checks if \c T is not a possibly cv-reference-qualified specialization of \c Template
-template< typename T, template< typename... > class Template >
-struct is_not_like : public std::true_type { };
-template< typename T, template< typename... > class Template >
-struct is_not_like< T&, Template > : public is_not_like< T, Template > { };
-template< template< typename... > class Template, typename... Ts >
-struct is_not_like< Template< Ts... >, Template > : public std::false_type { };
-template< template< typename... > class Template, typename... Ts >
-struct is_not_like< const Template< Ts... >, Template > : public std::false_type { };
-template< template< typename... > class Template, typename... Ts >
-struct is_not_like< volatile Template< Ts... >, Template > : public std::false_type { };
-template< template< typename... > class Template, typename... Ts >
-struct is_not_like< const volatile Template< Ts... >, Template > : public std::false_type { };
+            //! The type trait checks if \c T is not a possibly cv-reference-qualified specialization of \c Template
+            template<typename T, template<typename...> class Template>
+            struct is_not_like : public std::true_type
+            {
+            };
 
-} // namespace detail
-} // namespace scope
+            template<typename T, template<typename...> class Template>
+            struct is_not_like<T&, Template> : public is_not_like<T, Template>
+            {
+            };
+
+            template<template<typename...> class Template, typename... Ts>
+            struct is_not_like<Template<Ts...>, Template> : public std::false_type
+            {
+            };
+
+            template<template<typename...> class Template, typename... Ts>
+            struct is_not_like<const Template<Ts...>, Template> : public std::false_type
+            {
+            };
+
+            template<template<typename...> class Template, typename... Ts>
+            struct is_not_like<volatile Template<Ts...>, Template> : public std::false_type
+            {
+            };
+
+            template<template<typename...> class Template, typename... Ts>
+            struct is_not_like<const volatile Template<Ts...>, Template> : public std::false_type
+            {
+            };
+
+        } // namespace detail
+    } // namespace scope
 } // namespace boost
 
 #include <boost/scope/detail/footer.hpp>

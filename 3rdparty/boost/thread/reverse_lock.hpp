@@ -11,48 +11,45 @@
 #include <boost/thread/lock_options.hpp>
 #include <boost/thread/detail/delete.hpp>
 
-namespace boost
-{
+namespace boost {
 
     template<typename Lock>
-    class reverse_lock
-    {
+    class reverse_lock {
     public:
         typedef typename Lock::mutex_type mutex_type;
         BOOST_THREAD_NO_COPYABLE(reverse_lock)
 
-        explicit reverse_lock(Lock& m_)
-        : m(m_), mtx(0)
+        explicit reverse_lock(Lock& m_) :
+            m(m_),
+            mtx(0)
         {
-            if (m.owns_lock())
-            {
-              m.unlock();
+            if (m.owns_lock()) {
+                m.unlock();
             }
-            mtx=m.release();
+            mtx = m.release();
         }
+
         ~reverse_lock()
         {
-          if (mtx) {
-            mtx->lock();
-            m = BOOST_THREAD_MAKE_RV_REF(Lock(*mtx, adopt_lock));
-          }
+            if (mtx) {
+                mtx->lock();
+                m = BOOST_THREAD_MAKE_RV_REF(Lock(*mtx, adopt_lock));
+            }
         }
 
     private:
-      Lock& m;
-      mutex_type* mtx;
+        Lock& m;
+        mutex_type* mtx;
     };
-
 
 #ifdef BOOST_THREAD_NO_AUTO_DETECT_MUTEX_TYPES
     template<typename T>
-    struct is_mutex_type<reverse_lock<T> >
+    struct is_mutex_type<reverse_lock<T>>
     {
         BOOST_STATIC_CONSTANT(bool, value = true);
     };
 
 #endif
-
 
 }
 

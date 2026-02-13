@@ -11,22 +11,15 @@
 #include <boost/thread/detail/config.hpp>
 #include <boost/core/scoped_enum.hpp>
 
-namespace boost
-{
-  //enum class launch
-  BOOST_SCOPED_ENUM_DECLARE_BEGIN(launch)
-  {
-      none = 0,
-      async = 1,
-      deferred = 2,
+namespace boost {
+    // enum class launch
+    BOOST_SCOPED_ENUM_DECLARE_BEGIN(launch) {
+        none = 0,     async = 1, deferred = 2,
 #ifdef BOOST_THREAD_PROVIDES_EXECUTORS
-      executor = 4,
+        executor = 4,
 #endif
-      inherit = 8,
-      sync = 16,
-      any = async | deferred
-  }
-  BOOST_SCOPED_ENUM_DECLARE_END(launch)
+        inherit = 8,  sync = 16, any = async | deferred
+    } BOOST_SCOPED_ENUM_DECLARE_END(launch)
 }
 
 #endif // header

@@ -11,12 +11,10 @@
 
 #include <list>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::list;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::list;
+    }
 }
 
 #endif // header

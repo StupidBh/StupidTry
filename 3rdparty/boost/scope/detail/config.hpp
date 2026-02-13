@@ -18,31 +18,32 @@
 #include <boost/scope/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
-#if !(defined(__cpp_noexcept_function_type) && __cpp_noexcept_function_type >= 201510l) && !defined(_NOEXCEPT_TYPES_SUPPORTED)
-#define BOOST_SCOPE_NO_CXX17_NOEXCEPT_FUNCTION_TYPES
+#if !(defined(__cpp_noexcept_function_type) && __cpp_noexcept_function_type >= 201510l) && \
+    !defined(_NOEXCEPT_TYPES_SUPPORTED)
+    #define BOOST_SCOPE_NO_CXX17_NOEXCEPT_FUNCTION_TYPES
 #endif
 
 #if !defined(BOOST_SCOPE_DETAIL_DOC_ALT)
-#if !defined(BOOST_SCOPE_DOXYGEN)
-#define BOOST_SCOPE_DETAIL_DOC_ALT(alt, ...) __VA_ARGS__
-#else
-#define BOOST_SCOPE_DETAIL_DOC_ALT(alt, ...) alt
-#endif
+    #if !defined(BOOST_SCOPE_DOXYGEN)
+        #define BOOST_SCOPE_DETAIL_DOC_ALT(alt, ...) __VA_ARGS__
+    #else
+        #define BOOST_SCOPE_DETAIL_DOC_ALT(alt, ...) alt
+    #endif
 #endif
 
 #if !defined(BOOST_SCOPE_DETAIL_DOC_HIDDEN)
-#define BOOST_SCOPE_DETAIL_DOC_HIDDEN(...) BOOST_SCOPE_DETAIL_DOC_ALT(..., __VA_ARGS__)
+    #define BOOST_SCOPE_DETAIL_DOC_HIDDEN(...) BOOST_SCOPE_DETAIL_DOC_ALT(..., __VA_ARGS__)
 #endif
 
 #if !defined(BOOST_SCOPE_DETAIL_DOC)
-#if !defined(BOOST_SCOPE_DOXYGEN)
-#define BOOST_SCOPE_DETAIL_DOC(...)
-#else
-#define BOOST_SCOPE_DETAIL_DOC(...) __VA_ARGS__
-#endif
+    #if !defined(BOOST_SCOPE_DOXYGEN)
+        #define BOOST_SCOPE_DETAIL_DOC(...)
+    #else
+        #define BOOST_SCOPE_DETAIL_DOC(...) __VA_ARGS__
+    #endif
 #endif
 
 #include <boost/scope/detail/footer.hpp>

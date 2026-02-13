@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -18,21 +18,26 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-namespace astronomical {
+        namespace astronomical {
 
-typedef scaled_base_unit<boost::units::astronomical::light_second_base_unit, scale<3600, static_rational<1> > > light_hour_base_unit;
+            typedef scaled_base_unit<
+                boost::units::astronomical::light_second_base_unit,
+                scale<3600, static_rational<1>>>
+                light_hour_base_unit;
 
-} // namespace astronomical
+        } // namespace astronomical
 
-template<>
-struct base_unit_info<astronomical::light_hour_base_unit> {
-    static BOOST_CONSTEXPR const char* name()   { return("light hour"); }
-    static BOOST_CONSTEXPR const char* symbol() { return("lhr"); }
-};
+        template<>
+        struct base_unit_info<astronomical::light_hour_base_unit>
+        {
+            static BOOST_CONSTEXPR const char* name() { return ("light hour"); }
 
-} // namespace units
+            static BOOST_CONSTEXPR const char* symbol() { return ("lhr"); }
+        };
+
+    } // namespace units
 
 } // namespace boost
 

@@ -20,56 +20,48 @@
 #include <type_traits>
 
 namespace boost {
-namespace urls {
-namespace grammar {
+    namespace urls {
+        namespace grammar {
 
-/** Match an unsigned decimal
+            /** Match an unsigned decimal
 
-    Extra leading zeroes are disallowed.
+                Extra leading zeroes are disallowed.
 
-    @par Value Type
-    @code
-    using value_type = Unsigned;
-    @endcode
+                @par Value Type
+                @code
+                using value_type = Unsigned;
+                @endcode
 
-    @par Example
-    Rules are used with the function @ref parse.
-    @code
-    system::result< unsigned short > rv = parse( "32767", unsigned_rule< unsigned short >{} );
-    @endcode
+                @par Example
+                Rules are used with the function @ref parse.
+                @code
+                system::result< unsigned short > rv = parse( "32767", unsigned_rule< unsigned short >{} );
+                @endcode
 
-    @par BNF
-    @code
-    unsigned      = "0" / ( ["1"..."9"] *DIGIT )
-    @endcode
+                @par BNF
+                @code
+                unsigned      = "0" / ( ["1"..."9"] *DIGIT )
+                @endcode
 
-    @tparam Unsigned The unsigned integer type used
-    to store the result.
+                @tparam Unsigned The unsigned integer type used
+                to store the result.
 
-    @see
-        @ref grammar::parse.
-*/
-template<class Unsigned>
-struct unsigned_rule
-{
-    BOOST_CORE_STATIC_ASSERT(
-        std::numeric_limits<
-            Unsigned>::is_integer &&
-        ! std::numeric_limits<
-            Unsigned>::is_signed);
+                @see
+                    @ref grammar::parse.
+            */
+            template<class Unsigned>
+            struct unsigned_rule
+            {
+                BOOST_CORE_STATIC_ASSERT(
+                    std::numeric_limits<Unsigned>::is_integer && !std::numeric_limits<Unsigned>::is_signed);
 
-    using value_type = Unsigned;
+                using value_type = Unsigned;
 
-    auto
-    parse(
-        char const*& it,
-        char const* end
-            ) const noexcept ->
-        system::result<value_type>;
-};
-} // grammar
-} // urls
-} // boost
+                auto parse(char const*& it, char const* end) const noexcept -> system::result<value_type>;
+            };
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #include <boost/url/grammar/impl/unsigned_rule.hpp>
 

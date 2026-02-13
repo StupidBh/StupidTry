@@ -34,50 +34,49 @@ time2_demo contained this comment:
 
 #include <ratio>
 
-namespace boost
-{
+namespace boost {
 
-//----------------------------------------------------------------------------//
-//                                                                            //
-//              20.6 Compile-time rational arithmetic [ratio]                 //
-//                                                                            //
-//----------------------------------------------------------------------------//
+    //----------------------------------------------------------------------------//
+    //                                                                            //
+    //              20.6 Compile-time rational arithmetic [ratio]                 //
+    //                                                                            //
+    //----------------------------------------------------------------------------//
 
-// ratio
-using std::ratio;
+    // ratio
+    using std::ratio;
 
-// ratio arithmetic
-using std::ratio_add;
-using std::ratio_subtract;
-using std::ratio_multiply;
-using std::ratio_divide;
+    // ratio arithmetic
+    using std::ratio_add;
+    using std::ratio_divide;
+    using std::ratio_multiply;
+    using std::ratio_subtract;
 
-// ratio comparison
-using std::ratio_equal;
-using std::ratio_not_equal;
-using std::ratio_less;
-using std::ratio_less_equal;
-using std::ratio_greater;
-using std::ratio_greater_equal;
+    // ratio comparison
+    using std::ratio_equal;
+    using std::ratio_greater;
+    using std::ratio_greater_equal;
+    using std::ratio_less;
+    using std::ratio_less_equal;
+    using std::ratio_not_equal;
 
-// convenience SI typedefs
-using std::atto;
-using std::femto;
-using std::pico;
-using std::nano;
-using std::micro;
-using std::milli;
-using std::centi;
-using std::deci;
-using std::deca;
-using std::hecto;
-using std::kilo;
-using std::mega;
-using std::giga;
-using std::tera;
-using std::peta;
-using std::exa;
+    // convenience SI typedefs
+    using std::atto;
+    using std::centi;
+    using std::deca;
+    using std::deci;
+    using std::exa;
+    using std::femto;
+    using std::giga;
+    using std::hecto;
+    using std::kilo;
+    using std::mega;
+    using std::micro;
+    using std::milli;
+    using std::nano;
+    using std::peta;
+    using std::pico;
+    using std::tera;
 
-}  // namespace boost
+} // namespace boost
 
-#endif  // BOOST_RATIO_RATIO_FWD_HPP
+#endif // BOOST_RATIO_RATIO_FWD_HPP

@@ -22,23 +22,23 @@
 
 #ifdef H5_HAVE_MIRROR_VFD
 
-/** ID for the mirror VFD \since 1.10.7 */
-#define H5FD_MIRROR (H5OPEN H5FD_MIRROR_id_g)
+    /** ID for the mirror VFD \since 1.10.7 */
+    #define H5FD_MIRROR (H5OPEN H5FD_MIRROR_id_g)
 
-/** Identifier for the mirror VFD */
-#define H5FD_MIRROR_VALUE H5_VFD_MIRROR
+    /** Identifier for the mirror VFD */
+    #define H5FD_MIRROR_VALUE H5_VFD_MIRROR
 
-/** Magic number to identify the H5FD_mirror_fapl_t struct */
-#define H5FD_MIRROR_FAPL_MAGIC 0xF8DD514C
+    /** Magic number to identify the H5FD_mirror_fapl_t struct */
+    #define H5FD_MIRROR_FAPL_MAGIC 0xF8DD514C
 
-/**
- * The version number of the H5FD_mirror_fapl_t configuration
- * structure for the #H5FD_MIRROR driver
- */
-#define H5FD_MIRROR_CURR_FAPL_T_VERSION 1
+    /**
+     * The version number of the H5FD_mirror_fapl_t configuration
+     * structure for the #H5FD_MIRROR driver
+     */
+    #define H5FD_MIRROR_CURR_FAPL_T_VERSION 1
 
-/** Max size of the remote_ip array in H5FD_mirror_fapl_t */
-#define H5FD_MIRROR_MAX_IP_LEN 45 /* Max size of an IPv4-mapped IPv6 address */
+    /** Max size of the remote_ip array in H5FD_mirror_fapl_t */
+    #define H5FD_MIRROR_MAX_IP_LEN 45 /* Max size of an IPv4-mapped IPv6 address */
 
 /**
  *\struct H5FD_mirror_fapl_t
@@ -65,63 +65,65 @@
  * \var char H5FD_mirror_fapl_t::remote_ip[H5FD_MIRROR_MAX_IP_LEN + 1]
  *      IP address string of the remote host.
  */
-typedef struct H5FD_mirror_fapl_t {
+typedef struct H5FD_mirror_fapl_t
+{
     uint32_t magic;
     uint32_t version;
-    int      handshake_port;
-    char     remote_ip[H5FD_MIRROR_MAX_IP_LEN + 1];
+    int handshake_port;
+    char remote_ip[H5FD_MIRROR_MAX_IP_LEN + 1];
 } H5FD_mirror_fapl_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    #ifdef __cplusplus
+extern "C"
+{
+    #endif
 
-/** @private
- *
- * \brief ID for the mirror VFD
- */
-H5_DLLVAR hid_t H5FD_MIRROR_id_g;
+    /** @private
+     *
+     * \brief ID for the mirror VFD
+     */
+    H5_DLLVAR hid_t H5FD_MIRROR_id_g;
 
-/**
- * \ingroup FAPL
- *
- * \brief Queries a File Access Property List for #H5FD_MIRROR file driver properties
- *
- * \fapl_id
- * \param[out] fa_out Pointer to #H5FD_MIRROR driver configuration structure
- * \returns \herr_t
- *
- * \details H5Pget_fapl_mirror() queries the #H5FD_MIRROR driver properties as set
- *          by H5Pset_fapl_mirror().
- *
- * \since 1.10.7
- */
-H5_DLL herr_t H5Pget_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t *fa_out);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Queries a File Access Property List for #H5FD_MIRROR file driver properties
+     *
+     * \fapl_id
+     * \param[out] fa_out Pointer to #H5FD_MIRROR driver configuration structure
+     * \returns \herr_t
+     *
+     * \details H5Pget_fapl_mirror() queries the #H5FD_MIRROR driver properties as set
+     *          by H5Pset_fapl_mirror().
+     *
+     * \since 1.10.7
+     */
+    H5_DLL herr_t H5Pget_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t* fa_out);
 
-/**
- * \ingroup FAPL
- *
- * \brief Modifies the file access property list to use the #H5FD_MIRROR driver
- *
- * \fapl_id
- * \param[in] fa Pointer to #H5FD_MIRROR driver configuration structure
- *
- * \returns \herr_t
- *
- * \details H5Pset_fapl_mirror() modifies the file access property list to use the
- *          #H5FD_MIRROR driver.
- *
- * \since 1.10.7
- */
-H5_DLL herr_t H5Pset_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t *fa);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Modifies the file access property list to use the #H5FD_MIRROR driver
+     *
+     * \fapl_id
+     * \param[in] fa Pointer to #H5FD_MIRROR driver configuration structure
+     *
+     * \returns \herr_t
+     *
+     * \details H5Pset_fapl_mirror() modifies the file access property list to use the
+     *          #H5FD_MIRROR driver.
+     *
+     * \since 1.10.7
+     */
+    H5_DLL herr_t H5Pset_fapl_mirror(hid_t fapl_id, H5FD_mirror_fapl_t* fa);
 
-#ifdef __cplusplus
+    #ifdef __cplusplus
 }
-#endif
+    #endif
 
 #else /* H5_HAVE_MIRROR_VFD */
 
-#define H5FD_MIRROR (H5I_INAVLID_HID)
+    #define H5FD_MIRROR (H5I_INAVLID_HID)
 
 #endif /* H5_HAVE_MIRROR_VFD */
 

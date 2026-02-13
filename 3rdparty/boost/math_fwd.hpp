@@ -9,34 +9,29 @@
 #ifndef BOOST_MATH_FWD_HPP
 #define BOOST_MATH_FWD_HPP
 
-namespace boost
-{
-namespace math
-{
+namespace boost {
+    namespace math {
 
+        //  From <boost/math/quaternion.hpp>  ----------------------------------------//
 
-//  From <boost/math/quaternion.hpp>  ----------------------------------------//
+        template<typename T>
+        class quaternion;
 
-template < typename T >
-    class quaternion;
+        // Also has many function templates (including operators)
 
-// Also has many function templates (including operators)
+        //  From <boost/math/octonion.hpp>  ------------------------------------------//
 
+        template<typename T>
+        class octonion;
 
-//  From <boost/math/octonion.hpp>  ------------------------------------------//
+        template<>
+        class octonion<float>;
+        template<>
+        class octonion<double>;
+        template<>
+        class octonion<long double>;
 
-template < typename T >
-    class octonion;
+    } // namespace math
+} // namespace boost
 
-template < >
-    class octonion< float >;
-template < >
-    class octonion< double >;
-template < >
-    class octonion< long double >;
-
-}  // namespace math
-}  // namespace boost
-
-
-#endif  // BOOST_MATH_FWD_HPP
+#endif // BOOST_MATH_FWD_HPP

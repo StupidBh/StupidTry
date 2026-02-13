@@ -71,8 +71,7 @@
  */
 #define H5FD_FEAT_ACCUMULATE_METADATA_WRITE 0x00000002
 #define H5FD_FEAT_ACCUMULATE_METADATA_READ  0x00000004
-#define H5FD_FEAT_ACCUMULATE_METADATA                                                                        \
-    (H5FD_FEAT_ACCUMULATE_METADATA_WRITE | H5FD_FEAT_ACCUMULATE_METADATA_READ)
+#define H5FD_FEAT_ACCUMULATE_METADATA       (H5FD_FEAT_ACCUMULATE_METADATA_WRITE | H5FD_FEAT_ACCUMULATE_METADATA_READ)
 /*
  * Defining H5FD_FEAT_DATA_SIEVE for a VFL driver means that
  * the library will attempt to cache raw data as it is read from/written to
@@ -177,12 +176,11 @@
 #define H5FD_FEAT_MEMMANAGE 0x00010000
 
 /* ctl function definitions: */
-#define H5FD_CTL_OPC_RESERVED 512 /* Opcodes below this value are reserved for library use */
-#define H5FD_CTL_OPC_EXPER_MIN                                                                               \
-    H5FD_CTL_OPC_RESERVED /* Minimum opcode value available for experimental use                             \
-                           */
-#define H5FD_CTL_OPC_EXPER_MAX                                                                               \
-    (H5FD_CTL_OPC_RESERVED + 511) /* Maximum opcode value available for experimental use */
+#define H5FD_CTL_OPC_RESERVED 512                            /* Opcodes below this value are reserved for library use */
+#define H5FD_CTL_OPC_EXPER_MIN                                                                                      \
+    H5FD_CTL_OPC_RESERVED                                    /* Minimum opcode value available for experimental use \
+                                                              */
+#define H5FD_CTL_OPC_EXPER_MAX (H5FD_CTL_OPC_RESERVED + 511) /* Maximum opcode value available for experimental use */
 
 /* ctl function op codes: */
 #define H5FD_CTL_INVALID_OPCODE              0
@@ -273,7 +271,8 @@ typedef enum H5F_mem_t H5FD_mem_t;
  * Define enum for the source of file image callbacks
  */
 //! <!-- [H5FD_file_image_op_t_snip] -->
-typedef enum {
+typedef enum
+{
     H5FD_FILE_IMAGE_OP_NO_OP,
     H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,
     /**< Passed to the \p image_malloc and \p image_memcpy callbacks when a
@@ -303,13 +302,15 @@ typedef enum {
     /**<Passed to the \p image_free callback when an image buffer is to
      * be released during a file close operation*/
 } H5FD_file_image_op_t;
+
 //! <!-- [H5FD_file_image_op_t_snip] -->
 
 /**
  * Define structure to hold file image callbacks
  */
 //! <!-- [H5FD_file_image_callbacks_t_snip] -->
-typedef struct {
+typedef struct
+{
     /**
      * \param[in] size Size in bytes of the file image buffer to allocate
      * \param[in] file_image_op A value from H5FD_file_image_op_t indicating
@@ -319,7 +320,7 @@ typedef struct {
      *            parameter \p udata
      */
     //! <!-- [image_malloc_snip] -->
-    void *(*image_malloc)(size_t size, H5FD_file_image_op_t file_image_op, void *udata);
+    void* (*image_malloc)(size_t size, H5FD_file_image_op_t file_image_op, void* udata);
     //! <!-- [image_malloc_snip] -->
     /**
      * \param[in] dest Address of the destination buffer
@@ -332,8 +333,7 @@ typedef struct {
      *            parameter \p udata
      */
     //! <!-- [image_memcpy_snip] -->
-    void *(*image_memcpy)(void *dest, const void *src, size_t size, H5FD_file_image_op_t file_image_op,
-                          void *udata);
+    void* (*image_memcpy)(void* dest, const void* src, size_t size, H5FD_file_image_op_t file_image_op, void* udata);
     //! <!-- [image_memcpy_snip] -->
     /**
      * \param[in] ptr Pointer to the buffer being reallocated
@@ -345,7 +345,7 @@ typedef struct {
      *            parameter \p udata
      */
     //! <!-- [image_realloc_snip] -->
-    void *(*image_realloc)(void *ptr, size_t size, H5FD_file_image_op_t file_image_op, void *udata);
+    void* (*image_realloc)(void* ptr, size_t size, H5FD_file_image_op_t file_image_op, void* udata);
     //! <!-- [image_realloc_snip] -->
     /**
      * \param[in] ptr Pointer to the buffer being reallocated
@@ -356,21 +356,21 @@ typedef struct {
      *            parameter \p udata
      */
     //! <!-- [image_free_snip] -->
-    herr_t (*image_free)(void *ptr, H5FD_file_image_op_t file_image_op, void *udata);
+    herr_t (*image_free)(void* ptr, H5FD_file_image_op_t file_image_op, void* udata);
     //! <!-- [image_free_snip] -->
     /**
      * \param[in] udata Value passed in in the H5Pset_file_image_callbacks
      *            parameter \p udata
      */
     //! <!-- [udata_copy_snip] -->
-    void *(*udata_copy)(void *udata);
+    void* (*udata_copy)(void* udata);
     //! <!-- [udata_copy_snip] -->
     /**
      * \param[in] udata Value passed in in the H5Pset_file_image_callbacks
      *            parameter \p udata
      */
     //! <!-- [udata_free_snip] -->
-    herr_t (*udata_free)(void *udata);
+    herr_t (*udata_free)(void* udata);
     //! <!-- [udata_free_snip] -->
     /**
      * \brief The final field in the #H5FD_file_image_callbacks_t struct,
@@ -379,21 +379,24 @@ typedef struct {
      *        image_free callbacks. Define udata as NULL if no user-defined
      *        data is provided.
      */
-    void *udata;
+    void* udata;
 } H5FD_file_image_callbacks_t;
+
 //! <!-- [H5FD_file_image_callbacks_t_snip] -->
 
 /**
  * Define structure to hold "ctl memory copy" parameters
  */
 //! <!-- [H5FD_ctl_memcpy_args_t_snip] -->
-typedef struct H5FD_ctl_memcpy_args_t {
-    void       *dstbuf;  /**< Destination buffer */
-    hsize_t     dst_off; /**< Offset within destination buffer */
-    const void *srcbuf;  /**< Source buffer */
-    hsize_t     src_off; /**< Offset within source buffer */
-    size_t      len;     /**< Length of data to copy from source buffer */
+typedef struct H5FD_ctl_memcpy_args_t
+{
+    void* dstbuf;       /**< Destination buffer */
+    hsize_t dst_off;    /**< Offset within destination buffer */
+    const void* srcbuf; /**< Source buffer */
+    hsize_t src_off;    /**< Offset within source buffer */
+    size_t len;         /**< Length of data to copy from source buffer */
 } H5FD_ctl_memcpy_args_t;
+
 //! <!-- [H5FD_ctl_memcpy_args_t_snip] -->
 
 /********************/
@@ -405,32 +408,33 @@ typedef struct H5FD_ctl_memcpy_args_t {
 /*********************/
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Function prototypes */
+    /* Function prototypes */
 
-/**
- * \ingroup H5VFD
- *
- * \brief Allows querying a VFD ID for features before the file is opened
- *
- * \param[in] driver_id Virtual File Driver (VFD) ID
- * \param[out] flags VFD flags supported
- *
- * \return \herr_t
- *
- * \details Queries a virtual file driver (VFD) for feature flags. Takes a
- *          VFD hid_t so it can be used before the file is opened. For example,
- *          this could be used to check if a VFD supports SWMR.
- *
- * \note The flags obtained here are just those of the base driver and
- *       do not take any configuration options (e.g., set via a fapl
- *       call) into consideration.
- *
- * \since 1.10.2
- */
-H5_DLL herr_t H5FDdriver_query(hid_t driver_id, unsigned long *flags /*out*/);
+    /**
+     * \ingroup H5VFD
+     *
+     * \brief Allows querying a VFD ID for features before the file is opened
+     *
+     * \param[in] driver_id Virtual File Driver (VFD) ID
+     * \param[out] flags VFD flags supported
+     *
+     * \return \herr_t
+     *
+     * \details Queries a virtual file driver (VFD) for feature flags. Takes a
+     *          VFD hid_t so it can be used before the file is opened. For example,
+     *          this could be used to check if a VFD supports SWMR.
+     *
+     * \note The flags obtained here are just those of the base driver and
+     *       do not take any configuration options (e.g., set via a fapl
+     *       call) into consideration.
+     *
+     * \since 1.10.2
+     */
+    H5_DLL herr_t H5FDdriver_query(hid_t driver_id, unsigned long* flags /*out*/);
 
 #ifdef __cplusplus
 }

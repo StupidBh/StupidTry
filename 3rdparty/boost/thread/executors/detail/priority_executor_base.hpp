@@ -14,70 +14,58 @@
 #include <boost/thread/concurrent_queues/sync_timed_queue.hpp>
 #include <boost/thread/executors/work.hpp>
 
-namespace boost
-{
-namespace executors
-{
-namespace detail
-{
-  template <class Queue>
-  class priority_executor_base
-  {
-  public:
-    //typedef boost::function<void()> work;
-    typedef executors::work_pq work;
-  protected:
-    typedef Queue queue_type;
-    queue_type _workq;
+namespace boost {
+    namespace executors {
+        namespace detail {
+            template<class Queue>
+            class priority_executor_base {
+            public:
+                // typedef boost::function<void()> work;
+                typedef executors::work_pq work;
 
-    priority_executor_base() {}
-  public:
+            protected:
+                typedef Queue queue_type;
+                queue_type _workq;
 
-    ~priority_executor_base()
-    {
-      if(!closed())
-      {
-        this->close();
-      }
-    }
+                priority_executor_base() {}
 
-    void close()
-    {
-      _workq.close();
-    }
+            public:
+                ~priority_executor_base()
+                {
+                    if (!closed()) {
+                        this->close();
+                    }
+                }
 
-    bool closed()
-    {
-      return _workq.closed();
-    }
+                void close() { _workq.close(); }
 
-    void loop()
-    {
-      try
-      {
-        for(;;)
-        {
-          try {
-            work task;
-            queue_op_status st = _workq.wait_pull(task);
-            if (st == queue_op_status::closed) return;
-            task();
-          }
-          catch (boost::thread_interrupted&)
-          {
-            return;
-          }
-        }
-      }
-      catch (...)
-      {
-        std::terminate();
-        return;
-      }
-    }
-  }; //end class
+                bool closed() { return _workq.closed(); }
 
-} //end detail namespace
-} //end executors namespace
-} //end boost namespace
+                void loop()
+                {
+                    try {
+                        for (;;) {
+                            try {
+                                work task;
+                                queue_op_status st = _workq.wait_pull(task);
+                                if (st == queue_op_status::closed) {
+                                    return;
+                                }
+                                task();
+                            }
+                            catch (boost::thread_interrupted&) {
+                                return;
+                            }
+                        }
+                    }
+                    catch (...) {
+                        std::terminate();
+                        return;
+                    }
+                }
+            }; // end class
+
+        } // namespace detail
+    } // namespace executors
+} // namespace boost
 #endif

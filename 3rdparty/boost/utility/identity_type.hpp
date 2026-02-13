@@ -38,9 +38,9 @@ need to be explicitly specified when calling the function template).
 On some compilers (like GCC), using this macro on abstract types requires to
 add and remove a reference to the specified type.
 */
-#define BOOST_IDENTITY_TYPE(parenthesized_type) \
+#define BOOST_IDENTITY_TYPE(parenthesized_type)                            \
     /* must NOT prefix this with `::` to work with parenthesized syntax */ \
-    boost::function_traits< void parenthesized_type >::arg1_type
+    boost::function_traits<void parenthesized_type>::arg1_type
 
 #endif // #include guard
 

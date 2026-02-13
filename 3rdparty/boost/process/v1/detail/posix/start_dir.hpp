@@ -15,25 +15,40 @@
 #include <unistd.h>
 #include <boost/core/ignore_unused.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
-template<typename Char>
-struct start_dir_init : handler_base_ext
-{
-    typedef Char value_type;
-    typedef std::basic_string<value_type> string_type;
-    start_dir_init(string_type s) : s_(std::move(s)) {}
+                    template<typename Char>
+                    struct start_dir_init : handler_base_ext
+                    {
+                        typedef Char value_type;
+                        typedef std::basic_string<value_type> string_type;
 
-    template <class PosixExecutor>
-    void on_exec_setup(PosixExecutor&) const
-    {
-        boost::ignore_unused(::chdir(s_.c_str()));
+                        start_dir_init(string_type s) :
+                            s_(std::move(s))
+                        {
+                        }
+
+                        template<class PosixExecutor>
+                        void on_exec_setup(PosixExecutor&) const
+                        {
+                            boost::ignore_unused(::chdir(s_.c_str()));
+                        }
+
+                        const string_type& str() const { return s_; }
+
+                    private:
+                        string_type s_;
+                    };
+
+                }
+            }
+        }
     }
-    const string_type & str() const {return s_;}
-private:
-    string_type s_;
-};
-
-}}}}}
+}
 
 #endif

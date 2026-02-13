@@ -14,29 +14,25 @@
 
 #include <boost/core/noncopyable.hpp>
 
-namespace boost
-{
-  namespace signals2
-  {
-    namespace detail
-    {
-      template<typename Mutex>
-      class unique_lock: public noncopyable
-      {
-      public:
-        unique_lock(Mutex &m): _mutex(m)
-        {
-          _mutex.lock();
-        }
-        ~unique_lock()
-        {
-          _mutex.unlock();
-        }
-      private:
-        Mutex &_mutex;
-      };
-    } // namespace detail
-  } // namespace signals2
+namespace boost {
+    namespace signals2 {
+        namespace detail {
+            template<typename Mutex>
+            class unique_lock : public noncopyable {
+            public:
+                unique_lock(Mutex& m) :
+                    _mutex(m)
+                {
+                    _mutex.lock();
+                }
+
+                ~unique_lock() { _mutex.unlock(); }
+
+            private:
+                Mutex& _mutex;
+            };
+        } // namespace detail
+    } // namespace signals2
 } // namespace boost
 
-#endif  // BOOST_SIGNALS2_UNIQUE_LOCK_HPP
+#endif // BOOST_SIGNALS2_UNIQUE_LOCK_HPP

@@ -3,12 +3,18 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef NOT_SPECIFIED_DWA2002321_HPP
-# define NOT_SPECIFIED_DWA2002321_HPP
+#define NOT_SPECIFIED_DWA2002321_HPP
 
-namespace boost { namespace python { namespace detail { 
+namespace boost {
+    namespace python {
+        namespace detail {
 
-  struct not_specified {};
+            struct not_specified
+            {
+            };
 
-}}} // namespace boost::python::detail
+        }
+    }
+}      // namespace boost
 
 #endif // NOT_SPECIFIED_DWA2002321_HPP

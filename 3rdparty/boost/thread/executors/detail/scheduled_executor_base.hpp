@@ -18,48 +18,41 @@
 
 #include <boost/config/abi_prefix.hpp>
 
-namespace boost
-{
-namespace executors
-{
-namespace detail
-{
-  template <class Clock=chrono::steady_clock>
-  class scheduled_executor_base : public priority_executor_base<concurrent::sync_timed_queue<executors::work_pq, Clock  > >
-  {
-  public:
-    typedef executors::work_pq work;
-    typedef Clock clock;
-    typedef typename clock::duration duration;
-    typedef typename clock::time_point time_point;
-  protected:
+namespace boost {
+    namespace executors {
+        namespace detail {
+            template<class Clock = chrono::steady_clock>
+            class scheduled_executor_base :
+                public priority_executor_base<concurrent::sync_timed_queue<executors::work_pq, Clock>> {
+            public:
+                typedef executors::work_pq work;
+                typedef Clock clock;
+                typedef typename clock::duration duration;
+                typedef typename clock::time_point time_point;
 
-    scheduled_executor_base() {}
-  public:
+            protected:
+                scheduled_executor_base() {}
 
-    ~scheduled_executor_base()
-    {
-      if(! this->closed())
-      {
-        this->close();
-      }
-    }
+            public:
+                ~scheduled_executor_base()
+                {
+                    if (!this->closed()) {
+                        this->close();
+                    }
+                }
 
-    void submit_at(work w, const time_point& tp)
-    {
-      this->_workq.push(boost::move(w), tp);
-    }
+                void submit_at(work w, const time_point& tp) { this->_workq.push(boost::move(w), tp); }
 
-    void submit_after(work w, const duration& dura)
-    {
-      this->_workq.push(boost::move(w), dura+clock::now());
-    }
+                void submit_after(work w, const duration& dura)
+                {
+                    this->_workq.push(boost::move(w), dura + clock::now());
+                }
 
-  }; //end class
+            }; // end class
 
-} //end detail namespace
-} //end executors namespace
-} //end boost namespace
+        } // namespace detail
+    } // namespace executors
+} // namespace boost
 
 #include <boost/config/abi_suffix.hpp>
 

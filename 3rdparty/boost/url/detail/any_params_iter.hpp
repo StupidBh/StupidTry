@@ -18,416 +18,311 @@
 #include <type_traits>
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-//------------------------------------------------
-//
-// any_params_iter
-//
-//------------------------------------------------
+            //------------------------------------------------
+            //
+            // any_params_iter
+            //
+            //------------------------------------------------
 
-/*  An iterator to a type-erased,
-    possibly encoded sequence of
-    query params_ref.
-*/  
-struct BOOST_SYMBOL_VISIBLE
-    any_params_iter
-{
-protected:
-    any_params_iter(
-        bool empty_,
-        core::string_view s0_ = {},
-        core::string_view s1_ = {}) noexcept
-        : s0(s0_)
-        , s1(s1_)
-        , empty(empty_)
-    {
-    }
+            /*  An iterator to a type-erased,
+                possibly encoded sequence of
+                query params_ref.
+            */
+            struct BOOST_SYMBOL_VISIBLE any_params_iter
+            {
+            protected:
+                any_params_iter(bool empty_, core::string_view s0_ = {}, core::string_view s1_ = {}) noexcept :
+                    s0(s0_),
+                    s1(s1_),
+                    empty(empty_)
+                {
+                }
 
-public:
-    // these are adjusted
-    // when self-intersecting
-    core::string_view s0;
-    core::string_view s1;
+            public:
+                // these are adjusted
+                // when self-intersecting
+                core::string_view s0;
+                core::string_view s1;
 
-    // True if the sequence is empty
-    bool empty = false;
+                // True if the sequence is empty
+                bool empty = false;
 
-    BOOST_URL_DECL
-    virtual
-    ~any_params_iter() noexcept = 0;
+                BOOST_URL_DECL
+                virtual ~any_params_iter() noexcept = 0;
 
-    // Rewind the iterator to the beginning
-    virtual
-    void
-    rewind() noexcept = 0;
+                // Rewind the iterator to the beginning
+                virtual void rewind() noexcept = 0;
 
-    // Measure and increment current element.
-    // Returns false on end of range.
-    // n is increased by encoded size.
-    // Can throw on bad percent-escape
-    virtual
-    bool
-    measure(std::size_t& n) = 0;
+                // Measure and increment current element.
+                // Returns false on end of range.
+                // n is increased by encoded size.
+                // Can throw on bad percent-escape
+                virtual bool measure(std::size_t& n) = 0;
 
-    // Copy and increment the current
-    // element. encoding is performed
-    // if needed.
-    virtual
-    void
-    copy(
-        char*& dest,
-        char const* end) noexcept = 0;
-};
+                // Copy and increment the current
+                // element. encoding is performed
+                // if needed.
+                virtual void copy(char*& dest, char const* end) noexcept = 0;
+            };
 
-//------------------------------------------------
-//
-// query_string_iter
-//
-//------------------------------------------------
+            //------------------------------------------------
+            //
+            // query_string_iter
+            //
+            //------------------------------------------------
 
-// A string of plain query params
-struct BOOST_SYMBOL_VISIBLE
-    query_string_iter
-    : any_params_iter
-{
-    // ne = never empty
-    BOOST_URL_DECL
-    explicit
-    query_string_iter(
-        core::string_view s,
-        bool ne = false) noexcept;
+            // A string of plain query params
+            struct BOOST_SYMBOL_VISIBLE query_string_iter : any_params_iter
+            {
+                // ne = never empty
+                BOOST_URL_DECL
+                explicit query_string_iter(core::string_view s, bool ne = false) noexcept;
 
-private:
-    core::string_view s_;
-    std::size_t n_;
-    char const* p_;
-    bool at_end_;
+            private:
+                core::string_view s_;
+                std::size_t n_;
+                char const* p_;
+                bool at_end_;
 
-    void rewind() noexcept override;
-    bool measure(std::size_t&) noexcept override;
-    void copy(char*&, char const*) noexcept override;
-    void increment() noexcept;
-};
+                void rewind() noexcept override;
+                bool measure(std::size_t&) noexcept override;
+                void copy(char*&, char const*) noexcept override;
+                void increment() noexcept;
+            };
 
-//------------------------------------------------
-//
-// param_iter
-//
-//------------------------------------------------
+            //------------------------------------------------
+            //
+            // param_iter
+            //
+            //------------------------------------------------
 
-// A 1-param range allowing
-// self-intersection
-struct BOOST_SYMBOL_VISIBLE
-    single_param_iter
-    : any_params_iter
-{
-    explicit
-    single_param_iter(
-        param_view const&,
-        bool space_as_plus) noexcept;
+            // A 1-param range allowing
+            // self-intersection
+            struct BOOST_SYMBOL_VISIBLE single_param_iter : any_params_iter
+            {
+                explicit single_param_iter(param_view const&, bool space_as_plus) noexcept;
 
-private:
-    bool has_value_;
-    bool at_end_ = false;
-    bool space_as_plus_ = false;
+            private:
+                bool has_value_;
+                bool at_end_ = false;
+                bool space_as_plus_ = false;
 
-    void rewind() noexcept override;
-    bool measure(std::size_t&) noexcept override;
-    void copy(char*&, char const*) noexcept override;
-};
+                void rewind() noexcept override;
+                bool measure(std::size_t&) noexcept override;
+                void copy(char*&, char const*) noexcept override;
+            };
 
-//------------------------------------------------
-//
-// params_iter_base
-//
-//------------------------------------------------
+            //------------------------------------------------
+            //
+            // params_iter_base
+            //
+            //------------------------------------------------
 
-struct params_iter_base
-{
-    bool space_as_plus_ = true;
-protected:
-    explicit params_iter_base(
-        bool space_as_plus) noexcept
-        : space_as_plus_(space_as_plus)
-        {}
+            struct params_iter_base
+            {
+                bool space_as_plus_ = true;
 
-    // return encoded size
-    BOOST_URL_DECL
-    void
-    measure_impl(
-        std::size_t& n,
-        param_view const& p) noexcept;
+            protected:
+                explicit params_iter_base(bool space_as_plus) noexcept :
+                    space_as_plus_(space_as_plus)
+                {
+                }
 
-    // encode to dest
-    BOOST_URL_DECL
-    void
-    copy_impl(
-        char*& dest,
-        char const* end,
-        param_view const& v) noexcept;
-};
+                // return encoded size
+                BOOST_URL_DECL
+                void measure_impl(std::size_t& n, param_view const& p) noexcept;
 
-//------------------------------------------------
+                // encode to dest
+                BOOST_URL_DECL
+                void copy_impl(char*& dest, char const* end, param_view const& v) noexcept;
+            };
 
-// A range of plain query params_ref
-template<class FwdIt>
-struct params_iter
-    : any_params_iter
-    , private params_iter_base
-{
-    BOOST_CORE_STATIC_ASSERT(
-        std::is_convertible<
-            typename std::iterator_traits<
-                FwdIt>::reference,
-            param_view>::value);
+            //------------------------------------------------
 
-    params_iter(
-        FwdIt first,
-        FwdIt last,
-        bool space_as_plus) noexcept
-        : any_params_iter(
-            first == last)
-        , params_iter_base(space_as_plus)
-        , it0_(first)
-        , it_(first)
-        , end_(last)
-    {
-    }
+            // A range of plain query params_ref
+            template<class FwdIt>
+            struct params_iter : any_params_iter, private params_iter_base
+            {
+                BOOST_CORE_STATIC_ASSERT(
+                    std::is_convertible<typename std::iterator_traits<FwdIt>::reference, param_view>::value);
 
-private:
-    FwdIt it0_;
-    FwdIt it_;
-    FwdIt end_;
+                params_iter(FwdIt first, FwdIt last, bool space_as_plus) noexcept :
+                    any_params_iter(first == last),
+                    params_iter_base(space_as_plus),
+                    it0_(first),
+                    it_(first),
+                    end_(last)
+                {
+                }
 
-    void
-    rewind() noexcept override
-    {
-        it_ = it0_;
-    }
+            private:
+                FwdIt it0_;
+                FwdIt it_;
+                FwdIt end_;
 
-    bool
-    measure(
-        std::size_t& n) noexcept override
-    {
-        if(it_ == end_)
-            return false;
-       measure_impl(n,
-           param_view(*it_++));
-        return true;
-    }
+                void rewind() noexcept override { it_ = it0_; }
 
-    void
-    copy(
-        char*& dest,
-        char const* end) noexcept override
-    {
-        copy_impl(dest, end,
-            param_view(*it_++));
-    }
-};
+                bool measure(std::size_t& n) noexcept override
+                {
+                    if (it_ == end_) {
+                        return false;
+                    }
+                    measure_impl(n, param_view(*it_++));
+                    return true;
+                }
 
-//------------------------------------------------
-//
-// param_encoded_iter
-//
-//------------------------------------------------
+                void copy(char*& dest, char const* end) noexcept override { copy_impl(dest, end, param_view(*it_++)); }
+            };
 
-// A 1-param encoded range
-// allowing self-intersection
-struct BOOST_SYMBOL_VISIBLE
-    param_encoded_iter
-    : any_params_iter
-{
-    explicit
-    param_encoded_iter(
-        param_pct_view const&) noexcept;
+            //------------------------------------------------
+            //
+            // param_encoded_iter
+            //
+            //------------------------------------------------
 
-private:
-    bool has_value_;
-    bool at_end_ = false;
+            // A 1-param encoded range
+            // allowing self-intersection
+            struct BOOST_SYMBOL_VISIBLE param_encoded_iter : any_params_iter
+            {
+                explicit param_encoded_iter(param_pct_view const&) noexcept;
 
-    void rewind() noexcept override;
-    bool measure(std::size_t&) noexcept override;
-    void copy(char*&, char const*) noexcept override;
-};
+            private:
+                bool has_value_;
+                bool at_end_ = false;
 
-//------------------------------------------------
-//
-// params_encoded_iter
-//
-//------------------------------------------------
+                void rewind() noexcept override;
+                bool measure(std::size_t&) noexcept override;
+                void copy(char*&, char const*) noexcept override;
+            };
 
-// Validating and copying from
-// a string of encoded params
-struct params_encoded_iter_base
-{
-protected:
-    BOOST_URL_DECL
-    static
-    void
-    measure_impl(
-        std::size_t& n,
-        param_view const& v) noexcept;
+            //------------------------------------------------
+            //
+            // params_encoded_iter
+            //
+            //------------------------------------------------
 
-    BOOST_URL_DECL
-    static
-    void
-    copy_impl(
-        char*& dest,
-        char const* end,
-        param_view const& v) noexcept;
-};
+            // Validating and copying from
+            // a string of encoded params
+            struct params_encoded_iter_base
+            {
+            protected:
+                BOOST_URL_DECL
+                static void measure_impl(std::size_t& n, param_view const& v) noexcept;
 
-//------------------------------------------------
+                BOOST_URL_DECL
+                static void copy_impl(char*& dest, char const* end, param_view const& v) noexcept;
+            };
 
-// A range of encoded query params_ref
-template<class FwdIt>
-struct params_encoded_iter
-    : any_params_iter
-    , private params_encoded_iter_base
-{
-    BOOST_CORE_STATIC_ASSERT(
-        std::is_convertible<
-            typename std::iterator_traits<
-                FwdIt>::reference,
-            param_view>::value);
+            //------------------------------------------------
 
-    params_encoded_iter(
-        FwdIt first,
-        FwdIt last) noexcept
-        : any_params_iter(
-            first == last)
-        , it0_(first)
-        , it_(first)
-        , end_(last)
-    {
-    }
+            // A range of encoded query params_ref
+            template<class FwdIt>
+            struct params_encoded_iter : any_params_iter, private params_encoded_iter_base
+            {
+                BOOST_CORE_STATIC_ASSERT(
+                    std::is_convertible<typename std::iterator_traits<FwdIt>::reference, param_view>::value);
 
-private:
-    FwdIt it0_;
-    FwdIt it_;
-    FwdIt end_;
+                params_encoded_iter(FwdIt first, FwdIt last) noexcept :
+                    any_params_iter(first == last),
+                    it0_(first),
+                    it_(first),
+                    end_(last)
+                {
+                }
 
-    void
-    rewind() noexcept override
-    {
-        it_ = it0_;
-    }
+            private:
+                FwdIt it0_;
+                FwdIt it_;
+                FwdIt end_;
 
-    bool
-    measure(
-        std::size_t& n) override
-    {
-        if(it_ == end_)
-            return false;
-        // throw on invalid input
-        measure_impl(n,
-            param_pct_view(
-                param_view(*it_++)));
-        return true;
-    }
+                void rewind() noexcept override { it_ = it0_; }
 
-    void
-    copy(
-        char*& dest,
-        char const* end
-            ) noexcept override
-    {
-        copy_impl(dest, end,
-            param_view(*it_++));
-    }
-};
+                bool measure(std::size_t& n) override
+                {
+                    if (it_ == end_) {
+                        return false;
+                    }
+                    // throw on invalid input
+                    measure_impl(n, param_pct_view(param_view(*it_++)));
+                    return true;
+                }
 
-//------------------------------------------------
-//
-// param_value_iter
-//
-//------------------------------------------------
+                void copy(char*& dest, char const* end) noexcept override { copy_impl(dest, end, param_view(*it_++)); }
+            };
 
-// An iterator which outputs
-// one value on an existing key
-struct param_value_iter
-    : any_params_iter
-{
-    param_value_iter(
-        std::size_t nk,
-        core::string_view const& value,
-        bool has_value) noexcept
-        : any_params_iter(
-            false,
-            value)
-        , nk_(nk)
-        , has_value_(has_value)
-    {
-    }
+            //------------------------------------------------
+            //
+            // param_value_iter
+            //
+            //------------------------------------------------
 
-private:
-    std::size_t nk_ = 0;
-    bool has_value_ = false;
-    bool at_end_ = false;
+            // An iterator which outputs
+            // one value on an existing key
+            struct param_value_iter : any_params_iter
+            {
+                param_value_iter(std::size_t nk, core::string_view const& value, bool has_value) noexcept :
+                    any_params_iter(false, value),
+                    nk_(nk),
+                    has_value_(has_value)
+                {
+                }
 
-    void rewind() noexcept override;
-    bool measure(std::size_t&) noexcept override;
-    void copy(char*&, char const*) noexcept override;
-};
+            private:
+                std::size_t nk_ = 0;
+                bool has_value_ = false;
+                bool at_end_ = false;
 
-//------------------------------------------------
-//
-// param_encoded_value_iter
-//
-//------------------------------------------------
+                void rewind() noexcept override;
+                bool measure(std::size_t&) noexcept override;
+                void copy(char*&, char const*) noexcept override;
+            };
 
-// An iterator which outputs one
-// encoded value on an existing key
-struct param_encoded_value_iter
-    : any_params_iter
-{
-    param_encoded_value_iter(
-        std::size_t nk,
-        pct_string_view const& value,
-        bool has_value) noexcept
-        : any_params_iter(
-            false,
-            value)
-        , nk_(nk)
-        , has_value_(has_value)
-    {
-    }
+            //------------------------------------------------
+            //
+            // param_encoded_value_iter
+            //
+            //------------------------------------------------
 
-private:
-    std::size_t nk_ = 0;
-    bool has_value_ = false;
-    bool at_end_ = false;
+            // An iterator which outputs one
+            // encoded value on an existing key
+            struct param_encoded_value_iter : any_params_iter
+            {
+                param_encoded_value_iter(std::size_t nk, pct_string_view const& value, bool has_value) noexcept :
+                    any_params_iter(false, value),
+                    nk_(nk),
+                    has_value_(has_value)
+                {
+                }
 
-    void rewind() noexcept override;
-    bool measure(std::size_t&) noexcept override;
-    void copy(char*&, char const*) noexcept override;
-};
+            private:
+                std::size_t nk_ = 0;
+                bool has_value_ = false;
+                bool at_end_ = false;
 
-//------------------------------------------------
+                void rewind() noexcept override;
+                bool measure(std::size_t&) noexcept override;
+                void copy(char*&, char const*) noexcept override;
+            };
 
-template<class FwdIt>
-params_iter<FwdIt>
-make_params_iter(
-    FwdIt first, FwdIt last, bool space_as_plus)
-{
-    return params_iter<
-        FwdIt>(first, last, space_as_plus);
-}
+            //------------------------------------------------
 
-template<class FwdIt>
-params_encoded_iter<FwdIt>
-make_params_encoded_iter(
-    FwdIt first, FwdIt last)
-{
-    return params_encoded_iter<
-        FwdIt>(first, last);
-}
+            template<class FwdIt>
+            params_iter<FwdIt> make_params_iter(FwdIt first, FwdIt last, bool space_as_plus)
+            {
+                return params_iter<FwdIt>(first, last, space_as_plus);
+            }
 
-} // detail
-} // urls
-} // boost
+            template<class FwdIt>
+            params_encoded_iter<FwdIt> make_params_encoded_iter(FwdIt first, FwdIt last)
+            {
+                return params_encoded_iter<FwdIt>(first, last);
+            }
+
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

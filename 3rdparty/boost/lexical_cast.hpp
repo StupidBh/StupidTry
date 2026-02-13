@@ -20,11 +20,11 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
 #if defined(BOOST_NO_STRINGSTREAM) || defined(BOOST_NO_STD_WSTRING)
-#define BOOST_LCAST_NO_WCHAR_T
+    #define BOOST_LCAST_NO_WCHAR_T
 #endif
 
 #include <boost/lexical_cast/detail/buffer_view.hpp>
@@ -32,10 +32,9 @@
 #include <boost/lexical_cast/bad_lexical_cast.hpp>
 #include <boost/lexical_cast/try_lexical_convert.hpp>
 
-namespace boost
-{
-    template <typename Target, typename Source>
-    inline Target lexical_cast(const Source &arg)
+namespace boost {
+    template<typename Target, typename Source>
+    inline Target lexical_cast(const Source& arg)
     {
         Target result = Target();
 
@@ -46,52 +45,41 @@ namespace boost
         return result;
     }
 
-    template <typename Target>
+    template<typename Target>
     inline Target lexical_cast(const char* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
 
-    template <typename Target>
+    template<typename Target>
     inline Target lexical_cast(const unsigned char* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
 
-    template <typename Target>
+    template<typename Target>
     inline Target lexical_cast(const signed char* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
 
 #ifndef BOOST_LCAST_NO_WCHAR_T
-    template <typename Target>
+    template<typename Target>
     inline Target lexical_cast(const wchar_t* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
 #endif
-    template <typename Target>
+    template<typename Target>
     inline Target lexical_cast(const char16_t* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
-    template <typename Target>
+
+    template<typename Target>
     inline Target lexical_cast(const char32_t* chars, std::size_t count)
     {
-        return ::boost::lexical_cast<Target>(
-            ::boost::conversion::detail::make_buffer_view(chars, chars + count)
-        );
+        return ::boost::lexical_cast<Target>(::boost::conversion::detail::make_buffer_view(chars, chars + count));
     }
 
 } // namespace boost

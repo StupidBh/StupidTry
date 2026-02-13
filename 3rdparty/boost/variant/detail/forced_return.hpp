@@ -16,37 +16,38 @@
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 
-
 #ifdef BOOST_MSVC
-# pragma warning( push )
-# pragma warning( disable : 4702 ) // unreachable code
+    #pragma warning(push)
+    #pragma warning(disable: 4702) // unreachable code
 #endif
 
-namespace boost { namespace detail { namespace variant {
+namespace boost {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) function template forced_return
-//
-// Logical error to permit invocation at runtime, but (artificially) satisfies
-// compile-time requirement of returning a result value.
-//
-template <typename T>
-BOOST_NORETURN inline T
-forced_return()
-{
-    // logical error: should never be here! (see above)
-    BOOST_ASSERT(false);
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) function template forced_return
+            //
+            // Logical error to permit invocation at runtime, but (artificially) satisfies
+            // compile-time requirement of returning a result value.
+            //
+            template<typename T>
+            BOOST_NORETURN inline T forced_return()
+            {
+                // logical error: should never be here! (see above)
+                BOOST_ASSERT(false);
 
-    T (*dummy)() = 0;
-    (void)dummy;
-    BOOST_UNREACHABLE_RETURN(dummy());
-}
+                T (*dummy)() = 0;
+                (void)dummy;
+                BOOST_UNREACHABLE_RETURN(dummy());
+            }
 
-}}} // namespace boost::detail::variant
-
+        }
+    }
+} // namespace boost
 
 #ifdef BOOST_MSVC
-# pragma warning( pop )
+    #pragma warning(pop)
 #endif
 
 #endif // BOOST_VARIANT_DETAIL_FORCED_RETURN_HPP

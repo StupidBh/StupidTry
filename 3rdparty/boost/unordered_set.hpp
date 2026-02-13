@@ -11,7 +11,7 @@
 
 #include <boost/config.hpp>
 #if defined(BOOST_HAS_PRAGMA_ONCE)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/unordered/unordered_set.hpp>

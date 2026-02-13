@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 // boost/smart_ptr/detail/yield_k.hpp
@@ -21,28 +21,24 @@
 
 #include <boost/core/yield_primitives.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-inline void yield( unsigned k )
-{
-    // Experiments on Windows and Fedora 32 show that a single pause,
-    // followed by an immediate sp_thread_sleep(), is best.
+        inline void yield(unsigned k)
+        {
+            // Experiments on Windows and Fedora 32 show that a single pause,
+            // followed by an immediate sp_thread_sleep(), is best.
 
-    if( k & 1 )
-    {
-        boost::core::sp_thread_sleep();
-    }
-    else
-    {
-        boost::core::sp_thread_pause();
-    }
-}
+            if (k & 1) {
+                boost::core::sp_thread_sleep();
+            }
+            else {
+                boost::core::sp_thread_pause();
+            }
+        }
 
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 

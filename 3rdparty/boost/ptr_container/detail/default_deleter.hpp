@@ -16,54 +16,71 @@
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_bounds.hpp>
 
-namespace boost { namespace ptr_container_detail { namespace move_ptrs {
+namespace boost {
+    namespace ptr_container_detail {
+        namespace move_ptrs {
 
-namespace ptr_container_detail {
+            namespace ptr_container_detail {
 
-template<typename T>
-struct deleter_base {
-    typedef void (*deleter)(T*);
-    deleter_base(deleter d) { delete_ = d; }
-    void operator() (T* t) const { delete_(t); }
-    static deleter delete_;
-};
+                template<typename T>
+                struct deleter_base
+                {
+                    typedef void (*deleter)(T*);
 
-template<class T>
-typename deleter_base<T>::deleter
-deleter_base<T>::delete_;
+                    deleter_base(deleter d) { delete_ = d; }
 
-template<typename T>
-struct scalar_deleter : deleter_base<T> {
-    typedef deleter_base<T> base;
-    scalar_deleter() : base(do_delete) { }
-    static void do_delete(T* t) { checked_delete(t); }
-};
+                    void operator()(T* t) const { delete_(t); }
 
-template<typename T>
-struct array_deleter
-    : deleter_base<typename remove_bounds<T>::type>
-{
-    typedef typename remove_bounds<T>::type element_type;
-    typedef deleter_base<element_type> base;
-    array_deleter() : base(do_delete) { }
-    static void do_delete(element_type* t) { checked_array_delete(t); }
-};
+                    static deleter delete_;
+                };
 
-} // End namespace ptr_container_detail.
+                template<class T>
+                typename deleter_base<T>::deleter deleter_base<T>::delete_;
 
-template<typename T>
-struct default_deleter
-    : mpl::if_<
-          is_array<T>,
-          ptr_container_detail::array_deleter<T>,
-          ptr_container_detail::scalar_deleter<T>
-      >::type
-{
-    default_deleter() { }
-    template<typename TT>
-    default_deleter(default_deleter<TT>) { }
-};
+                template<typename T>
+                struct scalar_deleter : deleter_base<T>
+                {
+                    typedef deleter_base<T> base;
 
-} } } // End namespaces ptr_container_detail, move_ptrs, boost.
+                    scalar_deleter() :
+                        base(do_delete)
+                    {
+                    }
+
+                    static void do_delete(T* t) { checked_delete(t); }
+                };
+
+                template<typename T>
+                struct array_deleter : deleter_base<typename remove_bounds<T>::type>
+                {
+                    typedef typename remove_bounds<T>::type element_type;
+                    typedef deleter_base<element_type> base;
+
+                    array_deleter() :
+                        base(do_delete)
+                    {
+                    }
+
+                    static void do_delete(element_type* t) { checked_array_delete(t); }
+                };
+
+            } // End namespace ptr_container_detail.
+
+            template<typename T>
+            struct default_deleter :
+                mpl::if_<is_array<T>, ptr_container_detail::array_deleter<T>, ptr_container_detail::scalar_deleter<T>>::
+                    type
+            {
+                default_deleter() {}
+
+                template<typename TT>
+                default_deleter(default_deleter<TT>)
+                {
+                }
+            };
+
+        }
+    }
+}      // namespace boost
 
 #endif // #ifndef BOOST_MOVE_PTR_DEFAULT_DELETER_HPP_INCLUDED

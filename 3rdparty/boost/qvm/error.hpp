@@ -7,26 +7,25 @@
 
 #include <exception>
 
-namespace boost { namespace qvm {
+namespace boost {
+    namespace qvm {
 
-struct
-error:
-    std::exception
-    {
-    char const *
-    what() const throw()
+        struct error : std::exception
         {
-        return "Boost QVM error";
-        }
+            char const* what() const throw() { return "Boost QVM error"; }
 
-    ~error() throw()
+            ~error() throw() {}
+        };
+
+        struct zero_determinant_error : error
         {
-        }
-    };
+        };
 
-struct zero_determinant_error: error { };
-struct zero_magnitude_error: error { };
+        struct zero_magnitude_error : error
+        {
+        };
 
-} }
+    }
+}
 
 #endif

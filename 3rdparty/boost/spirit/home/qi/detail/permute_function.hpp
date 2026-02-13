@@ -8,68 +8,73 @@
 #define BOOST_SPIRIT_QI_DETAIL_PERMUTE_FUNCTION_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/optional.hpp>
 
-namespace boost { namespace spirit { namespace qi { namespace detail
-{
+namespace boost {
+    namespace spirit {
+        namespace qi {
+            namespace detail {
 #ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable: 4512) // assignment operator could not be generated.
+    #pragma warning(push)
+    #pragma warning(disable: 4512) // assignment operator could not be generated.
 #endif
-    template <typename Iterator, typename Context, typename Skipper>
-    struct permute_function
-    {
-        permute_function(
-            Iterator& first_, Iterator const& last_
-          , Context& context_, Skipper const& skipper_)
-          : first(first_)
-          , last(last_)
-          , context(context_)
-          , skipper(skipper_)
-        {
-        }
+                template<typename Iterator, typename Context, typename Skipper>
+                struct permute_function
+                {
+                    permute_function(
+                        Iterator& first_,
+                        Iterator const& last_,
+                        Context& context_,
+                        Skipper const& skipper_) :
+                        first(first_),
+                        last(last_),
+                        context(context_),
+                        skipper(skipper_)
+                    {
+                    }
 
-        template <typename Component, typename Attribute>
-        bool operator()(Component const& component, Attribute& attr)
-        {
-            // return true if the parser succeeds and the slot is not yet taken
-            if (!*taken && component.parse(first, last, context, skipper, attr))
-            {
-                *taken = true;
-                ++taken;
-                return true;
-            }
-            ++taken;
-            return false;
-        }
+                    template<typename Component, typename Attribute>
+                    bool operator()(Component const& component, Attribute& attr)
+                    {
+                        // return true if the parser succeeds and the slot is not yet taken
+                        if (!*taken && component.parse(first, last, context, skipper, attr)) {
+                            *taken = true;
+                            ++taken;
+                            return true;
+                        }
+                        ++taken;
+                        return false;
+                    }
 
-        template <typename Component>
-        bool operator()(Component const& component)
-        {
-            // return true if the parser succeeds and the slot is not yet taken
-            if (!*taken && component.parse(first, last, context, skipper, unused))
-            {
-                *taken = true;
-                ++taken;
-                return true;
-            }
-            ++taken;
-            return false;
-        }
+                    template<typename Component>
+                    bool operator()(Component const& component)
+                    {
+                        // return true if the parser succeeds and the slot is not yet taken
+                        if (!*taken && component.parse(first, last, context, skipper, unused)) {
+                            *taken = true;
+                            ++taken;
+                            return true;
+                        }
+                        ++taken;
+                        return false;
+                    }
 
-        Iterator& first;
-        Iterator const& last;
-        Context& context;
-        Skipper const& skipper;
-        bool* taken;
-    };
+                    Iterator& first;
+                    Iterator const& last;
+                    Context& context;
+                    Skipper const& skipper;
+                    bool* taken;
+                };
 #ifdef _MSC_VER
-#  pragma warning(pop)
+    #pragma warning(pop)
 #endif
-}}}}
+            }
+        }
+    }
+}
 
 #endif

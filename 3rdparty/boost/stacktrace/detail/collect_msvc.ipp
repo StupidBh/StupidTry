@@ -9,25 +9,31 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
 #include <boost/stacktrace/safe_dump_to.hpp>
 
 #include <boost/winapi/stack_backtrace.hpp>
 
-namespace boost { namespace stacktrace { namespace detail {
+namespace boost {
+    namespace stacktrace {
+        namespace detail {
 
-std::size_t this_thread_frames::collect(native_frame_ptr_t* out_frames, std::size_t max_frames_count, std::size_t skip) noexcept {
-    return boost::winapi::RtlCaptureStackBackTrace(
-        static_cast<boost::winapi::ULONG_>(skip),
-        static_cast<boost::winapi::ULONG_>(max_frames_count),
-        const_cast<boost::winapi::PVOID_*>(out_frames),
-        0
-    );
-}
+            std::size_t this_thread_frames::collect(
+                native_frame_ptr_t* out_frames,
+                std::size_t max_frames_count,
+                std::size_t skip) noexcept
+            {
+                return boost::winapi::RtlCaptureStackBackTrace(
+                    static_cast<boost::winapi::ULONG_>(skip),
+                    static_cast<boost::winapi::ULONG_>(max_frames_count),
+                    const_cast<boost::winapi::PVOID_*>(out_frames),
+                    0);
+            }
 
-
-}}} // namespace boost::stacktrace
+        }
+    }
+}      // namespace boost
 
 #endif // BOOST_STACKTRACE_DETAIL_COLLECT_MSVC_IPP

@@ -21,4 +21,4 @@
 #include <boost/core/checked_delete.hpp>
 #include <boost/core/noncopyable.hpp>
 
-#endif  // BOOST_UTILITY_HPP
+#endif // BOOST_UTILITY_HPP

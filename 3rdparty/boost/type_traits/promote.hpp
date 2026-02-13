@@ -12,11 +12,15 @@
 
 namespace boost {
 
-template<class T> struct promote : public integral_promotion<typename floating_point_promotion<T>::type>{};
+    template<class T>
+    struct promote : public integral_promotion<typename floating_point_promotion<T>::type>
+    {
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-   template <class T> using promote_t = typename promote<T>::type;
+    template<class T>
+    using promote_t = typename promote<T>::type;
 
 #endif
 

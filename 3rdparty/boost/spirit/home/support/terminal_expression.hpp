@@ -7,6 +7,6 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(BOOST_SPIRIT_TERMINAL_EXPRESSION_MARCH_24_2011_1210AM)
-#define BOOST_SPIRIT_TERMINAL_EXPRESSION_MARCH_24_2011_1210AM
+    #define BOOST_SPIRIT_TERMINAL_EXPRESSION_MARCH_24_2011_1210AM
 
 #endif

@@ -10,44 +10,43 @@
 #include <boost/uuid/detail/endian.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-// time_generator_v6
+        // time_generator_v6
 
-class time_generator_v6: public time_generator_v1
-{
-public:
+        class time_generator_v6 : public time_generator_v1 {
+        public:
+            using result_type = uuid;
 
-    using result_type = uuid;
+            using time_generator_v1::time_generator_v1;
 
-    using time_generator_v1::time_generator_v1;
+            result_type operator()() noexcept;
+        };
 
-    result_type operator()() noexcept;
-};
+        // operator()
 
-// operator()
+        inline time_generator_v6::result_type time_generator_v6::operator()() noexcept
+        {
+            uuid result = time_generator_v1::operator()();
 
-inline time_generator_v6::result_type time_generator_v6::operator()() noexcept
-{
-    uuid result = time_generator_v1::operator()();
+            std::uint64_t timestamp = result.timestamp_v1();
 
-    std::uint64_t timestamp = result.timestamp_v1();
+            std::uint32_t time_high = static_cast<std::uint32_t>(timestamp >> 28);
 
-    std::uint32_t time_high = static_cast< std::uint32_t >( timestamp >> 28 );
+            detail::store_big_u32(result.data + 0, time_high);
 
-    detail::store_big_u32( result.data + 0, time_high );
+            std::uint16_t time_mid = static_cast<std::uint16_t>(timestamp >> 12);
 
-    std::uint16_t time_mid = static_cast< std::uint16_t >( timestamp >> 12 );
+            detail::store_big_u16(result.data + 4, time_mid);
 
-    detail::store_big_u16( result.data + 4, time_mid );
+            std::uint16_t time_low_and_version = static_cast<std::uint16_t>(timestamp & 0xFFF) | 0x6000;
 
-    std::uint16_t time_low_and_version = static_cast< std::uint16_t >( timestamp & 0xFFF ) | 0x6000;
+            detail::store_big_u16(result.data + 6, time_low_and_version);
 
-    detail::store_big_u16( result.data + 6, time_low_and_version );
+            return result;
+        }
 
-    return result;
-}
-
-}} // namespace boost::uuids
+    }
+}      // namespace boost
 
 #endif // BOOST_UUID_TIME_GENERATOR_V1_HPP_INCLUDED

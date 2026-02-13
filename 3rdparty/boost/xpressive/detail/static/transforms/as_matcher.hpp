@@ -10,39 +10,38 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/mpl/assert.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 
-namespace boost { namespace xpressive { namespace grammar_detail
-{
-    struct as_matcher : proto::transform<as_matcher>
-    {
-        template<typename Expr, typename State, typename Data>
-        struct impl : proto::transform_impl<Expr, State, Data>
-        {
-            typedef typename impl::data data_type;
-
-            typedef
-                typename data_type::template apply<
-                    typename proto::result_of::value<typename impl::expr>::type
-                >::type
-            result_type;
-
-            result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param
-              , typename impl::data_param data
-            ) const
+namespace boost {
+    namespace xpressive {
+        namespace grammar_detail {
+            struct as_matcher : proto::transform<as_matcher>
             {
-                return data.call(proto::value(expr));
-            }
-        };
-    };
+                template<typename Expr, typename State, typename Data>
+                struct impl : proto::transform_impl<Expr, State, Data>
+                {
+                    typedef typename impl::data data_type;
 
-}}}
+                    typedef typename data_type::template apply<
+                        typename proto::result_of::value<typename impl::expr>::type>::type result_type;
+
+                    result_type operator()(
+                        typename impl::expr_param expr,
+                        typename impl::state_param,
+                        typename impl::data_param data) const
+                    {
+                        return data.call(proto::value(expr));
+                    }
+                };
+            };
+
+        }
+    }
+}
 
 #endif

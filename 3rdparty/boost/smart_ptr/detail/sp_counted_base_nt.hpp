@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //
@@ -24,95 +24,81 @@
 
 #if defined(BOOST_SP_REPORT_IMPLEMENTATION)
 
-#include <boost/config/pragma_message.hpp>
+    #include <boost/config/pragma_message.hpp>
 BOOST_PRAGMA_MESSAGE("Using single-threaded, non-atomic sp_counted_base")
 
 #endif
 
-namespace boost
-{
+namespace boost {
 
-namespace detail
-{
+    namespace detail {
 
-class BOOST_SYMBOL_VISIBLE sp_counted_base
-{
-private:
+        class BOOST_SYMBOL_VISIBLE sp_counted_base {
+        private:
+            sp_counted_base(sp_counted_base const&);
+            sp_counted_base& operator=(sp_counted_base const&);
 
-    sp_counted_base( sp_counted_base const & );
-    sp_counted_base & operator= ( sp_counted_base const & );
+            std::int_least32_t use_count_;  // #shared
+            std::int_least32_t weak_count_; // #weak + (#shared != 0)
 
-    std::int_least32_t use_count_;        // #shared
-    std::int_least32_t weak_count_;       // #weak + (#shared != 0)
+        public:
+            sp_counted_base() noexcept :
+                use_count_(1),
+                weak_count_(1)
+            {
+            }
 
-public:
+            virtual ~sp_counted_base() /*noexcept*/ {}
 
-    sp_counted_base() noexcept: use_count_( 1 ), weak_count_( 1 )
-    {
-    }
+            // dispose() is called when use_count_ drops to zero, to release
+            // the resources managed by *this.
 
-    virtual ~sp_counted_base() /*noexcept*/
-    {
-    }
+            virtual void dispose() noexcept = 0; // nothrow
 
-    // dispose() is called when use_count_ drops to zero, to release
-    // the resources managed by *this.
+            // destroy() is called when weak_count_ drops to zero.
 
-    virtual void dispose() noexcept = 0; // nothrow
+            virtual void destroy() noexcept // nothrow
+            {
+                delete this;
+            }
 
-    // destroy() is called when weak_count_ drops to zero.
+            virtual void* get_deleter(sp_typeinfo_ const& ti) noexcept = 0;
+            virtual void* get_local_deleter(sp_typeinfo_ const& ti) noexcept = 0;
+            virtual void* get_untyped_deleter() noexcept = 0;
 
-    virtual void destroy() noexcept // nothrow
-    {
-        delete this;
-    }
+            void add_ref_copy() noexcept { ++use_count_; }
 
-    virtual void * get_deleter( sp_typeinfo_ const & ti ) noexcept = 0;
-    virtual void * get_local_deleter( sp_typeinfo_ const & ti ) noexcept = 0;
-    virtual void * get_untyped_deleter() noexcept = 0;
+            bool add_ref_lock() noexcept // true on success
+            {
+                if (use_count_ == 0) {
+                    return false;
+                }
+                ++use_count_;
+                return true;
+            }
 
-    void add_ref_copy() noexcept
-    {
-        ++use_count_;
-    }
+            void release() noexcept
+            {
+                if (--use_count_ == 0) {
+                    dispose();
+                    weak_release();
+                }
+            }
 
-    bool add_ref_lock() noexcept // true on success
-    {
-        if( use_count_ == 0 ) return false;
-        ++use_count_;
-        return true;
-    }
+            void weak_add_ref() noexcept { ++weak_count_; }
 
-    void release() noexcept
-    {
-        if( --use_count_ == 0 )
-        {
-            dispose();
-            weak_release();
-        }
-    }
+            void weak_release() noexcept
+            {
+                if (--weak_count_ == 0) {
+                    destroy();
+                }
+            }
 
-    void weak_add_ref() noexcept
-    {
-        ++weak_count_;
-    }
+            long use_count() const noexcept { return use_count_; }
+        };
 
-    void weak_release() noexcept
-    {
-        if( --weak_count_ == 0 )
-        {
-            destroy();
-        }
-    }
-
-    long use_count() const noexcept
-    {
-        return use_count_;
-    }
-};
-
-} // namespace detail
+    } // namespace detail
 
 } // namespace boost
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_NT_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_NT_HPP_INCLUDED

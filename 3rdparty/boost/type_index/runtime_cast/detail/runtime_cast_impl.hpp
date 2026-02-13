@@ -20,41 +20,46 @@
 #include <boost/type_index.hpp>
 
 #if !defined(BOOST_TYPE_INDEX_INTERFACE_UNIT)
-#include <type_traits>
+    #include <type_traits>
 #endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-# pragma once
+    #pragma once
 #endif
 
-namespace boost { namespace typeindex {
+namespace boost {
+    namespace typeindex {
 
-namespace detail {
+        namespace detail {
 
-template<typename T, typename U>
-T* runtime_cast_impl(U* u, std::integral_constant<bool, true>) noexcept {
-    return u;
-}
+            template<typename T, typename U>
+            T* runtime_cast_impl(U* u, std::integral_constant<bool, true>) noexcept
+            {
+                return u;
+            }
 
-template<typename T, typename U>
-T const* runtime_cast_impl(U const* u, std::integral_constant<bool, true>) noexcept {
-    return u;
-}
+            template<typename T, typename U>
+            T const* runtime_cast_impl(U const* u, std::integral_constant<bool, true>) noexcept
+            {
+                return u;
+            }
 
-template<typename T, typename U>
-T* runtime_cast_impl(U* u, std::integral_constant<bool, false>) noexcept {
-    return const_cast<T*>(static_cast<T const*>(
-        u->boost_type_index_find_instance_(boost::typeindex::type_id<T>())
-    ));
-}
+            template<typename T, typename U>
+            T* runtime_cast_impl(U* u, std::integral_constant<bool, false>) noexcept
+            {
+                return const_cast<T*>(
+                    static_cast<T const*>(u->boost_type_index_find_instance_(boost::typeindex::type_id<T>())));
+            }
 
-template<typename T, typename U>
-T const* runtime_cast_impl(U const* u, std::integral_constant<bool, false>) noexcept {
-    return static_cast<T const*>(u->boost_type_index_find_instance_(boost::typeindex::type_id<T>()));
-}
+            template<typename T, typename U>
+            T const* runtime_cast_impl(U const* u, std::integral_constant<bool, false>) noexcept
+            {
+                return static_cast<T const*>(u->boost_type_index_find_instance_(boost::typeindex::type_id<T>()));
+            }
 
-} // namespace detail
+        } // namespace detail
 
-}} // namespace boost::typeindex
+    }
+}      // namespace boost
 
 #endif // BOOST_TYPE_INDEX_RUNTIME_CAST_DETAIL_RUNTIME_CAST_IMPL_HPP

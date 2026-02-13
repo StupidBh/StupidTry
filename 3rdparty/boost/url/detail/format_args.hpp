@@ -20,320 +20,218 @@
 // type-erase format arguments.
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-// state of the format string. It basically keeps
-// track of where we are in the format string.
-class format_parse_context
-{
-    char const* begin_;
-    char const* end_;
-    std::size_t arg_id_ = 0;
+            // state of the format string. It basically keeps
+            // track of where we are in the format string.
+            class format_parse_context {
+                char const* begin_;
+                char const* end_;
+                std::size_t arg_id_ = 0;
 
-public:
-    constexpr
-    format_parse_context(
-        char const* first,
-        char const* last,
-        std::size_t arg_id = 0)
-        : begin_( first )
-        , end_( last )
-        , arg_id_( arg_id )
-    {}
+            public:
+                constexpr format_parse_context(char const* first, char const* last, std::size_t arg_id = 0) :
+                    begin_(first),
+                    end_(last),
+                    arg_id_(arg_id)
+                {
+                }
 
-    constexpr
-    format_parse_context(
-        core::string_view fmt,
-        std::size_t arg_id = 0)
-        : format_parse_context(
-            fmt.data(),
-            fmt.data() + fmt.size(),
-            arg_id )
-    {}
+                constexpr format_parse_context(core::string_view fmt, std::size_t arg_id = 0) :
+                    format_parse_context(fmt.data(), fmt.data() + fmt.size(), arg_id)
+                {
+                }
 
-    constexpr
-    char const*
-    begin() const noexcept
-    {
-        return begin_;
-    }
+                constexpr char const* begin() const noexcept { return begin_; }
 
-    constexpr
-    char const*
-    end() const noexcept
-    {
-        return end_;
-    }
+                constexpr char const* end() const noexcept { return end_; }
 
-    BOOST_CXX14_CONSTEXPR
-    void
-    advance_to( char const* it )
-    {
-        begin_ = it;
-    }
+                BOOST_CXX14_CONSTEXPR
+                void advance_to(char const* it) { begin_ = it; }
 
-    std::size_t
-    next_arg_id()
-    {
-        return arg_id_++;
-    }
-};
+                std::size_t next_arg_id() { return arg_id_++; }
+            };
 
-// State of the destination string
-class format_context;
-class measure_context;
-struct ignore_format {};
+            // State of the destination string
+            class format_context;
+            class measure_context;
 
-template <class T>
-struct named_arg
-{
-    core::string_view name;
-    T const& value;
+            struct ignore_format
+            {
+            };
 
-    named_arg(core::string_view n, T const& v)
-        : name(n)
-        , value(v)
-    {}
-};
+            template<class T>
+            struct named_arg
+            {
+                core::string_view name;
+                T const& value;
 
-// A type erased format argument
-class format_arg
-{
-    void const* arg_;
-    void (*measure_)(
-        format_parse_context&,
-        measure_context&,
-        grammar::lut_chars const&,
-        void const* );
-    void (*fmt_)(
-        format_parse_context&,
-        format_context&,
-        grammar::lut_chars const&,
-        void const* );
-    core::string_view name_;
-    std::size_t value_ = 0;
-    bool ignore_ = false;
+                named_arg(core::string_view n, T const& v) :
+                    name(n),
+                    value(v)
+                {
+                }
+            };
 
-    template <class A>
-    static
-    void
-    measure_impl(
-        format_parse_context& pctx,
-        measure_context& mctx,
-        grammar::lut_chars const& cs,
-        void const* a );
+            // A type erased format argument
+            class format_arg {
+                void const* arg_;
+                void (*measure_)(format_parse_context&, measure_context&, grammar::lut_chars const&, void const*);
+                void (*fmt_)(format_parse_context&, format_context&, grammar::lut_chars const&, void const*);
+                core::string_view name_;
+                std::size_t value_ = 0;
+                bool ignore_ = false;
 
-    template <class A>
-    static
-    void
-    format_impl(
-        format_parse_context& pctx,
-        format_context& fctx,
-        grammar::lut_chars const& cs,
-        void const* a );
+                template<class A>
+                static void measure_impl(
+                    format_parse_context& pctx,
+                    measure_context& mctx,
+                    grammar::lut_chars const& cs,
+                    void const* a);
 
-public:
-    template<class A>
-    format_arg( A&& a );
+                template<class A>
+                static void format_impl(
+                    format_parse_context& pctx,
+                    format_context& fctx,
+                    grammar::lut_chars const& cs,
+                    void const* a);
 
-    template<class A>
-    format_arg( named_arg<A>&& a );
+            public:
+                template<class A>
+                format_arg(A&& a);
 
-    template<class A>
-    format_arg( core::string_view name, A&& a );
+                template<class A>
+                format_arg(named_arg<A>&& a);
 
-    format_arg()
-        : format_arg(ignore_format{})
-    {}
+                template<class A>
+                format_arg(core::string_view name, A&& a);
 
-    explicit
-    operator bool() const noexcept
-    {
-        return !ignore_;
-    }
+                format_arg() :
+                    format_arg(ignore_format {})
+                {
+                }
 
-    void
-    measure(
-        format_parse_context& pctx,
-        measure_context& mctx,
-        grammar::lut_chars const& cs)
-    {
-        measure_( pctx, mctx, cs, arg_ );
-    }
+                explicit operator bool() const noexcept { return !ignore_; }
 
-    void
-    format(
-        format_parse_context& pctx,
-        format_context& fctx,
-        grammar::lut_chars const& cs )
-    {
-        fmt_( pctx, fctx, cs, arg_ );
-    }
+                void measure(format_parse_context& pctx, measure_context& mctx, grammar::lut_chars const& cs)
+                {
+                    measure_(pctx, mctx, cs, arg_);
+                }
 
-    core::string_view
-    name() const
-    {
-        return name_;
-    }
+                void format(format_parse_context& pctx, format_context& fctx, grammar::lut_chars const& cs)
+                {
+                    fmt_(pctx, fctx, cs, arg_);
+                }
 
-    std::size_t
-    value() const
-    {
-        return value_;
-    }
-};
+                core::string_view name() const { return name_; }
 
-// create temp stack storage for type erased args
-template< class... Args >
-std::array<format_arg, sizeof...(Args)>
-make_format_args( Args&&... args )
-{
-    return {{ std::forward<Args>(args)... }};
-}
+                std::size_t value() const { return value_; }
+            };
 
-// reference to an array of format_args
-class format_args
-{
-    format_arg const* p_{nullptr};
-    std::size_t n_{0};
+            // create temp stack storage for type erased args
+            template<class... Args>
+            std::array<format_arg, sizeof...(Args)> make_format_args(Args&&... args)
+            {
+                return { { std::forward<Args>(args)... } };
+            }
 
-public:
-    format_args(
-        detail::format_arg const* first,
-        detail::format_arg const* last ) noexcept
-        : p_(first)
-        , n_(static_cast<std::size_t>(last - first))
-    {}
+            // reference to an array of format_args
+            class format_args {
+                format_arg const* p_ { nullptr };
+                std::size_t n_ { 0 };
 
-    template < std::size_t N >
-    format_args( std::array<format_arg, N> const& store ) noexcept
-        : p_(store.data())
-        , n_(store.size())
-    {}
+            public:
+                format_args(detail::format_arg const* first, detail::format_arg const* last) noexcept :
+                    p_(first),
+                    n_(static_cast<std::size_t>(last - first))
+                {
+                }
 
-    format_arg
-    get( std::size_t i ) const noexcept
-    {
-        if (i < n_)
-            return p_[i];
-        return {};
-    }
+                template<std::size_t N>
+                format_args(std::array<format_arg, N> const& store) noexcept :
+                    p_(store.data()),
+                    n_(store.size())
+                {
+                }
 
-    format_arg
-    get( core::string_view name ) const noexcept
-    {
-        for (std::size_t i = 0; i < n_; ++i)
-        {
-            if (p_[i].name() == name)
-                return p_[i];
-        }
-        return {};
-    }
-};
+                format_arg get(std::size_t i) const noexcept
+                {
+                    if (i < n_) {
+                        return p_[i];
+                    }
+                    return {};
+                }
 
-// define the format_context after format_args
-class format_context
-{
-    format_args args_;
-    char* out_;
+                format_arg get(core::string_view name) const noexcept
+                {
+                    for (std::size_t i = 0; i < n_; ++i) {
+                        if (p_[i].name() == name) {
+                            return p_[i];
+                        }
+                    }
+                    return {};
+                }
+            };
 
-public:
-    format_context(
-        char* out,
-        format_args args )
-        : args_( args )
-        , out_( out )
-    {}
+            // define the format_context after format_args
+            class format_context {
+                format_args args_;
+                char* out_;
 
-    format_args
-    args() const noexcept
-    {
-        return args_;
-    }
+            public:
+                format_context(char* out, format_args args) :
+                    args_(args),
+                    out_(out)
+                {
+                }
 
-    format_arg
-    arg( std::size_t id ) const noexcept
-    {
-        return args_.get( id );
-    }
+                format_args args() const noexcept { return args_; }
 
-    format_arg
-    arg( core::string_view name ) const noexcept
-    {
-        return args_.get( name );
-    }
+                format_arg arg(std::size_t id) const noexcept { return args_.get(id); }
 
-    char*
-    out()
-    {
-        return out_;
-    }
+                format_arg arg(core::string_view name) const noexcept { return args_.get(name); }
 
-    void
-    advance_to( char* it )
-    {
-        out_ = it;
-    }
-};
+                char* out() { return out_; }
 
-// define the measure_context after format_args
-class measure_context
-{
-    format_args args_;
-    std::size_t out_;
+                void advance_to(char* it) { out_ = it; }
+            };
 
-public:
-    measure_context(
-        format_args args )
-        : measure_context(0, args)
-    {}
+            // define the measure_context after format_args
+            class measure_context {
+                format_args args_;
+                std::size_t out_;
 
-    measure_context(
-        std::size_t out,
-        format_args args )
-        : args_( args )
-        , out_( out )
-    {}
+            public:
+                measure_context(format_args args) :
+                    measure_context(0, args)
+                {
+                }
 
-    format_args
-    args() const noexcept
-    {
-        return args_;
-    }
+                measure_context(std::size_t out, format_args args) :
+                    args_(args),
+                    out_(out)
+                {
+                }
 
-    format_arg
-    arg( std::size_t id ) const noexcept
-    {
-        return args_.get( id );
-    }
+                format_args args() const noexcept { return args_; }
 
-    format_arg
-    arg( core::string_view name ) const noexcept
-    {
-        return args_.get( name );
-    }
+                format_arg arg(std::size_t id) const noexcept { return args_.get(id); }
 
-    std::size_t
-    out()
-    {
-        return out_;
-    }
+                format_arg arg(core::string_view name) const noexcept { return args_.get(name); }
 
-    void
-    advance_to( std::size_t n )
-    {
-        out_ = n;
-    }
-};
+                std::size_t out() { return out_; }
 
-// fwd declare the formatter
-template <class T, class = void>
-struct formatter;
+                void advance_to(std::size_t n) { out_ = n; }
+            };
 
-} // detail
-} // url
-} // boost
+            // fwd declare the formatter
+            template<class T, class = void>
+            struct formatter;
+
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #include <boost/url/detail/impl/format_args.hpp>
 

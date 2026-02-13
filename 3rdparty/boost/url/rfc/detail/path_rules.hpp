@@ -17,28 +17,27 @@
 #include "boost/url/grammar/tuple_rule.hpp"
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-/** Rule for segment
+            /** Rule for segment
 
-    @par BNF
-    @code
-    segment       = *pchar
-    @endcode
+                @par BNF
+                @code
+                segment       = *pchar
+                @endcode
 
-    @par Specification
-    @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
-        >3.3. Path (rfc3986)</a>
+                @par Specification
+                @li <a href="https://datatracker.ietf.org/doc/html/rfc3986#section-3.3"
+                    >3.3. Path (rfc3986)</a>
 
-    @see
-        @ref grammar::parse.
-*/
-constexpr auto segment_rule =
-    pct_encoded_rule(pchars);
+                @see
+                    @ref grammar::parse.
+            */
+            constexpr auto segment_rule = pct_encoded_rule(pchars);
 
-} // detail
-} // urls
-} // boost
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

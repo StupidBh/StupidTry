@@ -5,16 +5,18 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_TTI_DETAIL_MACRO_SUNFIX_HPP)
-#define BOOST_TTI_DETAIL_MACRO_SUNFIX_HPP
+    #define BOOST_TTI_DETAIL_MACRO_SUNFIX_HPP
 
-#if defined(__SUNPRO_CC)
+    #if defined(__SUNPRO_CC)
 
-#define BOOST_TTI_DETAIL_MACRO_SUNFIX {}
+        #define BOOST_TTI_DETAIL_MACRO_SUNFIX \
+            {                                 \
+            }
 
-#else
+    #else
 
-#define BOOST_TTI_DETAIL_MACRO_SUNFIX
+        #define BOOST_TTI_DETAIL_MACRO_SUNFIX
 
-#endif
+    #endif
 
 #endif // BOOST_TTI_DETAIL_MACRO_SUNFIX_HPP

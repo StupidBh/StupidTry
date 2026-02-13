@@ -19,14 +19,14 @@
   See http://www.boost.org/libs/spirit for documentation
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_CLASSIC_APRIL_11_2008_0849AM)
-#define BOOST_SPIRIT_CLASSIC_APRIL_11_2008_0849AM
+    #define BOOST_SPIRIT_CLASSIC_APRIL_11_2008_0849AM
 
-#include <boost/spirit/home/classic/core.hpp>
-#include <boost/spirit/home/classic/meta.hpp>
-#include <boost/spirit/home/classic/error_handling.hpp>
-#include <boost/spirit/home/classic/iterator.hpp>
-#include <boost/spirit/home/classic/symbols.hpp>
-#include <boost/spirit/home/classic/utility.hpp>
-#include <boost/spirit/home/classic/attribute.hpp>
+    #include <boost/spirit/home/classic/core.hpp>
+    #include <boost/spirit/home/classic/meta.hpp>
+    #include <boost/spirit/home/classic/error_handling.hpp>
+    #include <boost/spirit/home/classic/iterator.hpp>
+    #include <boost/spirit/home/classic/symbols.hpp>
+    #include <boost/spirit/home/classic/utility.hpp>
+    #include <boost/spirit/home/classic/attribute.hpp>
 
 #endif

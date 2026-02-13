@@ -5,8 +5,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_DETAIL_EMPTY_RESULT_HPP)
-#define BOOST_VMD_DETAIL_EMPTY_RESULT_HPP
+    #define BOOST_VMD_DETAIL_EMPTY_RESULT_HPP
 
-#define BOOST_VMD_DETAIL_EMPTY_RESULT(...) (,)
+    #define BOOST_VMD_DETAIL_EMPTY_RESULT(...) (, )
 
 #endif /* BOOST_VMD_DETAIL_EMPTY_RESULT_HPP */

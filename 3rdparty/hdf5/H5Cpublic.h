@@ -23,7 +23,8 @@
 
 #include "H5public.h" /* Generic Functions                        */
 
-enum H5C_cache_incr_mode {
+enum H5C_cache_incr_mode
+{
     H5C_incr__off,
     /**<Automatic cache size increase is disabled, and the remaining increment fields are ignored.*/
 
@@ -31,7 +32,8 @@ enum H5C_cache_incr_mode {
     /**<Automatic cache size increase is enabled using the hit rate threshold algorithm.*/
 };
 
-enum H5C_cache_flash_incr_mode {
+enum H5C_cache_flash_incr_mode
+{
     H5C_flash_incr__off,
     /**<Flash cache size increase is disabled.*/
 
@@ -39,7 +41,8 @@ enum H5C_cache_flash_incr_mode {
     /**<Flash cache size increase is enabled using the add space algorithm.*/
 };
 
-enum H5C_cache_decr_mode {
+enum H5C_cache_decr_mode
+{
     H5C_decr__off,
     /**<Automatic cache size decrease is disabled.*/
 

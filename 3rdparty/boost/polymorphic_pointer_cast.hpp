@@ -12,20 +12,18 @@
 
 #include <boost/config.hpp>
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
-# include <boost/assert.hpp>
-# include <boost/pointer_cast.hpp>
-# include <boost/throw_exception.hpp>
+#include <boost/assert.hpp>
+#include <boost/pointer_cast.hpp>
+#include <boost/throw_exception.hpp>
 
+namespace boost {
+    //  See the documentation for descriptions of how to choose between
+    //  static_pointer_cast<>, dynamic_pointer_cast<>, polymorphic_pointer_cast<> and polymorphic_pointer_downcast<>
 
-namespace boost
-{
-//  See the documentation for descriptions of how to choose between
-//  static_pointer_cast<>, dynamic_pointer_cast<>, polymorphic_pointer_cast<> and polymorphic_pointer_downcast<>
-
-//  polymorphic_pointer_downcast  --------------------------------------------//
+    //  polymorphic_pointer_downcast  --------------------------------------------//
 
     //  BOOST_ASSERT() checked polymorphic downcast.  Crosscasts prohibited.
     //  Supports any type with static_pointer_cast/dynamic_pointer_cast functions:
@@ -38,23 +36,23 @@ namespace boost
 
     //  Contributed by Boris Rasin
 
-    template <typename Target, typename Source>
-    inline auto polymorphic_pointer_downcast (const Source& x)
-        -> decltype(static_pointer_cast<Target>(x))
+    template<typename Target, typename Source>
+    inline auto polymorphic_pointer_downcast(const Source& x) -> decltype(static_pointer_cast<Target>(x))
     {
-        BOOST_ASSERT(dynamic_pointer_cast<Target> (x) == x);
-        return static_pointer_cast<Target> (x);
+        BOOST_ASSERT(dynamic_pointer_cast<Target>(x) == x);
+        return static_pointer_cast<Target>(x);
     }
 
-    template <typename Target, typename Source>
-    inline auto polymorphic_pointer_cast (const Source& x)
-        -> decltype(dynamic_pointer_cast<Target>(x))
+    template<typename Target, typename Source>
+    inline auto polymorphic_pointer_cast(const Source& x) -> decltype(dynamic_pointer_cast<Target>(x))
     {
-        auto tmp = dynamic_pointer_cast<Target> (x);
-        if ( !tmp ) boost::throw_exception( std::bad_cast() );
+        auto tmp = dynamic_pointer_cast<Target>(x);
+        if (!tmp) {
+            boost::throw_exception(std::bad_cast());
+        }
         return tmp;
     }
 
 } // namespace boost
 
-#endif  // BOOST_CONVERSION_POLYMORPHIC_POINTER_CAST_HPP
+#endif // BOOST_CONVERSION_POLYMORPHIC_POINTER_CAST_HPP

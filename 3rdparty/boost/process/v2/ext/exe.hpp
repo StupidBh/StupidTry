@@ -17,38 +17,36 @@ BOOST_PROCESS_V2_BEGIN_NAMESPACE
 namespace ext {
 
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-BOOST_PROCESS_V2_DECL filesystem::path exe(HANDLE handle, error_code & ec);
-BOOST_PROCESS_V2_DECL filesystem::path exe(HANDLE handle);
+    BOOST_PROCESS_V2_DECL filesystem::path exe(HANDLE handle, error_code& ec);
+    BOOST_PROCESS_V2_DECL filesystem::path exe(HANDLE handle);
 #endif
 
-/// @{
-/// Return the executable of another process by pid or handle.
-BOOST_PROCESS_V2_DECL filesystem::path exe(pid_type pid, error_code & ec);
-BOOST_PROCESS_V2_DECL filesystem::path exe(pid_type pid);
+    /// @{
+    /// Return the executable of another process by pid or handle.
+    BOOST_PROCESS_V2_DECL filesystem::path exe(pid_type pid, error_code& ec);
+    BOOST_PROCESS_V2_DECL filesystem::path exe(pid_type pid);
 
-
-
-template<typename Executor>
-filesystem::path exe(basic_process_handle<Executor> & handle, error_code & ec)
-{
+    template<typename Executor>
+    filesystem::path exe(basic_process_handle<Executor>& handle, error_code& ec)
+    {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-    return exe(handle.native_handle(), ec);
+        return exe(handle.native_handle(), ec);
 #else
-    return exe(handle.id(), ec);
+        return exe(handle.id(), ec);
 #endif
-}
+    }
 
-template<typename Executor>
-filesystem::path exe(basic_process_handle<Executor> & handle)
-{
+    template<typename Executor>
+    filesystem::path exe(basic_process_handle<Executor>& handle)
+    {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-    return exe(handle.native_handle());
+        return exe(handle.native_handle());
 #else
-    return exe(handle.id());
+        return exe(handle.id());
 #endif
-}
+    }
 
-///@}
+    ///@}
 
 } // namespace ext
 

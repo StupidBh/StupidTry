@@ -16,58 +16,78 @@
 #include <boost/process/v1/detail/used_handles.hpp>
 #include <unistd.h>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
-template<int p1, int p2>
-struct file_out : handler_base_ext, ::boost::process::v1::detail::uses_handles
-{
-    file_descriptor file;
-    int handle = file.handle();
+                    template<int p1, int p2>
+                    struct file_out : handler_base_ext, ::boost::process::v1::detail::uses_handles
+                    {
+                        file_descriptor file;
+                        int handle = file.handle();
 
-    template<typename T>
-    file_out(T&& t) : file(std::forward<T>(t), file_descriptor::write), handle(file.handle()) {}
-    file_out(FILE * f) : handle(fileno(f)) {}
+                        template<typename T>
+                        file_out(T&& t) :
+                            file(std::forward<T>(t), file_descriptor::write),
+                            handle(file.handle())
+                        {
+                        }
 
-    std::array<int, 3> get_used_handles()
-    {
-        const auto pp1 = p1 != -1 ? p1 : p2;
-        const auto pp2 = p2 != -1 ? p2 : p1;
+                        file_out(FILE* f) :
+                            handle(fileno(f))
+                        {
+                        }
 
-        return {handle, pp1, pp2};
+                        std::array<int, 3> get_used_handles()
+                        {
+                            const auto pp1 = p1 != -1 ? p1 : p2;
+                            const auto pp2 = p2 != -1 ? p2 : p1;
+
+                            return { handle, pp1, pp2 };
+                        }
+
+                        template<typename Executor>
+                        void on_exec_setup(Executor& e) const;
+                    };
+
+                    template<>
+                    template<typename Executor>
+                    void file_out<1, -1>::on_exec_setup(Executor& e) const
+                    {
+                        if (::dup2(handle, STDOUT_FILENO) == -1) {
+                            e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
+                        }
+                    }
+
+                    template<>
+                    template<typename Executor>
+                    void file_out<2, -1>::on_exec_setup(Executor& e) const
+                    {
+                        if (::dup2(handle, STDERR_FILENO) == -1) {
+                            e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
+                        }
+                    }
+
+                    template<>
+                    template<typename Executor>
+                    void file_out<1, 2>::on_exec_setup(Executor& e) const
+                    {
+                        if (::dup2(handle, STDOUT_FILENO) == -1) {
+                            e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
+                        }
+
+                        if (::dup2(handle, STDERR_FILENO) == -1) {
+                            e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
+                        }
+                    }
+
+                }
+            }
+        }
     }
-
-    template <typename Executor>
-    void on_exec_setup(Executor &e) const;
-};
-
-template<>
-template<typename Executor>
-void file_out<1,-1>::on_exec_setup(Executor &e) const
-{
-    if (::dup2(handle, STDOUT_FILENO) == -1)
-         e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
 }
-
-template<>
-template<typename Executor>
-void file_out<2,-1>::on_exec_setup(Executor &e) const
-{
-    if (::dup2(handle, STDERR_FILENO) == -1)
-         e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
-}
-
-template<>
-template<typename Executor>
-void file_out<1,2>::on_exec_setup(Executor &e) const
-{
-    if (::dup2(handle, STDOUT_FILENO) == -1)
-         e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
-
-    if (::dup2(handle, STDERR_FILENO) == -1)
-         e.set_error(::boost::process::v1::detail::get_last_error(), "dup2() failed");
-
-}
-
-}}}}}
 
 #endif

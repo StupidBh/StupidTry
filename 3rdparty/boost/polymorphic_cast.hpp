@@ -52,42 +52,43 @@
 #include <boost/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#   pragma once
+    #pragma once
 #endif
 
-# include <boost/assert.hpp>
-# include <boost/throw_exception.hpp>
+#include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
 
-# include <memory>  // std::addressof
-# include <typeinfo>
-# include <type_traits>
+#include <memory> // std::addressof
+#include <typeinfo>
+#include <type_traits>
 
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
-#define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST constexpr
+    #define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST constexpr
 #else
-#define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST inline
+    #define BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST inline
 #endif
 
-namespace boost
-{
-//  See the documentation for descriptions of how to choose between
-//  static_cast<>, dynamic_cast<>, polymorphic_cast<> and polymorphic_downcast<>
+namespace boost {
+    //  See the documentation for descriptions of how to choose between
+    //  static_cast<>, dynamic_cast<>, polymorphic_cast<> and polymorphic_downcast<>
 
-//  polymorphic_cast  --------------------------------------------------------//
+    //  polymorphic_cast  --------------------------------------------------------//
 
     //  Runtime checked polymorphic downcasts and crosscasts.
     //  Suggested in The C++ Programming Language, 3rd Ed, Bjarne Stroustrup,
     //  section 15.8 exercise 1, page 425.
 
-    template <class Target, class Source>
+    template<class Target, class Source>
     BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST Target polymorphic_cast(Source* x)
     {
         Target tmp = dynamic_cast<Target>(x);
-        if ( tmp == 0 ) boost::throw_exception( std::bad_cast() );
+        if (tmp == 0) {
+            boost::throw_exception(std::bad_cast());
+        }
         return tmp;
     }
 
-//  polymorphic_downcast  ----------------------------------------------------//
+    //  polymorphic_downcast  ----------------------------------------------------//
 
     //  BOOST_ASSERT() checked raw pointer polymorphic downcast.  Crosscasts prohibited.
 
@@ -98,10 +99,10 @@ namespace boost
 
     //  Contributed by Dave Abrahams
 
-    template <class Target, class Source>
+    template<class Target, class Source>
     BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST Target polymorphic_downcast(Source* x)
     {
-        BOOST_ASSERT( dynamic_cast<Target>(x) == x );  // detect logic error
+        BOOST_ASSERT(dynamic_cast<Target>(x) == x); // detect logic error
         return static_cast<Target>(x);
     }
 
@@ -114,19 +115,16 @@ namespace boost
 
     //  Contributed by Julien Delacroix
 
-    template <class Target, class Source>
-    BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST typename std::enable_if<
-        std::is_reference<Target>::value, Target
-    >::type polymorphic_downcast(Source& x)
+    template<class Target, class Source>
+    BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST typename std::enable_if<std::is_reference<Target>::value, Target>::type
+        polymorphic_downcast(Source& x)
     {
         using target_pointer_type = typename std::remove_reference<Target>::type*;
-        return *boost::polymorphic_downcast<target_pointer_type>(
-            std::addressof(x)
-        );
+        return *boost::polymorphic_downcast<target_pointer_type>(std::addressof(x));
     }
 
 } // namespace boost
 
 #undef BOOST_CONVERSION_IMPL_CONSTEXPR_DYN_CAST
 
-#endif  // BOOST_POLYMORPHIC_CAST_HPP
+#endif // BOOST_POLYMORPHIC_CAST_HPP

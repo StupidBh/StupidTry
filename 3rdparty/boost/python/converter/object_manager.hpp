@@ -3,15 +3,15 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef OBJECT_MANAGER_DWA2002614_HPP
-# define OBJECT_MANAGER_DWA2002614_HPP
+#define OBJECT_MANAGER_DWA2002614_HPP
 
-# include <boost/python/handle.hpp>
-# include <boost/python/cast.hpp>
-# include <boost/python/converter/pyobject_traits.hpp>
-# include <boost/python/detail/type_traits.hpp>
-# include <boost/mpl/if.hpp>
-# include <boost/python/detail/indirect_traits.hpp>
-# include <boost/mpl/bool.hpp>
+#include <boost/python/handle.hpp>
+#include <boost/python/cast.hpp>
+#include <boost/python/converter/pyobject_traits.hpp>
+#include <boost/python/detail/type_traits.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/python/detail/indirect_traits.hpp>
+#include <boost/mpl/bool.hpp>
 
 // Facilities for dealing with types which always manage Python
 // objects. Some examples are object, list, str, et. al. Different
@@ -34,7 +34,6 @@
 // borrowed<T> cv* is an object manager so that we can use the general
 // to_python mechanisms to convert raw Python object pointers to
 // python, without the usual semantic problems of using raw pointers.
-
 
 // Object Manager Concept requirements:
 //
@@ -62,95 +61,85 @@
 
 // Forward declarations
 //
-namespace boost { namespace python
-{
-  namespace api
-  {
-    class object; 
-  }
-}}
+namespace boost {
+    namespace python {
+        namespace api {
+            class object;
+        }
+    }
+}
 
-namespace boost { namespace python { namespace converter { 
+namespace boost {
+    namespace python {
+        namespace converter {
 
+            // Specializations for handle<T>
+            template<class T>
+            struct handle_object_manager_traits : pyobject_traits<typename T::element_type>
+            {
+            private:
+                typedef pyobject_traits<typename T::element_type> base;
 
-// Specializations for handle<T>
-template <class T>
-struct handle_object_manager_traits
-    : pyobject_traits<typename T::element_type>
-{
- private:
-  typedef pyobject_traits<typename T::element_type> base;
-  
- public:
-  BOOST_STATIC_CONSTANT(bool, is_specialized = true);
+            public:
+                BOOST_STATIC_CONSTANT(bool, is_specialized = true);
 
-  // Initialize with a null_ok pointer for efficiency, bypassing the
-  // null check since the source is always non-null.
-  static null_ok<typename T::element_type>* adopt(PyObject* p)
-  {
-      return python::allow_null(base::checked_downcast(p));
-  }
-};
+                // Initialize with a null_ok pointer for efficiency, bypassing the
+                // null check since the source is always non-null.
+                static null_ok<typename T::element_type>* adopt(PyObject* p)
+                {
+                    return python::allow_null(base::checked_downcast(p));
+                }
+            };
 
-template <class T>
-struct default_object_manager_traits
-{
-    BOOST_STATIC_CONSTANT(
-        bool, is_specialized = python::detail::is_borrowed_ptr<T>::value
-        );
-};
+            template<class T>
+            struct default_object_manager_traits
+            {
+                BOOST_STATIC_CONSTANT(bool, is_specialized = python::detail::is_borrowed_ptr<T>::value);
+            };
 
-template <class T>
-struct object_manager_traits
-    : mpl::if_c<
-         is_handle<T>::value
-       , handle_object_manager_traits<T>
-       , default_object_manager_traits<T>
-    >::type
-{
-};
+            template<class T>
+            struct object_manager_traits :
+                mpl::if_c<is_handle<T>::value, handle_object_manager_traits<T>, default_object_manager_traits<T>>::type
+            {
+            };
 
-//
-// Traits for detecting whether a type is an object manager or a
-// (cv-qualified) reference to an object manager.
-// 
+            //
+            // Traits for detecting whether a type is an object manager or a
+            // (cv-qualified) reference to an object manager.
+            //
 
-template <class T>
-struct is_object_manager
-    : mpl::bool_<object_manager_traits<T>::is_specialized>
-{
-};
+            template<class T>
+            struct is_object_manager : mpl::bool_<object_manager_traits<T>::is_specialized>
+            {
+            };
 
-template <class T>
-struct is_reference_to_object_manager
-    : mpl::false_
-{
-};
+            template<class T>
+            struct is_reference_to_object_manager : mpl::false_
+            {
+            };
 
-template <class T>
-struct is_reference_to_object_manager<T&>
-    : is_object_manager<T>
-{
-};
+            template<class T>
+            struct is_reference_to_object_manager<T&> : is_object_manager<T>
+            {
+            };
 
-template <class T>
-struct is_reference_to_object_manager<T const&>
-    : is_object_manager<T>
-{
-};
+            template<class T>
+            struct is_reference_to_object_manager<T const&> : is_object_manager<T>
+            {
+            };
 
-template <class T>
-struct is_reference_to_object_manager<T volatile&>
-    : is_object_manager<T>
-{
-};
+            template<class T>
+            struct is_reference_to_object_manager<T volatile&> : is_object_manager<T>
+            {
+            };
 
-template <class T>
-struct is_reference_to_object_manager<T const volatile&>
-    : is_object_manager<T>
-{
-};
+            template<class T>
+            struct is_reference_to_object_manager<T const volatile&> : is_object_manager<T>
+            {
+            };
 
-}}} // namespace boost::python::converter
+        }
+    }
+}      // namespace boost
 
 #endif // OBJECT_MANAGER_DWA2002614_HPP

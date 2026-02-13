@@ -6,32 +6,34 @@
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #if !defined(BOOST_SPIRIT_DISTINCT_FWD_HPP)
-#define BOOST_SPIRIT_DISTINCT_FWD_HPP
+    #define BOOST_SPIRIT_DISTINCT_FWD_HPP
 
-#include <boost/spirit/home/classic/namespace.hpp>
+    #include <boost/spirit/home/classic/namespace.hpp>
 
-namespace boost { namespace spirit {
+namespace boost {
+    namespace spirit {
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
-    template<typename CharT> class chset;
+        template<typename CharT>
+        class chset;
 
-    template <typename CharT = char, typename TailT = chset<CharT> >
-    class distinct_parser;
+        template<typename CharT = char, typename TailT = chset<CharT>>
+        class distinct_parser;
 
-    template <typename CharT = char, typename TailT = chset<CharT> >
-    class distinct_directive;
+        template<typename CharT = char, typename TailT = chset<CharT>>
+        class distinct_directive;
 
-    template <typename ScannerT = scanner<> >
-    class dynamic_distinct_parser;
+        template<typename ScannerT = scanner<>>
+        class dynamic_distinct_parser;
 
-    template <typename ScannerT = scanner<> >
-    class dynamic_distinct_directive;
+        template<typename ScannerT = scanner<>>
+        class dynamic_distinct_directive;
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_END
 
-}} // namespace BOOST_SPIRIT_CLASSIC_NS
+    }
+} // namespace boost
 
 #endif
-
 

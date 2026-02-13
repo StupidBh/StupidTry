@@ -41,15 +41,15 @@
 #define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_class class)(
 #define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_typename typename)(
 
-#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_class class...
+#define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_class    class...
 #define BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_typename typename...
 
-#define ARGS_VARIADER_1(x) x ## N...
-#define ARGS_VARIADER_2(x) BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_ ## x ## N
+#define ARGS_VARIADER_1(x) x##N...
+#define ARGS_VARIADER_2(x) BOOST_VARIANT_CLASS_OR_TYPENAME_TO_VARIADIC_##x##N
 
 #define BOOST_VARIANT_MAKE_VARIADIC(sequence, x)        BOOST_VARIANT_MAKE_VARIADIC_I(BOOST_PP_SEQ_SIZE(sequence), x)
 #define BOOST_VARIANT_MAKE_VARIADIC_I(argscount, x)     BOOST_VARIANT_MAKE_VARIADIC_II(argscount, x)
-#define BOOST_VARIANT_MAKE_VARIADIC_II(argscount, orig) ARGS_VARIADER_ ## argscount(orig)
+#define BOOST_VARIANT_MAKE_VARIADIC_II(argscount, orig) ARGS_VARIADER_##argscount(orig)
 
 ///////////////////////////////////////////////////////////////////////////////
 // BOOST_VARIANT_ENUM_PARAMS and BOOST_VARIANT_ENUM_SHIFTED_PARAMS
@@ -65,77 +65,79 @@
 //      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(Something)            => SomethingN...
 //      BOOST_VARIANT_ENUM_SHIFTED_PARAMS(Something)            => SomethingN...
 //
-// Rationale: Cleaner, simpler code for clients of variant library. Minimal 
+// Rationale: Cleaner, simpler code for clients of variant library. Minimal
 // code modifications to move from C++03 to C++11.
 //
 
 #define BOOST_VARIANT_ENUM_PARAMS(x) \
-    x ## 0, \
-    BOOST_VARIANT_MAKE_VARIADIC( (BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_ ## x), x) \
-    /**/
+    x##0, BOOST_VARIANT_MAKE_VARIADIC((BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_##x), x) /**/
 
 #define BOOST_VARIANT_ENUM_SHIFTED_PARAMS(x) \
-    BOOST_VARIANT_MAKE_VARIADIC( (BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_ ## x), x) \
-    /**/
+    BOOST_VARIANT_MAKE_VARIADIC((BOOST_VARIANT_CLASS_OR_TYPENAME_TO_SEQ_##x), x)
 
+/**/
 
 namespace boost {
 
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) class void_ and class template convert_void
-// 
-// Provides the mechanism by which void(NN) types are converted to
-// mpl::void_ (and thus can be passed to mpl::list).
-//
-// Rationale: This is particularly needed for the using-declarations
-// workaround (below), but also to avoid associating mpl namespace with
-// variant in argument dependent lookups (which used to happen because of
-// defaulting of template parameters to mpl::void_).
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) class void_ and class template convert_void
+            //
+            // Provides the mechanism by which void(NN) types are converted to
+            // mpl::void_ (and thus can be passed to mpl::list).
+            //
+            // Rationale: This is particularly needed for the using-declarations
+            // workaround (below), but also to avoid associating mpl namespace with
+            // variant in argument dependent lookups (which used to happen because of
+            // defaulting of template parameters to mpl::void_).
+            //
 
-struct void_;
+            struct void_;
 
-template <typename T>
-struct convert_void
-{
-    typedef T type;
-};
+            template<typename T>
+            struct convert_void
+            {
+                typedef T type;
+            };
 
-template <>
-struct convert_void< void_ >
-{
-    typedef mpl::na type;
-};
+            template<>
+            struct convert_void<void_>
+            {
+                typedef mpl::na type;
+            };
 
-}} // namespace detail::variant
+        }
+    } // namespace detail
 
 #define BOOST_VARIANT_AUX_DECLARE_PARAMS BOOST_VARIANT_ENUM_PARAMS(typename T)
 
-///////////////////////////////////////////////////////////////////////////////
-// class template variant (concept inspired by Andrei Alexandrescu)
-//
-// Efficient, type-safe bounded discriminated union.
-//
-// Preconditions:
-//  - Each type must be unique.
-//  - No type may be const-qualified.
-//
-// Proper declaration form:
-//   variant<types>    (where types is a type-sequence)
-// or
-//   variant<T0,T1,...,Tn>  (where T0 is NOT a type-sequence)
-//
-template < BOOST_VARIANT_AUX_DECLARE_PARAMS > class variant;
+    ///////////////////////////////////////////////////////////////////////////////
+    // class template variant (concept inspired by Andrei Alexandrescu)
+    //
+    // Efficient, type-safe bounded discriminated union.
+    //
+    // Preconditions:
+    //  - Each type must be unique.
+    //  - No type may be const-qualified.
+    //
+    // Proper declaration form:
+    //   variant<types>    (where types is a type-sequence)
+    // or
+    //   variant<T0,T1,...,Tn>  (where T0 is NOT a type-sequence)
+    //
+    template<BOOST_VARIANT_AUX_DECLARE_PARAMS>
+    class variant;
 
-///////////////////////////////////////////////////////////////////////////////
-// metafunction make_recursive_variant
-//
-// Exposes a boost::variant with recursive_variant_ tags (below) substituted
-// with the variant itself (wrapped as needed with boost::recursive_wrapper).
-//
-template < BOOST_VARIANT_AUX_DECLARE_PARAMS > struct make_recursive_variant;
+    ///////////////////////////////////////////////////////////////////////////////
+    // metafunction make_recursive_variant
+    //
+    // Exposes a boost::variant with recursive_variant_ tags (below) substituted
+    // with the variant itself (wrapped as needed with boost::recursive_wrapper).
+    //
+    template<BOOST_VARIANT_AUX_DECLARE_PARAMS>
+    struct make_recursive_variant;
 
 #undef BOOST_VARIANT_AUX_DECLARE_PARAMS_IMPL
 #undef BOOST_VARIANT_AUX_DECLARE_PARAMS
@@ -146,24 +148,28 @@ template < BOOST_VARIANT_AUX_DECLARE_PARAMS > struct make_recursive_variant;
 // Tag type indicates where recursive variant substitution should occur.
 //
 #if !defined(BOOST_VARIANT_NO_FULL_RECURSIVE_VARIANT_SUPPORT)
-    struct recursive_variant_ {};
+    struct recursive_variant_
+    {
+    };
 #else
     typedef mpl::arg<1> recursive_variant_;
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-// metafunction make_variant_over
-//
-// Result is a variant w/ types of the specified type sequence.
-//
-template <typename Types> struct make_variant_over;
+    ///////////////////////////////////////////////////////////////////////////////
+    // metafunction make_variant_over
+    //
+    // Result is a variant w/ types of the specified type sequence.
+    //
+    template<typename Types>
+    struct make_variant_over;
 
-///////////////////////////////////////////////////////////////////////////////
-// metafunction make_recursive_variant_over
-//
-// Result is a recursive variant w/ types of the specified type sequence.
-//
-template <typename Types> struct make_recursive_variant_over;
+    ///////////////////////////////////////////////////////////////////////////////
+    // metafunction make_recursive_variant_over
+    //
+    // Result is a recursive variant w/ types of the specified type sequence.
+    //
+    template<typename Types>
+    struct make_recursive_variant_over;
 
 } // namespace boost
 

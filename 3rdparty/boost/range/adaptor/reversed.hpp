@@ -15,89 +15,70 @@
 #include <boost/range/concepts.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 
-namespace boost
-{
-    namespace range_detail
-    {
-        template< class R >
-        struct reversed_range : 
-            public boost::iterator_range< 
-                      boost::reverse_iterator<
-                        BOOST_DEDUCED_TYPENAME range_iterator<R>::type 
-                                              >
-                                         >
+namespace boost {
+    namespace range_detail {
+        template<class R>
+        struct reversed_range :
+            public boost::iterator_range<boost::reverse_iterator<BOOST_DEDUCED_TYPENAME range_iterator<R>::type>>
         {
         private:
-            typedef boost::iterator_range< 
-                      boost::reverse_iterator<
-                        BOOST_DEDUCED_TYPENAME range_iterator<R>::type 
-                                              >
-                                         >
-                base;
-            
+            typedef boost::iterator_range<boost::reverse_iterator<BOOST_DEDUCED_TYPENAME range_iterator<R>::type>> base;
+
         public:
             typedef boost::reverse_iterator<BOOST_DEDUCED_TYPENAME range_iterator<R>::type> iterator;
 
-            explicit reversed_range( R& r ) 
-                : base( iterator(boost::end(r)), iterator(boost::begin(r)) )
-            { }
+            explicit reversed_range(R& r) :
+                base(iterator(boost::end(r)), iterator(boost::begin(r)))
+            {
+            }
         };
 
-        struct reverse_forwarder {};
-        
-        template< class BidirectionalRange >
-        inline reversed_range<BidirectionalRange> 
-        operator|( BidirectionalRange& r, reverse_forwarder )
+        struct reverse_forwarder
         {
-            BOOST_RANGE_CONCEPT_ASSERT((
-                BidirectionalRangeConcept<BidirectionalRange>));
+        };
 
-            return reversed_range<BidirectionalRange>( r );
+        template<class BidirectionalRange>
+        inline reversed_range<BidirectionalRange> operator|(BidirectionalRange& r, reverse_forwarder)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((BidirectionalRangeConcept<BidirectionalRange>));
+
+            return reversed_range<BidirectionalRange>(r);
         }
 
-        template< class BidirectionalRange >
-        inline reversed_range<const BidirectionalRange> 
-        operator|( const BidirectionalRange& r, reverse_forwarder )
+        template<class BidirectionalRange>
+        inline reversed_range<const BidirectionalRange> operator|(const BidirectionalRange& r, reverse_forwarder)
         {
-            BOOST_RANGE_CONCEPT_ASSERT((
-                BidirectionalRangeConcept<const BidirectionalRange>));
+            BOOST_RANGE_CONCEPT_ASSERT((BidirectionalRangeConcept<const BidirectionalRange>));
 
-            return reversed_range<const BidirectionalRange>( r ); 
+            return reversed_range<const BidirectionalRange>(r);
         }
-        
-    } // 'range_detail'
-    
+
+    } // namespace range_detail
+
     using range_detail::reversed_range;
 
-    namespace adaptors
-    { 
-        namespace
-        {
-            const range_detail::reverse_forwarder reversed = 
-                                            range_detail::reverse_forwarder();
+    namespace adaptors {
+        namespace {
+            const range_detail::reverse_forwarder reversed = range_detail::reverse_forwarder();
         }
-        
+
         template<class BidirectionalRange>
-        inline reversed_range<BidirectionalRange>
-        reverse(BidirectionalRange& rng)
+        inline reversed_range<BidirectionalRange> reverse(BidirectionalRange& rng)
         {
-            BOOST_RANGE_CONCEPT_ASSERT((
-                BidirectionalRangeConcept<BidirectionalRange>));
+            BOOST_RANGE_CONCEPT_ASSERT((BidirectionalRangeConcept<BidirectionalRange>));
 
             return reversed_range<BidirectionalRange>(rng);
         }
-        
+
         template<class BidirectionalRange>
-        inline reversed_range<const BidirectionalRange>
-        reverse(const BidirectionalRange& rng)
+        inline reversed_range<const BidirectionalRange> reverse(const BidirectionalRange& rng)
         {
-            BOOST_RANGE_CONCEPT_ASSERT((
-                BidirectionalRangeConcept<const BidirectionalRange>));
+            BOOST_RANGE_CONCEPT_ASSERT((BidirectionalRangeConcept<const BidirectionalRange>));
 
             return reversed_range<const BidirectionalRange>(rng);
         }
-    } // 'adaptors'
-    
-} // 'boost'
+    } // namespace adaptors
+
+} // namespace boost
 
 #endif

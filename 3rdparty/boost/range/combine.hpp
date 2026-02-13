@@ -13,33 +13,28 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/iterator/zip_iterator.hpp>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-template<typename IterTuple>
-class combined_range
-        : public iterator_range<zip_iterator<IterTuple> >
-{
-    typedef iterator_range<zip_iterator<IterTuple> > base;
-public:
-    combined_range(IterTuple first, IterTuple last)
-        : base(first, last)
-    {
-    }
-};
+        template<typename IterTuple>
+        class combined_range : public iterator_range<zip_iterator<IterTuple>> {
+            typedef iterator_range<zip_iterator<IterTuple>> base;
+
+        public:
+            combined_range(IterTuple first, IterTuple last) :
+                base(first, last)
+            {
+            }
+        };
 
     } // namespace range
 } // namespace boost
 
-#if defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) || \
-    defined(BOOST_NO_CXX11_DECLTYPE) || \
-    defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || \
-    defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-#   include <boost/range/detail/combine_cxx03.hpp>
+#if defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) || defined(BOOST_NO_CXX11_DECLTYPE) || \
+    defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+    #include <boost/range/detail/combine_cxx03.hpp>
 #else
-#   include <boost/range/detail/combine_cxx11.hpp>
+    #include <boost/range/detail/combine_cxx11.hpp>
 #endif
 
 #endif

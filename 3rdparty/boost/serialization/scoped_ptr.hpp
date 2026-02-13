@@ -2,7 +2,7 @@
 #define BOOST_SERIALIZATION_SCOPED_PTR_HPP_VP_2003_10_30
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 //  Copyright (c) 2003 Vladimir Prus.
@@ -20,39 +20,38 @@
 #include <boost/serialization/split_free.hpp>
 
 namespace boost {
-namespace serialization {
+    namespace serialization {
 
-    template<class Archive, class T>
-    void save(
-        Archive & ar,
-        const boost::scoped_ptr< T > & t,
-        const unsigned int /* version */
-    ){
-        T* r = t.get();
-        ar << boost::serialization::make_nvp("scoped_ptr", r);
-    }
+        template<class Archive, class T>
+        void save(
+            Archive& ar,
+            const boost::scoped_ptr<T>& t,
+            const unsigned int /* version */
+        )
+        {
+            T* r = t.get();
+            ar << boost::serialization::make_nvp("scoped_ptr", r);
+        }
 
-    template<class Archive, class T>
-    void load(
-        Archive & ar,
-        boost::scoped_ptr< T > & t,
-        const unsigned int /* version */
-    ){
-        T* r;
-        ar >> boost::serialization::make_nvp("scoped_ptr", r);
-        t.reset(r);
-    }
+        template<class Archive, class T>
+        void load(
+            Archive& ar,
+            boost::scoped_ptr<T>& t,
+            const unsigned int /* version */
+        )
+        {
+            T* r;
+            ar >> boost::serialization::make_nvp("scoped_ptr", r);
+            t.reset(r);
+        }
 
-    template<class Archive, class T>
-    void serialize(
-        Archive& ar,
-        boost::scoped_ptr< T >& t,
-        const unsigned int version
-    ){
-        boost::serialization::split_free(ar, t, version);
-    }
+        template<class Archive, class T>
+        void serialize(Archive& ar, boost::scoped_ptr<T>& t, const unsigned int version)
+        {
+            boost::serialization::split_free(ar, t, version);
+        }
 
-} // namespace serialization
+    } // namespace serialization
 } // namespace boost
 
 #endif // BOOST_SERIALIZATION_SCOPED_PTR_HPP_VP_2003_10_30

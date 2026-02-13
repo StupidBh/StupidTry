@@ -11,13 +11,11 @@
 
 #include <boost/thread/csbl/memory/config.hpp>
 
-namespace boost
-{
-  namespace csbl
-  {
-    using std::shared_ptr;
-    using std::make_shared;
-  }
+namespace boost {
+    namespace csbl {
+        using std::make_shared;
+        using std::shared_ptr;
+    }
 }
 
 #endif // header

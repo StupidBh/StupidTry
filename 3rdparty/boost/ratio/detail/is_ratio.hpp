@@ -9,20 +9,20 @@
 #include <type_traits>
 #include <cstdint>
 
-namespace boost
-{
-namespace ratio_detail
-{
+namespace boost {
+    namespace ratio_detail {
 
-template<class T> struct is_ratio: std::false_type
-{
-};
+        template<class T>
+        struct is_ratio : std::false_type
+        {
+        };
 
-template<std::intmax_t A, std::intmax_t B> struct is_ratio< boost::ratio<A, B> >: std::true_type
-{
-};
+        template<std::intmax_t A, std::intmax_t B>
+        struct is_ratio<boost::ratio<A, B>> : std::true_type
+        {
+        };
 
-} // namespace ratio_detail
+    } // namespace ratio_detail
 } // namespace boost
 
 #endif // BOOST_RATIO_DETAIL_IS_RATIO_HPP

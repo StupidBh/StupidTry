@@ -20,73 +20,77 @@
 
 namespace boost::redis::detail {
 
-// Forward decls
-struct connection_state;
+    // Forward decls
+    struct connection_state;
 
-// What should we do next?
-enum class writer_action_type
-{
-   done,        // Call the final handler
-   write_some,  // Issue a write on the stream
-   wait,        // Wait until there is data to be written
-};
+    // What should we do next?
+    enum class writer_action_type
+    {
+        done,       // Call the final handler
+        write_some, // Issue a write on the stream
+        wait,       // Wait until there is data to be written
+    };
 
-class writer_action {
-   writer_action_type type_;
-   union {
-      system::error_code ec_;
-      std::chrono::steady_clock::duration timeout_;
-   };
+    class writer_action {
+        writer_action_type type_;
 
-   writer_action(writer_action_type type, std::chrono::steady_clock::duration t) noexcept
-   : type_{type}
-   , timeout_{t}
-   { }
+        union
+        {
+            system::error_code ec_;
+            std::chrono::steady_clock::duration timeout_;
+        };
 
-public:
-   writer_action_type type() const { return type_; }
+        writer_action(writer_action_type type, std::chrono::steady_clock::duration t) noexcept :
+            type_ { type },
+            timeout_ { t }
+        {
+        }
 
-   writer_action(system::error_code ec) noexcept
-   : type_{writer_action_type::done}
-   , ec_{ec}
-   { }
+    public:
+        writer_action_type type() const { return type_; }
 
-   static writer_action write_some(std::chrono::steady_clock::duration timeout)
-   {
-      return {writer_action_type::write_some, timeout};
-   }
+        writer_action(system::error_code ec) noexcept :
+            type_ { writer_action_type::done },
+            ec_ { ec }
+        {
+        }
 
-   static writer_action wait(std::chrono::steady_clock::duration timeout)
-   {
-      return {writer_action_type::wait, timeout};
-   }
+        static writer_action write_some(std::chrono::steady_clock::duration timeout)
+        {
+            return { writer_action_type::write_some, timeout };
+        }
 
-   system::error_code error() const
-   {
-      BOOST_ASSERT(type_ == writer_action_type::done);
-      return ec_;
-   }
+        static writer_action wait(std::chrono::steady_clock::duration timeout)
+        {
+            return { writer_action_type::wait, timeout };
+        }
 
-   std::chrono::steady_clock::duration timeout() const
-   {
-      BOOST_ASSERT(type_ == writer_action_type::write_some || type_ == writer_action_type::wait);
-      return timeout_;
-   }
-};
+        system::error_code error() const
+        {
+            BOOST_ASSERT(type_ == writer_action_type::done);
+            return ec_;
+        }
 
-class writer_fsm {
-   int resume_point_{0};
+        std::chrono::steady_clock::duration timeout() const
+        {
+            BOOST_ASSERT(type_ == writer_action_type::write_some || type_ == writer_action_type::wait);
+            return timeout_;
+        }
+    };
 
-public:
-   writer_fsm() = default;
+    class writer_fsm {
+        int resume_point_ { 0 };
 
-   writer_action resume(
-      connection_state& st,
-      system::error_code ec,
-      std::size_t bytes_written,
-      asio::cancellation_type_t cancel_state);
-};
+    public:
+        writer_fsm() = default;
 
-}  // namespace boost::redis::detail
+        writer_action resume(
+            connection_state& st,
+            system::error_code ec,
+            std::size_t bytes_written,
+            asio::cancellation_type_t cancel_state);
+    };
 
-#endif  // BOOST_REDIS_CONNECTOR_HPP
+} // namespace boost::redis::detail
+
+#endif // BOOST_REDIS_CONNECTOR_HPP

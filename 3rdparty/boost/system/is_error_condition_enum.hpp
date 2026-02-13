@@ -10,20 +10,19 @@
 //
 //  See library home page at http://www.boost.org/libs/system
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-class error_condition;
+        class error_condition;
 
-template<class T> struct is_error_condition_enum
-{
-    static const bool value = false;
-};
+        template<class T>
+        struct is_error_condition_enum
+        {
+            static const bool value = false;
+        };
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

@@ -16,61 +16,50 @@
 #include <boost/url/grammar/unsigned_rule.hpp>
 
 namespace boost {
-namespace urls {
-namespace detail {
+    namespace urls {
+        namespace detail {
 
-// replacement_field ::=  "{" [arg_id] [":" format_spec "}"
-struct replacement_field_rule_t
-{
-    using value_type = core::string_view;
+            // replacement_field ::=  "{" [arg_id] [":" format_spec "}"
+            struct replacement_field_rule_t
+            {
+                using value_type = core::string_view;
 
-    BOOST_URL_DECL
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const noexcept;
-};
+                BOOST_URL_DECL
+                system::result<value_type> parse(char const*& it, char const* end) const noexcept;
+            };
 
-constexpr replacement_field_rule_t replacement_field_rule{};
+            constexpr replacement_field_rule_t replacement_field_rule {};
 
-// identifier        ::=  id_start id_continue*
-// id_start          ::=  "a"..."z" | "A"..."Z" | "_"
-// id_continue       ::=  id_start | digit
-struct identifier_rule_t
-{
-    using value_type = core::string_view;
+            // identifier        ::=  id_start id_continue*
+            // id_start          ::=  "a"..."z" | "A"..."Z" | "_"
+            // id_continue       ::=  id_start | digit
+            struct identifier_rule_t
+            {
+                using value_type = core::string_view;
 
-    BOOST_URL_DECL
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const noexcept;
-};
+                BOOST_URL_DECL
+                system::result<value_type> parse(char const*& it, char const* end) const noexcept;
+            };
 
-constexpr identifier_rule_t identifier_rule{};
+            constexpr identifier_rule_t identifier_rule {};
 
-// arg_id            ::=  integer | identifier
-// integer           ::=  digit+
-// digit             ::=  "0"..."9"
-static constexpr auto arg_id_rule =
-    grammar::variant_rule(
-        identifier_rule,
-        grammar::unsigned_rule<std::size_t>{});
+            // arg_id            ::=  integer | identifier
+            // integer           ::=  digit+
+            // digit             ::=  "0"..."9"
+            static constexpr auto arg_id_rule =
+                grammar::variant_rule(identifier_rule, grammar::unsigned_rule<std::size_t> {});
 
-struct format_spec_rule_t
-{
-    using value_type = core::string_view;
+            struct format_spec_rule_t
+            {
+                using value_type = core::string_view;
 
-    system::result<value_type>
-    parse(
-        char const*& it,
-        char const* end) const noexcept;
-};
+                system::result<value_type> parse(char const*& it, char const* end) const noexcept;
+            };
 
-constexpr format_spec_rule_t format_spec_rule{};
+            constexpr format_spec_rule_t format_spec_rule {};
 
-} // detail
-} // urls
-} // boost
+        } // namespace detail
+    } // namespace urls
+} // namespace boost
 
 #endif

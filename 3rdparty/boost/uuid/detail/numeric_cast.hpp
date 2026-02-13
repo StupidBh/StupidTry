@@ -12,27 +12,28 @@
 #include <type_traits>
 
 namespace boost {
-namespace uuids {
-namespace detail {
+    namespace uuids {
+        namespace detail {
 
-template<class T, class U> T numeric_cast( U u )
-{
-    BOOST_UUID_STATIC_ASSERT( std::is_integral<T>::value );
-    BOOST_UUID_STATIC_ASSERT( std::is_unsigned<T>::value );
+            template<class T, class U>
+            T numeric_cast(U u)
+            {
+                BOOST_UUID_STATIC_ASSERT(std::is_integral<T>::value);
+                BOOST_UUID_STATIC_ASSERT(std::is_unsigned<T>::value);
 
-    BOOST_UUID_STATIC_ASSERT( std::is_integral<U>::value );
-    BOOST_UUID_STATIC_ASSERT( std::is_unsigned<U>::value );
+                BOOST_UUID_STATIC_ASSERT(std::is_integral<U>::value);
+                BOOST_UUID_STATIC_ASSERT(std::is_unsigned<U>::value);
 
-    if( u > std::numeric_limits<T>::max() )
-    {
-        BOOST_THROW_EXCEPTION( std::range_error( "Argument to numeric_cast is out of range of destination type" ) );
-    }
+                if (u > std::numeric_limits<T>::max()) {
+                    BOOST_THROW_EXCEPTION(
+                        std::range_error("Argument to numeric_cast is out of range of destination type"));
+                }
 
-    return static_cast<T>( u );
-}
+                return static_cast<T>(u);
+            }
 
-} // detail
-} // uuids
-} // boost
+        } // namespace detail
+    } // namespace uuids
+} // namespace boost
 
 #endif // #ifndef BOOST_UUID_DETAIL_NUMERIC_CAST_INCLUDED

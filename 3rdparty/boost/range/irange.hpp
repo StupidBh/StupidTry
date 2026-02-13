@@ -15,10 +15,8 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/iterator_range.hpp>
 
-namespace boost
-{
-    namespace range_detail
-    {
+namespace boost {
+    namespace range_detail {
         // integer_iterator is an iterator over an integer sequence that
         // is bounded only by the limits of the underlying integer
         // representation.
@@ -31,65 +29,54 @@ namespace boost
         // performant than the corresponding hand-written integer
         // loop on many compilers.
         template<typename Integer>
-        class integer_iterator
-            : public boost::iterator_facade<
-                        integer_iterator<Integer>,
-                        Integer,
-                        boost::random_access_traversal_tag,
-                        Integer,
-                        std::ptrdiff_t
-                    >
-        {
+        class integer_iterator :
+            public boost::iterator_facade<
+                integer_iterator<Integer>,
+                Integer,
+                boost::random_access_traversal_tag,
+                Integer,
+                std::ptrdiff_t> {
             typedef boost::iterator_facade<
-                        integer_iterator<Integer>,
-                        Integer,
-                        boost::random_access_traversal_tag,
-                        Integer,
-                        std::ptrdiff_t
-                    > base_t;
+                integer_iterator<Integer>,
+                Integer,
+                boost::random_access_traversal_tag,
+                Integer,
+                std::ptrdiff_t>
+                base_t;
+
         public:
             typedef typename base_t::value_type value_type;
             typedef typename base_t::difference_type difference_type;
             typedef typename base_t::reference reference;
             typedef std::random_access_iterator_tag iterator_category;
 
-            integer_iterator() : m_value() {}
-            explicit integer_iterator(value_type x) : m_value(x) {}
+            integer_iterator() :
+                m_value()
+            {
+            }
+
+            explicit integer_iterator(value_type x) :
+                m_value(x)
+            {
+            }
 
         private:
-            void increment()
-            {
-                ++m_value;
-            }
+            void increment() { ++m_value; }
 
-            void decrement()
-            {
-                --m_value;
-            }
+            void decrement() { --m_value; }
 
-            void advance(difference_type offset)
-            {
-                m_value += offset;
-            }
+            void advance(difference_type offset) { m_value += offset; }
 
             difference_type distance_to(const integer_iterator& other) const
             {
-                return is_signed<value_type>::value
-                    ? (other.m_value - m_value)
-                    : (other.m_value >= m_value)
-                        ? static_cast<difference_type>(other.m_value - m_value)
-                        : -static_cast<difference_type>(m_value - other.m_value);
+                return is_signed<value_type>::value ? (other.m_value - m_value)
+                       : (other.m_value >= m_value) ? static_cast<difference_type>(other.m_value - m_value)
+                                                    : -static_cast<difference_type>(m_value - other.m_value);
             }
 
-            bool equal(const integer_iterator& other) const
-            {
-                return m_value == other.m_value;
-            }
+            bool equal(const integer_iterator& other) const { return m_value == other.m_value; }
 
-            reference dereference() const
-            {
-                return m_value;
-            }
+            reference dereference() const { return m_value; }
 
             friend class ::boost::iterator_core_access;
             value_type m_value;
@@ -108,65 +95,46 @@ namespace boost
         // if optimal performance is desired a hand-coded loop
         // is the solution.
         template<typename Integer>
-        class integer_iterator_with_step
-            : public boost::iterator_facade<
-                        integer_iterator_with_step<Integer>,
-                        Integer,
-                        boost::random_access_traversal_tag,
-                        Integer,
-                        std::ptrdiff_t
-                    >
-        {
+        class integer_iterator_with_step :
+            public boost::iterator_facade<
+                integer_iterator_with_step<Integer>,
+                Integer,
+                boost::random_access_traversal_tag,
+                Integer,
+                std::ptrdiff_t> {
             typedef boost::iterator_facade<
-                        integer_iterator_with_step<Integer>,
-                        Integer,
-                        boost::random_access_traversal_tag,
-                        Integer,
-                        std::ptrdiff_t
-                    > base_t;
+                integer_iterator_with_step<Integer>,
+                Integer,
+                boost::random_access_traversal_tag,
+                Integer,
+                std::ptrdiff_t>
+                base_t;
+
         public:
             typedef typename base_t::value_type value_type;
             typedef typename base_t::difference_type difference_type;
             typedef typename base_t::reference reference;
             typedef std::random_access_iterator_tag iterator_category;
 
-            integer_iterator_with_step(value_type first, difference_type step, value_type step_size)
-                : m_first(first)
-                , m_step(step)
-                , m_step_size(step_size)
+            integer_iterator_with_step(value_type first, difference_type step, value_type step_size) :
+                m_first(first),
+                m_step(step),
+                m_step_size(step_size)
             {
             }
 
         private:
-            void increment()
-            {
-                ++m_step;
-            }
+            void increment() { ++m_step; }
 
-            void decrement()
-            {
-                --m_step;
-            }
+            void decrement() { --m_step; }
 
-            void advance(difference_type offset)
-            {
-                m_step += offset;
-            }
+            void advance(difference_type offset) { m_step += offset; }
 
-            difference_type distance_to(const integer_iterator_with_step& other) const
-            {
-                return other.m_step - m_step;
-            }
+            difference_type distance_to(const integer_iterator_with_step& other) const { return other.m_step - m_step; }
 
-            bool equal(const integer_iterator_with_step& other) const
-            {
-                return m_step == other.m_step;
-            }
+            bool equal(const integer_iterator_with_step& other) const { return m_step == other.m_step; }
 
-            reference dereference() const
-            {
-                return m_first + (m_step * m_step_size);
-            }
+            reference dereference() const { return m_first + (m_step * m_step_size); }
 
             friend class ::boost::iterator_core_access;
             value_type m_first;
@@ -177,46 +145,42 @@ namespace boost
     } // namespace range_detail
 
     template<typename Integer>
-    class integer_range
-        : public iterator_range< range_detail::integer_iterator<Integer> >
-    {
+    class integer_range : public iterator_range<range_detail::integer_iterator<Integer>> {
         typedef range_detail::integer_iterator<Integer> iterator_t;
         typedef iterator_range<iterator_t> base_t;
+
     public:
-        integer_range(Integer first, Integer last)
-            : base_t(iterator_t(first), iterator_t(last))
+        integer_range(Integer first, Integer last) :
+            base_t(iterator_t(first), iterator_t(last))
         {
         }
     };
 
     template<typename Integer>
-    class strided_integer_range
-    : public iterator_range< range_detail::integer_iterator_with_step<Integer> >
-    {
+    class strided_integer_range : public iterator_range<range_detail::integer_iterator_with_step<Integer>> {
         typedef range_detail::integer_iterator_with_step<Integer> iterator_t;
         typedef iterator_range<iterator_t> base_t;
+
     public:
         template<typename Iterator>
-        strided_integer_range(Iterator first, Iterator last)
-            : base_t(first, last)
+        strided_integer_range(Iterator first, Iterator last) :
+            base_t(first, last)
         {
         }
     };
 
     template<typename Integer>
-    integer_range<Integer>
-    irange(Integer first, Integer last)
+    integer_range<Integer> irange(Integer first, Integer last)
     {
-        BOOST_ASSERT( first <= last );
+        BOOST_ASSERT(first <= last);
         return integer_range<Integer>(first, last);
     }
 
     template<typename Integer, typename StepSize>
-    strided_integer_range<Integer>
-        irange(Integer first, Integer last, StepSize step_size)
+    strided_integer_range<Integer> irange(Integer first, Integer last, StepSize step_size)
     {
-        BOOST_ASSERT( step_size != 0 );
-        BOOST_ASSERT( (step_size > 0) ? (last >= first) : (last <= first) );
+        BOOST_ASSERT(step_size != 0);
+        BOOST_ASSERT((step_size > 0) ? (last >= first) : (last <= first));
 
         typedef typename range_detail::integer_iterator_with_step<Integer> iterator_t;
 
@@ -226,14 +190,11 @@ namespace boost
         const std::ptrdiff_t num_steps = (l - f) / sz + ((l - f) % sz ? 1 : 0);
         BOOST_ASSERT(num_steps >= 0);
 
-        return strided_integer_range<Integer>(
-            iterator_t(first, 0, step_size),
-            iterator_t(first, num_steps, step_size));
+        return strided_integer_range<Integer>(iterator_t(first, 0, step_size), iterator_t(first, num_steps, step_size));
     }
 
     template<typename Integer>
-    integer_range<Integer>
-    irange(Integer last)
+    integer_range<Integer> irange(Integer last)
     {
         return integer_range<Integer>(static_cast<Integer>(0), last);
     }

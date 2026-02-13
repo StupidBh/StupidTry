@@ -16,38 +16,45 @@
 #include <boost/winapi/basic_types.hpp>
 #include <boost/winapi/get_system_directory.hpp>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-inline boost::process::v1::filesystem::path shell_path()
-{
-    ::boost::winapi::WCHAR_ sysdir[260];
-    unsigned int size = ::boost::winapi::get_system_directory(sysdir, sizeof(sysdir));
-    if (!size)
-        throw_last_error("GetSystemDirectory() failed");
+                    inline boost::process::v1::filesystem::path shell_path()
+                    {
+                        ::boost::winapi::WCHAR_ sysdir[260];
+                        unsigned int size = ::boost::winapi::get_system_directory(sysdir, sizeof(sysdir));
+                        if (!size) {
+                            throw_last_error("GetSystemDirectory() failed");
+                        }
 
-    boost::process::v1::filesystem::path p = sysdir;
-    return p / "cmd.exe";
-}
+                        boost::process::v1::filesystem::path p = sysdir;
+                        return p / "cmd.exe";
+                    }
 
-inline boost::process::v1::filesystem::path shell_path(std::error_code &ec) noexcept
-{
+                    inline boost::process::v1::filesystem::path shell_path(std::error_code& ec) noexcept
+                    {
+                        ::boost::winapi::WCHAR_ sysdir[260];
+                        unsigned int size = ::boost::winapi::get_system_directory(sysdir, sizeof(sysdir));
+                        boost::process::v1::filesystem::path p;
+                        if (!size) {
+                            ec = std::error_code(::boost::winapi::GetLastError(), std::system_category());
+                        }
+                        else {
+                            ec.clear();
+                            p = sysdir;
+                            p /= "cmd.exe";
+                        }
+                        return p;
+                    }
 
-    ::boost::winapi::WCHAR_ sysdir[260];
-    unsigned int size = ::boost::winapi::get_system_directory(sysdir, sizeof(sysdir));
-    boost::process::v1::filesystem::path p;
-    if (!size)
-        ec = std::error_code(
-                ::boost::winapi::GetLastError(),
-                std::system_category());
-    else
-    {
-        ec.clear();
-        p = sysdir;
-        p /= "cmd.exe";
+                }
+            }
+        }
     }
-    return p;
 }
-
-}}}}}
 
 #endif

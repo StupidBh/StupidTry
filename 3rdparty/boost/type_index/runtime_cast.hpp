@@ -24,7 +24,7 @@
 #include <boost/type_index/runtime_cast/reference_cast.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-# pragma once
+    #pragma once
 #endif
 
 #endif // BOOST_TYPE_INDEX_RUNTIME_CAST_HPP

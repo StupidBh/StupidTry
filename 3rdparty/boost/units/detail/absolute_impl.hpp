@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -20,84 +20,89 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-/// INTERNAL ONLY
-template<class D, class S>
-struct reduce_unit<absolute<unit<D, S> > >
-{
-    typedef absolute<typename reduce_unit<unit<D, S> >::type> type;
-};
-
-namespace detail {
-
-struct undefined_affine_conversion_base {
-    BOOST_STATIC_CONSTEXPR bool is_defined = false;
-};
-
-} // namespace detail
-
-/// INTERNAL ONLY
-template<class From, class To>
-struct affine_conversion_helper : detail::undefined_affine_conversion_base { };
-
-namespace detail {
-
-template<bool IsDefined, bool ReverseIsDefined>
-struct affine_conversion_impl;
-
-template<bool ReverseIsDefined>
-struct affine_conversion_impl<true, ReverseIsDefined>
-{
-    template<class Unit1, class Unit2, class T0, class T1>
-    struct apply {
-        static BOOST_CONSTEXPR T1 value(const T0& t0)
+        /// INTERNAL ONLY
+        template<class D, class S>
+        struct reduce_unit<absolute<unit<D, S>>>
         {
-            return(
-                t0 * 
-                conversion_factor(Unit1(), Unit2()) +
-                affine_conversion_helper<typename reduce_unit<Unit1>::type, typename reduce_unit<Unit2>::type>::value());
-        }
-    };
-};
+            typedef absolute<typename reduce_unit<unit<D, S>>::type> type;
+        };
 
-template<>
-struct affine_conversion_impl<false, true>
-{
-    template<class Unit1, class Unit2, class T0, class T1>
-    struct apply
-    {
-        static BOOST_CONSTEXPR T1 value(const T0& t0)
+        namespace detail {
+
+            struct undefined_affine_conversion_base
+            {
+                BOOST_STATIC_CONSTEXPR bool is_defined = false;
+            };
+
+        } // namespace detail
+
+        /// INTERNAL ONLY
+        template<class From, class To>
+        struct affine_conversion_helper : detail::undefined_affine_conversion_base
         {
-            return(
-                (t0 - affine_conversion_helper<typename reduce_unit<Unit2>::type, typename reduce_unit<Unit1>::type>::value()) * 
-                conversion_factor(Unit1(), Unit2()));
-        }
-    };
-};
+        };
 
-} // namespace detail
+        namespace detail {
 
-/// INTERNAL ONLY
-template<class Unit1, class T1, class Unit2, class T2>
-struct conversion_helper<quantity<absolute<Unit1>, T1>, quantity<absolute<Unit2>, T2> >
-{
-    typedef quantity<absolute<Unit1>, T1> from_quantity_type;
-    typedef quantity<absolute<Unit2>, T2> to_quantity_type;
-    static BOOST_CONSTEXPR to_quantity_type convert(const from_quantity_type& source)
-    {
-        return(
-            to_quantity_type::from_value(
-                detail::affine_conversion_impl<
-                    affine_conversion_helper<typename reduce_unit<Unit1>::type, typename reduce_unit<Unit2>::type>::is_defined,
-                    affine_conversion_helper<typename reduce_unit<Unit2>::type, typename reduce_unit<Unit1>::type>::is_defined
-                >::template apply<Unit1, Unit2, T1, T2>::value(source.value())
-            )
-        );
-    }
-};
+            template<bool IsDefined, bool ReverseIsDefined>
+            struct affine_conversion_impl;
 
-} // namespace units
+            template<bool ReverseIsDefined>
+            struct affine_conversion_impl<true, ReverseIsDefined>
+            {
+                template<class Unit1, class Unit2, class T0, class T1>
+                struct apply
+                {
+                    static BOOST_CONSTEXPR T1 value(const T0& t0)
+                    {
+                        return (
+                            t0 * conversion_factor(Unit1(), Unit2()) + affine_conversion_helper<
+                                                                           typename reduce_unit<Unit1>::type,
+                                                                           typename reduce_unit<Unit2>::type>::value());
+                    }
+                };
+            };
+
+            template<>
+            struct affine_conversion_impl<false, true>
+            {
+                template<class Unit1, class Unit2, class T0, class T1>
+                struct apply
+                {
+                    static BOOST_CONSTEXPR T1 value(const T0& t0)
+                    {
+                        return (
+                            (t0 - affine_conversion_helper<
+                                      typename reduce_unit<Unit2>::type,
+                                      typename reduce_unit<Unit1>::type>::value()) *
+                            conversion_factor(Unit1(), Unit2()));
+                    }
+                };
+            };
+
+        } // namespace detail
+
+        /// INTERNAL ONLY
+        template<class Unit1, class T1, class Unit2, class T2>
+        struct conversion_helper<quantity<absolute<Unit1>, T1>, quantity<absolute<Unit2>, T2>>
+        {
+            typedef quantity<absolute<Unit1>, T1> from_quantity_type;
+            typedef quantity<absolute<Unit2>, T2> to_quantity_type;
+
+            static BOOST_CONSTEXPR to_quantity_type convert(const from_quantity_type& source)
+            {
+                return (to_quantity_type::from_value(
+                    detail::affine_conversion_impl<
+                        affine_conversion_helper<typename reduce_unit<Unit1>::type, typename reduce_unit<Unit2>::type>::
+                            is_defined,
+                        affine_conversion_helper<typename reduce_unit<Unit2>::type, typename reduce_unit<Unit1>::type>::
+                            is_defined>::template apply<Unit1, Unit2, T1, T2>::value(source.value())));
+            }
+        };
+
+    } // namespace units
 
 } // namespace boost
 

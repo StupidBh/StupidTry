@@ -5,77 +5,77 @@
 //  http://www.boost.org/LICENSE_1_0.txt).
 
 #if !defined(BOOST_VMD_IS_PARENS_EMPTY_HPP)
-#define BOOST_VMD_IS_PARENS_EMPTY_HPP
+    #define BOOST_VMD_IS_PARENS_EMPTY_HPP
 
-#include <boost/vmd/detail/setup.hpp>
+    #include <boost/vmd/detail/setup.hpp>
 
-#if BOOST_PP_VARIADICS
+    #if BOOST_PP_VARIADICS
 
-#include <boost/vmd/detail/is_empty_tuple.hpp>
+        #include <boost/vmd/detail/is_empty_tuple.hpp>
 
-/*
+    /*
 
-  The succeeding comments in this file are in doxygen format.
+      The succeeding comments in this file are in doxygen format.
 
-*/
+    */
 
-/** \file
-*/
+    /** \file
+     */
 
-/** \def BOOST_VMD_IS_PARENS_EMPTY(sequence)
+    /** \def BOOST_VMD_IS_PARENS_EMPTY(sequence)
 
-    \brief Determines if the sequence is a set of parens with no data.
+        \brief Determines if the sequence is a set of parens with no data.
 
-    sequence = a VMD sequence
+        sequence = a VMD sequence
 
-    returns = 1 if the sequence is a set of parens with no data,
-              else returns 0.
-              
-  @code
-  
-    A set of parens with no data may be:
-    
-    1) a tuple whose size is a single element which is empty
-    
-                or
-                
-    2) a single element seq whose data is empty
-    
-  @endcode
-  
-*/
+        returns = 1 if the sequence is a set of parens with no data,
+                  else returns 0.
 
-#define BOOST_VMD_IS_PARENS_EMPTY(sequence) \
-    BOOST_VMD_DETAIL_IS_EMPTY_TUPLE(sequence) \
-/**/
+      @code
 
-/** \def BOOST_VMD_IS_PARENS_EMPTY_D(d,sequence)
+        A set of parens with no data may be:
 
-    \brief Determines if the sequence is a set of parens with no data. Re-entrant version.
+        1) a tuple whose size is a single element which is empty
 
-    d        = The next available BOOST_PP_WHILE iteration. <br/>
-    sequence = a VMD sequence
+                    or
 
-    returns = 1 if the sequence is a set of parens with no data,
-              else returns 0.
-              
-  @code
-  
-    A set of parens with no data may be:
-    
-    1) a tuple whose size is a single element which is empty
-    
-                or
-                
-    2) a single element seq whose data is empty
-    
-  @endcode
-  
-*/
+        2) a single element seq whose data is empty
 
-#define BOOST_VMD_IS_PARENS_EMPTY_D(d,sequence) \
-    BOOST_VMD_DETAIL_IS_EMPTY_TUPLE_D(d,sequence) \
-/**/
+      @endcode
 
-#endif /* BOOST_PP_VARIADICS */
-#endif /* BOOST_VMD_IS_PARENS_EMPTY_HPP */
+    */
+
+        #define BOOST_VMD_IS_PARENS_EMPTY(sequence)   \
+            BOOST_VMD_DETAIL_IS_EMPTY_TUPLE(sequence) \
+            /**/
+
+    /** \def BOOST_VMD_IS_PARENS_EMPTY_D(d,sequence)
+
+        \brief Determines if the sequence is a set of parens with no data. Re-entrant version.
+
+        d        = The next available BOOST_PP_WHILE iteration. <br/>
+        sequence = a VMD sequence
+
+        returns = 1 if the sequence is a set of parens with no data,
+                  else returns 0.
+
+      @code
+
+        A set of parens with no data may be:
+
+        1) a tuple whose size is a single element which is empty
+
+                    or
+
+        2) a single element seq whose data is empty
+
+      @endcode
+
+    */
+
+        #define BOOST_VMD_IS_PARENS_EMPTY_D(d, sequence)   \
+            BOOST_VMD_DETAIL_IS_EMPTY_TUPLE_D(d, sequence) \
+            /**/
+
+    #endif /* BOOST_PP_VARIADICS */
+#endif     /* BOOST_VMD_IS_PARENS_EMPTY_HPP */

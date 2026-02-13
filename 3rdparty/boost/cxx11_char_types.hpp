@@ -40,31 +40,30 @@
 //--------------------------------------------------------------------------------------//
 
 #if !defined(BOOST_CXX11_CHAR_TYPES_HPP)
-# define BOOST_CXX11_CHAR_TYPES_HPP
+    #define BOOST_CXX11_CHAR_TYPES_HPP
 
-# include <boost/config.hpp>
-# include <boost/cstdint.hpp>
-# include <string>
+    #include <boost/config.hpp>
+    #include <boost/cstdint.hpp>
+    #include <string>
 
-namespace boost
-{
+namespace boost {
 
-# if defined(BOOST_NO_CXX11_CHAR16_T) && (!defined(_MSC_VER) || _MSC_VER < 1600)  // 1600 == VC++10
-    typedef boost::uint_least16_t             char16;
-    typedef std::basic_string<boost::char16>  u16string;
-# else
-    typedef char16_t                          char16;
-    typedef std::u16string                    u16string;
-# endif
+    #if defined(BOOST_NO_CXX11_CHAR16_T) && (!defined(_MSC_VER) || _MSC_VER < 1600) // 1600 == VC++10
+    typedef boost::uint_least16_t char16;
+    typedef std::basic_string<boost::char16> u16string;
+    #else
+    typedef char16_t char16;
+    typedef std::u16string u16string;
+    #endif
 
-# if defined(BOOST_NO_CXX11_CHAR32_T) && (!defined(_MSC_VER) || _MSC_VER < 1600)  // 1600 == VC++10
-    typedef  boost::uint_least32_t            char32;
-    typedef std::basic_string<boost::char32>  u32string;
-# else
-    typedef char32_t                          char32;
-    typedef std::u32string                    u32string;
-# endif
+    #if defined(BOOST_NO_CXX11_CHAR32_T) && (!defined(_MSC_VER) || _MSC_VER < 1600) // 1600 == VC++10
+    typedef boost::uint_least32_t char32;
+    typedef std::basic_string<boost::char32> u32string;
+    #else
+    typedef char32_t char32;
+    typedef std::u32string u32string;
+    #endif
 
-}  // namespace boost
+} // namespace boost
 
-#endif  // !defined(BOOST_CXX11_CHAR_TYPES_HPP)
+#endif // !defined(BOOST_CXX11_CHAR_TYPES_HPP)

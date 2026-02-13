@@ -19,43 +19,41 @@
 #include <boost/detail/is_incrementable.hpp>
 
 namespace boost {
-namespace detail {
+    namespace detail {
 
-template< typename P >
-struct smart_ptr_pointee
-{
-    using type = typename P::element_type;
-};
+        template<typename P>
+        struct smart_ptr_pointee
+        {
+            using type = typename P::element_type;
+        };
 
-template<
-    typename Iterator,
-    typename = typename std::remove_reference< decltype(*std::declval< Iterator& >()) >::type
->
-struct iterator_pointee
-{
-    using type = typename std::iterator_traits< Iterator >::value_type;
-};
+        template<
+            typename Iterator,
+            typename = typename std::remove_reference<decltype(*std::declval<Iterator&>())>::type>
+        struct iterator_pointee
+        {
+            using type = typename std::iterator_traits<Iterator>::value_type;
+        };
 
-template< typename Iterator, typename Reference >
-struct iterator_pointee< Iterator, const Reference >
-{
-    using type = typename std::add_const< typename std::iterator_traits< Iterator >::value_type >::type;
-};
+        template<typename Iterator, typename Reference>
+        struct iterator_pointee<Iterator, const Reference>
+        {
+            using type = typename std::add_const<typename std::iterator_traits<Iterator>::value_type>::type;
+        };
 
-} // namespace detail
+    } // namespace detail
 
-template< typename P >
-struct pointee :
-    public std::conditional<
-        detail::is_incrementable< P >::value,
-        detail::iterator_pointee< P >,
-        detail::smart_ptr_pointee< P >
-    >::type
-{
-};
+    template<typename P>
+    struct pointee :
+        public std::conditional<
+            detail::is_incrementable<P>::value,
+            detail::iterator_pointee<P>,
+            detail::smart_ptr_pointee<P>>::type
+    {
+    };
 
-template< typename P >
-using pointee_t = typename pointee< P >::type;
+    template<typename P>
+    using pointee_t = typename pointee<P>::type;
 
 } // namespace boost
 

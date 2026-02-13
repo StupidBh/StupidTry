@@ -17,9 +17,9 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #if !defined(BOOST_VARIANT_NO_FULL_RECURSIVE_VARIANT_SUPPORT)
-#   include <boost/mpl/apply.hpp>
-#   include <boost/mpl/eval_if.hpp>
-#   include <boost/mpl/lambda.hpp>
+    #include <boost/mpl/apply.hpp>
+    #include <boost/mpl/eval_if.hpp>
+    #include <boost/mpl/lambda.hpp>
 #endif
 
 #include <boost/variant/detail/substitute.hpp>
@@ -34,68 +34,56 @@
 #include <boost/variant/recursive_wrapper.hpp>
 
 namespace boost {
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-#   define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(T,Dest,Source) \
-    substitute< T , Dest , Source > \
-    /**/
+#define BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(T, Dest, Source) substitute<T, Dest, Source> /**/
 
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction enable_recursive
-//
-// See boost/variant/detail/enable_recursive_fwd.hpp for more information.
-//
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction enable_recursive
+            //
+            // See boost/variant/detail/enable_recursive_fwd.hpp for more information.
+            //
 
+            template<typename T, typename RecursiveVariant, typename NoWrapper>
+            struct enable_recursive :
+                BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(T, RecursiveVariant, ::boost::recursive_variant_)
+            {
+            };
 
-template <typename T, typename RecursiveVariant, typename NoWrapper>
-struct enable_recursive
-    : BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(
-          T, RecursiveVariant, ::boost::recursive_variant_
-        )
-{
-};
+            template<typename T, typename RecursiveVariant>
+            struct enable_recursive<T, RecursiveVariant, mpl::false_>
+            {
+            private: // helpers, for metafunction result (below)
+                typedef typename BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(
+                    T,
+                    RecursiveVariant,
+                    ::boost::recursive_variant_)::type t_;
 
-template <typename T, typename RecursiveVariant>
-struct enable_recursive< T,RecursiveVariant,mpl::false_ >
-{
-private: // helpers, for metafunction result (below)
+            public: // metafunction result
+                // [Wrap with recursive_wrapper only if rebind really changed something:]
+                typedef typename mpl::if_<
+                    mpl::or_<is_same<t_, T>, is_reference<t_>, is_pointer<t_>>,
+                    t_,
+                    boost::recursive_wrapper<t_>>::type type;
+            };
 
-    typedef typename BOOST_VARIANT_AUX_ENABLE_RECURSIVE_IMPL(
-          T, RecursiveVariant, ::boost::recursive_variant_
-        )::type t_;
+            ///////////////////////////////////////////////////////////////////////////////
+            // (detail) metafunction class quoted_enable_recursive
+            //
+            // Same behavior as enable_recursive metafunction (see above).
+            //
+            template<typename RecursiveVariant, typename NoWrapper>
+            struct quoted_enable_recursive
+            {
+                template<typename T>
+                struct apply : enable_recursive<T, RecursiveVariant, NoWrapper>
+                {
+                };
+            };
 
-public: // metafunction result
-
-    // [Wrap with recursive_wrapper only if rebind really changed something:]
-    typedef typename mpl::if_<
-          mpl::or_<
-              is_same< t_,T >
-            , is_reference<t_>
-            , is_pointer<t_>
-            >
-        , t_
-        , boost::recursive_wrapper<t_>
-        >::type type;
-
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-// (detail) metafunction class quoted_enable_recursive
-//
-// Same behavior as enable_recursive metafunction (see above).
-//
-template <typename RecursiveVariant, typename NoWrapper>
-struct quoted_enable_recursive
-{
-    template <typename T>
-    struct apply
-        : enable_recursive<T, RecursiveVariant, NoWrapper>
-    {
-    };
-};
-
-}} // namespace detail::variant
+        }
+    } // namespace detail
 } // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_ENABLE_RECURSIVE_HPP

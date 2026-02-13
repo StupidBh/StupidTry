@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -17,13 +17,13 @@
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-/// derived dimension for luminous flux : I QS
-typedef derived_dimension<luminous_intensity_base_dimension,1,
-                          solid_angle_base_dimension,1>::type luminous_flux_dimension;
+        /// derived dimension for luminous flux : I QS
+        typedef derived_dimension<luminous_intensity_base_dimension, 1, solid_angle_base_dimension, 1>::type
+            luminous_flux_dimension;
 
-} // namespace units
+    } // namespace units
 
 } // namespace boost
 

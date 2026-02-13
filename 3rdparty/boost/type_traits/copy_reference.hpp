@@ -17,19 +17,21 @@ or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 namespace boost {
 
-template<class T, class U>
-struct copy_reference {
-    typedef typename conditional<is_rvalue_reference<U>::value,
-        typename add_rvalue_reference<T>::type,
-        typename conditional<is_lvalue_reference<U>::value,
-        typename add_lvalue_reference<T>::type, T>::type>::type type;
-};
+    template<class T, class U>
+    struct copy_reference
+    {
+        typedef typename conditional<
+            is_rvalue_reference<U>::value,
+            typename add_rvalue_reference<T>::type,
+            typename conditional<is_lvalue_reference<U>::value, typename add_lvalue_reference<T>::type, T>::type>::type
+            type;
+    };
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
-template<class T, class U>
-using copy_reference_t = typename copy_reference<T, U>::type;
+    template<class T, class U>
+    using copy_reference_t = typename copy_reference<T, U>::type;
 #endif
 
-} /* boost */
+} // namespace boost
 
 #endif

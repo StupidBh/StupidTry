@@ -15,39 +15,34 @@
 #include <boost/range/concepts.hpp>
 #include <algorithm>
 
-namespace boost
-{
-    namespace range
-    {
+namespace boost {
+    namespace range {
 
-/// \brief template function replace
-///
-/// range-based version of the replace std algorithm
-///
-/// \pre ForwardRange is a model of the ForwardRangeConcept
-template< class ForwardRange, class Value >
-inline ForwardRange&
-replace(ForwardRange& rng, const Value& what,
-        const Value& with_what)
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
-    std::replace(boost::begin(rng), boost::end(rng), what, with_what);
-    return rng;
-}
+        /// \brief template function replace
+        ///
+        /// range-based version of the replace std algorithm
+        ///
+        /// \pre ForwardRange is a model of the ForwardRangeConcept
+        template<class ForwardRange, class Value>
+        inline ForwardRange& replace(ForwardRange& rng, const Value& what, const Value& with_what)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((ForwardRangeConcept<ForwardRange>));
+            std::replace(boost::begin(rng), boost::end(rng), what, with_what);
+            return rng;
+        }
 
-/// \overload
-template< class ForwardRange, class Value >
-inline const ForwardRange&
-replace(const ForwardRange& rng, const Value& what,
-        const Value& with_what)
-{
-    BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
-    std::replace(boost::begin(rng), boost::end(rng), what, with_what);
-    return rng;
-}
+        /// \overload
+        template<class ForwardRange, class Value>
+        inline const ForwardRange& replace(const ForwardRange& rng, const Value& what, const Value& with_what)
+        {
+            BOOST_RANGE_CONCEPT_ASSERT((ForwardRangeConcept<const ForwardRange>));
+            std::replace(boost::begin(rng), boost::end(rng), what, with_what);
+            return rng;
+        }
 
     } // namespace range
+
     using range::replace;
-} // namespace boost;
+} // namespace boost
 
 #endif // include guard

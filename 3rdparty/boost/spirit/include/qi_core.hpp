@@ -10,7 +10,7 @@
 #define BOOST_SPIRIT_INCLUDE_QI_CORE
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/home/qi/parser.hpp>

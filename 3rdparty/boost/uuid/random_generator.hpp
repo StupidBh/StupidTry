@@ -12,19 +12,18 @@
 #include <boost/uuid/detail/chacha20.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-// the default random generator
-class random_generator: public basic_random_generator<detail::chacha20_12>
-{
-};
+        // the default random generator
+        class random_generator : public basic_random_generator<detail::chacha20_12> {};
 
-// only provided for compatibility with 1.85
-using random_generator_mt19937 = basic_random_generator<std::mt19937>;
+        // only provided for compatibility with 1.85
+        using random_generator_mt19937 = basic_random_generator<std::mt19937>;
 
-// only provided for compatibility with 1.85
-using random_generator_pure = basic_random_generator<detail::random_device>;
+        // only provided for compatibility with 1.85
+        using random_generator_pure = basic_random_generator<detail::random_device>;
 
-}} // namespace boost::uuids
+    }
+}      // namespace boost
 
 #endif // BOOST_UUID_RANDOM_GENERATOR_HPP_INCLUDED

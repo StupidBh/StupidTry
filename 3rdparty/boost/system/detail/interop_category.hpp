@@ -15,92 +15,86 @@
 #include <boost/system/detail/config.hpp>
 #include <boost/config.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace system
-{
+    namespace system {
 
-namespace detail
-{
+        namespace detail {
 
-// interop_error_category, used for std::error_code
+            // interop_error_category, used for std::error_code
 
-#if ( defined( BOOST_GCC ) && BOOST_GCC >= 40600 ) || defined( BOOST_CLANG )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#if (defined(BOOST_GCC) && BOOST_GCC >= 40600) || defined(BOOST_CLANG)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 
-class BOOST_SYMBOL_VISIBLE interop_error_category: public error_category
-{
-public:
+            class BOOST_SYMBOL_VISIBLE interop_error_category : public error_category {
+            public:
+                BOOST_SYSTEM_CONSTEXPR interop_error_category() noexcept :
+                    error_category(detail::interop_category_id)
+                {
+                }
 
-    BOOST_SYSTEM_CONSTEXPR interop_error_category() noexcept:
-        error_category( detail::interop_category_id )
-    {
-    }
+                const char* name() const noexcept BOOST_OVERRIDE { return "std:unknown"; }
 
-    const char * name() const noexcept BOOST_OVERRIDE
-    {
-        return "std:unknown";
-    }
+                std::string message(int ev) const BOOST_OVERRIDE;
+                char const* message(int ev, char* buffer, std::size_t len) const noexcept BOOST_OVERRIDE;
+            };
 
-    std::string message( int ev ) const BOOST_OVERRIDE;
-    char const * message( int ev, char * buffer, std::size_t len ) const noexcept BOOST_OVERRIDE;
-};
-
-#if ( defined( BOOST_GCC ) && BOOST_GCC >= 40600 ) || defined( BOOST_CLANG )
-#pragma GCC diagnostic pop
+#if (defined(BOOST_GCC) && BOOST_GCC >= 40600) || defined(BOOST_CLANG)
+    #pragma GCC diagnostic pop
 #endif
 
-inline char const * interop_error_category::message( int ev, char * buffer, std::size_t len ) const noexcept
-{
-    detail::snprintf( buffer, len, "Unknown interop error %d", ev );
-    return buffer;
-}
+            inline char const* interop_error_category::message(int ev, char* buffer, std::size_t len) const noexcept
+            {
+                detail::snprintf(buffer, len, "Unknown interop error %d", ev);
+                return buffer;
+            }
 
-inline std::string interop_error_category::message( int ev ) const
-{
-    char buffer[ 48 ];
-    return message( ev, buffer, sizeof( buffer ) );
-}
+            inline std::string interop_error_category::message(int ev) const
+            {
+                char buffer[48];
+                return message(ev, buffer, sizeof(buffer));
+            }
 
-// interop_category()
+            // interop_category()
 
 #if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
 
-template<class T> struct BOOST_SYMBOL_VISIBLE interop_cat_holder
-{
-    static constexpr interop_error_category instance{};
-};
+            template<class T>
+            struct BOOST_SYMBOL_VISIBLE interop_cat_holder
+            {
+                static constexpr interop_error_category instance {};
+            };
 
-// Before C++17 it was mandatory to redeclare all static constexpr
-#if defined(BOOST_NO_CXX17_INLINE_VARIABLES)
-template<class T> constexpr interop_error_category interop_cat_holder<T>::instance;
-#endif
+    // Before C++17 it was mandatory to redeclare all static constexpr
+    #if defined(BOOST_NO_CXX17_INLINE_VARIABLES)
+            template<class T>
+            constexpr interop_error_category interop_cat_holder<T>::instance;
+    #endif
 
-constexpr error_category const & interop_category() noexcept
-{
-    return interop_cat_holder<void>::instance;
-}
+            constexpr error_category const& interop_category() noexcept
+            {
+                return interop_cat_holder<void>::instance;
+            }
 
-#else // #if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
+#else                         // #if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
 
-#if !defined(__SUNPRO_CC) // trailing __global is not supported
-inline error_category const & interop_category() noexcept BOOST_SYMBOL_VISIBLE;
-#endif
+    #if !defined(__SUNPRO_CC) // trailing __global is not supported
+            inline error_category const& interop_category() noexcept BOOST_SYMBOL_VISIBLE;
+    #endif
 
-inline error_category const & interop_category() noexcept
-{
-    static const detail::interop_error_category instance;
-    return instance;
-}
+            inline error_category const& interop_category() noexcept
+            {
+                static const detail::interop_error_category instance;
+                return instance;
+            }
 
 #endif // #if defined(BOOST_SYSTEM_HAS_CONSTEXPR)
 
-} // namespace detail
+        } // namespace detail
 
-} // namespace system
+    } // namespace system
 
 } // namespace boost
 

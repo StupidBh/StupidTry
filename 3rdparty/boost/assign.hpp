@@ -8,12 +8,11 @@
 // For more information, see http://www.boost.org/libs/assign/
 //
 
-
 #ifndef BOOST_ASSIGN_HPP
 #define BOOST_ASSIGN_HPP
 
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/assign/std.hpp>

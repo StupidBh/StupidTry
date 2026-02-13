@@ -13,7 +13,7 @@
 #define BOOST_PTR_CONTAINER_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+    #pragma once
 #endif
 
 #include <boost/ptr_container/ptr_array.hpp>

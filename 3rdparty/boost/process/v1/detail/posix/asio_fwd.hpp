@@ -9,58 +9,60 @@
 #include <memory>
 #include <boost/asio/ts/netfwd.hpp>
 
-namespace boost { namespace asio {
+namespace boost {
+    namespace asio {
 
-class mutable_buffer;
-class mutable_buffers_1;
+        class mutable_buffer;
+        class mutable_buffers_1;
 
-class const_buffer;
-class const_buffers_1;
+        class const_buffer;
+        class const_buffers_1;
 
-template<typename Allocator>
-class basic_streambuf;
+        template<typename Allocator>
+        class basic_streambuf;
 
-typedef basic_streambuf<std::allocator<char>> streambuf;
+        typedef basic_streambuf<std::allocator<char>> streambuf;
 
-template <typename Executor>
-class basic_signal_set;
-typedef basic_signal_set<any_io_executor> signal_set;
+        template<typename Executor>
+        class basic_signal_set;
+        typedef basic_signal_set<any_io_executor> signal_set;
 
-template <typename Handler>
-class basic_yield_context;
+        template<typename Handler>
+        class basic_yield_context;
 
-namespace posix {
+        namespace posix {
 
-template <typename Executor>
-class basic_stream_descriptor;
-typedef basic_stream_descriptor<any_io_executor> stream_descriptor;
+            template<typename Executor>
+            class basic_stream_descriptor;
+            typedef basic_stream_descriptor<any_io_executor> stream_descriptor;
 
-} //posix
-} //asio
+        } // namespace posix
+    } // namespace asio
 
-namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
-class async_pipe;
+                    class async_pipe;
 
-template<typename T>
-struct async_in_buffer;
+                    template<typename T>
+                    struct async_in_buffer;
 
-template<int p1, int p2, typename Buffer>
-struct async_out_buffer;
+                    template<int p1, int p2, typename Buffer>
+                    struct async_out_buffer;
 
-template<int p1, int p2, typename Type>
-struct async_out_future;
+                    template<int p1, int p2, typename Type>
+                    struct async_out_future;
 
-} // posix
-} // detail
+                } // namespace posix
+            } // namespace detail
 
-using ::boost::process::v1::detail::posix::async_pipe;
+            using ::boost::process::v1::detail::posix::async_pipe;
 
-} // v1
-} // process
-} // boost
-
-
-
+        } // v1
+    } // namespace process
+} // namespace boost
 
 #endif /* BOOST_PROCESS_DETAIL_POSIX_ASIO_FWD_HPP_ */

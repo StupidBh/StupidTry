@@ -14,51 +14,56 @@
 namespace boost {
 
 #if defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x5A0)
-//
-// For some reason this implementation stops Borlands compiler
-// from dropping cv-qualifiers, it still fails with references
-// to arrays for some reason though (shrug...) (JM 20021104)
-//
-template <typename T>
-struct add_pointer
-{
-    typedef T* type;
-};
-template <typename T>
-struct add_pointer<T&>
-{
-    typedef T* type;
-};
-template <typename T>
-struct add_pointer<T&const>
-{
-    typedef T* type;
-};
-template <typename T>
-struct add_pointer<T&volatile>
-{
-    typedef T* type;
-};
-template <typename T>
-struct add_pointer<T&const volatile>
-{
-    typedef T* type;
-};
+    //
+    // For some reason this implementation stops Borlands compiler
+    // from dropping cv-qualifiers, it still fails with references
+    // to arrays for some reason though (shrug...) (JM 20021104)
+    //
+    template<typename T>
+    struct add_pointer
+    {
+        typedef T* type;
+    };
+
+    template<typename T>
+    struct add_pointer<T&>
+    {
+        typedef T* type;
+    };
+
+    template<typename T>
+    struct add_pointer<T& const>
+    {
+        typedef T* type;
+    };
+
+    template<typename T>
+    struct add_pointer<T& volatile>
+    {
+        typedef T* type;
+    };
+
+    template<typename T>
+    struct add_pointer<T& const volatile>
+    {
+        typedef T* type;
+    };
 
 #else
 
-template <typename T>
-struct add_pointer
-{
-    typedef typename remove_reference<T>::type no_ref_type;
-    typedef no_ref_type* type;
-};
+    template<typename T>
+    struct add_pointer
+    {
+        typedef typename remove_reference<T>::type no_ref_type;
+        typedef no_ref_type* type;
+    };
 
 #endif
 
 #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
 
-   template <class T> using add_pointer_t = typename add_pointer<T>::type;
+    template<class T>
+    using add_pointer_t = typename add_pointer<T>::type;
 
 #endif
 

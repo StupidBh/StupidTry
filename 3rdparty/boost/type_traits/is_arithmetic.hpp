@@ -14,8 +14,10 @@
 
 namespace boost {
 
-template <class T>
-struct is_arithmetic : public integral_constant<bool, is_integral<T>::value || is_floating_point<T>::value> {};
+    template<class T>
+    struct is_arithmetic : public integral_constant<bool, is_integral<T>::value || is_floating_point<T>::value>
+    {
+    };
 
 } // namespace boost
 

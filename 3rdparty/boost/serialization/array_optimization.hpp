@@ -9,7 +9,7 @@
 #include <boost/config.hpp> // msvc 6.0 needs this for warning suppression
 
 #if defined(BOOST_NO_STDC_NAMESPACE)
-namespace std{
+namespace std {
     using ::size_t;
 } // namespace std
 #endif
@@ -18,20 +18,31 @@ namespace std{
 #include <boost/mpl/apply.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
-namespace boost { namespace serialization {
+namespace boost {
+    namespace serialization {
 
-template <class Archive>
-struct use_array_optimization : boost::mpl::always<boost::mpl::false_> {};
+        template<class Archive>
+        struct use_array_optimization : boost::mpl::always<boost::mpl::false_>
+        {
+        };
 
-} } // end namespace boost::serialization
+    }
+} // namespace boost
 
-#define BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(Archive)           \
-namespace boost { namespace serialization {                           \
-template <> struct use_array_optimization<Archive> {                  \
-  template <class ValueType>                                          \
-  struct apply : boost::mpl::apply1<Archive::use_array_optimization   \
-      , typename boost::remove_const<ValueType>::type                 \
-    >::type {};                                                       \
-}; }}
+#define BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(Archive)                                                          \
+    namespace boost {                                                                                                \
+        namespace serialization {                                                                                    \
+            template<>                                                                                               \
+            struct use_array_optimization<Archive>                                                                   \
+            {                                                                                                        \
+                template<class ValueType>                                                                            \
+                struct apply :                                                                                       \
+                    boost::mpl::                                                                                     \
+                        apply1<Archive::use_array_optimization, typename boost::remove_const<ValueType>::type>::type \
+                {                                                                                                    \
+                };                                                                                                   \
+            };                                                                                                       \
+        }                                                                                                            \
+    }
 
-#endif //BOOST_SERIALIZATION_ARRAY_OPTIMIZATION_HPP
+#endif // BOOST_SERIALIZATION_ARRAY_OPTIMIZATION_HPP

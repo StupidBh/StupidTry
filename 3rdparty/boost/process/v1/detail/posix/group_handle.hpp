@@ -11,84 +11,95 @@
 #include <system_error>
 #include <unistd.h>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace posix {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace posix {
 
-struct group_handle
-{
-    pid_t grp = -1;
+                    struct group_handle
+                    {
+                        pid_t grp = -1;
 
-    typedef pid_t handle_t;
-    handle_t handle() const { return grp; }
+                        typedef pid_t handle_t;
 
-    explicit group_handle(handle_t h) :
-        grp(h)
-    {
+                        handle_t handle() const { return grp; }
+
+                        explicit group_handle(handle_t h) :
+                            grp(h)
+                        {
+                        }
+
+                        group_handle() = default;
+
+                        ~group_handle() = default;
+                        group_handle(const group_handle& c) = delete;
+
+                        group_handle(group_handle&& c) :
+                            grp(c.grp)
+                        {
+                            c.grp = -1;
+                        }
+
+                        group_handle& operator=(const group_handle& c) = delete;
+
+                        group_handle& operator=(group_handle&& c)
+                        {
+                            grp = c.grp;
+                            c.grp = -1;
+                            return *this;
+                        }
+
+                        void add(handle_t proc)
+                        {
+                            if (::setpgid(proc, grp)) {
+                                throw_last_error();
+                            }
+                        }
+
+                        void add(handle_t proc, std::error_code& ec) noexcept
+                        {
+                            if (::setpgid(proc, grp)) {
+                                ec = get_last_error();
+                            }
+                        }
+
+                        bool has(handle_t proc) { return ::getpgid(proc) == grp; }
+
+                        bool has(handle_t proc, std::error_code&) noexcept { return ::getpgid(proc) == grp; }
+
+                        bool valid() const { return grp != -1; }
+                    };
+
+                    inline void terminate(group_handle& p, std::error_code& ec) noexcept
+                    {
+                        if (::killpg(p.grp, SIGKILL) == -1) {
+                            ec = boost::process::v1::detail::get_last_error();
+                        }
+                        else {
+                            ec.clear();
+                        }
+
+                        p.grp = -1;
+                    }
+
+                    inline void terminate(group_handle& p)
+                    {
+                        std::error_code ec;
+                        terminate(p, ec);
+                        boost::process::v1::detail::throw_error(ec, "killpg(2) failed in terminate");
+                    }
+
+                    inline bool in_group()
+                    {
+                        return true;
+                    }
+
+                }
+            }
+        }
     }
-
-     group_handle() = default;
-
-    ~group_handle() = default;
-    group_handle(const group_handle & c) = delete;
-    group_handle(group_handle && c) : grp(c.grp)
-    {
-        c.grp = -1;
-    }
-    group_handle &operator=(const group_handle & c) = delete;
-    group_handle &operator=(group_handle && c)
-    {
-        grp = c.grp;
-        c.grp = -1;
-        return *this;
-    }
-
-    void add(handle_t proc)
-    {
-        if (::setpgid(proc, grp))
-            throw_last_error();
-    }
-    void add(handle_t proc, std::error_code & ec) noexcept
-    {
-        if (::setpgid(proc, grp))
-            ec = get_last_error();
-    }
-
-    bool has(handle_t proc)
-    {
-        return ::getpgid(proc) == grp;
-    }
-    bool has(handle_t proc, std::error_code &) noexcept
-    {
-        return ::getpgid(proc) == grp;
-    }
-
-    bool valid() const
-    {
-        return grp != -1;
-    }
-};
-
-inline  void terminate(group_handle &p, std::error_code &ec) noexcept
-{
-    if (::killpg(p.grp, SIGKILL) == -1)
-        ec = boost::process::v1::detail::get_last_error();
-    else
-        ec.clear();
-
-    p.grp = -1;
 }
-
-inline void terminate(group_handle &p)
-{
-    std::error_code ec;
-    terminate(p, ec);
-    boost::process::v1::detail::throw_error(ec, "killpg(2) failed in terminate");
-}
-
-inline bool in_group()
-{
-    return true;
-}
-
-}}}}}
 
 #endif /* BOOST_PROCESS_DETAIL_WINDOWS_GROUP_HPP_ */

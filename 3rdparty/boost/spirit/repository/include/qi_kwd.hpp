@@ -11,7 +11,7 @@
 #define BOOST_SPIRIT_INCLUDE_QI_KWD
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/repository/home/qi/directive/kwd.hpp>
@@ -30,7 +30,7 @@
 #define BOOST_SPIRIT_INCLUDE_QI_KWD
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <boost/spirit/repository/home/qi/directive/kwd.hpp>

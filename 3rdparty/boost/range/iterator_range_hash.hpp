@@ -10,13 +10,12 @@
 #include <boost/range/iterator_range_core.hpp>
 #include <boost/functional/hash.hpp>
 
-namespace boost
-{
+namespace boost {
 
-template<class T>
-std::size_t hash_value(const iterator_range<T>& rng)
-{
-    return boost::hash_range(rng.begin(), rng.end());
-}
+    template<class T>
+    std::size_t hash_value(const iterator_range<T>& rng)
+    {
+        return boost::hash_range(rng.begin(), rng.end());
+    }
 
 } // namespace boost

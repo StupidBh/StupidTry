@@ -3,19 +3,29 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef DECREF_GUARD_DWA20021220_HPP
-# define DECREF_GUARD_DWA20021220_HPP
+#define DECREF_GUARD_DWA20021220_HPP
 
-namespace boost { namespace python { namespace detail { 
+namespace boost {
+    namespace python {
+        namespace detail {
 
-struct decref_guard
-{
-    decref_guard(PyObject* o) : obj(o) {}
-    ~decref_guard() { Py_XDECREF(obj); }
-    void cancel() { obj = 0; }
- private:
-    PyObject* obj;
-};
+            struct decref_guard
+            {
+                decref_guard(PyObject* o) :
+                    obj(o)
+                {
+                }
 
-}}} // namespace boost::python::detail
+                ~decref_guard() { Py_XDECREF(obj); }
+
+                void cancel() { obj = 0; }
+
+            private:
+                PyObject* obj;
+            };
+
+        }
+    }
+}      // namespace boost
 
 #endif // DECREF_GUARD_DWA20021220_HPP

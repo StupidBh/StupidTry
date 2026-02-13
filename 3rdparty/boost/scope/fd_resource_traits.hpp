@@ -19,29 +19,23 @@
 #include <boost/scope/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 namespace boost {
-namespace scope {
+    namespace scope {
 
-//! POSIX-like file descriptor resource traits
-struct fd_resource_traits
-{
-    //! Creates a default fd value
-    static int make_default() noexcept
-    {
-        return -1;
-    }
+        //! POSIX-like file descriptor resource traits
+        struct fd_resource_traits
+        {
+            //! Creates a default fd value
+            static int make_default() noexcept { return -1; }
 
-    //! Tests if the fd is allocated (valid)
-    static bool is_allocated(int fd) noexcept
-    {
-        return fd >= 0;
-    }
-};
+            //! Tests if the fd is allocated (valid)
+            static bool is_allocated(int fd) noexcept { return fd >= 0; }
+        };
 
-} // namespace scope
+    } // namespace scope
 } // namespace boost
 
 #include <boost/scope/detail/footer.hpp>

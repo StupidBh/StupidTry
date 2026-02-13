@@ -55,9 +55,10 @@
 #include <boost/hof/tap.hpp>
 #include <boost/hof/unpack.hpp>
 
+namespace boost {
+    namespace hof {
 
-namespace boost { namespace hof {
-
-}} // namespace boost::hof
+    }
+} // namespace boost
 
 #endif

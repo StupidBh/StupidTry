@@ -14,15 +14,15 @@
 #include <boost/uuid/name_generator_sha1.hpp>
 
 namespace boost {
-namespace uuids {
+    namespace uuids {
 
-// Only provided for compatibility with 1.85 and earlier
-using name_generator = name_generator_sha1;
+        // Only provided for compatibility with 1.85 and earlier
+        using name_generator = name_generator_sha1;
 
-// Only provided for compatibility with 1.85 and earlier
-using name_generator_latest = name_generator_sha1;
+        // Only provided for compatibility with 1.85 and earlier
+        using name_generator_latest = name_generator_sha1;
 
-} // uuids
-} // boost
+    } // namespace uuids
+} // namespace boost
 
 #endif // BOOST_UUID_NAME_GENERATOR_HPP_INCLUDED

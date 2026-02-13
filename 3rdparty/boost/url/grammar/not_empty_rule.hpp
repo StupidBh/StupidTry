@@ -15,81 +15,68 @@
 #include <boost/url/grammar/type_traits.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
+    namespace urls {
+        namespace grammar {
 
-namespace implementation_defined {
-template<class R>
-struct not_empty_rule_t
-{
-    using value_type =
-        typename R::value_type;
+            namespace implementation_defined {
+                template<class R>
+                struct not_empty_rule_t
+                {
+                    using value_type = typename R::value_type;
 
-    auto
-    parse(
-        char const*& it,
-        char const* end) const ->
-            system::result<value_type>;
+                    auto parse(char const*& it, char const* end) const -> system::result<value_type>;
 
-    constexpr
-    not_empty_rule_t(
-        R const& r) noexcept
-        : r_(r)
-    {
-    }
+                    constexpr not_empty_rule_t(R const& r) noexcept :
+                        r_(r)
+                    {
+                    }
 
-private:
-    R r_;
-};
-} // implementation_defined
+                private:
+                    R r_;
+                };
+            } // namespace implementation_defined
 
-/** Match another rule, if the result is not empty
+            /** Match another rule, if the result is not empty
 
-    This adapts another rule such that
-    when an empty string is successfully
-    parsed, the result is an error.
+                This adapts another rule such that
+                when an empty string is successfully
+                parsed, the result is an error.
 
-    @par Value Type
-    @code
-    using value_type = typename Rule::value_type;
-    @endcode
+                @par Value Type
+                @code
+                using value_type = typename Rule::value_type;
+                @endcode
 
-    @par Example
-    Rules are used with the function @ref parse.
-    @code
-    system::result< decode_view > rv = parse( "Program%20Files",
-        not_empty_rule( pct_encoded_rule( unreserved_chars ) ) );
-    @endcode
+                @par Example
+                Rules are used with the function @ref parse.
+                @code
+                system::result< decode_view > rv = parse( "Program%20Files",
+                    not_empty_rule( pct_encoded_rule( unreserved_chars ) ) );
+                @endcode
 
-    @param r The rule to match
-    @return The adapted rule
+                @param r The rule to match
+                @return The adapted rule
 
-    @see
-        @ref parse,
-        @ref pct_encoded_rule,
-        @ref unreserved_chars.
-*/
-template<BOOST_URL_CONSTRAINT(Rule) R>
-auto
-constexpr
-not_empty_rule(
-    R const& r) ->
-        implementation_defined::not_empty_rule_t<R>
-{
-    // If you get a compile error here it
-    // means that your rule does not meet
-    // the type requirements. Please check
-    // the documentation.
-    static_assert(
-        is_rule<R>::value,
-        "Rule requirements not met");
+                @see
+                    @ref parse,
+                    @ref pct_encoded_rule,
+                    @ref unreserved_chars.
+            */
+            template<BOOST_URL_CONSTRAINT(Rule) R>
+            auto constexpr not_empty_rule(R const& r) -> implementation_defined::not_empty_rule_t<R>
+            {
+                // If you get a compile error here it
+                // means that your rule does not meet
+                // the type requirements. Please check
+                // the documentation.
+                static_assert(is_rule<R>::value, "Rule requirements not met");
 
-    return { r };
-}
+                return { r };
+            }
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #include <boost/url/grammar/impl/not_empty_rule.hpp>
 

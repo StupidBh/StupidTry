@@ -13,19 +13,16 @@
 
 // 20.7.6, allocator argument tag
 
-namespace boost
-{
-  namespace csbl
-  {
-    using ::std::allocator_arg_t;
-    using ::std::allocator_arg;
-  }
+namespace boost {
+    namespace csbl {
+        using ::std::allocator_arg;
+        using ::std::allocator_arg_t;
+    }
 }
 
-namespace boost
-{
-  using ::boost::csbl::allocator_arg_t;
-  using ::boost::csbl::allocator_arg;
+namespace boost {
+    using ::boost::csbl::allocator_arg;
+    using ::boost::csbl::allocator_arg_t;
 }
 
 #endif // header

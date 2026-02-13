@@ -8,22 +8,23 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 namespace boost {
-namespace safe_numerics {
+    namespace safe_numerics {
 
-template<class EP>
-struct ExceptionPolicy {
-    const char * message;
-    /*
-    BOOST_CONCEPT_USAGE(ExceptionPolicy){
-        EP::on_arithmetic_error(e, message);
-        EP::on_undefined_behavior(e, message)
-        EP::on_implementation_defined_behavior(e, message)
-        EP::on_uninitialized_value(e, message)
-    }
-    */
-};
+        template<class EP>
+        struct ExceptionPolicy
+        {
+            const char* message;
+            /*
+            BOOST_CONCEPT_USAGE(ExceptionPolicy){
+                EP::on_arithmetic_error(e, message);
+                EP::on_undefined_behavior(e, message)
+                EP::on_implementation_defined_behavior(e, message)
+                EP::on_uninitialized_value(e, message)
+            }
+            */
+        };
 
-} // safe_numerics
-} // boost
+    } // namespace safe_numerics
+} // namespace boost
 
 #endif // BOOST_NUMERIC_CONCEPT_EXCEPTION_POLICY_HPP

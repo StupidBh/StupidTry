@@ -9,19 +9,17 @@
 #include <boost/ptr_container/detail/serialize_reversible_cont.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
-namespace boost
-{
+namespace boost {
 
-namespace serialization
-{
+    namespace serialization {
 
-template<class Archive, class T, class CloneAllocator, class Allocator>
-void serialize(Archive& ar, ptr_list<T, CloneAllocator, Allocator>& c, const unsigned int version)
-{
-   core::split_free(ar, c, version);
-}
+        template<class Archive, class T, class CloneAllocator, class Allocator>
+        void serialize(Archive& ar, ptr_list<T, CloneAllocator, Allocator>& c, const unsigned int version)
+        {
+            core::split_free(ar, c, version);
+        }
 
-} // namespace serialization
+    } // namespace serialization
 } // namespace boost
 
 #endif

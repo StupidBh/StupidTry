@@ -22,45 +22,44 @@ BOOST_PROCESS_V2_BEGIN_NAMESPACE
 namespace ext {
 
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle, error_code & ec);
-BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle);
+    BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle, error_code& ec);
+    BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle);
 #endif
 
-/// @{
-/// Get the argument vector of another process
-BOOST_PROCESS_V2_DECL shell cmd(pid_type pid, error_code & ec);
-BOOST_PROCESS_V2_DECL shell cmd(pid_type pid);
+    /// @{
+    /// Get the argument vector of another process
+    BOOST_PROCESS_V2_DECL shell cmd(pid_type pid, error_code& ec);
+    BOOST_PROCESS_V2_DECL shell cmd(pid_type pid);
 
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle, error_code & ec);
-BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle);
+    BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle, error_code& ec);
+    BOOST_PROCESS_V2_DECL shell cmd(HANDLE handle);
 #endif
 
-template<typename Executor>
-inline shell cmd(basic_process_handle<Executor> & handle, error_code & ec)
-{
+    template<typename Executor>
+    inline shell cmd(basic_process_handle<Executor>& handle, error_code& ec)
+    {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-    return cmd(handle.native_handle(), ec);
+        return cmd(handle.native_handle(), ec);
 #else
-    return cmd(handle.id(), ec);
+        return cmd(handle.id(), ec);
 #endif
-}
+    }
 
-template<typename Executor>
-inline shell cmd(basic_process_handle<Executor> & handle)
-{
+    template<typename Executor>
+    inline shell cmd(basic_process_handle<Executor>& handle)
+    {
 #if defined(BOOST_PROCESS_V2_WINDOWS)
-    return cmd(handle.native_handle());
+        return cmd(handle.native_handle());
 #else
-    return cmd(handle.id());
+        return cmd(handle.id());
 #endif
-}
+    }
 
-/// @}
+    /// @}
 
 } // namespace ext
 
 BOOST_PROCESS_V2_END_NAMESPACE
-
 
 #endif // BOOST_PROCESS_V2_CMD_HPP

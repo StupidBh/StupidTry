@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
@@ -26,38 +26,37 @@
 #include <boost/type_traits/is_base_and_derived.hpp>
 
 namespace boost {
-namespace serialization {
+    namespace serialization {
 
-struct basic_traits;
+        struct basic_traits;
 
-// default version number is 0. Override with higher version
-// when class definition changes.
-template<class T>
-struct version
-{
-    template<class U>
-    struct traits_class_version {
-        typedef typename U::version type;
-    };
+        // default version number is 0. Override with higher version
+        // when class definition changes.
+        template<class T>
+        struct version
+        {
+            template<class U>
+            struct traits_class_version
+            {
+                typedef typename U::version type;
+            };
 
-    typedef mpl::integral_c_tag tag;
-    // note: at least one compiler complained w/o the full qualification
-    // on basic traits below
-    typedef
-        typename mpl::eval_if<
-            is_base_and_derived<boost::serialization::basic_traits,T>,
-            traits_class_version< T >,
-            mpl::int_<0>
-        >::type type;
-    BOOST_STATIC_CONSTANT(int, value = version::type::value);
-};
+            typedef mpl::integral_c_tag tag;
+            // note: at least one compiler complained w/o the full qualification
+            // on basic traits below
+            typedef typename mpl::eval_if<
+                is_base_and_derived<boost::serialization::basic_traits, T>,
+                traits_class_version<T>,
+                mpl::int_<0>>::type type;
+            BOOST_STATIC_CONSTANT(int, value = version::type::value);
+        };
 
 #ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
-template<class T>
-const int version<T>::value;
+        template<class T>
+        const int version<T>::value;
 #endif
 
-} // namespace serialization
+    } // namespace serialization
 } // namespace boost
 
 /* note: at first it seemed that this would be a good place to trap
@@ -75,31 +74,26 @@ const int version<T>::value;
 
 // specify the current version number for the class
 // version numbers limited to 8 bits !!!
-#define BOOST_CLASS_VERSION(T, N)                                      \
-namespace boost {                                                      \
-namespace serialization {                                              \
-template<>                                                             \
-struct version<T >                                                     \
-{                                                                      \
-    typedef mpl::int_<N> type;                                         \
-    typedef mpl::integral_c_tag tag;                                   \
-    BOOST_STATIC_CONSTANT(int, value = version::type::value);          \
-    BOOST_MPL_ASSERT((                                                 \
-        boost::mpl::less<                                              \
-            boost::mpl::int_<N>,                                       \
-            boost::mpl::int_<256>                                      \
-        >                                                              \
-    ));                                                                \
-    /*                                                                 \
-    BOOST_MPL_ASSERT((                                                 \
-        mpl::equal_to<                                                 \
-            :implementation_level<T >,                                 \
-            mpl::int_<object_class_info>                               \
-        >::value                                                       \
-    ));                                                                \
-    */                                                                 \
-};                                                                     \
-}                                                                      \
-}
+#define BOOST_CLASS_VERSION(T, N)                                                                 \
+    namespace boost {                                                                             \
+        namespace serialization {                                                                 \
+            template<>                                                                            \
+            struct version<T>                                                                     \
+            {                                                                                     \
+                typedef mpl::int_<N> type;                                                        \
+                typedef mpl::integral_c_tag tag;                                                  \
+                BOOST_STATIC_CONSTANT(int, value = version::type::value);                         \
+                BOOST_MPL_ASSERT((boost::mpl::less<boost::mpl::int_<N>, boost::mpl::int_<256>>)); \
+                /*                                                                                \
+                BOOST_MPL_ASSERT((                                                                \
+                    mpl::equal_to<                                                                \
+                        :implementation_level<T >,                                                \
+                        mpl::int_<object_class_info>                                              \
+                    >::value                                                                      \
+                ));                                                                               \
+                */                                                                                \
+            };                                                                                    \
+        }                                                                                         \
+    }
 
 #endif // BOOST_SERIALIZATION_VERSION_HPP

@@ -24,88 +24,103 @@
 #include <memory>
 #include <future>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
-
-
-template<typename Buffer>
-struct async_in_buffer : ::boost::process::v1::detail::windows::handler_base_ext,
-                         ::boost::process::v1::detail::windows::require_io_context,
-                         ::boost::process::v1::detail::uses_handles
-{
-    Buffer & buf;
-
-    std::shared_ptr<std::promise<void>> promise;
-    async_in_buffer operator>(std::future<void> & fut)
-    {
-        promise = std::make_shared<std::promise<void>>();
-        fut = promise->get_future(); return std::move(*this);
-    }
-
-    std::shared_ptr<boost::process::v1::async_pipe> pipe;
-
-    ::boost::winapi::HANDLE_ get_used_handles() const
-    {
-        return std::move(*pipe).source().native_handle();
-    }
-
-    async_in_buffer(Buffer & buf) : buf(buf)
-    {
-    }
-    template <typename Executor>
-    inline void on_success(Executor&)
-    {
-        auto pipe_ = this->pipe;
-
-        if (this->promise)
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
         {
-            auto promise_ = this->promise;
+            namespace detail {
+                namespace windows {
 
-            boost::asio::async_write(*pipe_, buf,
-                [promise_](const boost::system::error_code & ec, std::size_t)
-                {
-                    if (ec && (ec.value() != ::boost::winapi::ERROR_BROKEN_PIPE_))
+                    template<typename Buffer>
+                    struct async_in_buffer :
+                        ::boost::process::v1::detail::windows::handler_base_ext,
+                        ::boost::process::v1::detail::windows::require_io_context,
+                        ::boost::process::v1::detail::uses_handles
                     {
-                        std::error_code e(ec.value(), std::system_category());
-                        promise_->set_exception(std::make_exception_ptr(process_error(e)));
-                    }
-                    promise_->set_value();
-                });
+                        Buffer& buf;
+
+                        std::shared_ptr<std::promise<void>> promise;
+
+                        async_in_buffer operator>(std::future<void>& fut)
+                        {
+                            promise = std::make_shared<std::promise<void>>();
+                            fut = promise->get_future();
+                            return std::move(*this);
+                        }
+
+                        std::shared_ptr<boost::process::v1::async_pipe> pipe;
+
+                        ::boost::winapi::HANDLE_ get_used_handles() const
+                        {
+                            return std::move(*pipe).source().native_handle();
+                        }
+
+                        async_in_buffer(Buffer& buf) :
+                            buf(buf)
+                        {
+                        }
+
+                        template<typename Executor>
+                        inline void on_success(Executor&)
+                        {
+                            auto pipe_ = this->pipe;
+
+                            if (this->promise) {
+                                auto promise_ = this->promise;
+
+                                boost::asio::async_write(
+                                    *pipe_,
+                                    buf,
+                                    [promise_](const boost::system::error_code& ec, std::size_t) {
+                                        if (ec && (ec.value() != ::boost::winapi::ERROR_BROKEN_PIPE_)) {
+                                            std::error_code e(ec.value(), std::system_category());
+                                            promise_->set_exception(std::make_exception_ptr(process_error(e)));
+                                        }
+                                        promise_->set_value();
+                                    });
+                            }
+                            else {
+                                boost::asio::async_write(
+                                    *pipe_,
+                                    buf,
+                                    [pipe_](const boost::system::error_code&, std::size_t) {});
+                            }
+
+                            std::move(*pipe_).source().close();
+
+                            this->pipe = nullptr;
+                        }
+
+                        template<typename Executor>
+                        void on_error(Executor&, const std::error_code&) const
+                        {
+                            ::boost::winapi::CloseHandle(pipe->native_source());
+                        }
+
+                        template<typename WindowsExecutor>
+                        void on_setup(WindowsExecutor& exec)
+                        {
+                            if (!pipe) {
+                                pipe = std::make_shared<boost::process::v1::async_pipe>(get_io_context(exec.seq));
+                            }
+
+                            ::boost::winapi::HANDLE_ source_handle = std::move(*pipe).source().native_handle();
+
+                            boost::winapi::SetHandleInformation(
+                                source_handle,
+                                boost::winapi::HANDLE_FLAG_INHERIT_,
+                                boost::winapi::HANDLE_FLAG_INHERIT_);
+
+                            exec.startup_info.hStdInput = source_handle;
+                            exec.startup_info.dwFlags |= boost::winapi::STARTF_USESTDHANDLES_;
+                            exec.inherit_handles = true;
+                        }
+                    };
+
+                }
+            }
         }
-        else
-            boost::asio::async_write(*pipe_, buf,
-                [pipe_](const boost::system::error_code&, std::size_t){});
-
-        std::move(*pipe_).source().close();
-
-
-        this->pipe = nullptr;
     }
-
-    template<typename Executor>
-    void on_error(Executor &, const std::error_code &) const
-    {
-        ::boost::winapi::CloseHandle(pipe->native_source());
-    }
-
-    template <typename WindowsExecutor>
-    void on_setup(WindowsExecutor &exec)
-    {
-        if (!pipe)
-            pipe = std::make_shared<boost::process::v1::async_pipe>(get_io_context(exec.seq));
-
-        ::boost::winapi::HANDLE_ source_handle = std::move(*pipe).source().native_handle();
-
-        boost::winapi::SetHandleInformation(source_handle,
-                boost::winapi::HANDLE_FLAG_INHERIT_,
-                boost::winapi::HANDLE_FLAG_INHERIT_);
-
-        exec.startup_info.hStdInput = source_handle;
-        exec.startup_info.dwFlags  |= boost::winapi::STARTF_USESTDHANDLES_;
-        exec.inherit_handles = true;
-    }
-};
-
-
-}}}}}
+}
 
 #endif

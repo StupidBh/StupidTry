@@ -10,10 +10,9 @@
 
 #if defined BOOST_THREAD_PROVIDES_CONDITION
 
-#include <boost/thread/condition_variable.hpp>
+    #include <boost/thread/condition_variable.hpp>
 
-namespace boost
-{
+namespace boost {
     typedef condition_variable_any condition;
 }
 

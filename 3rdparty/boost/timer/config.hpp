@@ -18,34 +18,34 @@
 //  enable dynamic or static linking as requested --------------------------------------//
 
 #if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_TIMER_DYN_LINK)
-# if defined(BOOST_TIMER_SOURCE)
-#   define BOOST_TIMER_DECL BOOST_SYMBOL_EXPORT
-# else
-#   define BOOST_TIMER_DECL BOOST_SYMBOL_IMPORT
-# endif
+    #if defined(BOOST_TIMER_SOURCE)
+        #define BOOST_TIMER_DECL BOOST_SYMBOL_EXPORT
+    #else
+        #define BOOST_TIMER_DECL BOOST_SYMBOL_IMPORT
+    #endif
 #else
-# define BOOST_TIMER_DECL
+    #define BOOST_TIMER_DECL
 #endif
 
 //  enable automatic library variant selection  ----------------------------------------//
 
 #if !defined(BOOST_TIMER_SOURCE) && !defined(BOOST_ALL_NO_LIB) && !defined(BOOST_TIMER_NO_LIB)
-//
-// Set the name of our library, this will get undef'ed by auto_link.hpp
-// once it's done with it:
-//
-#define BOOST_LIB_NAME boost_timer
-//
-// If we're importing code from a dll, then tell auto_link.hpp about it:
-//
-#if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_TIMER_DYN_LINK)
-#  define BOOST_DYN_LINK
-#endif
-//
-// And include the header that does the work:
-//
-#include <boost/config/auto_link.hpp>
+    //
+    // Set the name of our library, this will get undef'ed by auto_link.hpp
+    // once it's done with it:
+    //
+    #define BOOST_LIB_NAME boost_timer
+    //
+    // If we're importing code from a dll, then tell auto_link.hpp about it:
+    //
+    #if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_TIMER_DYN_LINK)
+        #define BOOST_DYN_LINK
+    #endif
+    //
+    // And include the header that does the work:
+    //
+    #include <boost/config/auto_link.hpp>
 
-#endif  // auto-linking disabled
+#endif // auto-linking disabled
 
 #endif // BOOST_TIMER_CONFIG_HPP

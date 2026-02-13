@@ -14,44 +14,34 @@
 #include <boost/url/grammar/parse.hpp>
 
 namespace boost {
-namespace urls {
-namespace grammar {
+    namespace urls {
+        namespace grammar {
 
-namespace implementation_defined {
-template<class R>
-auto
-not_empty_rule_t<R>::
-parse(
-    char const*& it,
-    char const* end) const ->
-        system::result<value_type>
-{
-    if(it == end)
-    {
-        // empty
-        BOOST_URL_RETURN_EC(
-            error::mismatch);
-    }
-    auto const it0 = it;
-    auto rv = r_.parse(it, end);
-    if(  !rv )
-    {
-        // error
-        return rv;
-    }
-    if(it == it0)
-    {
-        // empty
-        BOOST_URL_RETURN_EC(
-            error::mismatch);
-    }
-    // value
-    return rv;
-}
-}
+            namespace implementation_defined {
+                template<class R>
+                auto not_empty_rule_t<R>::parse(char const*& it, char const* end) const -> system::result<value_type>
+                {
+                    if (it == end) {
+                        // empty
+                        BOOST_URL_RETURN_EC(error::mismatch);
+                    }
+                    auto const it0 = it;
+                    auto rv = r_.parse(it, end);
+                    if (!rv) {
+                        // error
+                        return rv;
+                    }
+                    if (it == it0) {
+                        // empty
+                        BOOST_URL_RETURN_EC(error::mismatch);
+                    }
+                    // value
+                    return rv;
+                }
+            }
 
-} // grammar
-} // urls
-} // boost
+        } // namespace grammar
+    } // namespace urls
+} // namespace boost
 
 #endif

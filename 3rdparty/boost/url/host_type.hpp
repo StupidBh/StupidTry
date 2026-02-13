@@ -13,46 +13,46 @@
 #include <boost/url/detail/config.hpp>
 
 namespace boost {
-namespace urls {
+    namespace urls {
 
-/** Identifies the type of host in a URL.
+        /** Identifies the type of host in a URL.
 
-    Values of this type are returned by URL views
-    and containers to indicate the type of host
-    present in a URL.
-*/
-enum class host_type
-{
-    // VFALCO 3 space indent or
-    // else Doxygen malfunctions
+            Values of this type are returned by URL views
+            and containers to indicate the type of host
+            present in a URL.
+        */
+        enum class host_type
+        {
+            // VFALCO 3 space indent or
+            // else Doxygen malfunctions
 
-    /**
-     * No host is specified.
-    */
-    none,
+            /**
+             * No host is specified.
+             */
+            none,
 
-    /**
-     * A host is specified by reg-name.
-    */
-    name,
+            /**
+             * A host is specified by reg-name.
+             */
+            name,
 
-    /**
-     * A host is specified by @ref ipv4_address.
-    */
-    ipv4,
+            /**
+             * A host is specified by @ref ipv4_address.
+             */
+            ipv4,
 
-    /**
-     * A host is specified by @ref ipv6_address.
-    */
-    ipv6,
+            /**
+             * A host is specified by @ref ipv6_address.
+             */
+            ipv6,
 
-    /**
-     * A host is specified by IPvFuture.
-    */
-    ipvfuture
-};
+            /**
+             * A host is specified by IPvFuture.
+             */
+            ipvfuture
+        };
 
-} // urls
-} // boost
+    } // namespace urls
+} // namespace boost
 
 #endif

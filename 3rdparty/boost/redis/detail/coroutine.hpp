@@ -23,13 +23,12 @@
 // Enclosing this in a scope allows placing the macro inside a brace-less for/while loop
 // The empty scope after the case label is required because labels can't be at the end of a compound statement
 #define BOOST_REDIS_YIELD(resume_point_var, resume_point_id, ...) \
-   {                                                              \
-      resume_point_var = resume_point_id;                         \
-      return {__VA_ARGS__};                                       \
-      case resume_point_id:                                       \
-      {                                                           \
-      }                                                           \
-   }
+    {                                                             \
+        resume_point_var = resume_point_id;                       \
+        return { __VA_ARGS__ };                                   \
+    case resume_point_id: {                                       \
+    }                                                             \
+    }
 
 #define BOOST_REDIS_CORO_INITIAL case 0:
 

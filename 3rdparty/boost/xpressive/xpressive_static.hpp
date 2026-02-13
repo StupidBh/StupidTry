@@ -12,13 +12,13 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 #if defined(_MSC_VER) && !defined(__clang__)
-// inline aggressively
-# pragma inline_recursion(on) // turn on inline recursion
-# pragma inline_depth(255)    // max inline depth
+    // inline aggressively
+    #pragma inline_recursion(on) // turn on inline recursion
+    #pragma inline_depth(255)    // max inline depth
 #endif
 
 #include <boost/xpressive/regex_primitives.hpp>

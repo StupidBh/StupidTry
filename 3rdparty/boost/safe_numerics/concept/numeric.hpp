@@ -12,12 +12,12 @@
 #include <type_traits>
 
 namespace boost {
-namespace safe_numerics {
+    namespace safe_numerics {
 
-template<class T>
-using Numeric = std::integral_constant<bool, std::numeric_limits<T>::is_specialized>;
+        template<class T>
+        using Numeric = std::integral_constant<bool, std::numeric_limits<T>::is_specialized>;
 
-} // safe_numerics
-} // boost
+    } // namespace safe_numerics
+} // namespace boost
 
 #endif // BOOST_NUMERIC_CONCEPT_NUMERIC_HPP

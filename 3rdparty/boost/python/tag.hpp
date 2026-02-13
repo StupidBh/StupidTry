@@ -3,16 +3,21 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef TAG_DWA2002720_HPP
-# define TAG_DWA2002720_HPP
+#define TAG_DWA2002720_HPP
 
-# include <boost/python/detail/prefix.hpp>
+#include <boost/python/detail/prefix.hpp>
 
-namespace boost { namespace python { 
+namespace boost {
+    namespace python {
 
-// used only to prevent argument-dependent lookup from finding the
-// wrong function in some cases. Cheaper than qualification.
-enum tag_t { tag };
+        // used only to prevent argument-dependent lookup from finding the
+        // wrong function in some cases. Cheaper than qualification.
+        enum tag_t
+        {
+            tag
+        };
 
-}} // namespace boost::python
+    }
+}      // namespace boost
 
 #endif // TAG_DWA2002720_HPP

@@ -21,16 +21,16 @@
 #include <boost/scope/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 namespace boost {
-namespace scope {
+    namespace scope {
 
-//! Unique POSIX-like file descriptor resource
-using unique_fd = unique_resource< int, fd_deleter, fd_resource_traits >;
+        //! Unique POSIX-like file descriptor resource
+        using unique_fd = unique_resource<int, fd_deleter, fd_resource_traits>;
 
-} // namespace scope
+    } // namespace scope
 } // namespace boost
 
 #include <boost/scope/detail/footer.hpp>

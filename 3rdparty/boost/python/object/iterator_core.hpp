@@ -3,15 +3,19 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 #ifndef ITERATOR_CORE_DWA2002512_HPP
-# define ITERATOR_CORE_DWA2002512_HPP
+#define ITERATOR_CORE_DWA2002512_HPP
 
-# include <boost/python/object_fwd.hpp>
+#include <boost/python/object_fwd.hpp>
 
-namespace boost { namespace python { namespace objects {
+namespace boost {
+    namespace python {
+        namespace objects {
 
-BOOST_PYTHON_DECL object const& identity_function();
-BOOST_PYTHON_DECL void stop_iteration_error();
+            BOOST_PYTHON_DECL object const& identity_function();
+            BOOST_PYTHON_DECL void stop_iteration_error();
 
-}}} // namespace boost::python::object
+        }
+    }
+}      // namespace boost
 
 #endif // ITERATOR_CORE_DWA2002512_HPP

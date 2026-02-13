@@ -4,7 +4,7 @@
 // MS compatible compilers support #pragma once
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
+    #pragma once
 #endif
 
 //
@@ -19,12 +19,12 @@
 
 #include <boost/smart_ptr/detail/deprecated_macros.hpp>
 
-#if defined( BOOST_SP_DISABLE_THREADS )
-# include <boost/smart_ptr/detail/sp_counted_base_nt.hpp>
+#if defined(BOOST_SP_DISABLE_THREADS)
+    #include <boost/smart_ptr/detail/sp_counted_base_nt.hpp>
 
 #else
-# include <boost/smart_ptr/detail/sp_counted_base_std_atomic.hpp>
+    #include <boost/smart_ptr/detail/sp_counted_base_std_atomic.hpp>
 
 #endif
 
-#endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED
+#endif // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED

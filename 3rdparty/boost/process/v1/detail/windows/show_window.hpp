@@ -16,31 +16,38 @@
 #include <boost/winapi/show_window.hpp>
 #include <boost/process/v1/detail/handler_base.hpp>
 
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+                    template<::boost::winapi::WORD_ Flags>
+                    struct show_window : ::boost::process::v1::detail::handler_base
+                    {
+                        template<class WindowsExecutor>
+                        void on_setup(WindowsExecutor& e) const
+                        {
+                            e.startup_info.dwFlags |= ::boost::winapi::STARTF_USESHOWWINDOW_;
+                            e.startup_info.wShowWindow |= Flags;
+                        }
+                    };
 
-template<::boost::winapi::WORD_ Flags>
-struct show_window : ::boost::process::v1::detail::handler_base
-{
-    template <class WindowsExecutor>
-    void on_setup(WindowsExecutor &e) const
-    {
-        e.startup_info.dwFlags |= ::boost::winapi::STARTF_USESHOWWINDOW_;
-        e.startup_info.wShowWindow |= Flags;
+                    struct create_no_window_ : public ::boost::process::v1::detail::handler_base
+                    {
+                        template<class Executor>
+                        void on_setup(Executor& exec) const
+                        {
+                            exec.creation_flags |= ::boost::winapi::CREATE_NO_WINDOW_;
+                        }
+                    };
+
+                }
+            }
+        }
     }
-};
-
-struct create_no_window_ : public ::boost::process::v1::detail::handler_base
-{
-    template <class Executor>
-    void on_setup(Executor &exec) const
-    {
-        exec.creation_flags |= ::boost::winapi::CREATE_NO_WINDOW_;
-    }
-};
-
-
-}}}}}
+}
 
 #endif
 

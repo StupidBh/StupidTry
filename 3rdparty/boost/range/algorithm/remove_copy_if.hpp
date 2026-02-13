@@ -15,8 +15,7 @@
 #include <boost/range/concepts.hpp>
 #include <algorithm>
 
-namespace boost
-{
+namespace boost {
     /// \brief template function remove_copy_if
     ///
     /// range-based version of the remove_copy_if std algorithm
@@ -26,11 +25,10 @@ namespace boost
     /// \pre Predicate is a model of the PredicateConcept
     /// \pre InputIterator's value type is convertible to Predicate's argument type
     /// \pre out_it is not an iterator in the range rng
-    template< class SinglePassRange, class OutputIterator, class Predicate >
-    inline OutputIterator
-    remove_copy_if(const SinglePassRange& rng, OutputIterator out_it, Predicate pred)
+    template<class SinglePassRange, class OutputIterator, class Predicate>
+    inline OutputIterator remove_copy_if(const SinglePassRange& rng, OutputIterator out_it, Predicate pred)
     {
-        BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange> ));
+        BOOST_RANGE_CONCEPT_ASSERT((SinglePassRangeConcept<const SinglePassRange>));
         return std::remove_copy_if(boost::begin(rng), boost::end(rng), out_it, pred);
     }
 }

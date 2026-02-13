@@ -17,32 +17,50 @@
 #include <boost/process/v1/detail/windows/file_descriptor.hpp>
 #include <io.h>
 
-namespace boost { namespace process { BOOST_PROCESS_V1_INLINE namespace v1 { namespace detail { namespace windows {
+namespace boost {
+    namespace process {
+        BOOST_PROCESS_V1_INLINE namespace v1
+        {
+            namespace detail {
+                namespace windows {
 
-struct file_in : public ::boost::process::v1::detail::handler_base,
+                    struct file_in :
+                        public ::boost::process::v1::detail::handler_base,
                         ::boost::process::v1::detail::uses_handles
-{
-    file_descriptor file;
-    ::boost::winapi::HANDLE_ handle = file.handle();
+                    {
+                        file_descriptor file;
+                        ::boost::winapi::HANDLE_ handle = file.handle();
 
-    ::boost::winapi::HANDLE_ get_used_handles() const { return handle; }
+                        ::boost::winapi::HANDLE_ get_used_handles() const { return handle; }
 
-    template<typename T>
-    file_in(T&& t) : file(std::forward<T>(t), file_descriptor::read) {}
-    file_in(FILE * f) : handle(reinterpret_cast<::boost::winapi::HANDLE_>(_get_osfhandle(_fileno(f)))) {}
+                        template<typename T>
+                        file_in(T&& t) :
+                            file(std::forward<T>(t), file_descriptor::read)
+                        {
+                        }
 
-    template <class WindowsExecutor>
-    void on_setup(WindowsExecutor &e) const
-    {
-        boost::winapi::SetHandleInformation(handle,
-                boost::winapi::HANDLE_FLAG_INHERIT_,
-                boost::winapi::HANDLE_FLAG_INHERIT_);
-        e.startup_info.hStdInput = handle;
-        e.startup_info.dwFlags  |= boost::winapi::STARTF_USESTDHANDLES_;
-        e.inherit_handles = true;
+                        file_in(FILE* f) :
+                            handle(reinterpret_cast<::boost::winapi::HANDLE_>(_get_osfhandle(_fileno(f))))
+                        {
+                        }
+
+                        template<class WindowsExecutor>
+                        void on_setup(WindowsExecutor& e) const
+                        {
+                            boost::winapi::SetHandleInformation(
+                                handle,
+                                boost::winapi::HANDLE_FLAG_INHERIT_,
+                                boost::winapi::HANDLE_FLAG_INHERIT_);
+                            e.startup_info.hStdInput = handle;
+                            e.startup_info.dwFlags |= boost::winapi::STARTF_USESTDHANDLES_;
+                            e.inherit_handles = true;
+                        }
+                    };
+
+                }
+            }
+        }
     }
-};
-
-}}}}}
+}
 
 #endif

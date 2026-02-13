@@ -3,7 +3,7 @@
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER)
-# pragma once
+    #pragma once
 #endif
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
@@ -22,70 +22,64 @@
 #include <boost/serialization/serialization.hpp>
 
 namespace boost {
-namespace archive {
-    namespace detail {
-        template<class Archive> class interface_oarchive;
-        template<class Archive> class interface_iarchive;
-    } // namespace detail
-} // namespace archive
+    namespace archive {
+        namespace detail {
+            template<class Archive>
+            class interface_oarchive;
+            template<class Archive>
+            class interface_iarchive;
+        } // namespace detail
+    } // namespace archive
 
-namespace serialization {
+    namespace serialization {
 
-template<class Archive, class T>
-struct free_saver {
-    static void invoke(
-        Archive & ar,
-        const T & t,
-        const unsigned int file_version
-    ){
-        // use function overload (version_type) to workaround
-        // two-phase lookup issue
-        const version_type v(file_version);
-        save(ar, t, v);
-    }
-};
-template<class Archive, class T>
-struct free_loader {
-    static void invoke(
-        Archive & ar,
-        T & t,
-        const unsigned int file_version
-    ){
-        // use function overload (version_type) to workaround
-        // two-phase lookup issue
-        const version_type v(file_version);
-        load(ar, t, v);
-    }
-};
+        template<class Archive, class T>
+        struct free_saver
+        {
+            static void invoke(Archive& ar, const T& t, const unsigned int file_version)
+            {
+                // use function overload (version_type) to workaround
+                // two-phase lookup issue
+                const version_type v(file_version);
+                save(ar, t, v);
+            }
+        };
 
-template<class Archive, class T>
-inline void split_free(
-    Archive & ar,
-    T & t,
-    const unsigned int file_version
-){
-    typedef typename mpl::eval_if<
-        typename Archive::is_saving,
-        mpl::identity</* detail:: */ free_saver<Archive, T> >,
-        mpl::identity</* detail:: */ free_loader<Archive, T> >
-    >::type typex;
-    typex::invoke(ar, t, file_version);
-}
+        template<class Archive, class T>
+        struct free_loader
+        {
+            static void invoke(Archive& ar, T& t, const unsigned int file_version)
+            {
+                // use function overload (version_type) to workaround
+                // two-phase lookup issue
+                const version_type v(file_version);
+                load(ar, t, v);
+            }
+        };
 
-} // namespace serialization
+        template<class Archive, class T>
+        inline void split_free(Archive& ar, T& t, const unsigned int file_version)
+        {
+            typedef typename mpl::eval_if<
+                typename Archive::is_saving,
+                mpl::identity</* detail:: */ free_saver<Archive, T>>,
+                mpl::identity</* detail:: */ free_loader<Archive, T>>>::type typex;
+            typex::invoke(ar, t, file_version);
+        }
+
+    } // namespace serialization
 } // namespace boost
 
-#define BOOST_SERIALIZATION_SPLIT_FREE(T)       \
-namespace boost { namespace serialization {     \
-template<class Archive>                         \
-inline void serialize(                          \
-        Archive & ar,                               \
-        T & t,                                      \
-        const unsigned int file_version             \
-){                                              \
-        split_free(ar, t, file_version);            \
-}                                               \
-}}
+#define BOOST_SERIALIZATION_SPLIT_FREE(T)                                             \
+    namespace boost {                                                                 \
+        namespace serialization {                                                     \
+            template<class Archive>                                                   \
+            inline void serialize(Archive& ar, T& t, const unsigned int file_version) \
+            {                                                                         \
+                split_free(ar, t, file_version);                                      \
+            }                                                                         \
+        }                                                                             \
+    }
 /**/
 
 #endif // BOOST_SERIALIZATION_SPLIT_FREE_HPP

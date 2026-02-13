@@ -15,54 +15,51 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace boost {
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T> >::type
-make_shared()
-{
-    return boost::allocate_shared<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>());
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T>>::type make_shared()
+    {
+        return boost::allocate_shared<T>(boost::default_allocator<typename detail::sp_array_element<T>::type>());
+    }
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T> >::type
-make_shared(const typename std::remove_extent<T>::type& value)
-{
-    return boost::allocate_shared<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>(), value);
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T>>::type
+        make_shared(const typename std::remove_extent<T>::type& value)
+    {
+        return boost::allocate_shared<T>(boost::default_allocator<typename detail::sp_array_element<T>::type>(), value);
+    }
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T> >::type
-make_shared(std::size_t size)
-{
-    return boost::allocate_shared<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>(), size);
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T>>::type
+        make_shared(std::size_t size)
+    {
+        return boost::allocate_shared<T>(boost::default_allocator<typename detail::sp_array_element<T>::type>(), size);
+    }
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T> >::type
-make_shared(std::size_t size, const typename std::remove_extent<T>::type& value)
-{
-    return boost::allocate_shared<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>(), size, value);
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T>>::type
+        make_shared(std::size_t size, const typename std::remove_extent<T>::type& value)
+    {
+        return boost::allocate_shared<T>(
+            boost::default_allocator<typename detail::sp_array_element<T>::type>(),
+            size,
+            value);
+    }
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T> >::type
-make_shared_noinit()
-{
-    return boost::allocate_shared_noinit<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>());
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_bounded_array<T>::value, shared_ptr<T>>::type make_shared_noinit()
+    {
+        return boost::allocate_shared_noinit<T>(boost::default_allocator<typename detail::sp_array_element<T>::type>());
+    }
 
-template<class T>
-inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T> >::type
-make_shared_noinit(std::size_t size)
-{
-    return boost::allocate_shared_noinit<T>(boost::default_allocator<typename
-        detail::sp_array_element<T>::type>(), size);
-}
+    template<class T>
+    inline typename std::enable_if<detail::sp_is_unbounded_array<T>::value, shared_ptr<T>>::type
+        make_shared_noinit(std::size_t size)
+    {
+        return boost::allocate_shared_noinit<T>(
+            boost::default_allocator<typename detail::sp_array_element<T>::type>(),
+            size);
+    }
 
-} /* boost */
+} // namespace boost
 
 #endif

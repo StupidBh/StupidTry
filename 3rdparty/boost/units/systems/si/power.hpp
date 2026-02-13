@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -16,18 +16,18 @@
 
 namespace boost {
 
-namespace units { 
+    namespace units {
 
-namespace si {
+        namespace si {
 
-typedef unit<power_dimension,si::system>     power;
-    
-BOOST_UNITS_STATIC_CONSTANT(watt,power);    
-BOOST_UNITS_STATIC_CONSTANT(watts,power);   
+            typedef unit<power_dimension, si::system> power;
 
-} // namespace si
+            BOOST_UNITS_STATIC_CONSTANT(watt, power);
+            BOOST_UNITS_STATIC_CONSTANT(watts, power);
 
-} // namespace units
+        } // namespace si
+
+    } // namespace units
 
 } // namespace boost
 

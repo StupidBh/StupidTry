@@ -22,7 +22,7 @@
 #include <boost/winapi/apc.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
-#pragma once
+    #pragma once
 #endif
 
 #endif // BOOST_WINAPI_SYNCHRONIZATION_HPP_INCLUDED_

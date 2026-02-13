@@ -11,43 +11,36 @@
 #include <cstdint>
 
 namespace boost {
-namespace uuids {
-namespace detail {
+    namespace uuids {
+        namespace detail {
 
-class random_provider
-{
-private:
+            class random_provider {
+            private:
+                detail::random_device dev_;
 
-    detail::random_device dev_;
+            public:
+                using result_type = std::uint32_t;
 
-public:
+                random_provider() = default;
 
-    using result_type = std::uint32_t;
+                // Leverage the provider as a SeedSeq for
+                // PseudoRandomNumberGeneration seeding.
 
-    random_provider() = default;
+                template<class Iter>
+                void generate(Iter first, Iter last)
+                {
+                    std::uniform_int_distribution<std::uint32_t> dist;
 
-    // Leverage the provider as a SeedSeq for
-    // PseudoRandomNumberGeneration seeding.
+                    for (; first != last; ++first) {
+                        *first = dist(dev_);
+                    }
+                }
 
-    template<class Iter>
-    void generate(Iter first, Iter last)
-    {
-        std::uniform_int_distribution<std::uint32_t> dist;
+                const char* name() const { return "std::random_device"; }
+            };
 
-        for( ; first != last; ++first )
-        {
-            *first = dist( dev_ );
-        }
-    }
-
-    const char * name() const
-    {
-        return "std::random_device";
-    }
-};
-
-} // detail
-} // uuids
-} // boost
+        } // namespace detail
+    } // namespace uuids
+} // namespace boost
 
 #endif // BOOST_UUID_DETAIL_RANDOM_PROVIDER_HPP_INCLUDED

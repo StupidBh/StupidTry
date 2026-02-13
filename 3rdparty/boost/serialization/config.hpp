@@ -41,7 +41,7 @@
     #else
         #define BOOST_SERIALIZATION_DECL BOOST_SYMBOL_IMPORT
     #endif // defined(BOOST_SERIALIZATION_SOURCE)
-#endif // defined(BOOST_ALL_DYN_LINK) || defined(BOOST_SERIALIZATION_DYN_LINK)
+#endif     // defined(BOOST_ALL_DYN_LINK) || defined(BOOST_SERIALIZATION_DYN_LINK)
 
 // if BOOST_SERIALIZATION_DECL isn't defined yet define it now:
 #ifndef BOOST_SERIALIZATION_DECL
@@ -50,9 +50,8 @@
 
 //  enable automatic library variant selection  ------------------------------//
 
-#if !defined(BOOST_ALL_NO_LIB) && !defined(BOOST_SERIALIZATION_NO_LIB) \
-&&  !defined(BOOST_ARCHIVE_SOURCE) && !defined(BOOST_WARCHIVE_SOURCE)  \
-&&  !defined(BOOST_SERIALIZATION_SOURCE)
+#if !defined(BOOST_ALL_NO_LIB) && !defined(BOOST_SERIALIZATION_NO_LIB) && !defined(BOOST_ARCHIVE_SOURCE) && \
+    !defined(BOOST_WARCHIVE_SOURCE) && !defined(BOOST_SERIALIZATION_SOURCE)
     //
     // Set the name of our library, this will get undef'ed by auto_link.hpp
     // once it's done with it:
@@ -62,7 +61,7 @@
     // If we're importing code from a dll, then tell auto_link.hpp about it:
     //
     #if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_SERIALIZATION_DYN_LINK)
-    #  define BOOST_DYN_LINK
+        #define BOOST_DYN_LINK
     #endif
     //
     // And include the header that does the work:

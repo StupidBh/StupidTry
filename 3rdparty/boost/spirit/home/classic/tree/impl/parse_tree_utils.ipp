@@ -13,123 +13,121 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost {
-namespace spirit {
+    namespace spirit {
 
-BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Returnes the first leaf node of the given parsetree.
-//
-///////////////////////////////////////////////////////////////////////////////
-template <typename T>
-inline tree_node<T> const &
-get_first_leaf (tree_node<T> const &node)
-{
-    if (node.children.size() > 0)
-        return get_first_leaf(*node.children.begin());
-    return node;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Find a specified node through recursive search.
-//
-///////////////////////////////////////////////////////////////////////////////
-template <typename T>
-inline bool
-find_node (tree_node<T> const &node, parser_id node_to_search,
-    tree_node<T> const **found_node)
-{
-    if (node.value.id() == node_to_search) {
-        *found_node = &node;
-        return true;
-    }
-    if (node.children.size() > 0) {
-        typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
-
-        const_tree_iterator end = node.children.end();
-        for (const_tree_iterator it = node.children.begin(); it != end; ++it)
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        //  Returnes the first leaf node of the given parsetree.
+        //
+        ///////////////////////////////////////////////////////////////////////////////
+        template<typename T>
+        inline tree_node<T> const& get_first_leaf(tree_node<T> const& node)
         {
-            if (find_node (*it, node_to_search, found_node))
-                return true;
+            if (node.children.size() > 0) {
+                return get_first_leaf(*node.children.begin());
+            }
+            return node;
         }
-    }
-    return false;   // not found here
-}
 
-///////////////////////////////////////////////////////////////////////////////
-//
-//  The functions 'get_node_range' return a pair of iterators pointing at the
-//  range, which contains the elements of a specified node.
-//
-///////////////////////////////////////////////////////////////////////////////
-namespace impl {
-
-template <typename T>
-inline bool
-get_node_range (typename tree_node<T>::const_tree_iterator const &start,
-    parser_id node_to_search,
-    std::pair<typename tree_node<T>::const_tree_iterator,
-        typename tree_node<T>::const_tree_iterator> &nodes)
-{
-// look at this node first
-tree_node<T> const &node = *start;
-
-    if (node.value.id() == node_to_search) {
-        if (node.children.size() > 0) {
-        // full subrange
-            nodes.first = node.children.begin();
-            nodes.second = node.children.end();
-        }
-        else {
-        // only this node
-            nodes.first = start;
-            nodes.second = start;
-            std::advance(nodes.second, 1);
-        }
-        return true;
-    }
-
-// look at subnodes now
-    if (node.children.size() > 0) {
-        typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
-
-        const_tree_iterator end = node.children.end();
-        for (const_tree_iterator it = node.children.begin(); it != end; ++it)
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        //  Find a specified node through recursive search.
+        //
+        ///////////////////////////////////////////////////////////////////////////////
+        template<typename T>
+        inline bool find_node(tree_node<T> const& node, parser_id node_to_search, tree_node<T> const** found_node)
         {
-            if (impl::get_node_range<T>(it, node_to_search, nodes))
+            if (node.value.id() == node_to_search) {
+                *found_node = &node;
                 return true;
+            }
+            if (node.children.size() > 0) {
+                typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
+
+                const_tree_iterator end = node.children.end();
+                for (const_tree_iterator it = node.children.begin(); it != end; ++it) {
+                    if (find_node(*it, node_to_search, found_node)) {
+                        return true;
+                    }
+                }
+            }
+            return false; // not found here
         }
-    }
-    return false;
-}
 
-} // end of namespace impl
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        //  The functions 'get_node_range' return a pair of iterators pointing at the
+        //  range, which contains the elements of a specified node.
+        //
+        ///////////////////////////////////////////////////////////////////////////////
+        namespace impl {
 
-template <typename T>
-inline bool
-get_node_range (tree_node<T> const &node, parser_id node_to_search,
-    std::pair<typename tree_node<T>::const_tree_iterator,
-        typename tree_node<T>::const_tree_iterator> &nodes)
-{
-    if (node.children.size() > 0) {
-        typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
+            template<typename T>
+            inline bool get_node_range(
+                typename tree_node<T>::const_tree_iterator const& start,
+                parser_id node_to_search,
+                std::pair<typename tree_node<T>::const_tree_iterator, typename tree_node<T>::const_tree_iterator>&
+                    nodes)
+            {
+                // look at this node first
+                tree_node<T> const& node = *start;
 
-        const_tree_iterator end = node.children.end();
-        for (const_tree_iterator it = node.children.begin(); it != end; ++it)
+                if (node.value.id() == node_to_search) {
+                    if (node.children.size() > 0) {
+                        // full subrange
+                        nodes.first = node.children.begin();
+                        nodes.second = node.children.end();
+                    }
+                    else {
+                        // only this node
+                        nodes.first = start;
+                        nodes.second = start;
+                        std::advance(nodes.second, 1);
+                    }
+                    return true;
+                }
+
+                // look at subnodes now
+                if (node.children.size() > 0) {
+                    typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
+
+                    const_tree_iterator end = node.children.end();
+                    for (const_tree_iterator it = node.children.begin(); it != end; ++it) {
+                        if (impl::get_node_range<T>(it, node_to_search, nodes)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+        } // end of namespace impl
+
+        template<typename T>
+        inline bool get_node_range(
+            tree_node<T> const& node,
+            parser_id node_to_search,
+            std::pair<typename tree_node<T>::const_tree_iterator, typename tree_node<T>::const_tree_iterator>& nodes)
         {
-            if (impl::get_node_range<T>(it, node_to_search, nodes))
-                return true;
+            if (node.children.size() > 0) {
+                typedef typename tree_node<T>::const_tree_iterator const_tree_iterator;
+
+                const_tree_iterator end = node.children.end();
+                for (const_tree_iterator it = node.children.begin(); it != end; ++it) {
+                    if (impl::get_node_range<T>(it, node_to_search, nodes)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
-    }
-    return false;
-}
 
-///////////////////////////////////////////////////////////////////////////////
-BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+        ///////////////////////////////////////////////////////////////////////////////
+        BOOST_SPIRIT_CLASSIC_NAMESPACE_END
 
-}   // namespace spirit
-}   // namespace boost
+    } // namespace spirit
+} // namespace boost
 
 #endif

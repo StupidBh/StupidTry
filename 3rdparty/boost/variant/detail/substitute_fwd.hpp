@@ -17,27 +17,27 @@
 #include <boost/mpl/aux_/template_arity.hpp>
 #include <boost/mpl/int_fwd.hpp>
 
-
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/config/ttp.hpp>
 
 namespace boost {
-namespace detail { namespace variant {
+    namespace detail {
+        namespace variant {
 
-///////////////////////////////////////////////////////////////////////////////
-// metafunction substitute
-//
-// Substitutes one type for another in the given type expression.
-//
-template <
-      typename T, typename Dest, typename Source
-      BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
-          typename Arity = mpl::int_< mpl::aux::template_arity<T>::value >
-        )
-    >
-struct substitute;
+            ///////////////////////////////////////////////////////////////////////////////
+            // metafunction substitute
+            //
+            // Substitutes one type for another in the given type expression.
+            //
+            template<
+                typename T,
+                typename Dest,
+                typename Source BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(
+                    typename Arity = mpl::int_<mpl::aux::template_arity<T>::value>)>
+            struct substitute;
 
-}} // namespace detail::variant
+        }
+    } // namespace detail
 } // namespace boost
 
 #endif // BOOST_VARIANT_DETAIL_SUBSTITUTE_FWD_HPP

@@ -12,8 +12,7 @@
 
 #include <boost/bimap/bimap.hpp>
 
-namespace boost
-{
+namespace boost {
     using ::boost::bimaps::bimap;
 }
 

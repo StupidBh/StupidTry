@@ -1,4 +1,4 @@
-// Boost.Units - A C++ library for zero-overhead dimensional analysis and 
+// Boost.Units - A C++ library for zero-overhead dimensional analysis and
 // unit/quantity manipulation and conversion
 //
 // Copyright (C) 2003-2008 Matthias Christian Schabel
@@ -16,20 +16,20 @@
 
 namespace boost {
 
-namespace units { 
+    namespace units {
 
-/// base dimension of current
-struct current_base_dimension : 
-    boost::units::base_dimension<current_base_dimension,-6> 
-{ };                       
+        /// base dimension of current
+        struct current_base_dimension : boost::units::base_dimension<current_base_dimension, -6>
+        {
+        };
 
-} // namespace units
+    } // namespace units
 
 } // namespace boost
 
 #if BOOST_UNITS_HAS_BOOST_TYPEOF
 
-#include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
+    #include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
 
 BOOST_TYPEOF_REGISTER_TYPE(boost::units::current_base_dimension)
 
@@ -37,12 +37,12 @@ BOOST_TYPEOF_REGISTER_TYPE(boost::units::current_base_dimension)
 
 namespace boost {
 
-namespace units {
+    namespace units {
 
-/// dimension of electric current (I)
-typedef current_base_dimension::dimension_type    current_dimension;
+        /// dimension of electric current (I)
+        typedef current_base_dimension::dimension_type current_dimension;
 
-} // namespace units
+    } // namespace units
 
 } // namespace boost
 

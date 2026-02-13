@@ -8,44 +8,47 @@
 #define BOOST_SPIRIT_SUPPORT_DETAIL_WHAT_FUNCTION_HPP
 
 #if defined(_MSC_VER)
-#pragma once
+    #pragma once
 #endif
 
 #include <string>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/detail/workaround.hpp>
 
-namespace boost { namespace spirit { namespace detail
-{
+namespace boost {
+    namespace spirit {
+        namespace detail {
 #ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable: 4512) // assignment operator could not be generated.
+    #pragma warning(push)
+    #pragma warning(disable: 4512) // assignment operator could not be generated.
 #endif
-    template <typename Context>
-    struct what_function
-    {
-        what_function(info& what_, Context& context_)
-          : what(what_), context(context_)
-        {
-            what.value = std::list<info>();
-        }
+            template<typename Context>
+            struct what_function
+            {
+                what_function(info& what_, Context& context_) :
+                    what(what_),
+                    context(context_)
+                {
+                    what.value = std::list<info>();
+                }
 
-        template <typename Component>
-        void operator()(Component const& component) const
-        {
+                template<typename Component>
+                void operator()(Component const& component) const
+                {
 #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
-            (void)component; // suppresses warning: C4100: 'component' : unreferenced formal parameter
+                    (void)component; // suppresses warning: C4100: 'component' : unreferenced formal parameter
 #endif
-            boost::get<std::list<info> >(what.value).
-                push_back(component.what(context));
-        }
+                    boost::get<std::list<info>>(what.value).push_back(component.what(context));
+                }
 
-        info& what;
-        Context& context;
-    };
+                info& what;
+                Context& context;
+            };
 #ifdef _MSC_VER
-#  pragma warning(pop)
+    #pragma warning(pop)
 #endif
-}}}
+        }
+    }
+}
 
 #endif

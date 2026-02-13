@@ -15,4 +15,4 @@
 
 #include <boost/smart_ptr/weak_ptr.hpp>
 
-#endif  // #ifndef BOOST_WEAK_PTR_HPP_INCLUDED
+#endif // #ifndef BOOST_WEAK_PTR_HPP_INCLUDED
