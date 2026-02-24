@@ -1504,7 +1504,7 @@ H5_DLL herr_t H5Oclose_async(hid_t object_id, hid_t es_id);
  */
 #ifndef H5_DOXYGEN
     H5_DLL
-        herr_t H5Oflush_async(const char* app_file, const char* app_func, unsigned app_line, hid_t obj_id, hid_t es_id);
+    herr_t H5Oflush_async(const char* app_file, const char* app_func, unsigned app_line, hid_t obj_id, hid_t es_id);
 #else
 H5_DLL herr_t H5Oflush_async(hid_t obj_id, hid_t es_id);
 #endif
@@ -1540,7 +1540,7 @@ H5_DLL herr_t H5Oflush_async(hid_t obj_id, hid_t es_id);
  */
 #ifndef H5_DOXYGEN
     H5_DLL
-        herr_t H5Orefresh_async(const char* app_file, const char* app_func, unsigned app_line, hid_t oid, hid_t es_id);
+    herr_t H5Orefresh_async(const char* app_file, const char* app_func, unsigned app_line, hid_t oid, hid_t es_id);
 #else
 H5_DLL herr_t H5Orefresh_async(hid_t oid, hid_t es_id);
 #endif

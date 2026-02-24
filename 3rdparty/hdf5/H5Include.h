@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <hdf5.h>
+#include <hdf5/hdf5.h>
 
 // These are defined in H5Opkg.h, which should not be included in the C++ API,
 // so re-define them here for now.
