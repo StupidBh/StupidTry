@@ -208,6 +208,9 @@
     <ProjectReference Include="..\CGNSRead\CGNSRead.vcxproj">
       <Project>{9012bf23-7d82-4ac3-b96d-caf7eee70482}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ReaderH5\ReaderH5.vcxproj">
+      <Project>{51b74738-6bfa-4995-b4b0-59a686d17c98}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

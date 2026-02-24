@@ -24,6 +24,7 @@
     <ProjectGuid>{9012bf23-7d82-4ac3-b96d-caf7eee70482}</ProjectGuid>
     <RootNamespace>CGNSRead</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>ReaderCGNS</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -100,7 +101,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -108,7 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hdf5\lib;$(ProjectDir)3rdparty\cgns\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hdf5\lib\debug;$(ProjectDir)3rdparty\cgns\lib\debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcgns.lib;libhdf5.lib;libhdf5_cpp.lib;libzlib.lib;libszip.lib;libaec.lib;shlwapi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -124,7 +125,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -148,7 +149,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -156,7 +157,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hdf5\lib;$(ProjectDir)3rdparty\cgns\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\hdf5\lib\debug;$(ProjectDir)3rdparty\cgns\lib\debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcgns.lib;libhdf5.lib;libhdf5_cpp.lib;libzlib.lib;libszip.lib;libaec.lib;shlwapi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -172,7 +173,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Core</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>

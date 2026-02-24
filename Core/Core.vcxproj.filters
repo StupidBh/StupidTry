@@ -5,7 +5,6 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="Utils\src\MioReader.cpp" />
     <ClCompile Include="Common\src\SingletonData.cpp" />
-    <ClCompile Include="Utils\src\woolang.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
