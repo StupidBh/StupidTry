@@ -1,0 +1,197 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# for clang-format 20.0.0
+Language: Cpp
+BasedOnStyle: "WebKit"
+AlignAfterOpenBracket: "AlwaysBreak"
+AlignArrayOfStructures: None
+
+AlignConsecutiveMacros: Consecutive
+AlignConsecutiveBitFields: None
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCaseColons: true
+
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+AllowShortEnumsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: InlineOnly
+
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+
+
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: After
+
+BraceWrapping:
+  IndentBraces: false
+
+  AfterEnum: true
+  AfterUnion: true
+  AfterStruct: true
+  AfterClass: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterCaseLabel: false
+  AfterExternBlock: true
+  AfterControlStatement: Never
+
+  BeforeElse: true
+  BeforeCatch: true
+  BeforeWhile: false
+  SplitEmptyRecord: true
+  BeforeLambdaBody: false
+  SplitEmptyFunction: true
+  SplitEmptyNamespace: true
+
+BreakAfterReturnType: None
+BreakAfterAttributes: Never
+BreakAfterJavaFieldAnnotations: true
+
+BreakBeforeBraces: Custom
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+BreakBeforeConceptDeclarations: Always
+BreakBeforeInlineASMColon: OnlyMultiline
+
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
+BreakArrays: true
+
+
+ColumnLimit: 120
+
+CompactNamespaces: false
+
+ConstructorInitializerIndentWidth: 4
+
+ContinuationIndentWidth: 4
+
+Cpp11BracedListStyle: false
+
+
+DerivePointerAlignment: false
+
+DisableFormat: false
+
+
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+
+FixNamespaceComments: true
+
+
+IncludeBlocks: Preserve
+
+IndentWidth: 4
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentPPDirectives: BeforeHash
+IndentRequiresClause: false
+IndentAccessModifiers: false
+IndentExternBlock: AfterExternBlock
+IndentWrappedFunctionNames: true
+
+InsertBraces: true
+InsertNewlineAtEOF: true
+InsertTrailingCommas: Wrapped
+
+IntegerLiteralSeparator:
+  Hex: -1
+  Binary: 4
+  BinaryMinDigits: 9
+  Decimal: 3
+  DecimalMinDigits: 7
+
+
+KeepEmptyLinesAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+
+LambdaBodyIndentation: Signature
+
+
+MaxEmptyLinesToKeep: 1
+
+
+NamespaceIndentation: All
+
+
+PackConstructorInitializers: Never
+
+PointerAlignment: Left
+
+
+ReferenceAlignment: Left
+
+ReflowComments: true
+
+RemoveSemicolon: false
+RemoveBracesLLVM: false
+RemoveParentheses: Leave
+
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+
+
+SeparateDefinitionBlocks: Always
+
+ShortNamespaceLines: 1000
+
+SortIncludes: Never
+SortUsingDeclarations: Lexicographic
+
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+
+
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeJsonColon: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+
+SpaceAroundPointerQualifiers: Default
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: Never
+SpacesInContainerLiterals: true
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+
+Standard: c++20
+
+TabWidth: 4
+
+
+UseTab: Never
