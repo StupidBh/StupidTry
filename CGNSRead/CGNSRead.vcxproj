@@ -190,7 +190,7 @@
   <ItemGroup>
     <ClInclude Include="Core\CgnsUtils.h" />
     <ClInclude Include="include\CgnsCore.h" />
-    <ClInclude Include="include\CGNSReadFramework.h" />
+    <ClInclude Include="include\ReaderCGNSFramework.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\src\CgnsUtils.cpp" />

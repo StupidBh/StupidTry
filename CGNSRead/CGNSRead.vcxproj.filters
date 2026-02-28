@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\CGNSReadFramework.h">
+    <ClInclude Include="include\ReaderCGNSFramework.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\CgnsCore.h">
