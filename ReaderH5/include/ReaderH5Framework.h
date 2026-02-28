@@ -7,9 +7,9 @@
 #endif
 
 #ifndef STUPID_EXPORT_LIBRARY
-    #define H5_DLL_API __declspec(dllexport)
+    #define H5_EXPORT_API __declspec(dllexport)
 #else
-    #define H5_DLL_API __declspec(dllimport)
+    #define H5_EXPORT_API __declspec(dllimport)
 #endif
 
 #include "log/logger.hpp"
