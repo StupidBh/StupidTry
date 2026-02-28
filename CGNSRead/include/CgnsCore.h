@@ -1,5 +1,5 @@
 #pragma once
-#include "CGNSReadFramework.h"
+#include "ReaderCGNSFramework.h"
 
 namespace cgns {
     CGNS_EXPORT_API void InitLog(std::shared_ptr<spdlog::logger> log);
