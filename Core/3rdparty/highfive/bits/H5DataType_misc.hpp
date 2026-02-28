@@ -15,7 +15,7 @@
 #include <cstddef>
 #endif
 
-#include <H5Ppublic.h>
+#include <hdf5/H5Ppublic.h>
 
 #include "H5Inspector_misc.hpp"
 #include "h5t_wrapper.hpp"

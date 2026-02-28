@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include <H5Apublic.h>
+#include <hdf5/H5Apublic.h>
 
 #include "H5DataType.hpp"
 #include "H5DataSpace.hpp"

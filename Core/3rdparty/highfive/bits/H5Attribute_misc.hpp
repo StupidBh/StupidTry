@@ -8,14 +8,14 @@
  */
 #pragma once
 
-#include <H5Ipublic.h>
+#include <hdf5/H5Ipublic.h>
 #include <algorithm>
 #include <functional>
 #include <numeric>
 #include <sstream>
 #include <string>
 
-#include <H5Ppublic.h>
+#include <hdf5/H5Ppublic.h>
 
 #include "../H5DataSpace.hpp"
 #include "H5Converter_misc.hpp"

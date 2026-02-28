@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <H5Gpublic.h>
+#include <hdf5/H5Gpublic.h>
 
 #include "H5Object.hpp"
 #include "bits/H5Friends.hpp"

@@ -18,7 +18,7 @@
 #include <vector>
 #include <sstream>
 
-#include <H5public.h>
+#include <hdf5/H5public.h>
 
 #include "../H5Exception.hpp"
 #include "H5Friends.hpp"

@@ -12,8 +12,8 @@
 #include <string>
 #include <vector>
 
-#include <H5Ipublic.h>
-#include <H5Rpublic.h>
+#include <hdf5/H5Ipublic.h>
+#include <hdf5/H5Rpublic.h>
 
 #include "bits/H5_definitions.hpp"
 

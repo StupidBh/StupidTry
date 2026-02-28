@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <vector>
 
-#include <H5Tpublic.h>
+#include <hdf5/H5Tpublic.h>
 
 #include "H5Object.hpp"
 #include "bits/H5Utils.hpp"

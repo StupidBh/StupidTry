@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-#include <H5Apublic.h>
-#include <H5Fpublic.h>
-#include <H5Ppublic.h>
-#include <H5Tpublic.h>
+#include <hdf5/H5Apublic.h>
+#include <hdf5/H5Fpublic.h>
+#include <hdf5/H5Ppublic.h>
+#include <hdf5/H5Tpublic.h>
 
 #include "../H5DataSet.hpp"
 #include "../H5Group.hpp"

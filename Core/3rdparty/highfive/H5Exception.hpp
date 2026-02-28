@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <H5Ipublic.h>
+#include <hdf5/H5Ipublic.h>
 
 namespace HighFive {
 

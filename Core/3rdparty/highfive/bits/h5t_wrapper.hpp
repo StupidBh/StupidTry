@@ -1,7 +1,7 @@
 #pragma once
 
-#include <H5Ipublic.h>
-#include <H5Tpublic.h>
+#include <hdf5/H5Ipublic.h>
+#include <hdf5/H5Tpublic.h>
 
 namespace HighFive {
 namespace detail {

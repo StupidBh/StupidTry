@@ -1,6 +1,6 @@
 #pragma once
 
-#include <H5Lpublic.h>
+#include <hdf5/H5Lpublic.h>
 
 namespace HighFive {
 namespace detail {

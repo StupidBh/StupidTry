@@ -1,6 +1,6 @@
 #pragma once
 
-#include <H5Fpublic.h>
+#include <hdf5/H5Fpublic.h>
 namespace HighFive {
 namespace detail {
 namespace nothrow {

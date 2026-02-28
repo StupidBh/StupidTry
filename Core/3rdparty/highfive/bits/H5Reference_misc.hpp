@@ -10,7 +10,7 @@
 #pragma once
 
 #include <string>
-#include <H5Ppublic.h>
+#include <hdf5/H5Ppublic.h>
 
 #include "H5Utils.hpp"
 

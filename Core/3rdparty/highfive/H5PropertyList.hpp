@@ -10,11 +10,11 @@
 
 #include <vector>
 
-#include <H5Ppublic.h>
+#include <hdf5/H5Ppublic.h>
 
 // Required by MPIOFileAccess
 #ifdef H5_HAVE_PARALLEL
-#include <H5FDmpi.h>
+    #include <hdf5/H5FDmpi.h>
 #endif
 
 #include "H5Exception.hpp"

@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include <H5Apublic.h>
-#include <H5Ppublic.h>
+#include <hdf5/H5Apublic.h>
+#include <hdf5/H5Ppublic.h>
 
 #include "H5Attribute_misc.hpp"
 #include "H5Iterables_misc.hpp"

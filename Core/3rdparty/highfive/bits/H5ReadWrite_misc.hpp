@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <H5Tpublic.h>
+#include <hdf5/H5Tpublic.h>
 #include "H5Inspector_misc.hpp"
 #include "H5Utils.hpp"
 

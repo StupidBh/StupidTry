@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <H5Ipublic.h>
+#include <hdf5/H5Ipublic.h>
 
 #include "H5Utils.hpp"
 #include "H5Path_traits.hpp"

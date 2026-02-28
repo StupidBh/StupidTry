@@ -14,7 +14,7 @@
 #include <sstream>
 #include <string>
 
-#include <H5Ppublic.h>
+#include <hdf5/H5Ppublic.h>
 
 #include "h5d_wrapper.hpp"
 #include "H5Utils.hpp"

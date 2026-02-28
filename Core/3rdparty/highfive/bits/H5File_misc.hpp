@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include <H5Fpublic.h>
+#include <hdf5/H5Fpublic.h>
 
 #include "../H5Utility.hpp"
 #include "H5Utils.hpp"
