@@ -27,30 +27,31 @@
 #define H5FD_SEC2_VALUE H5_VFD_SEC2
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/** @private
- *
- * \brief ID for the sec2 VFD
- */
-H5_DLLVAR hid_t H5FD_SEC2_id_g;
+    /** @private
+     *
+     * \brief ID for the sec2 VFD
+     */
+    H5_DLLVAR hid_t H5FD_SEC2_id_g;
 
-/**
- * \ingroup FAPL
- *
- * \brief Modifies the file access property list to use the #H5FD_SEC2 driver
- *
- * \fapl_id
- *
- * \returns \herr_t
- *
- * \details H5Pset_fapl_sec2() modifies the file access property list to use the
- *          #H5FD_SEC2 driver.
- *
- * \since 1.4.0
- */
-H5_DLL herr_t H5Pset_fapl_sec2(hid_t fapl_id);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Modifies the file access property list to use the #H5FD_SEC2 driver
+     *
+     * \fapl_id
+     *
+     * \returns \herr_t
+     *
+     * \details H5Pset_fapl_sec2() modifies the file access property list to use the
+     *          #H5FD_SEC2 driver.
+     *
+     * \since 1.4.0
+     */
+    H5_DLL herr_t H5Pset_fapl_sec2(hid_t fapl_id);
 
 #ifdef __cplusplus
 }

@@ -15,31 +15,31 @@
 #define H5Classes_H
 
 namespace H5 {
-class Exception;
-class IdComponent;
-class H5Location;
-class H5Object;
-class PropList;
-class FileCreatPropList;
-class FileAccPropList;
-class LinkAccPropList;
-class DSetCreatPropList;
-class DSetMemXferPropList;
-class DTypePropList;
-class DataType;
-class DataSpace;
-class AtomType;
-class PredType;
-class IntType;
-class FloatType;
-class StrType;
-class EnumType;
-class CompType;
-class AbstractDs;
-class DataSet;
-class Group;
-class H5File;
-class Attribute;
-class H5Library;
+    class Exception;
+    class IdComponent;
+    class H5Location;
+    class H5Object;
+    class PropList;
+    class FileCreatPropList;
+    class FileAccPropList;
+    class LinkAccPropList;
+    class DSetCreatPropList;
+    class DSetMemXferPropList;
+    class DTypePropList;
+    class DataType;
+    class DataSpace;
+    class AtomType;
+    class PredType;
+    class IntType;
+    class FloatType;
+    class StrType;
+    class EnumType;
+    class CompType;
+    class AbstractDs;
+    class DataSet;
+    class Group;
+    class H5File;
+    class Attribute;
+    class H5Library;
 } // namespace H5
 #endif // H5Classes_H

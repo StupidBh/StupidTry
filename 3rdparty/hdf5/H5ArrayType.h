@@ -16,56 +16,53 @@
 
 namespace H5 {
 
-/*! \class ArrayType
-    \brief Class ArrayType inherits from DataType and provides wrappers for
-     the HDF5's Array Datatypes.
-*/
-// Inheritance: DataType -> H5Object -> H5Location -> IdComponent
-class H5CPP_DLL ArrayType : public DataType {
-  public:
-    // Constructor that creates a new array data type based on the
-    // specified base type.
-    ArrayType(const DataType &base_type, int ndims, const hsize_t *dims);
+    /*! \class ArrayType
+        \brief Class ArrayType inherits from DataType and provides wrappers for
+         the HDF5's Array Datatypes.
+    */
+    // Inheritance: DataType -> H5Object -> H5Location -> IdComponent
+    class H5CPP_DLL ArrayType : public DataType {
+    public:
+        // Constructor that creates a new array data type based on the
+        // specified base type.
+        ArrayType(const DataType& base_type, int ndims, const hsize_t* dims);
 
-    // Assignment operator
-    ArrayType &operator=(const ArrayType &rhs);
+        // Assignment operator
+        ArrayType& operator=(const ArrayType& rhs);
 
-    // Constructors that open an array datatype, given a location.
-    ArrayType(const H5Location &loc, const char *name);
-    ArrayType(const H5Location &loc, const H5std_string &name);
+        // Constructors that open an array datatype, given a location.
+        ArrayType(const H5Location& loc, const char* name);
+        ArrayType(const H5Location& loc, const H5std_string& name);
 
-    // Returns an ArrayType object via DataType* by decoding the
-    // binary object description of this type.
-    virtual DataType *decode() const override;
+        // Returns an ArrayType object via DataType* by decoding the
+        // binary object description of this type.
+        virtual DataType* decode() const override;
 
-    // Returns the number of dimensions of this array datatype.
-    int getArrayNDims() const;
-    // int getArrayNDims(); // removed 1.8.18 and 1.10.1
+        // Returns the number of dimensions of this array datatype.
+        int getArrayNDims() const;
+        // int getArrayNDims(); // removed 1.8.18 and 1.10.1
 
-    // Returns the sizes of dimensions of this array datatype.
-    int getArrayDims(hsize_t *dims) const;
-    // int getArrayDims(hsize_t* dims); // removed 1.8.18 and 1.10.1
+        // Returns the sizes of dimensions of this array datatype.
+        int getArrayDims(hsize_t* dims) const;
 
-    ///\brief Returns this class name.
-    virtual H5std_string
-    fromClass() const override
-    {
-        return ("ArrayType");
-    }
+        // int getArrayDims(hsize_t* dims); // removed 1.8.18 and 1.10.1
 
-    // Copy constructor: same as the original ArrayType.
-    ArrayType(const ArrayType &original);
+        ///\brief Returns this class name.
+        virtual H5std_string fromClass() const override { return ("ArrayType"); }
 
-    // Constructor that takes an existing id
-    ArrayType(const hid_t existing_id);
+        // Copy constructor: same as the original ArrayType.
+        ArrayType(const ArrayType& original);
 
-    // Noop destructor
-    virtual ~ArrayType() override = default;
+        // Constructor that takes an existing id
+        ArrayType(const hid_t existing_id);
 
-    // Default constructor
-    ArrayType();
+        // Noop destructor
+        virtual ~ArrayType() override = default;
 
-}; // end of ArrayType
+        // Default constructor
+        ArrayType();
+
+    }; // end of ArrayType
 } // namespace H5
 
 #endif // H5ArrayType_H

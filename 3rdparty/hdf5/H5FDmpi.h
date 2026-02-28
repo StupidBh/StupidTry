@@ -30,23 +30,27 @@
 */
 
 #define H5D_MULTI_CHUNK_IO_COL_THRESHOLD 60
+
 /**
  * Type of I/O for data transfer properties
  */
-typedef enum H5FD_mpio_xfer_t {
+typedef enum H5FD_mpio_xfer_t
+{
     H5FD_MPIO_INDEPENDENT = 0, /**< Use independent I/O access */
     H5FD_MPIO_COLLECTIVE       /**< Use collective I/O access */
 } H5FD_mpio_xfer_t;
 
 /* Type of chunked dataset I/O */
-typedef enum H5FD_mpio_chunk_opt_t {
+typedef enum H5FD_mpio_chunk_opt_t
+{
     H5FD_MPIO_CHUNK_DEFAULT = 0,
     H5FD_MPIO_CHUNK_ONE_IO, /*zero is the default*/
     H5FD_MPIO_CHUNK_MULTI_IO
 } H5FD_mpio_chunk_opt_t;
 
 /* Type of collective I/O */
-typedef enum H5FD_mpio_collective_opt_t {
+typedef enum H5FD_mpio_collective_opt_t
+{
     H5FD_MPIO_COLLECTIVE_IO = 0,
     H5FD_MPIO_INDIVIDUAL_IO /*zero is the default*/
 } H5FD_mpio_collective_opt_t;
@@ -54,4 +58,4 @@ typedef enum H5FD_mpio_collective_opt_t {
 /* Include all the MPI VFL headers */
 #include "H5FDmpio.h" /* MPI I/O file driver			*/
 
-#endif /* H5FDmpi_H */
+#endif                /* H5FDmpi_H */

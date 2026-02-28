@@ -23,36 +23,36 @@
 
 #ifdef H5_HAVE_LIBHDFS
 
-/** ID for the HDFS VFD */
-#define H5FD_HDFS (H5OPEN H5FD_HDFS_id_g)
+    /** ID for the HDFS VFD */
+    #define H5FD_HDFS (H5OPEN H5FD_HDFS_id_g)
 
-/** Identifier for the hdfs VFD \since 1.14.0 */
-#define H5FD_HDFS_VALUE H5_VFD_HDFS
+    /** Identifier for the hdfs VFD \since 1.14.0 */
+    #define H5FD_HDFS_VALUE H5_VFD_HDFS
 
 #else
 
-/** Initializer for the hdfs VFD (disabled) \since 1.8.22 */
-#define H5FD_HDFS       (H5I_INVALID_HID)
+    /** Initializer for the hdfs VFD (disabled) \since 1.8.22 */
+    #define H5FD_HDFS       (H5I_INVALID_HID)
 
-/** Identifier for the hdfs VFD (disabled) \since 1.14.0 */
-#define H5FD_HDFS_VALUE H5_VFD_INVALID
+    /** Identifier for the hdfs VFD (disabled) \since 1.14.0 */
+    #define H5FD_HDFS_VALUE H5_VFD_INVALID
 
 #endif /* H5_HAVE_LIBHDFS */
 
 #ifdef H5_HAVE_LIBHDFS
 
-/**
- * The version number of the H5FD_hdfs_fapl_t configuration
- * structure for the #H5FD_HDFS driver \since 1.8.22
- */
-#define H5FD__CURR_HDFS_FAPL_T_VERSION 1
+    /**
+     * The version number of the H5FD_hdfs_fapl_t configuration
+     * structure for the #H5FD_HDFS driver \since 1.8.22
+     */
+    #define H5FD__CURR_HDFS_FAPL_T_VERSION 1
 
-/** Max size of the node name \since 1.10.6, back-ported to 1.8.22 */
-#define H5FD__HDFS_NODE_NAME_SPACE 128
-/** Max size of the user name \since 1.10.6, back-ported to 1.8.22 */
-#define H5FD__HDFS_USER_NAME_SPACE 128
-/** Max size of the kerberos cache path \since 1.10.6, back-ported to 1.8.22 */
-#define H5FD__HDFS_KERB_CACHE_PATH_SPACE 128
+    /** Max size of the node name \since 1.10.6, back-ported to 1.8.22 */
+    #define H5FD__HDFS_NODE_NAME_SPACE 128
+    /** Max size of the user name \since 1.10.6, back-ported to 1.8.22 */
+    #define H5FD__HDFS_USER_NAME_SPACE 128
+    /** Max size of the kerberos cache path \since 1.10.6, back-ported to 1.8.22 */
+    #define H5FD__HDFS_KERB_CACHE_PATH_SPACE 128
 
 /**
  *\struct H5FD_hdfs_fapl_t
@@ -84,61 +84,63 @@
  * \var int32_t H5FD_hdfs_fapl_t::stream_buffer_size
  *      Size (in bytes) of the file read stream buffer
  */
-typedef struct H5FD_hdfs_fapl_t {
+typedef struct H5FD_hdfs_fapl_t
+{
     int32_t version;
-    char    namenode_name[H5FD__HDFS_NODE_NAME_SPACE + 1];
+    char namenode_name[H5FD__HDFS_NODE_NAME_SPACE + 1];
     int32_t namenode_port;
-    char    user_name[H5FD__HDFS_USER_NAME_SPACE + 1];
-    char    kerberos_ticket_cache[H5FD__HDFS_KERB_CACHE_PATH_SPACE + 1];
+    char user_name[H5FD__HDFS_USER_NAME_SPACE + 1];
+    char kerberos_ticket_cache[H5FD__HDFS_KERB_CACHE_PATH_SPACE + 1];
     int32_t stream_buffer_size;
 } H5FD_hdfs_fapl_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    #ifdef __cplusplus
+extern "C"
+{
+    #endif
 
-/** @private
- *
- * \brief ID for the HDFS VFD
- */
-H5_DLLVAR hid_t H5FD_HDFS_id_g;
+    /** @private
+     *
+     * \brief ID for the HDFS VFD
+     */
+    H5_DLLVAR hid_t H5FD_HDFS_id_g;
 
-/**
- * \ingroup FAPL
- *
- * \brief Modifies the file access property list to use the #H5FD_HDFS driver
- *
- * \fapl_id
- * \param[in] fa Pointer to #H5FD_HDFS driver configuration structure
- *
- * \returns \herr_t
- *
- * \details H5Pset_fapl_hdfs() modifies the file access property list to use the
- *          #H5FD_HDFS driver.
- *
- * \since 1.10.6
- */
-H5_DLL herr_t H5Pset_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t *fa);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Modifies the file access property list to use the #H5FD_HDFS driver
+     *
+     * \fapl_id
+     * \param[in] fa Pointer to #H5FD_HDFS driver configuration structure
+     *
+     * \returns \herr_t
+     *
+     * \details H5Pset_fapl_hdfs() modifies the file access property list to use the
+     *          #H5FD_HDFS driver.
+     *
+     * \since 1.10.6
+     */
+    H5_DLL herr_t H5Pset_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t* fa);
 
-/**
- * \ingroup FAPL
- *
- * \brief Queries a File Access Property List for #H5FD_HDFS file driver properties
- *
- * \fapl_id
- * \param[out] fa_out Pointer to #H5FD_HDFS driver configuration structure
- * \returns \herr_t
- *
- * \details H5Pget_fapl_hdfs() queries the #H5FD_HDFS driver properties as set
- *          by H5Pset_fapl_hdfs().
- *
- * \since 1.10.6
- */
-H5_DLL herr_t H5Pget_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t *fa_out);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Queries a File Access Property List for #H5FD_HDFS file driver properties
+     *
+     * \fapl_id
+     * \param[out] fa_out Pointer to #H5FD_HDFS driver configuration structure
+     * \returns \herr_t
+     *
+     * \details H5Pget_fapl_hdfs() queries the #H5FD_HDFS driver properties as set
+     *          by H5Pset_fapl_hdfs().
+     *
+     * \since 1.10.6
+     */
+    H5_DLL herr_t H5Pget_fapl_hdfs(hid_t fapl_id, H5FD_hdfs_fapl_t* fa_out);
 
-#ifdef __cplusplus
+    #ifdef __cplusplus
 }
-#endif
+    #endif
 #endif /* H5_HAVE_LIBHDFS */
 
 #endif /* ifndef H5FDhdfs_H */

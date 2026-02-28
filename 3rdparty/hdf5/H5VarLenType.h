@@ -16,48 +16,44 @@
 
 namespace H5 {
 
-/*! \class VarLenType
-    \brief VarLenType is a derivative of a DataType and operates on HDF5
-    Variable-length Datatypes.
-*/
-//  Inheritance: DataType -> H5Object -> H5Location -> IdComponent
-class H5CPP_DLL VarLenType : public DataType {
-  public:
-    // Constructor that creates a variable-length datatype based
-    // on the specified base type.
-    VarLenType(const DataType &base_type);
+    /*! \class VarLenType
+        \brief VarLenType is a derivative of a DataType and operates on HDF5
+        Variable-length Datatypes.
+    */
+    //  Inheritance: DataType -> H5Object -> H5Location -> IdComponent
+    class H5CPP_DLL VarLenType : public DataType {
+    public:
+        // Constructor that creates a variable-length datatype based
+        // on the specified base type.
+        VarLenType(const DataType& base_type);
 
-    // Deprecated - will be removed after 1.10.2
-    VarLenType(const DataType *base_type);
+        // Deprecated - will be removed after 1.10.2
+        VarLenType(const DataType* base_type);
 
-    // Returns an VarLenType object via DataType* by decoding the
-    // binary object description of this type.
-    virtual DataType *decode() const override;
+        // Returns an VarLenType object via DataType* by decoding the
+        // binary object description of this type.
+        virtual DataType* decode() const override;
 
-    ///\brief Returns this class name.
-    virtual H5std_string
-    fromClass() const override
-    {
-        return ("VarLenType");
-    }
+        ///\brief Returns this class name.
+        virtual H5std_string fromClass() const override { return ("VarLenType"); }
 
-    // Copy constructor: same as the original VarLenType.
-    VarLenType(const VarLenType &original);
+        // Copy constructor: same as the original VarLenType.
+        VarLenType(const VarLenType& original);
 
-    // Constructor that takes an existing id
-    VarLenType(const hid_t existing_id);
+        // Constructor that takes an existing id
+        VarLenType(const hid_t existing_id);
 
-    // Constructors that open a variable-length datatype, given a location.
-    VarLenType(const H5Location &loc, const char *name);
-    VarLenType(const H5Location &loc, const H5std_string &name);
+        // Constructors that open a variable-length datatype, given a location.
+        VarLenType(const H5Location& loc, const char* name);
+        VarLenType(const H5Location& loc, const H5std_string& name);
 
-    // Noop destructor
-    virtual ~VarLenType() override = default;
+        // Noop destructor
+        virtual ~VarLenType() override = default;
 
-    // Default constructor
-    VarLenType();
+        // Default constructor
+        VarLenType();
 
-}; // end of VarLenType
+    }; // end of VarLenType
 } // namespace H5
 
 #endif // H5VarLenType_H

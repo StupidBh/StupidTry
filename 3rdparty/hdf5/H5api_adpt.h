@@ -32,7 +32,7 @@
 
 #ifdef H5_BUILT_AS_DYNAMIC_LIB
 
-/* clang-format off */
+    /* clang-format off */
 
 /* When building with MSVC, we need to decorate the functions with
  * __declspec()

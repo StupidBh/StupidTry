@@ -23,34 +23,35 @@
 #define H5FD_STDIO (H5OPEN H5FD_STDIO_id_g)
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/** @private
- *
- * \brief ID for the stdio VFD
- */
-H5_DLLVAR hid_t H5FD_STDIO_id_g;
+    /** @private
+     *
+     * \brief ID for the stdio VFD
+     */
+    H5_DLLVAR hid_t H5FD_STDIO_id_g;
 
-/**
- * \ingroup FAPL
- *
- * \brief Sets the standard I/O driver
- *
- * \fapl_id
- * \returns \herr_t
- *
- * \details H5Pset_fapl_stdio() modifies the file access property list to use
- *          the stdio VFD, which uses I/O calls from stdio.h.
- *
- * \note This VFD was designed to be a "demo" VFD that shows how to write
- * your own VFD. Most applications should not use this VFD and should instead
- * use the POSIX I/O VFD (sec2).
- *
- * \since 1.4.0
- *
- */
-H5_DLL herr_t H5Pset_fapl_stdio(hid_t fapl_id);
+    /**
+     * \ingroup FAPL
+     *
+     * \brief Sets the standard I/O driver
+     *
+     * \fapl_id
+     * \returns \herr_t
+     *
+     * \details H5Pset_fapl_stdio() modifies the file access property list to use
+     *          the stdio VFD, which uses I/O calls from stdio.h.
+     *
+     * \note This VFD was designed to be a "demo" VFD that shows how to write
+     * your own VFD. Most applications should not use this VFD and should instead
+     * use the POSIX I/O VFD (sec2).
+     *
+     * \since 1.4.0
+     *
+     */
+    H5_DLL herr_t H5Pset_fapl_stdio(hid_t fapl_id);
 
 #ifdef __cplusplus
 }
