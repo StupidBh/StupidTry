@@ -13,4 +13,3 @@
 #endif
 
 #include "log/logger.hpp"
-
