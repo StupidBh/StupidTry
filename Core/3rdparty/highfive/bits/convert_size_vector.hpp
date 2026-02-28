@@ -12,20 +12,22 @@
 #include <vector>
 
 namespace HighFive {
-namespace detail {
+    namespace detail {
 
-template <class To, class From, class It = From const*>
-inline std::vector<To> convertSizeVector(const It& begin, const It& end) {
-    std::vector<To> to(static_cast<size_t>(end - begin));
-    std::copy(begin, end, to.begin());
+        template<class To, class From, class It = From const*>
+        inline std::vector<To> convertSizeVector(const It& begin, const It& end)
+        {
+            std::vector<To> to(static_cast<size_t>(end - begin));
+            std::copy(begin, end, to.begin());
 
-    return to;
-}
+            return to;
+        }
 
-template <class To, class From>
-inline std::vector<To> convertSizeVector(const std::vector<From>& from) {
-    return convertSizeVector<To, From>(from.cbegin(), from.cend());
-}
+        template<class To, class From>
+        inline std::vector<To> convertSizeVector(const std::vector<From>& from)
+        {
+            return convertSizeVector<To, From>(from.cbegin(), from.cend());
+        }
 
-}  // namespace detail
-}  // namespace HighFive
+    } // namespace detail
+} // namespace HighFive
