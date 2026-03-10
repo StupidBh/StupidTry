@@ -2,7 +2,7 @@
 #include <format>
 #include <vector>
 
-namespace _contatiner_ {
+namespace _container_ {
     template<class ValueType>
     struct is_std_contatiner : std::false_type
     {
@@ -19,7 +19,7 @@ namespace _contatiner_ {
 
 namespace utils {
     template<class ValueType>
-    concept VectorType = _contatiner_::is_std_vector_v<ValueType>;
+    concept VectorType = _container_::is_std_vector_v<ValueType>;
 
     template<std::floating_point _Ty>
     constexpr bool almost_equal(_Ty lhs, _Ty rhs) noexcept
