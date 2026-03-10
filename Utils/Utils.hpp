@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <format>
 #include <vector>
 
@@ -15,6 +15,9 @@ namespace _container_ {
 
     template<class T>
     inline constexpr bool is_std_vector_v = is_std_contatiner<std::remove_cvref_t<T>>::value;
+
+    template<class _Ty>
+    concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
 }
 
 namespace utils {
@@ -44,8 +47,13 @@ namespace utils {
     }
 
     template<class TgargetType, VectorType OriginalType>
-    constexpr std::vector<TgargetType> ShrinkVector(const OriginalType& source)
+    constexpr auto ShrinkVector(const OriginalType& source)
     {
+        using SourceType = typename OriginalType::value_type;
+        if constexpr (std::same_as<TgargetType, SourceType>) {
+            return source;
+        }
+
         std::vector<TgargetType> result;
         result.reserve(source.size());
         for (const auto& value : source) {
@@ -101,9 +109,7 @@ namespace utils {
         return result;
     }
 
-    template<class _Ty>
-    concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
-    template<Clearable... Args>
+    template<_container_::Clearable... Args>
     constexpr void DeepClear(Args&... vecs) noexcept
     {
         ((vecs = Args()), ...);
