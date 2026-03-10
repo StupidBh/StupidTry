@@ -9,9 +9,9 @@
 namespace stupid {
     static constexpr const char* APP_NAME = "stupid-app";
 
-    static constexpr int STUPID_VER_MAJOR = 1;
-    static constexpr int STUPID_VER_MINOR = 2;
-    static constexpr int STUPID_VER_PATCH = 2;
+    inline static constinit int STUPID_VER_MAJOR = 1;
+    inline static constinit int STUPID_VER_MINOR = 2;
+    inline static constinit int STUPID_VER_PATCH = 2;
     static const std::string STUPID_VERSION =
         std::format("{}.{}.{}", STUPID_VER_MAJOR, STUPID_VER_MINOR, STUPID_VER_PATCH);
 
