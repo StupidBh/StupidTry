@@ -201,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.h" />
+    <ClInclude Include="Utils\HDF5.hpp" />
     <ClInclude Include="Utils\HighFive.hpp" />
     <ClInclude Include="Utils\MioReader.h" />
   </ItemGroup>

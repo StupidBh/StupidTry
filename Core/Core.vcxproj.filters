@@ -11,5 +11,6 @@
     <ClInclude Include="Common\SingletonData.h" />
     <ClInclude Include="Utils\MioReader.h" />
     <ClInclude Include="Utils\HighFive.hpp" />
+    <ClInclude Include="Utils\HDF5.hpp" />
   </ItemGroup>
 </Project>
