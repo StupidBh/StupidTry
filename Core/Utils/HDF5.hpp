@@ -56,7 +56,7 @@ namespace HDF5Utils {
     template<class T, std::size_t N>
     requires std::integral<T> || std::floating_point<T>
     class CompTypeMatrix final {
-    public
+    public:
         static_assert(N > 0, "The matrix dimension must be greater than 0.");
         std::array<T, N> data;
 
