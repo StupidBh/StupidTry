@@ -18,16 +18,16 @@ public:
 
     size_t getline_batch(std::vector<std::string_view>& lines, size_t max_lines = 10000);
 
-    template<class _Ty>
-    static _Ty parse_line(std::string_view line)
+    template<class T>
+    static T parse_line(std::string_view line)
     {
-        static std::vector<_Ty> value(1);
-        parse_line<_Ty>(line, value);
+        static std::vector<T> value(1);
+        parse_line<T>(line, value);
         return value.back();
     }
 
-    template<class _Ty>
-    static void parse_line(std::string_view line, std::vector<_Ty>& out)
+    template<class T>
+    static void parse_line(std::string_view line, std::vector<T>& out)
     {
         out.clear();
         const char* ptr = line.data();
@@ -41,7 +41,7 @@ public:
                 break;
             }
 
-            _Ty val {};
+            T val {};
             auto [p, ec] = std::from_chars(ptr, end, val);
             if (ec == std::errc {}) {
                 if (p < end && (*p == '-' || *p == '+') && std::isdigit(static_cast<unsigned char>(*(p - 1)))) {
@@ -49,7 +49,7 @@ public:
                     auto [p_exp, ec_exp] = std::from_chars(p, end, exponent);
 
                     if (ec_exp == std::errc {}) {
-                        val *= static_cast<_Ty>(std::pow(10.0, exponent));
+                        val *= static_cast<T>(std::pow(10.0, exponent));
                         out.emplace_back(val);
                         ptr = p_exp;
                     }
