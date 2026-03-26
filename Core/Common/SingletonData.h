@@ -7,7 +7,7 @@
 #include "boost/program_options.hpp"
 
 namespace stupid {
-    static constexpr const char* APP_NAME = "stupid-app";
+    static const std::string APP_NAME = "stupid-app";
 
     inline static constinit int STUPID_VER_MAJOR = 1;
     inline static constinit int STUPID_VER_MINOR = 2;
