@@ -1,6 +1,7 @@
 #pragma once
 #include <format>
 #include <vector>
+#include <array>
 
 namespace _container_ {
     template<class ValueType>
@@ -16,6 +17,19 @@ namespace _container_ {
     template<class T>
     inline constexpr bool is_std_vector_v = is_std_contatiner<std::remove_cvref_t<T>>::value;
 
+    template<class ValueType>
+    struct is_std_array : std::false_type
+    {
+    };
+
+    template<class ValueType, std::size_t N>
+    struct is_std_array<std::array<ValueType, N>> : std::true_type
+    {
+    };
+
+    template<class T>
+    inline constexpr bool is_std_array_v = is_std_array<std::remove_cvref_t<T>>::value;
+
     template<class _Ty>
     concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
 }
@@ -23,6 +37,9 @@ namespace _container_ {
 namespace utils {
     template<class ValueType>
     concept VectorType = _container_::is_std_vector_v<ValueType>;
+
+    template<class ValueType>
+    concept ArrayType = _container_::is_std_array_v<ValueType>;
 
     template<std::floating_point _Ty>
     constexpr bool almost_equal(_Ty lhs, _Ty rhs) noexcept
