@@ -56,27 +56,37 @@ namespace HDF5Utils {
         return result;
     }
 
-    template<class T, std::size_t N>
-    requires std::integral<T> || std::floating_point<T>
-    class CompTypeMatrix final {
-    public:
-        static_assert(N > 0, "The matrix dimension must be greater than 0.");
-        std::array<T, N> data;
+    template<class T>
+    concept HDF5Node = std::derived_from<std::remove_cvref_t<T>, H5::Group>;
 
-        template<typename Container>
-        requires requires(Container c) {
-            { *std::begin(c) } -> std::convertible_to<std::string>;
-        }
-        static H5::CompType CompType(const Container& names)
-        {
-            constexpr size_t base_offset = offsetof(CompTypeMatrix, data);
+    template<class ValueType, class T>
+    concept HDF5Writable = (utils::VectorType<ValueType> || utils::ArrayType<ValueType>) && HDF5Node<T>;
 
-            H5::CompType type(sizeof(CompTypeMatrix));
-            for (std::size_t i = 0; i < names.size() && i < N; ++i) {
-                type.insertMember(names[i], base_offset + sizeof(T) * i, H5_NATIVE_TYPE<T>());
-            }
+    template<class ValueType, class T>
+    requires HDF5Writable<ValueType, T>
+    H5::DataSet WriteDataSet(T&& loc, const std::string& name, ValueType&& input)
+    {
+        using RawVectorType = std::remove_cvref_t<ValueType>;
+        using TrueValueType = typename RawVectorType::value_type;
 
-            return type;
-        }
-    };
+        hsize_t dims = input.size();
+        H5::DataSpace dataspace(1, &dims);
+        H5::PredType pred_type = H5_NATIVE_TYPE<TrueValueType>();
+
+        H5::DataSet data_set = std::forward<T>(loc).createDataSet(name, pred_type, dataspace);
+        data_set.write(std::forward<ValueType>(input).data(), pred_type);
+        return data_set;
+    }
+
+    template<class ValueType, class T>
+    requires HDF5Writable<ValueType, T>
+    H5::DataSet WriteDataSet(T&& loc, const std::string& name, ValueType&& input, const H5::CompType& comp_type)
+    {
+        hsize_t dims = input.size();
+        H5::DataSpace dataspace(1, &dims);
+
+        H5::DataSet data_set = std::forward<T>(loc).createDataSet(name, comp_type, dataspace);
+        data_set.write(std::forward<ValueType>(input).data(), comp_type);
+        return data_set;
+    }
 }
