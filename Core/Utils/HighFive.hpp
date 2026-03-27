@@ -69,6 +69,18 @@ HighFive::DataSet WriteDataSet2(const std::string& name, ValueType&& input, T&& 
     return data_set;
 }
 
+    template<class ValueType, class T>
+    requires HDF5Writable<ValueType, T>
+    HighFive::DataSet
+        WriteDataSet(T&& loc, const std::string& name, ValueType&& input, const HighFive::CompoundType& comp_type)
+    {
+        HighFive::DataSet data_set =
+            std::forward<T>(loc).createDataSet(name, HighFive::DataSpace({ input.size() }), comp_type);
+        data_set.write_raw(std::forward<ValueType>(input).data(), comp_type);
+
+        return data_set;
+    }
+
 template<class T>
 requires HDF5Node<T>
 HighFive::Group GetGroup(T&& loc, const std::string& name)
