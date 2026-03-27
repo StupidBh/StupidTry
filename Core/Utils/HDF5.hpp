@@ -35,6 +35,9 @@ namespace HDF5Utils {
         else if constexpr (std::is_same_v<T, std::uint32_t>) {
             return H5::PredType::NATIVE_UINT32;
         }
+        else if constexpr (std::is_same_v<T, char>) {
+            return H5::PredType::NATIVE_CHAR;
+        }
         else {
             static_assert(always_false<T>, "Unsupported type for HDF5");
         }
