@@ -69,12 +69,14 @@ HighFive::DataSet WriteDataSet2(const std::string& name, ValueType&& input, T&& 
     return data_set;
 }
 
-template<class ElementType, class T>
+template<class T>
 requires HDF5Node<T>
-HighFive::DataSet WriteDataSet3(const std::string& name, std::span<ElementType> input, T&& loc)
+HighFive::Group GetGroup(T&& loc, const std::string& name)
 {
-    HighFive::DataSet data_set =
-        std::forward<T>(loc).createDataSet<ElementType>(name, HighFive::DataSpace({ input.size() }));
-    data_set.write_raw(input.data());
-    return data_set;
+    if (!loc.exist(name)) {
+        return std::forward<T>(loc).createGroup(name);
+    }
+    else {
+        return std::forward<T>(loc).getGroup(name);
+    }
 }
