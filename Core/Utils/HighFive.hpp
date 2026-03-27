@@ -16,7 +16,7 @@ concept HDF5Writable = (utils::VectorType<ValueType> || utils::ArrayType<ValueTy
 
 template<class ValueType, class T>
 requires HDF5Writable<ValueType, T>
-HighFive::DataSet WriteDataSet(const std::string& name, ValueType&& input, T&& loc)
+    HighFive::DataSet WriteDataSet(T&& loc, const std::string& name, ValueType&& input)
 {
     using RawVectorType = std::remove_cvref_t<ValueType>;
     using TrueValueType = typename RawVectorType::value_type;
@@ -29,7 +29,7 @@ HighFive::DataSet WriteDataSet(const std::string& name, ValueType&& input, T&& l
 
 template<class ElementType, class T>
 requires HDF5Node<T>
-HighFive::DataSet WriteDataSet(const std::string& name, std::span<ElementType> input, T&& loc)
+    HighFive::DataSet WriteDataSet(T&& loc, const std::string& name, std::span<ElementType> input)
 {
     HighFive::DataSet data_set =
         std::forward<T>(loc).createDataSet<ElementType>(name, HighFive::DataSpace({ input.size() }));
@@ -39,7 +39,7 @@ HighFive::DataSet WriteDataSet(const std::string& name, std::span<ElementType> i
 
 template<class ValueType, class T>
 requires HDF5Writable<ValueType, T>
-HighFive::DataSet WriteDataSet2(const std::string& name, ValueType&& input, T&& loc)
+    HighFive::DataSet WriteDataSet2(T&& loc, const std::string& name, ValueType&& input)
 {
     using RawVectorType = std::remove_cvref_t<ValueType>;
     using TrueValueType = typename RawVectorType::value_type;
