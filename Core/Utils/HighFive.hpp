@@ -26,6 +26,16 @@ HighFive::DataSet WriteDataSet(const std::string& name, ValueType&& input, T&& l
     return data_set;
 }
 
+template<class ElementType, class T>
+requires HDF5Node<T>
+HighFive::DataSet WriteDataSet(const std::string& name, std::span<ElementType> input, T&& loc)
+{
+    HighFive::DataSet data_set =
+        std::forward<T>(loc).createDataSet<ElementType>(name, HighFive::DataSpace({ input.size() }));
+    data_set.write_raw(input.data());
+    return data_set;
+}
+
 template<class ValueType, class T>
 requires HDF5Writable<ValueType, T>
 HighFive::DataSet WriteDataSet2(const std::string& name, ValueType&& input, T&& loc)
