@@ -5,6 +5,7 @@
 
 #include "highfive/highfive.hpp"
 
+namespace HFUtils {
 // HDF5Node: HighFive 节点类型约束
 template<class T>
 concept HDF5Node = std::derived_from<std::remove_cvref_t<T>, HighFive::NodeTraits<std::remove_cvref_t<T>>>;
@@ -78,4 +79,5 @@ HighFive::Group GetGroup(T&& loc, const std::string& name)
     else {
         return std::forward<T>(loc).getGroup(name);
     }
+}
 }
