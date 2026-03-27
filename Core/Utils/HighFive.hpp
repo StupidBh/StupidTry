@@ -43,9 +43,8 @@ HighFive::DataSet WriteDataSet2(const std::string& name, ValueType&& input, T&& 
     using RawVectorType = std::remove_cvref_t<ValueType>;
     using TrueValueType = typename RawVectorType::value_type;
 
+    std::size_t old_size = 0;
     HighFive::DataSet data_set;
-
-    size_t old_size = 0;
     if (!loc.exist(name)) {
         const std::size_t total_size = input.size();
         const std::size_t chunk_size = std::clamp(total_size / 100, std::size_t(1024), std::size_t(1024 * 1024));
