@@ -5,17 +5,17 @@
 
 namespace _container_ {
     template<class ValueType>
-    struct is_std_contatiner : std::false_type
+    struct is_std_vector : std::false_type
     {
     };
 
     template<class ValueType, class Alloc>
-    struct is_std_contatiner<std::vector<ValueType, Alloc>> : std::true_type
+    struct is_std_vector<std::vector<ValueType, Alloc>> : std::true_type
     {
     };
 
     template<class T>
-    inline constexpr bool is_std_vector_v = is_std_contatiner<std::remove_cvref_t<T>>::value;
+    inline constexpr bool is_std_vector_v = is_std_vector<std::remove_cvref_t<T>>::value;
 
     template<class ValueType>
     struct is_std_array : std::false_type
