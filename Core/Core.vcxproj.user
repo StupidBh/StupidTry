@@ -22,5 +22,6 @@
     <LocalDebuggerWorkingDirectory>$(TargetDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>-i "D:\SomeThingWork\openfoam-case\cavity\CGNS\cavity_0.cgns" --DEBUG</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArgumentsHistory>-i "D:\SomeThingWork\openfoam-case\cavity\CGNS\cavity_0.cgns" --DEBUG|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
 </Project>
