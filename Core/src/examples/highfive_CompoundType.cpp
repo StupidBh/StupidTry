@@ -11,9 +11,9 @@ struct Grid
     static HighFive::CompoundType CompType()
     {
         static constinit hsize_t array_dims[1] = { 3 };
-        static H5::ArrayType array_type(HDF5Utils::H5_NATIVE_TYPE<decltype(grid)::value_type>(), 1, array_dims);
+        H5::ArrayType array_type(HDF5Utils::H5_NATIVE_TYPE<decltype(grid)::value_type>(), 1, array_dims);
 
-        static HighFive::CompoundType result(
+        HighFive::CompoundType result(
             std::vector<HighFive::CompoundType::member_def> {
                 { "ID", HighFive::create_datatype<std::uint32_t>(), offsetof(Grid, id) }, //
                 { "GRID", HighFive::DataType(array_type.getId()), offsetof(Grid, grid) }, //
@@ -69,11 +69,14 @@ int Test()
         coordinates.clear();
         HighFive::File file(H5_FILE, HighFive::File::ReadOnly);
 
-        auto dataset = file.getDataSet("Try");
+        HighFive::DataSet dataset = file.getDataSet("Try");
         auto dataset_dims = dataset.getDimensions();
         coordinates.resize(dataset_dims.front());
         try {
-            dataset.read_raw(coordinates.data(), Grid::CompType());
+            auto dataset_info = dataset.getStorageSize();
+
+            auto type = Grid::CompType();
+            // dataset.read(coordinates, type);
         }
         catch (const HighFive::Exception& e) {
             LOG_ERROR("Failed: {}", e.what());
