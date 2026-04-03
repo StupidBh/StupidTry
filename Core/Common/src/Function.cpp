@@ -196,7 +196,19 @@ std::string_view TrimSpaces(std::string_view sv)
     sv.remove_prefix(first);
 
     auto last = sv.find_last_not_of(whitespace_chars);
+    if (last == std::string_view::npos) {
+        return sv;
+    }
     sv.remove_suffix(sv.size() - last - 1);
 
+    return sv;
+}
+
+std::string_view TrimQuotes(std::string_view sv)
+{
+    if (sv.size() >= 2 && sv.front() == '"' && sv.back() == '"') {
+        sv.remove_prefix(1);
+        sv.remove_suffix(1);
+    }
     return sv;
 }
