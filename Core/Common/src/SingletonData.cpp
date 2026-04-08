@@ -48,6 +48,7 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
         stupid::APP_NAME,
         this->m_vm["DEBUG"].as<bool>());
 
+#ifdef _DEBUG
     for (auto& [key, value] : this->m_vm) {
         if (value.empty()) {
             LOG_WARN("<empty>-[{}] = <empty>", key);
@@ -65,6 +66,7 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
             LOG_WARN("[{}] = <unhandled type>", key);
         }
     }
+#endif
 }
 
 const boost::program_options::variables_map& stupid::SingletonData::get_variables_map() const noexcept
