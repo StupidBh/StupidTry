@@ -187,7 +187,7 @@ libhdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(ProjectDir)include;$(ProjectDir)Utils</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -208,7 +208,9 @@ libhdf5_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\H5Core.h" />
-    <ClInclude Include="include\ReaderH5Framework.h" />
+    <ClInclude Include="include\ReaderH5_Export.h" />
+    <ClInclude Include="Utils\HDF5.hpp" />
+    <ClInclude Include="Utils\HighFive.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp" />

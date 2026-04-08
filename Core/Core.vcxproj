@@ -174,7 +174,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty;$(SolutionDir)Utils;$(SolutionDir)Logger\include;$(SolutionDir)ReaderH5\include;$(SolutionDir)CGNSRead\include;$(ProjectDir)3rdparty;$(ProjectDir)Common;$(ProjectDir)Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -201,8 +201,6 @@
   <ItemGroup>
     <ClInclude Include="Common\Function.h" />
     <ClInclude Include="Common\SingletonData.h" />
-    <ClInclude Include="Utils\HDF5.hpp" />
-    <ClInclude Include="Utils\HighFive.hpp" />
     <ClInclude Include="Utils\MioReader.h" />
   </ItemGroup>
   <ItemGroup>

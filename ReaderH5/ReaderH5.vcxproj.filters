@@ -15,10 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ReaderH5Framework.h">
+    <ClInclude Include="include\ReaderH5_Export.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\H5Core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\HighFive.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\HDF5.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
