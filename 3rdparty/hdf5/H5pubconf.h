@@ -27,7 +27,7 @@
 #define H5_HAVE_VISUAL_STUDIO 1
 
 /* Define the default plugins path to compile */
-#define H5_DEFAULT_PLUGINDIR "D:/a/hdf5/hdf5/install/ci-StdShar-MSVC\\lib\\plugin;%ALLUSERSPROFILE%\\hdf5\\lib\\plugin"
+#define H5_DEFAULT_PLUGINDIR "D:/a/hdf5/hdf5/install/ci-StdShar-Intel\\lib\\plugin;%ALLUSERSPROFILE%\\hdf5\\lib\\plugin"
 
 /* Define if your system is IBM ppc64le and cannot convert some long double
    values correctly. */
@@ -42,22 +42,22 @@
 
 /* Define to a macro mangling the given C identifier (in lower and upper
    case), which must not contain underscores, for linking with Fortran. */
-#define H5_FC_FUNC(name, NAME) name##_
+#define H5_FC_FUNC(name,NAME) NAME
 
 /* Same as H5_FC_FUNC, but for C identifiers containing underscores. */
-#define H5_FC_FUNC_(name, NAME) name##_
+#define H5_FC_FUNC_(name,NAME) NAME
 
 /* Define if Fortran C_BOOL is different from default LOGICAL */
-#define H5_FORTRAN_C_BOOL_IS_UNIQUE
+#define H5_FORTRAN_C_BOOL_IS_UNIQUE 
 
 /* Define if we have Fortran intrinsic C_SIZEOF */
-/* #undef H5_FORTRAN_HAVE_C_SIZEOF */
+#define H5_FORTRAN_HAVE_C_SIZEOF 1
 
 /* Define if we have Fortran intrinsic SIZEOF */
-/* #undef H5_FORTRAN_HAVE_SIZEOF */
+#define H5_FORTRAN_HAVE_SIZEOF 1
 
 /* Define if we have Fortran intrinsic STORAGE_SIZE */
-/* #undef H5_FORTRAN_HAVE_STORAGE_SIZE */
+#define H5_FORTRAN_HAVE_STORAGE_SIZE 1
 
 /* Define if Fortran supports allocatable character */
 /* #undef H5_FORTRAN_HAVE_CHAR_ALLOC */
@@ -66,7 +66,7 @@
 /* #undef H5_FORTRAN_SIZEOF_LONG_DOUBLE */
 
 /* Define Fortran compiler ID */
-#define H5_Fortran_COMPILER_ID
+#define H5_Fortran_COMPILER_ID 
 
 /* Define number of valid Fortran INTEGER KINDs (must be defined before F_IKIND)*/
 /* #undef H5_H5CONFIG_F_NUM_IKIND */
@@ -93,10 +93,10 @@
 /* #undef H5_HAVE_ASPRINTF */
 
 /* Define if the __attribute__(()) extension is present */
-/* #undef H5_HAVE_ATTRIBUTE */
+#define H5_HAVE_ATTRIBUTE 1
 
 /* Define if C99 complex number types are present */
-/* #undef H5_HAVE_C99_COMPLEX_NUMBERS */
+#define H5_HAVE_C99_COMPLEX_NUMBERS 1
 
 /* Define to 1 if you have the `clock_gettime' function. */
 /* #undef H5_HAVE_CLOCK_GETTIME */
@@ -284,7 +284,7 @@
 /* #undef H5_HAVE_SUBFILING_VFD */
 
 /* Define if have stdatomic.h for Subfiling VFD */
-/* #undef H5_HAVE_STDATOMIC_H */
+#define H5_HAVE_STDATOMIC_H 1
 
 /* Define to 1 if you have the `symlink' function. */
 /* #undef H5_HAVE_SYMLINK */
@@ -311,7 +311,7 @@
 #define H5_HAVE_SZLIB_H 1
 
 /* Define if we have thread support */
-#define H5_HAVE_THREADS 1
+# define H5_HAVE_THREADS 1
 
 #if defined(_WIN32) && !defined(H5_BUILT_AS_DYNAMIC_LIB)
 /* Not supported on WIN32 platforms with static linking */
@@ -418,7 +418,7 @@
 #define H5_PACKAGE_NAME "HDF5"
 
 /* Define to the full name and version of this package. */
-#define H5_PACKAGE_STRING "HDF5 2.0.0"
+#define H5_PACKAGE_STRING "HDF5 2.1.1"
 
 /* Define to the one symbol short name of this package. */
 #define H5_PACKAGE_TARNAME "hdf5"
@@ -427,13 +427,13 @@
 #define H5_PACKAGE_URL "https://www.hdfgroup.org"
 
 /* Define to the version of this package. */
-#define H5_PACKAGE_VERSION "2.0.0"
+#define H5_PACKAGE_VERSION "2.1.1"
 
 /* Determine the maximum decimal precision in C */
-#define H5_PAC_C_MAX_REAL_PRECISION
+#define H5_PAC_C_MAX_REAL_PRECISION 21
 
 /* Define Fortran Maximum Real Decimal Precision */
-#define H5_PAC_FC_MAX_REAL_PRECISION
+#define H5_PAC_FC_MAX_REAL_PRECISION 33
 
 /* The size of `bool', as computed by sizeof. */
 #define H5_SIZEOF_BOOL 1
@@ -494,56 +494,56 @@
 
 #if !defined(__APPLE__)
 
-    /* The size of `size_t', as computed by sizeof. */
-    #define H5_SIZEOF_SIZE_T 8
+/* The size of `size_t', as computed by sizeof. */
+#define H5_SIZEOF_SIZE_T 8
 
-    /* The size of `ssize_t', as computed by sizeof. */
-    /* #undef H5_SIZEOF_SSIZE_T */
+/* The size of `ssize_t', as computed by sizeof. */
+/* #undef H5_SIZEOF_SSIZE_T */
 
-    /* The size of `long', as computed by sizeof. */
-    #define H5_SIZEOF_LONG 4
+/* The size of `long', as computed by sizeof. */
+#define H5_SIZEOF_LONG 4
 
-    /* The size of `long double', as computed by sizeof. */
-    #define H5_SIZEOF_LONG_DOUBLE 8
+/* The size of `long double', as computed by sizeof. */
+#define H5_SIZEOF_LONG_DOUBLE 8
 
-    /* The size of `long double _Complex', as computed by sizeof. */
-    #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
+/* The size of `long double _Complex', as computed by sizeof. */
+#define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
 
 #else
 
-    /* On Apple, to support Universal Binaries (where multiple CPU
-       architectures exist in one library/executable), we can't assume
-       the machine doing the compiling has the same endianness or type
-       sizes as all the various architectures (PowerPC, Intel, ARM). */
+  /* On Apple, to support Universal Binaries (where multiple CPU
+     architectures exist in one library/executable), we can't assume
+     the machine doing the compiling has the same endianness or type
+     sizes as all the various architectures (PowerPC, Intel, ARM). */
 
-    #if defined(__LP64__) && __LP64__
-        #define H5_SIZEOF_LONG    8
-        #define H5_SIZEOF_SIZE_T  8
-        #define H5_SIZEOF_SSIZE_T 8
-    #else
-        #define H5_SIZEOF_LONG    4
-        #define H5_SIZEOF_SIZE_T  4
-        #define H5_SIZEOF_SSIZE_T 4
-    #endif
+  # if defined(__LP64__) && __LP64__
+  #define H5_SIZEOF_LONG 8
+  #define H5_SIZEOF_SIZE_T 8
+  #define H5_SIZEOF_SSIZE_T 8
+  # else
+  #define H5_SIZEOF_LONG 4
+  #define H5_SIZEOF_SIZE_T 4
+  #define H5_SIZEOF_SSIZE_T 4
+  # endif
 
-    #if defined(__i386__) || defined(__x86_64__)
-        #define H5_SIZEOF_LONG_DOUBLE         16
-        #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 32
-    #elif defined(__aarch64__)
-        #define H5_SIZEOF_LONG_DOUBLE         8
-        #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
-    #else
-        #define H5_SIZEOF_LONG_DOUBLE         8
-        #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
-    #endif
+  # if defined(__i386__) || defined(__x86_64__)
+  #define H5_SIZEOF_LONG_DOUBLE 16
+  #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 32
+  # elif defined(__aarch64__)
+  #define H5_SIZEOF_LONG_DOUBLE 8
+  #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
+  # else
+  #define H5_SIZEOF_LONG_DOUBLE 8
+  #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
+  # endif
 
 #endif
 
 /* The size of `long long', as computed by sizeof. */
 #if !defined(__APPLE__)
-    #define H5_SIZEOF_LONG_LONG 8
+ #define H5_SIZEOF_LONG_LONG 8
 #else
-    #define H5_SIZEOF_LONG_LONG 8
+ #define H5_SIZEOF_LONG_LONG 8
 #endif
 
 /* The size of `off_t', as computed by sizeof. */
@@ -598,7 +598,7 @@
 #define H5_SIZEOF_UNSIGNED 4
 
 /* The size of `_Float16', as computed by sizeof. */
-#define H5_SIZEOF__FLOAT16 0
+#define H5_SIZEOF__FLOAT16 2
 
 /* Define if strict file format checks are enabled */
 /* #undef H5_STRICT_FORMAT_CHECKS */
@@ -630,7 +630,7 @@
 /* #undef H5_USING_MEMCHECKER */
 
 /* Version number of package */
-#define H5_VERSION "2.0.0"
+#define H5_VERSION "2.1.1"
 
 /* Data accuracy is preferred to speed during data conversions */
 #define H5_WANT_DATA_ACCURACY 1
@@ -644,13 +644,13 @@
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if !defined(__APPLE__)
-    #ifndef WORDS_BIGENDIAN
-        #undef WORDS_BIGENDIAN
-    #endif
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
 #else
-    #if defined __BIG_ENDIAN__
-        #define WORDS_BIGENDIAN 1
-    #endif
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
 #endif
 
 /* #undef WORDS_BIGENDIAN */

@@ -55,54 +55,45 @@
 typedef int H5Z_filter_t;
 
 /* Filter IDs */
-/**
- * no filter
- */
+
+/** Filter operation error \since 1.0.0 */
 #define H5Z_FILTER_ERROR (-1)
-/**
- * reserved indefinitely
- */
+
+/** No filter */
 #define H5Z_FILTER_NONE 0
-/**
- * deflation like gzip
- */
+
+/** Deflation like gzip \since 1.0.0 */
 #define H5Z_FILTER_DEFLATE 1
-/**
- * shuffle the data
- */
+
+/** Shuffle the data \since 1.6.0 */
 #define H5Z_FILTER_SHUFFLE 2
-/**
- * fletcher32 checksum of EDC
- */
+
+/** Fletcher32 checksum of EDC \since 1.6.0 */
 #define H5Z_FILTER_FLETCHER32 3
-/**
- * szip compression
- */
+
+/** Szip compression \since 1.6.0 */
 #define H5Z_FILTER_SZIP 4
-/**
- * nbit compression
- */
+
+/** Nbit compression \since 1.8.0 */
 #define H5Z_FILTER_NBIT 5
-/**
- * scale+offset compression
- */
+
+/** Scale+offset compression \since 1.8.0 */
 #define H5Z_FILTER_SCALEOFFSET 6
-/**
- * filter ids below this value are reserved for library use
- */
+
+/** Filter ids below this value are reserved for library use \since 1.6.0 */
 #define H5Z_FILTER_RESERVED 256
-/**
- * maximum filter id
- */
+
+/** Maximum filter id \since 1.0.0 */
 #define H5Z_FILTER_MAX 65535
 
 /* General macros */
 /**
  * Symbol to remove all filters in H5Premove_filter()
+ * \since 1.6.3
  */
 #define H5Z_FILTER_ALL 0
 /**
- * Maximum number of filters allowed in a pipeline
+ * Maximum number of filters allowed in a pipeline \since 1.6.0
  *
  * \internal (should probably be allowed to be an unlimited amount, but
  *            currently each filter uses a bit in a 32-bit field, so the format
@@ -111,31 +102,23 @@ typedef int H5Z_filter_t;
 #define H5Z_MAX_NFILTERS 32
 
 /* Flags for filter definition (stored) */
-/**
- * definition flag mask
- */
+/** Definition flag mask \since 1.0.0 */
 #define H5Z_FLAG_DEFMASK 0x00ff
-/**
- * filter is mandatory
- */
+
+/** Filter is mandatory \since 1.6.0 */
 #define H5Z_FLAG_MANDATORY 0x0000
-/**
- * filter is optional
- */
+
+/** Filter is optional \since 1.0.0 */
 #define H5Z_FLAG_OPTIONAL 0x0001
 
 /* Additional flags for filter invocation (not stored) */
-/**
- * invocation flag mask
- */
+/** Invocation flag mask \since 1.0.0 */
 #define H5Z_FLAG_INVMASK 0xff00
-/**
- * reverse direction; read
- */
+
+/** Reverse direction; read \since 1.0.0 */
 #define H5Z_FLAG_REVERSE 0x0100
-/**
- * skip EDC filters for read
- */
+
+/** Skip EDC filters for read \since 1.6.0 */
 #define H5Z_FLAG_SKIP_EDC 0x0200
 
 /* Special parameters for szip compression
@@ -193,11 +176,13 @@ typedef int H5Z_filter_t;
 /**
  * \ingroup SHUFFLE
  * Number of parameters that users can set for the shuffle filter
+ * \since 1.6.8
  */
 #define H5Z_SHUFFLE_USER_NPARMS 0
 /**
  * \ingroup SHUFFLE
  * Total number of parameters for the shuffle filter
+ * \since 1.6.8
  */
 #define H5Z_SHUFFLE_TOTAL_NPARMS 1
 
@@ -205,31 +190,37 @@ typedef int H5Z_filter_t;
 /**
  * \ingroup SZIP
  * Number of parameters that users can set for SZIP
+ * \since 1.6.8
  */
 #define H5Z_SZIP_USER_NPARMS 2
 /**
  * \ingroup SZIP
  * Total number of parameters for SZIP filter
+ * \since 1.6.8
  */
 #define H5Z_SZIP_TOTAL_NPARMS 4
 /**
  * \ingroup SZIP
  * "User" parameter for option mask
+ * \since 1.6.8
  */
 #define H5Z_SZIP_PARM_MASK 0
 /**
  * \ingroup SZIP
  * "User" parameter for pixels-per-block
+ * \since 1.6.8
  */
 #define H5Z_SZIP_PARM_PPB 1
 /**
  * \ingroup SZIP
  * "Local" parameter for bits-per-pixel
+ * \since 1.6.8
  */
 #define H5Z_SZIP_PARM_BPP 2
 /**
  * \ingroup SZIP
  * "Local" parameter for pixels-per-scanline
+ * \since 1.6.8
  */
 #define H5Z_SZIP_PARM_PPS 3
 
@@ -237,6 +228,7 @@ typedef int H5Z_filter_t;
 /**
  * \ingroup NBIT
  * Number of parameters that users can set for the N-bit filter
+ * \since 1.8.0
  */
 #define H5Z_NBIT_USER_NPARMS 0 /* Number of parameters that users can set */
 
@@ -244,133 +236,134 @@ typedef int H5Z_filter_t;
 /**
  * \ingroup SCALEOFFSET
  * Number of parameters that users can set for the scale-offset filter
+ * \since 1.8.0
  */
 #define H5Z_SCALEOFFSET_USER_NPARMS 2
 
 /* Special parameters for ScaleOffset filter*/
 /**
- * \ingroup SCALEOFFSET */
+ * \ingroup SCALEOFFSET
+ * Indicates minbits not set yet
+ * \since 1.8.0
+ */
 #define H5Z_SO_INT_MINBITS_DEFAULT 0
-
 /**
  * \ingroup SCALEOFFSET */
-typedef enum H5Z_SO_scale_type_t
-{
+typedef enum H5Z_SO_scale_type_t {
     H5Z_SO_FLOAT_DSCALE = 0,
     H5Z_SO_FLOAT_ESCALE = 1,
-    H5Z_SO_INT = 2
+    H5Z_SO_INT          = 2
 } H5Z_SO_scale_type_t;
 
 /**
  * \ingroup FLETCHER32
  * Values to decide if EDC is enabled for reading data
  */
-typedef enum H5Z_EDC_t
-{
-    H5Z_ERROR_EDC = -1, /**< error value */
+typedef enum H5Z_EDC_t {
+    H5Z_ERROR_EDC   = -1, /**< error value */
     H5Z_DISABLE_EDC = 0,
-    H5Z_ENABLE_EDC = 1,
-    H5Z_NO_EDC = 2 /**< sentinel */
+    H5Z_ENABLE_EDC  = 1,
+    H5Z_NO_EDC      = 2 /**< sentinel */
 } H5Z_EDC_t;
 
-/* Bit flags for H5Zget_filter_info */
+/** Encode bit flag for H5Zget_filter_info \since 1.6.3 */
 #define H5Z_FILTER_CONFIG_ENCODE_ENABLED (0x0001)
+
+/** Decode bit flag for H5Zget_filter_info \since 1.6.3 */
 #define H5Z_FILTER_CONFIG_DECODE_ENABLED (0x0002)
 
 /**
  * Return values for filter callback function
  */
-typedef enum H5Z_cb_return_t
-{
+typedef enum H5Z_cb_return_t {
     H5Z_CB_ERROR = -1, /**< error value */
-    H5Z_CB_FAIL = 0,   /**< I/O should fail if filter fails. */
-    H5Z_CB_CONT = 1,   /**< I/O continues if filter fails.   */
-    H5Z_CB_NO = 2      /**< sentinel */
+    H5Z_CB_FAIL  = 0,  /**< I/O should fail if filter fails. */
+    H5Z_CB_CONT  = 1,  /**< I/O continues if filter fails.   */
+    H5Z_CB_NO    = 2   /**< sentinel */
 } H5Z_cb_return_t;
 
 //! <!-- [H5Z_filter_func_t_snip] -->
 /**
  *  Filter callback function definition
  */
-typedef H5Z_cb_return_t (*H5Z_filter_func_t)(H5Z_filter_t filter, void* buf, size_t buf_size, void* op_data);
+typedef H5Z_cb_return_t (*H5Z_filter_func_t)(H5Z_filter_t filter, void *buf, size_t buf_size, void *op_data);
 //! <!-- [H5Z_filter_func_t_snip] -->
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    /**
-     * \ingroup H5Z
-     *
-     * \brief Determines whether a filter is available
-     *
-     * \param[in] id Filter identifier
-     * \return \htri_t
-     *
-     * \details H5Zfilter_avail() determines whether the filter specified in \p id
-     *          is available to the application.
-     *
-     * \since 1.6.0
-     */
-    H5_DLL htri_t H5Zfilter_avail(H5Z_filter_t id);
-    /**
-     * \ingroup H5Z
-     *
-     * \brief Retrieves information about a filter
-     *
-     * \param[in] filter Filter identifier
-     * \param[out] filter_config_flags A bit field encoding the returned filter
-     *                                 information
-     * \return \herr_t
-     *
-     * \details H5Zget_filter_info() retrieves information about a filter. At
-     *          present, this means that the function retrieves a filter's
-     *          configuration flags, indicating whether the filter is configured to
-     *          decode data, encode data, neither, or both.
-     *
-     *          If \p filter_config_flags is not set to NULL prior to the function
-     *          call, the returned parameter contains a bit field specifying the
-     *          available filter configuration. The configuration flag values can
-     *          then be determined through a series of bitwise AND operations, as
-     *          described below.
-     *
-     *          Valid filter configuration flags include the following:
-     *          <table>
-     *            <tr><td>#H5Z_FILTER_CONFIG_ENCODE_ENABLED</td>
-     *                <td>Encoding is enabled for this filter</td></tr>
-     *            <tr><td>#H5Z_FILTER_CONFIG_DECODE_ENABLED</td>
-     *                <td>Decoding is enabled for this filter</td></tr>
-     *          </table>
-     *
-     *          A bitwise AND of the returned \p filter_config_flags and a valid
-     *          filter configuration flag will reveal whether the related
-     *          configuration option is available. For example, if the value of
-     *          \code
-     *          H5Z_FILTER_CONFIG_ENCODE_ENABLED & filter_config_flags
-     *          \endcode
-     *          is true, i.e., greater than 0 (zero), the queried filter
-     *          is configured to encode data; if the value is \c false, i.e., equal to
-     *          0 (zero), the filter is not so configured.
-     *
-     *          If a filter is not encode-enabled, the corresponding \c H5Pset_*
-     *          function will return an error if the filter is added to a dataset
-     *          creation property list (which is required if the filter is to be
-     *          used to encode that dataset). For example, if the
-     *          #H5Z_FILTER_CONFIG_ENCODE_ENABLED flag is not returned for the SZIP
-     *          filter, #H5Z_FILTER_SZIP, a call to H5Pset_szip() will fail.
-     *
-     *          If a filter is not decode-enabled, the application will not be able
-     *          to read an existing file encoded with that filter.
-     *
-     *          This function should be called, and the returned \p
-     *          filter_config_flags should be analyzed, before calling any other function,
-     *          such as H5Pset_szip(), that might require a particular filter
-     *          configuration.
-     *
-     * \since 1.6.0
-     */
-    H5_DLL herr_t H5Zget_filter_info(H5Z_filter_t filter, unsigned int* filter_config_flags);
+/**
+ * \ingroup H5Z
+ *
+ * \brief Determines whether a filter is available
+ *
+ * \param[in] id Filter identifier
+ * \return \htri_t
+ *
+ * \details H5Zfilter_avail() determines whether the filter specified in \p id
+ *          is available to the application.
+ *
+ * \since 1.6.0
+ */
+H5_DLL htri_t H5Zfilter_avail(H5Z_filter_t id);
+/**
+ * \ingroup H5Z
+ *
+ * \brief Retrieves information about a filter
+ *
+ * \param[in] filter Filter identifier
+ * \param[out] filter_config_flags A bit field encoding the returned filter
+ *                                 information
+ * \return \herr_t
+ *
+ * \details H5Zget_filter_info() retrieves information about a filter. At
+ *          present, this means that the function retrieves a filter's
+ *          configuration flags, indicating whether the filter is configured to
+ *          decode data, encode data, neither, or both.
+ *
+ *          If \p filter_config_flags is not set to NULL prior to the function
+ *          call, the returned parameter contains a bit field specifying the
+ *          available filter configuration. The configuration flag values can
+ *          then be determined through a series of bitwise AND operations, as
+ *          described below.
+ *
+ *          Valid filter configuration flags include the following:
+ *          <table>
+ *            <tr><td>#H5Z_FILTER_CONFIG_ENCODE_ENABLED</td>
+ *                <td>Encoding is enabled for this filter</td></tr>
+ *            <tr><td>#H5Z_FILTER_CONFIG_DECODE_ENABLED</td>
+ *                <td>Decoding is enabled for this filter</td></tr>
+ *          </table>
+ *
+ *          A bitwise AND of the returned \p filter_config_flags and a valid
+ *          filter configuration flag will reveal whether the related
+ *          configuration option is available. For example, if the value of
+ *          \code
+ *          H5Z_FILTER_CONFIG_ENCODE_ENABLED & filter_config_flags
+ *          \endcode
+ *          is true, i.e., greater than 0 (zero), the queried filter
+ *          is configured to encode data; if the value is \c false, i.e., equal to
+ *          0 (zero), the filter is not so configured.
+ *
+ *          If a filter is not encode-enabled, the corresponding \c H5Pset_*
+ *          function will return an error if the filter is added to a dataset
+ *          creation property list (which is required if the filter is to be
+ *          used to encode that dataset). For example, if the
+ *          #H5Z_FILTER_CONFIG_ENCODE_ENABLED flag is not returned for the SZIP
+ *          filter, #H5Z_FILTER_SZIP, a call to H5Pset_szip() will fail.
+ *
+ *          If a filter is not decode-enabled, the application will not be able
+ *          to read an existing file encoded with that filter.
+ *
+ *          This function should be called, and the returned \p
+ *          filter_config_flags should be analyzed, before calling any other function,
+ *          such as H5Pset_szip(), that might require a particular filter
+ *          configuration.
+ *
+ * \since 1.6.0
+ */
+H5_DLL herr_t H5Zget_filter_info(H5Z_filter_t filter, unsigned int *filter_config_flags);
 
 #ifdef __cplusplus
 }
