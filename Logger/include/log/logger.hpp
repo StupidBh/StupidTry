@@ -52,8 +52,6 @@ namespace dylog {
             std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
                 std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
-            spdlog::sinks_init_list log_sinks_list = { console_sink };
-
             // 写入外部文件的日志消息
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
             try {
@@ -64,17 +62,16 @@ namespace dylog {
 
                 std::filesystem::path log_path = log_dir / (log_file_name + ".log");
                 file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path.string(), 0, 0, false, 30);
-
-                log_sinks_list = { console_sink, file_sink };
             }
             catch (...) {
                 std::cerr << "The log file creation failed. Roll back to the terminal!\n";
+                file_sink = nullptr;
             }
 
             // 创建异步记录器
             auto async_logger = std::make_shared<spdlog::async_logger>(
                 log_file_name,
-                log_sinks_list,
+                spdlog::sinks_init_list { console_sink, file_sink },
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block);
             async_logger->set_pattern(log_fmt);
