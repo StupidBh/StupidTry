@@ -1,9 +1,8 @@
 #include "Function.h"
 #include "SingletonData.h"
 
+#include "H5Core.h"
 #include "CgnsCore.h"
-#include "HDF5.hpp"
-#include "HighFive.hpp"
 
 int main(int argc, char* argv[])
 {
