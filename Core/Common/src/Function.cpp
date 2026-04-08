@@ -206,8 +206,13 @@ std::string_view TrimSpaces(std::string_view sv)
 
 std::string_view TrimQuotes(std::string_view sv)
 {
-    if (sv.size() >= 2 && sv.front() == '"' && sv.back() == '"') {
+    if (sv.size() < 2) {
+        return sv;
+    }
+    if (sv.front() != '"') {
         sv.remove_prefix(1);
+    }
+    if (sv.back() == '"') {
         sv.remove_suffix(1);
     }
     return sv;
