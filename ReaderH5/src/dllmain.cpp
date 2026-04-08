@@ -1,4 +1,4 @@
-#include "ReaderH5Framework.h"
+#include "ReaderH5_Export.h"
 
 BOOL APIENTRY DllMain([[maybe_unused]] HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]] LPVOID lpReserved)
 {
