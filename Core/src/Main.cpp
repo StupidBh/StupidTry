@@ -15,6 +15,10 @@ int main(int argc, char* argv[])
     cgns::InitLog(LOG);
     cgns::OpenCGNS(INPUT_PATH);
 
+    stupid_h5::InitLog(LOG);
+    stupid_h5::TestH5();
+    stupid_h5::TestHighFive();
+
     spdlog::shutdown();
     return 0;
 }

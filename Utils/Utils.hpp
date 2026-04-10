@@ -131,6 +131,18 @@ namespace utils {
     {
         ((vecs = Args()), ...);
     }
+
+    template<class... Args>
+    constexpr void VectorShrink(Args&... vecs) noexcept
+    {
+        auto lambda = [](auto& v) {
+            if constexpr (requires { v.shrink_to_fit(); }) {
+                v.shrink_to_fit();
+            }
+        };
+
+        (lambda(vecs), ...);
+    }
 }
 
 #define CONCAT_IMPL(x, y) x##y

@@ -73,4 +73,3 @@ const boost::program_options::variables_map& stupid::SingletonData::get_variable
 {
     return m_vm;
 }
-

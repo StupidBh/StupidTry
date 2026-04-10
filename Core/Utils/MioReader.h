@@ -11,7 +11,7 @@
 #include "mio/mmap.hpp"
 
 class MioReader {
-public:
+  public:
     explicit MioReader(const std::string& filename);
 
     bool getline(std::string_view& line);
@@ -72,7 +72,7 @@ public:
         }
     }
 
-private:
+  private:
     mio::mmap_source m_mmap;
     const char* m_data;
     size_t m_size;

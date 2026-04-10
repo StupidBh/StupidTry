@@ -1,9 +1,12 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # for clang-format 20.0.0
 Language: Cpp
-BasedOnStyle: "WebKit"
-AlignAfterOpenBracket: "AlwaysBreak"
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: AlwaysBreak
 AlignArrayOfStructures: None
+# LineEndingStyle: LF
+DeriveLineEnding: false
+UseCRLF: false
 
 AlignConsecutiveMacros: Consecutive
 AlignConsecutiveBitFields: None
