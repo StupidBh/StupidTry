@@ -33,3 +33,4 @@ namespace stupid {
 
 #define INPUT_PATH SINGLE_DATA_VM["inputPath"].as<std::string>()
 #define WORK_DIR   SINGLE_DATA_VM["workDirectory"].as<std::string>()
+#define IS_DEBUG   SINGLE_DATA_VM["DEBUG"].as<bool>()
