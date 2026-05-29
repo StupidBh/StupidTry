@@ -7,7 +7,7 @@
 #define SCOPED_TIMER(out_msg) decltype(auto) CONCAT(timer_, __COUNTER__) = utils::ScopedTimer(std::string_view(out_msg))
 #define SCOPED_TIMER_LOG(out_msg)                \
     decltype(auto) CONCAT(timer_, __COUNTER__) = \
-        utils::ScopedTimer(std::string_view(out_msg), [](std::string_view msg) { LOG_INFO(msg); })
+        utils::ScopedTimer(std::string_view(out_msg), [](std::string_view msg) { LOG->info(msg); })
 
 bool IsLikelyGBK(std::string_view str);
 std::string GBKToUTF8(std::string_view gbk_str);
