@@ -54,19 +54,6 @@ std::string GBKToUTF8(std::string_view gbk_str)
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
-    // RAII 管理 HANDLE
-    struct HandleCloser
-    {
-        void operator()(HANDLE h) const
-        {
-            if (h && h != INVALID_HANDLE_VALUE) {
-                CloseHandle(h);
-            }
-        }
-    };
-
-    using UniqueHandle = std::unique_ptr<void, HandleCloser>;
-
     // 安全属性结构，用于允许管道句柄继承
     SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES),
                                .lpSecurityDescriptor = nullptr,
@@ -75,17 +62,18 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
     if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
-        LOG_ERROR("CreatePipe failed: {}", GetLastError());
+        DWORD err = GetLastError();
+        LOG_ERROR("CreatePipe failed: {}", err);
         return;
     }
-    UniqueHandle hReadPipe(readPipeRaw);
-    UniqueHandle hWritePipe(writePipeRaw);
+    auto hReadPipe = std::shared_ptr<void>(readPipeRaw, CloseHandle);
+    auto hWritePipe = std::shared_ptr<void>(writePipeRaw, CloseHandle);
 
     // 防止子进程继承读取句柄，导致无法关闭（只继承写入）
     SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0);
 
     // 设置启动信息，重定向输出
-    PROCESS_INFORMATION pi = {};
+    PROCESS_INFORMATION pi = { };
     STARTUPINFOW si { .cb = sizeof(STARTUPINFOW),
                       .dwFlags = STARTF_USESTDHANDLES,
                       .hStdOutput = hWritePipe.get(),
@@ -105,17 +93,19 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
             &si,              // 指向 STARTUPINFO 结构体的指针
             &pi               // 指向 PROCESS_INFORMATION 结构体的指针
             )) {
-        LOG_ERROR("CreateProcess failed: {}", GetLastError());
-        LOG_ERROR("Command Line: [{}]", command);
+        DWORD err = GetLastError();
+        LOG_ERROR("CreateProcess failed: {}", err);
+        LOG_ERROR("Command Line: [{}].", command);
         return;
     }
-    hWritePipe.reset(); // 父进程不再需要写入端
 
-    UniqueHandle hProcess(pi.hProcess);
-    UniqueHandle hThread(pi.hThread);
+    // 先包装句柄，再关闭写端（确保异常安全）
+    auto hProcess = std::shared_ptr<void>(pi.hProcess, CloseHandle);
+    auto hThread = std::shared_ptr<void>(pi.hThread, CloseHandle);
+    hWritePipe.reset();
 
     // 读取子进程的回显消息
-    char buffer[4096] = {};
+    char buffer[4096] = { };
     DWORD bytesRead = 0;
     while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
