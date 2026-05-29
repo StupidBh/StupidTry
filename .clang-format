@@ -1,49 +1,40 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # for clang-format 20.0.0
+
+# ============================================================================
+# 基础设置
+# ============================================================================
 Language: Cpp
-BasedOnStyle: LLVM
-AlignAfterOpenBracket: AlwaysBreak
-AlignArrayOfStructures: None
-# LineEndingStyle: LF
-DeriveLineEnding: false
-UseCRLF: false
+BasedOnStyle: Webkit
+Standard: c++20
+LineEnding: LF
+# DeriveLineEnding: false
+# UseCRLF: false
+DisableFormat: false
 
-AlignConsecutiveMacros: Consecutive
-AlignConsecutiveBitFields: None
-AlignConsecutiveAssignments: None
-AlignConsecutiveDeclarations: None
-AlignConsecutiveShortCaseStatements:
-  Enabled: true
-  AcrossEmptyLines: false
-  AcrossComments: false
-  AlignCaseColons: true
+# ============================================================================
+# 缩进
+# ============================================================================
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+NamespaceIndentation: All
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentAccessModifiers: false
+IndentExternBlock: AfterExternBlock
+IndentRequiresClause: false
+IndentPPDirectives: BeforeHash
+IndentWrappedFunctionNames: true
+LambdaBodyIndentation: Signature
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
 
-AlignEscapedNewlines: Left
-AlignOperands: Align
-AlignTrailingComments:
-  Kind: Always
-  OverEmptyLines: 1
-
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
-
-AllowShortEnumsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-AllowShortBlocksOnASingleLine: Never
-AllowShortLambdasOnASingleLine: Inline
-AllowShortCaseLabelsOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortFunctionsOnASingleLine: InlineOnly
-
-AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: Yes
-
-
-BinPackArguments: false
-BinPackParameters: false
-BitFieldColonSpacing: After
-
+# ============================================================================
+# 大括号风格
+# ============================================================================
+BreakBeforeBraces: Custom
 BraceWrapping:
   IndentBraces: false
 
@@ -60,141 +51,203 @@ BraceWrapping:
   BeforeElse: true
   BeforeCatch: true
   BeforeWhile: false
-  SplitEmptyRecord: true
   BeforeLambdaBody: false
+
+  SplitEmptyRecord: true
   SplitEmptyFunction: true
   SplitEmptyNamespace: true
 
+# ============================================================================
+# 换行控制
+# ============================================================================
+ColumnLimit: 120
+
+# 函数返回类型后不强制换行
 BreakAfterReturnType: None
-BreakAfterAttributes: Never
-BreakAfterJavaFieldAnnotations: true
+AlwaysBreakAfterDefinitionReturnType: None
 
-BreakBeforeBraces: Custom
-BreakBeforeBinaryOperators: None
-BreakBeforeTernaryOperators: true
+# 模板声明总是换行
+AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeConceptDeclarations: Always
-BreakBeforeInlineASMColon: OnlyMultiline
 
-BreakConstructorInitializers: AfterColon
-BreakInheritanceList: AfterColon
+# 三元运算符前换行，二元运算符后换行
+BreakBeforeTernaryOperators: true
+BreakBeforeBinaryOperators: None
+
+# 多行字符串与数组允许打断
+AlwaysBreakBeforeMultilineStrings: true
 BreakStringLiterals: true
 BreakArrays: true
 
+# 属性后不换行
+BreakAfterAttributes: Never
+BreakAfterJavaFieldAnnotations: true
+BreakBeforeInlineASMColon: OnlyMultiline
 
-ColumnLimit: 120
+# 构造函数初始化列表 & 继承列表：冒号后换行
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
 
+# requires 子句
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+
+# ============================================================================
+# 单行 / 紧凑控制
+# ============================================================================
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortEnumsOnASingleLine: false
+AllowShortLambdasOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+ShortNamespaceLines: 1000
 CompactNamespaces: false
 
-ConstructorInitializerIndentWidth: 4
+# ============================================================================
+# 参数打包
+# ============================================================================
+BinPackArguments: false
+BinPackParameters: false
+PackConstructorInitializers: Never
 
-ContinuationIndentWidth: 4
+# ============================================================================
+# 空格
+# ============================================================================
 
-Cpp11BracedListStyle: false
+# ---- 括号前空格 ----
+SpaceBeforeParens: ControlStatements
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeSquareBrackets: false
 
+# ---- 冒号前空格 ----
+SpaceBeforeCaseColon: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeJsonColon: false
 
+# ---- 赋值/运算符空格 ----
+SpaceBeforeAssignmentOperators: true
+
+# ---- 关键字后空格 ----
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+
+# ---- 尖括号 ----
+SpacesInAngles: Never
+
+# ---- 圆括号 ----
+SpacesInParens: Never
+SpaceInEmptyParentheses: false
+
+# ---- 方括号 ----
+SpacesInSquareBrackets: false
+
+# ---- 花括号 / 容器 ----
+SpacesInContainerLiterals: true
+SpaceInEmptyBlock: false
+
+# ---- 指针/引用修饰符 ----
+SpaceAroundPointerQualifiers: Default
+
+# ---- 尾注释 ----
+SpacesBeforeTrailingComments: 1
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+
+# ---- 位域冒号 ----
+BitFieldColonSpacing: After
+
+# ============================================================================
+# 对齐
+# ============================================================================
+
+# ---- 通用操作数对齐 ----
+AlignOperands: Align
+AlignAfterOpenBracket: AlwaysBreak
+AlignEscapedNewlines: Left
+AlignArrayOfStructures: None
+
+# ---- 连续声明/赋值/宏/位域 ----
+AlignConsecutiveMacros: Consecutive
+AlignConsecutiveBitFields: None
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+
+# ---- switch case ----
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCaseColons: true
+
+# ---- 尾注释对齐 ----
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+# ============================================================================
+# 指针与引用
+# ============================================================================
 DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
 
-DisableFormat: false
+# ============================================================================
+# 插入 / 移除
+# ============================================================================
 
+# ---- 大括号相关 ----
+InsertBraces: true
+Cpp11BracedListStyle: false
+RemoveBracesLLVM: false
 
+# ---- 尾部 ----
+InsertNewlineAtEOF: true
+InsertTrailingCommas: Wrapped
+RemoveSemicolon: false
+
+# ---- 多余括号 ----
+RemoveParentheses: Leave
+
+# ============================================================================
+# 空行
+# ============================================================================
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# ---- 访问修饰符前后空行 ----
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
 
+# ---- 定义块分隔 ----
+SeparateDefinitionBlocks: Always
 
+# ============================================================================
+# Include & Using
+# ============================================================================
+SortIncludes: Never
+IncludeBlocks: Preserve
+SortUsingDeclarations: Lexicographic
+
+# ============================================================================
+# 注释
+# ============================================================================
+ReflowComments: true
 FixNamespaceComments: true
 
-
-IncludeBlocks: Preserve
-
-IndentWidth: 4
-IndentCaseBlocks: false
-IndentCaseLabels: false
-IndentGotoLabels: false
-IndentPPDirectives: BeforeHash
-IndentRequiresClause: false
-IndentAccessModifiers: false
-IndentExternBlock: AfterExternBlock
-IndentWrappedFunctionNames: true
-
-InsertBraces: true
-InsertNewlineAtEOF: true
-InsertTrailingCommas: Wrapped
-
+# ============================================================================
+# 数字字面量分隔符
+# ============================================================================
 IntegerLiteralSeparator:
   Hex: -1
   Binary: 4
   BinaryMinDigits: 9
   Decimal: 3
   DecimalMinDigits: 7
-
-
-KeepEmptyLinesAtEOF: true
-KeepEmptyLinesAtTheStartOfBlocks: false
-
-
-LambdaBodyIndentation: Signature
-
-
-MaxEmptyLinesToKeep: 1
-
-
-NamespaceIndentation: All
-
-
-PackConstructorInitializers: Never
-
-PointerAlignment: Left
-
-
-ReferenceAlignment: Left
-
-ReflowComments: true
-
-RemoveSemicolon: false
-RemoveBracesLLVM: false
-RemoveParentheses: Leave
-
-RequiresClausePosition: OwnLine
-RequiresExpressionIndentation: OuterScope
-
-
-SeparateDefinitionBlocks: Always
-
-ShortNamespaceLines: 1000
-
-SortIncludes: Never
-SortUsingDeclarations: Lexicographic
-
-SpaceAfterCStyleCast: false
-SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: false
-
-
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: true
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeJsonColon: false
-SpaceBeforeParens: ControlStatements
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceBeforeSquareBrackets: false
-
-SpaceAroundPointerQualifiers: Default
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 1
-SpacesInAngles: Never
-SpacesInContainerLiterals: true
-SpacesInLineCommentPrefix:
-  Minimum: 1
-  Maximum: -1
-
-SpacesInParens: Never
-SpacesInSquareBrackets: false
-
-Standard: c++20
-
-TabWidth: 4
-
-
-UseTab: Never
