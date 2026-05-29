@@ -31,7 +31,7 @@ bool IsLikelyGBK(std::string_view str)
 std::string GBKToUTF8(std::string_view gbk_str)
 {
     if (gbk_str.empty()) {
-        return {};
+        return std::string();
     }
 
     int wlen = MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), nullptr, 0);
@@ -147,13 +147,13 @@ std::string GetEnv(const std::string& env)
     DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
     if (need_size == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return {};
+        return std::string();
     }
 
     std::string buffer(need_size, '\0');
     if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return {};
+        return std::string();
     }
     buffer.pop_back(); // 去掉末尾的 '\0'
     return buffer;
@@ -191,7 +191,7 @@ std::string_view TrimSpaces(std::string_view sv)
     static constinit std::string_view whitespace_chars = " \t\n\r\f\v";
     auto first = sv.find_first_not_of(whitespace_chars);
     if (first == std::string_view::npos) {
-        return {};
+        return std::string_view();
     }
     sv.remove_prefix(first);
 
