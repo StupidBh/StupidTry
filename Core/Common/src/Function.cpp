@@ -79,8 +79,14 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
                       .hStdOutput = hWritePipe.get(),
                       .hStdError = hWritePipe.get() };
 
-    // 创建子进程
-    std::wstring cmd(command.begin(), command.end());
+    // 编码转换：ACP -> UTF-16，正确处理非 ASCII 路径
+    int wlen = MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), nullptr, 0);
+    if (wlen <= 0) {
+        LOG_ERROR("MultiByteToWideChar failed: {}", GetLastError());
+        return;
+    }
+    std::wstring cmd(wlen, L'\0');
+    MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), cmd.data(), wlen);
     if (!CreateProcessW(
             nullptr,          // 不指定应用程序名，直接从命令行解析
             cmd.data(),       // 命令行参数（必须可修改）
