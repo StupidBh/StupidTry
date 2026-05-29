@@ -182,8 +182,8 @@ void cgns::OpenCGNS(const std::string& file_path)
                         section,
                         ElementTypeName[section_element_type],
                         section_name,
-                        std::ranges::min(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
-                        std::ranges::max(elements, std::ranges::less {}, [](auto value) { return std::abs(value); }),
+                        std::ranges::min(elements, std::ranges::less { }, [](auto value) { return std::abs(value); }),
+                        std::ranges::max(elements, std::ranges::less { }, [](auto value) { return std::abs(value); }),
                         section_element_sum);
                     LOG->flush();
                 }

@@ -33,7 +33,7 @@ namespace dylog {
 #endif
         }
 
-      public:
+    public:
         ~Logger() override = default;
 
         void InitLog(const std::filesystem::path& work_dir, const std::string& log_file_name, bool verbose = false)

@@ -11,7 +11,7 @@
 #include "mio/mmap.hpp"
 
 class MioReader {
-  public:
+public:
     explicit MioReader(const std::string& filename);
 
     bool getline(std::string_view& line);
@@ -41,14 +41,14 @@ class MioReader {
                 break;
             }
 
-            T val {};
+            T val { };
             auto [p, ec] = std::from_chars(ptr, end, val);
-            if (ec == std::errc {}) {
+            if (ec == std::errc { }) {
                 if (p < end && (*p == '-' || *p == '+') && std::isdigit(static_cast<unsigned char>(*(p - 1)))) {
                     int exponent = 0;
                     auto [p_exp, ec_exp] = std::from_chars(p, end, exponent);
 
-                    if (ec_exp == std::errc {}) {
+                    if (ec_exp == std::errc { }) {
                         val *= static_cast<T>(std::pow(10.0, exponent));
                         out.emplace_back(val);
                         ptr = p_exp;
@@ -72,7 +72,7 @@ class MioReader {
         }
     }
 
-  private:
+private:
     mio::mmap_source m_mmap;
     const char* m_data;
     size_t m_size;

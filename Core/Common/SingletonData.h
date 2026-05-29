@@ -19,11 +19,11 @@ namespace stupid {
         SINGLETON_CLASS(SingletonData);
         SingletonData() = default;
 
-      public:
+    public:
         void ProcessArguments(int argc, char* argv[]);
         const boost::program_options::variables_map& get_variables_map() const noexcept;
 
-      private:
+    private:
         boost::program_options::variables_map m_vm;
     };
 }
