@@ -75,7 +75,7 @@ int stupid_h5::TestHighFive()
         Grid { .doc = "Test3", .id = 3 }, //
         Grid { .doc = "Test4", .id = 4 }, //
     };
-    coordinates.resize(10'000'000);
+    coordinates.resize(100);
 
     const std::string HF_FILE = "./Try1.h5";
 
@@ -122,7 +122,7 @@ int stupid_h5::TestH5()
         Grid { .doc = "Test4", .id = 3 }, //
         Grid { .doc = "Test5", .id = 4 }, //
     };
-    coordinates.resize(10'000'000);
+    coordinates.resize(100);
 
     const std::string H5_FILE = "./Try2.h5";
 
