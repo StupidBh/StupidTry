@@ -113,6 +113,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     // 读取子进程的回显消息
     char buffer[4096] = { };
     DWORD bytesRead = 0;
+    bool early_exit = false;
     while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
         buffer[bytesRead] = '\0';
 
@@ -123,9 +124,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
         if (callback != nullptr) {
             if (callback(std::string(line_view))) {
-                if (hProcess.get() != nullptr) {
-                    TerminateProcess(hProcess.get(), 0);
-                }
+                early_exit = true;
                 break;
             }
         }
@@ -134,8 +133,19 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         }
     }
 
-    // 等待进程结束
-    WaitForSingleObject(hProcess.get(), INFINITE);
+    if (early_exit) {
+        hReadPipe.reset(); // 关闭读端，子进程写管道时收到 BROKEN_PIPE 自行退出
+        LOG_INFO("Callback requested early termination, waiting for process to exit...");
+        DWORD waitResult = WaitForSingleObject(hProcess.get(), 5000);
+        if (waitResult == WAIT_TIMEOUT) {
+            LOG_WARN("Process did not exit gracefully after 5s, forcing termination.");
+            TerminateProcess(hProcess.get(), 1);
+            WaitForSingleObject(hProcess.get(), 5000);
+        }
+    }
+    else {
+        WaitForSingleObject(hProcess.get(), INFINITE);
+    }
 }
 
 std::string GetEnv(const std::string& env)
