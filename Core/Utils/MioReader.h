@@ -21,9 +21,9 @@ public:
     template<class T>
     static T parse_line(const std::string_view line)
     {
-        static std::vector<T> value(1);
+        std::vector<T> value;
         parse_line<T>(line, value);
-        return value.back();
+        return value.empty() ? T { } : value.front();
     }
 
     template<class T>
