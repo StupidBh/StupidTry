@@ -12,7 +12,7 @@ public:
     void ProcessArguments(int argc, char* argv[]);
 
     const boost::program_options::variables_map& GetProgramOptions() const noexcept;
-    const std::filesystem::path& GetWorkDirectory() const noexcept;
+    const std::filesystem::path& GetWorkDirectory() const;
 
     template<class T>
     T GetProgramOptions(const std::string& key) const

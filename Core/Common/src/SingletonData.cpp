@@ -74,11 +74,14 @@ const boost::program_options::variables_map& SingletonData::GetProgramOptions() 
     return m_vm;
 }
 
-const std::filesystem::path& SingletonData::GetWorkDirectory() const noexcept
+const std::filesystem::path& SingletonData::GetWorkDirectory() const
 {
     static const std::filesystem::path workDirectory = this->GetProgramOptions<std::string>("workDirectory");
     if (!std::filesystem::exists(workDirectory)) {
-        std::filesystem::create_directories(workDirectory);
+        std::error_code ec;
+        if (!std::filesystem::create_directories(workDirectory, ec)) {
+            LOG_ERROR("create_directories [{}] failed: {}", workDirectory, ec.message());
+        }
     }
     return workDirectory;
 }
