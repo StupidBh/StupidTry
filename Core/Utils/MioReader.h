@@ -14,12 +14,12 @@ class MioReader {
 public:
     explicit MioReader(const std::string& filename);
 
-    bool getline(std::string_view& line);
+    bool GetLine(std::string_view& line);
 
-    size_t getline_batch(std::vector<std::string_view>& lines, size_t max_lines = 10000);
+    size_t GetLineBatch(std::vector<std::string_view>& lines, size_t max_lines = 10000);
 
     template<class T>
-    static T parse_line(std::string_view line)
+    static T parse_line(const std::string_view line)
     {
         static std::vector<T> value(1);
         parse_line<T>(line, value);
@@ -27,7 +27,7 @@ public:
     }
 
     template<class T>
-    static void parse_line(std::string_view line, std::vector<T>& out)
+    static void parse_line(const std::string_view line, std::vector<T>& out)
     {
         out.clear();
         const char* ptr = line.data();

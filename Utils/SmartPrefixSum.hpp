@@ -9,15 +9,13 @@
 
 namespace stupid {
     template<typename T>
-    using SafeSumType_t = std::conditional_t<
-        std::is_floating_point_v<T>,
-        double,
-        std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
+    using SafeSumType_t = std::conditional_t<std::is_floating_point_v<T>,
+                                             double,
+                                             std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
 
     template<typename T, typename SumType = SafeSumType_t<T>>
     requires(std::integral<T> || std::floating_point<T>) && (std::integral<SumType> || std::floating_point<SumType>)
     class SmartPrefixSum {
-    private:
         const std::vector<T>& A;
 
         mutable size_t last_idx = 0;
@@ -77,4 +75,4 @@ namespace stupid {
             return last_sum;
         }
     };
-}
+} // namespace stupid

@@ -1,5 +1,4 @@
-# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
-# for clang-format 20.0.0
+# doc: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 
 # ============================================================================
 # 基础设置
@@ -8,9 +7,12 @@ Language: Cpp
 BasedOnStyle: Webkit
 Standard: c++20
 LineEnding: LF
-# DeriveLineEnding: false
-# UseCRLF: false
 DisableFormat: false
+
+# ============================================================================
+# 换行控制
+# ============================================================================
+ColumnLimit: 120
 
 # ============================================================================
 # 缩进
@@ -47,27 +49,20 @@ BraceWrapping:
   AfterCaseLabel: false
   AfterExternBlock: true
   AfterControlStatement: Never
-
   BeforeElse: true
   BeforeCatch: true
   BeforeWhile: false
   BeforeLambdaBody: false
-
   SplitEmptyRecord: true
   SplitEmptyFunction: true
   SplitEmptyNamespace: true
 
-# ============================================================================
-# 换行控制
-# ============================================================================
-ColumnLimit: 120
 
 # 函数返回类型后不强制换行
-BreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 
 # 模板声明总是换行
-AlwaysBreakTemplateDeclarations: Yes
+BreakTemplateDeclarations: Yes
 BreakBeforeConceptDeclarations: Always
 
 # 三元运算符前换行，二元运算符后换行
@@ -104,7 +99,7 @@ AllowShortLambdasOnASingleLine: Inline
 AllowShortCaseLabelsOnASingleLine: true
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-ShortNamespaceLines: 1000
+ShortNamespaceLines: 10
 CompactNamespaces: false
 
 # ============================================================================
@@ -125,9 +120,9 @@ SpaceBeforeSquareBrackets: false
 
 # ---- 冒号前空格 ----
 SpaceBeforeCaseColon: false
+SpaceBeforeJsonColon: false
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeRangeBasedForLoopColon: true
-SpaceBeforeJsonColon: false
 
 # ---- 赋值/运算符空格 ----
 SpaceBeforeAssignmentOperators: true
@@ -142,7 +137,10 @@ SpacesInAngles: Never
 
 # ---- 圆括号 ----
 SpacesInParens: Never
-SpaceInEmptyParentheses: false
+SpacesInParensOptions:
+  InEmptyParentheses: false
+  ExceptDoubleParentheses: false
+  InConditionalStatements: false
 
 # ---- 方括号 ----
 SpacesInSquareBrackets: false
@@ -169,12 +167,16 @@ BitFieldColonSpacing: After
 
 # ---- 通用操作数对齐 ----
 AlignOperands: Align
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: true
 AlignEscapedNewlines: Left
 AlignArrayOfStructures: None
 
 # ---- 连续声明/赋值/宏/位域 ----
-AlignConsecutiveMacros: Consecutive
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossComments: false    # 是否跨注释对齐
+  AcrossEmptyLines: false  # 是否跨空行对齐
+
 AlignConsecutiveBitFields: None
 AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: None
@@ -219,8 +221,11 @@ RemoveParentheses: Leave
 # 空行
 # ============================================================================
 MaxEmptyLinesToKeep: 1
-KeepEmptyLinesAtEOF: true
-KeepEmptyLinesAtTheStartOfBlocks: false
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfFile: false
+  AtStartOfBlock: false
+RemoveEmptyLinesInUnwrappedLines: true
 
 # ---- 访问修饰符前后空行 ----
 EmptyLineAfterAccessModifier: Never
@@ -239,7 +244,7 @@ SortUsingDeclarations: Lexicographic
 # ============================================================================
 # 注释
 # ============================================================================
-ReflowComments: true
+ReflowComments: Always
 FixNamespaceComments: true
 
 # ============================================================================

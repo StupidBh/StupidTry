@@ -2,6 +2,7 @@
 #include <format>
 #include <vector>
 #include <array>
+#include <cmath>
 
 namespace _container_ {
     template<class ValueType>
@@ -32,7 +33,7 @@ namespace _container_ {
 
     template<class _Ty>
     concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
-}
+} // namespace _container_
 
 namespace utils {
     template<class ValueType>
@@ -63,18 +64,18 @@ namespace utils {
         return diff <= std::max(rel_tol * scale, abs_tol);
     }
 
-    template<class TgargetType, VectorType OriginalType>
+    template<class TargetType, VectorType OriginalType>
     constexpr auto ShrinkVector(const OriginalType& source)
     {
         using SourceType = typename OriginalType::value_type;
-        if constexpr (std::same_as<TgargetType, SourceType>) {
+        if constexpr (std::same_as<TargetType, SourceType>) {
             return source;
         }
 
-        std::vector<TgargetType> result;
+        std::vector<TargetType> result;
         result.reserve(source.size());
         for (const auto& value : source) {
-            result.emplace_back(static_cast<TgargetType>(value));
+            result.emplace_back(static_cast<TargetType>(value));
         }
         return result;
     }
@@ -143,7 +144,7 @@ namespace utils {
 
         (lambda(vecs), ...);
     }
-}
+} // namespace utils
 
 #define CONCAT_IMPL(x, y) x##y
 #define CONCAT(x, y)      CONCAT_IMPL(x, y)

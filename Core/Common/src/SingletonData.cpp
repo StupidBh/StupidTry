@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-#include "log/logger.hpp"
+#include "Logger/logger.hpp"
 
-void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
+void SingletonData::ProcessArguments(int argc, char* argv[])
 {
     namespace bpo = boost::program_options;
 
-    bpo::options_description desc("Usage: [options]", 150, 10);
+    bpo::options_description desc("Usage: StupidBhh [options]", 150, 10);
     desc.add_options()("help,h", "Display this help message")                                       //
         ("inputPath,i", bpo::value<std::string>()->required(), "Path to the input file")            //
         ("workDirectory,w", bpo::value<std::string>()->default_value("."), "Directory for working") //
@@ -21,6 +21,7 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
         bpo::store(bpo::command_line_parser(argc, argv).options(desc).allow_unregistered().run(), this->m_vm);
         if (this->m_vm.contains("help")) {
             std::cerr << oss.str() << std::endl;
+            this->m_vm.clear();
             return;
         }
 
@@ -39,16 +40,15 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
         return;
     }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     this->m_vm.at("DEBUG").value() = true;
 #endif
 
-    dylog::Logger::get_instance().InitLog(
-        this->m_vm["workDirectory"].as<std::string>(),
-        stupid::APP_NAME,
-        this->m_vm["DEBUG"].as<bool>());
+    dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(),
+                                          "stupid-bhh",
+                                          this->m_vm["DEBUG"].as<bool>());
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     for (auto& [key, value] : this->m_vm) {
         if (value.empty()) {
             LOG_WARN("<empty>-[{}] = <empty>", key);
@@ -69,7 +69,16 @@ void stupid::SingletonData::ProcessArguments(int argc, char* argv[])
 #endif
 }
 
-const boost::program_options::variables_map& stupid::SingletonData::get_variables_map() const noexcept
+const boost::program_options::variables_map& SingletonData::GetProgramOptions() const noexcept
 {
     return m_vm;
+}
+
+const std::filesystem::path& SingletonData::GetWorkDirectory() const noexcept
+{
+    static const std::filesystem::path workDirectory = this->GetProgramOptions<std::string>("workDirectory");
+    if (!std::filesystem::exists(workDirectory)) {
+        std::filesystem::create_directories(workDirectory);
+    }
+    return workDirectory;
 }

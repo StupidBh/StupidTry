@@ -71,4 +71,4 @@ namespace utils {
         std::chrono::steady_clock::time_point m_end_time;
         OutputCallback m_callback;
     };
-}
+} // namespace utils

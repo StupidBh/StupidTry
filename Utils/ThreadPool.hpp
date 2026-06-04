@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -160,4 +160,4 @@ namespace utils {
         std::condition_variable m_task_cv;         // 新任务通知
         std::condition_variable m_completion_cv;   // 任务完成通知
     };
-}
+} // namespace utils

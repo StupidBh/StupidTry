@@ -31,4 +31,4 @@ namespace utils {
 
     template<class T>
     concept Singleton = std::derived_from<T, SingletonHolder<T>>;
-}
+} // namespace utils

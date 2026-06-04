@@ -12,18 +12,18 @@ MioReader::MioReader(const std::string& filename) :
     m_size = m_mmap.size();
 }
 
-bool MioReader::getline(std::string_view& line)
+bool MioReader::GetLine(std::string_view& line)
 {
     if (m_pos >= m_size) {
         return false;
     }
 
-    size_t line_start = m_pos;
+    const size_t line_start = m_pos;
     while (m_pos < m_size && m_data[m_pos] != '\n' && m_data[m_pos] != '\r') {
         ++m_pos;
     }
 
-    size_t line_end = m_pos;
+    const size_t line_end = m_pos;
 
     // 如果是 \r\n，跳过两个字符
     if (m_pos < m_size && m_data[m_pos] == '\r') {
@@ -40,7 +40,7 @@ bool MioReader::getline(std::string_view& line)
     return true;
 }
 
-size_t MioReader::getline_batch(std::vector<std::string_view>& lines, size_t max_lines)
+size_t MioReader::GetLineBatch(std::vector<std::string_view>& lines, const size_t max_lines)
 {
     lines.clear();
     lines.reserve(max_lines);
