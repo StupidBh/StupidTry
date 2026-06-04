@@ -39,6 +39,14 @@ target_link_libraries(Core PRIVATE
         CGNS::cgns_static
 )
 
+find_package(TBB CONFIG QUIET)
+if (TBB_FOUND)
+    target_link_libraries(Core PRIVATE TBB::tbb)
+    message(STATUS "TBB found (${TBB_DIR}) — std::execution::par enabled")
+else ()
+    message(WARNING "TBB not found under ${TBB_ROOT} — std::execution::par will silently run serially")
+endif ()
+
 
 add_custom_command(TARGET Core POST_BUILD
         COMMAND $<$<BOOL:$<TARGET_RUNTIME_DLLS:Core>>:${CMAKE_COMMAND}>
