@@ -63,18 +63,21 @@ namespace utils {
         {
             using return_type = std::invoke_result_t<Func, Args...>;
 
-            // 封装为 packaged_task，以支持 future
+            // 用 lambda + init-capture 转发，保留 move-only / 引用语义（std::bind 会衰减拷贝）
             auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(
-                std::bind(std::forward<Func>(f), std::forward<Args>(args)...));
+                [f = std::forward<Func>(f), ... a = std::forward<Args>(args)]() mutable -> return_type {
+                    return std::invoke(std::move(f), std::move(a)...);
+                });
+
+            std::future<return_type> future = task_ptr->get_future();
 
             {
                 std::scoped_lock lock(m_mutex);
                 if (m_stopped) {
                     throw std::runtime_error("enqueue on stopped ThreadPool");
                 }
-                ++m_unfinished_tasks;
 
-                // 包装任务，更新计数器
+                // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
                 m_tasks.emplace([task_ptr, this]() {
                     (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
                     if (m_unfinished_tasks.fetch_sub(1) == 1) {
@@ -82,10 +85,11 @@ namespace utils {
                         m_completion_cv.notify_all();
                     }
                 });
+                ++m_unfinished_tasks;
             }
 
             m_task_cv.notify_one();
-            return task_ptr->get_future();
+            return future;
         }
 
         /**
@@ -116,16 +120,18 @@ namespace utils {
          */
         void shutdown()
         {
-            this->wait_for_completion();
             {
+                // 先置位 m_stopped 再等待，堵住关闭期间的新 enqueue，消除
+                // “wait 完成后、置位前”窗口内入队的任务被丢弃 / future 永挂的竞态。
                 std::scoped_lock lock(m_mutex);
                 if (m_stopped) {
                     return;
                 }
                 m_stopped = true;
             }
+            this->wait_for_completion();
             m_task_cv.notify_all();
-            m_workers.clear();
+            this->clear_workers();
         }
 
         /**
@@ -140,13 +146,23 @@ namespace utils {
                 }
                 m_stopped = true;
 
+                // 只扣减“尚未执行”的任务计数；正在执行中的任务不在队列里，
+                // 会在自己的包装体内 fetch_sub 递减。直接清零会导致在途任务的
+                // fetch_sub 把无符号计数下溢成 SIZE_MAX，使等待者永久挂起。
                 std::queue<std::function<void()>> empty;
+                m_unfinished_tasks.fetch_sub(m_tasks.size());
                 std::swap(m_tasks, empty);
-                m_unfinished_tasks = 0;
             }
             m_task_cv.notify_all();
             m_completion_cv.notify_all();
-            m_workers.clear();
+            this->clear_workers();
+        }
+
+    private:
+        // 串行化 m_workers.clear()，避免并发 shutdown / shutdown_now 对同一 vector 重复析构
+        void clear_workers()
+        {
+            std::call_once(m_clear_once, [this] { m_workers.clear(); });
         }
 
     private:
@@ -159,5 +175,6 @@ namespace utils {
         std::mutex m_mutex;                        // 任务队列互斥锁
         std::condition_variable m_task_cv;         // 新任务通知
         std::condition_variable m_completion_cv;   // 任务完成通知
+        std::once_flag m_clear_once;               // 保证 m_workers 只清理一次
     };
 } // namespace utils
