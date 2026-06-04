@@ -13,6 +13,14 @@ namespace stupid {
                                              double,
                                              std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
 
+    // 单线程增量前缀和缓存。
+    //
+    // 线程安全：非线程安全。query() 虽为 const，但会修改内部缓存
+    //   (last_idx/last_sum/has_cache)，多个线程对同一实例并发 query 是数据竞争。
+    //
+    // 缓存约束：假设源数组“只读 / 只追加”。增量路径基于上次缓存的累加值前后滑动，
+    //   若修改了已缓存范围 [0, last_idx] 内的任何元素，必须调用 invalidate()，
+    //   否则后续 query 会基于过期的 last_sum 返回错误结果。
     template<typename T, typename SumType = SafeSumType_t<T>>
     requires(std::integral<T> || std::floating_point<T>) && (std::integral<SumType> || std::floating_point<SumType>)
     class SmartPrefixSum {
@@ -26,6 +34,14 @@ namespace stupid {
         explicit SmartPrefixSum(const std::vector<T>& array) :
             A(array)
         {
+        }
+
+        // 源数据被修改后调用，丢弃缓存，下次 query 全量重算
+        void invalidate() noexcept
+        {
+            has_cache = false;
+            last_idx = 0;
+            last_sum = SumType { };
         }
 
         SumType query(size_t index) const
@@ -68,6 +84,11 @@ namespace stupid {
                 last_sum = std::accumulate(view.begin(), view.end(), SumType { });
             }
             else {
+                // 并行归约：需链接 TBB（见 3rdparty/tbb 与 Core/CMakeLists.txt）。
+                // 工具链无 TBB 时 libstdc++ 会静默退化为串行，仍可编译运行。
+                // 注意：对浮点 T，par 的求和顺序与增量路径的串行 accumulate 不同，
+                //       浮点不满足结合律，故同一 index 经全量并行 vs 增量串行可能有
+                //       微小数值差异。整数 T 不受影响（加法满足结合律，结果一致）。
                 last_sum = std::reduce(std::execution::par, view.begin(), view.end(), SumType { });
             }
             last_idx = index;
