@@ -1,0 +1,13 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: hdf5_hl
+Description: HDF5 (Hierarchical Data Format 5) Software Library
+Version: 2.1.1
+
+
+Libs: "-L${libdir}" -lhdf5_hl
+Requires: hdf5 = 2.1.1 hdf5 = 2.1.1
+Cflags: "-I${includedir}" 
