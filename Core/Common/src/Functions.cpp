@@ -108,27 +108,44 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     auto hThread = std::shared_ptr<void>(pi.hThread, CloseHandle);
     hWritePipe.reset();
 
-    // 读取子进程的回显消息
+    // 读取子进程的回显消息，按行切分（正确处理跨读取块的行）
     char buffer[4096] = { };
     DWORD bytesRead = 0;
     bool early_exit = false;
-    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
-        buffer[bytesRead] = '\0';
+    std::string pending; // 尚未遇到换行符的跨块残留
 
-        std::string_view line_view(TrimSpaces(buffer));
+    auto process_line = [&](std::string_view raw) -> bool {
+        std::string_view line_view = TrimSpaces(raw);
         if (line_view.empty()) {
-            continue;
+            return false;
         }
-
         if (callback != nullptr) {
-            if (callback(std::string(line_view))) {
+            return callback(std::string(line_view));
+        }
+        std::cerr << line_view << '\n';
+        return false;
+    };
+
+    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
+        pending.append(buffer, bytesRead);
+
+        std::size_t start = 0;
+        for (std::size_t nl; (nl = pending.find('\n', start)) != std::string::npos; start = nl + 1) {
+            if (process_line(std::string_view(pending).substr(start, nl - start))) {
                 early_exit = true;
                 break;
             }
         }
-        else {
-            std::cerr << line_view;
+        pending.erase(0, start);
+
+        if (early_exit) {
+            break;
         }
+    }
+
+    // 处理最后一行（子进程输出未以换行结尾的残留）
+    if (!early_exit && !pending.empty() && process_line(pending)) {
+        early_exit = true;
     }
 
     if (early_exit) {
