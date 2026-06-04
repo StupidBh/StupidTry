@@ -76,6 +76,11 @@ int main(int argc, char* argv[])
         }
     }
 
+    CallCmd("ping 192.168.3.33", [](const std::string_view& line) {
+        LOG_INFO(line);
+        return false;
+    });
+
     spdlog::shutdown();
     return 0;
 }
