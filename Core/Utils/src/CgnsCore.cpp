@@ -81,7 +81,7 @@ void CgnsCore::CloseCGNS()
 
 void CgnsCore::info() const
 {
-    if (this->m_cg_file_id == 0) {
+    if (!this->IsOpen()) {
         LOG_WARN("info() called on a file that is not open; skipping.");
         return;
     }
@@ -265,7 +265,6 @@ void CgnsCore::info() const
                          sol_dim_vals,
                          sol_npnts);
             }
-            LOG->flush();
         }
     }
 }

@@ -33,3 +33,5 @@ private:
 #define INPUT_PATH SINGLE_DATA.GetProgramOptions<std::string>("inputPath")
 #define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workDirectory")
 #define IS_DEBUG   SINGLE_DATA.GetProgramOptions<bool>("DEBUG")
+
+#define WORK_DIR_PATH SINGLE_DATA.GetWorkDirectory()

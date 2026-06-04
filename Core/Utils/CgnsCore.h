@@ -6,6 +6,7 @@ class CgnsCore {
     static int CG_INFO(int status);
 
 public:
+    CgnsCore() = default;
     CgnsCore(const std::string& cgns_file_path);
     ~CgnsCore();
 
