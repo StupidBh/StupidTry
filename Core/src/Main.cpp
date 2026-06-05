@@ -4,6 +4,8 @@
 #include "CgnsCore.h"
 #include "HighFiveUtils.hpp"
 
+#include <ranges>
+
 int main(int argc, char* argv[])
 {
     SINGLE_DATA.ProcessArguments(argc, argv);
@@ -43,6 +45,7 @@ int main(int argc, char* argv[])
     };
 
     std::vector<Grid> coordinates(1000);
+    std::vector<int> vec(1000);
     const auto HF_FILE = WORK_DIR_PATH / "Try1.h5";
 
     {
@@ -51,6 +54,7 @@ int main(int argc, char* argv[])
 
         try {
             HFUtils::WriteDataSet(file, "Try", coordinates, Grid::CompoundType());
+            HFUtils::WriteDataSet(file, "Try2", vec);
         }
         catch (const HighFive::Exception& e) {
             LOG_ERROR("Failed: {}", e.what());
@@ -76,7 +80,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    CallCmd("ping 192.168.3.33", [](const std::string_view& line) {
+    CallCmd("ipconfig", [](const std::string_view& line) {
         LOG_INFO(line);
         return false;
     });

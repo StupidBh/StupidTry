@@ -238,3 +238,28 @@ std::string_view TrimQuotes(std::string_view sv)
     }
     return sv;
 }
+
+std::filesystem::path GetExecutablePath()
+{
+    std::wstring buffer(256, L'\0');
+
+    while (true) {
+        const DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (length == 0) {
+            LOG_ERROR("GetModuleFileNameW failed: {}", GetLastError());
+            return { };
+        }
+
+        if (length < buffer.size()) {
+            buffer.resize(length);
+            return std::filesystem::path(buffer);
+        }
+
+        buffer.resize(buffer.size() * 2);
+    }
+}
+
+std::filesystem::path GetExecutableDirectory()
+{
+    return GetExecutablePath().parent_path();
+}

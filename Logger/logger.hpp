@@ -15,15 +15,7 @@ namespace dylog {
         SINGLETON_CLASS(Logger);
         std::shared_mutex m_mutex;
 
-        Logger()
-        {
-            spdlog::init_thread_pool(32768, 2);
-
-#ifdef _WIN32
-            SetConsoleOutputCP(CP_UTF8);
-            SetConsoleCP(CP_UTF8);
-#endif
-        }
+        Logger() { spdlog::init_thread_pool(32768, 2); }
 
     public:
         ~Logger() override = default;

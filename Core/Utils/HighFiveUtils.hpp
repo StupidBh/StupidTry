@@ -23,10 +23,7 @@ namespace HFUtils {
     requires HDF5Writable<ValueType, T>
     HighFive::DataSet WriteDataSet(T&& loc, const std::string& name, ValueType&& input)
     {
-        using RawVectorType = std::remove_cvref_t<ValueType>;
-        using TrueValueType = typename RawVectorType::value_type;
-
-        HighFive::DataSet data_set = std::forward<T>(loc).createDataSet(name, HighFive::DataSpace::From(input));
+        HighFive::DataSet data_set = std::forward<T>(loc).createDataSet(name, input);
         data_set.write(std::forward<ValueType>(input));
         return data_set;
     }
