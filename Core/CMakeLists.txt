@@ -22,9 +22,6 @@ set(BOOST_ROOT "${3RD_ROOT}/boost")
 set(HDF5_ROOT "${3RD_ROOT}/hdf5")
 set(CGNS_ROOT "${3RD_ROOT}/cgns")
 
-message(WARNING "Dir ${CMAKE_SOURCE_DIR} — ${CMAKE_CURRENT_SOURCE_DIR}")
-
-
 if (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
     set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/debug/lib/libzsd.a")
 else ()
