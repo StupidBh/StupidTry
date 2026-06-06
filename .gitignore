@@ -1,2 +1,31 @@
+# === Build outputs ===
 /bin/
 /build/
+/Core/build/
+/CGNSRead/build/
+/ReaderH5/build/
+cmake-build-*/
+
+# === Compiled intermediates (safety net) ===
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+
+# === IDE — JetBrains ===
+.idea/
+
+# === IDE — Visual Studio ===
+.vs/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# === OS generated ===
+Thumbs.db
+Desktop.ini

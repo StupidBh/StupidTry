@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Core" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-i &quot;D:\SomeThingWork\openfoam-case\cavity\CGNS\cavity_0.cgns&quot; --workDirectory &quot;$ContentRoot$\bin\AppRun&quot;" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$ContentRoot$/bin/AppRun" PASS_PARENT_ENVS_2="true" PROJECT_NAME="StupidBhh" TARGET_NAME="Core" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="StupidBhh" RUN_TARGET_NAME="Core">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>
