@@ -32,7 +32,7 @@ bool IsLikelyGBK(const std::string_view str)
 std::string GBKToUTF8(const std::string_view gbk_str)
 {
     if (gbk_str.empty()) {
-        return std::string();
+        return { };
     }
 
     int wlen = MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), nullptr, 0);
@@ -89,10 +89,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
         JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit_info = { };
         limit_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        if (!SetInformationJobObject(raw,
-                                     JobObjectExtendedLimitInformation,
-                                     &limit_info,
-                                     sizeof(limit_info))) {
+        if (!SetInformationJobObject(raw, JobObjectExtendedLimitInformation, &limit_info, sizeof(limit_info))) {
             LOG_ERROR("SetInformationJobObject failed: {}", GetLastError());
             CloseHandle(raw);
             return { };
@@ -122,16 +119,16 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     std::wstring cmd(wlen, L'\0');
     MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), cmd.data(), wlen);
 
-    if (!CreateProcessW(nullptr,                      // 不指定应用程序名，直接从命令行解析
-                        cmd.data(),                   // 命令行参数（必须可修改）
+    if (!CreateProcessW(nullptr,                             // 不指定应用程序名，直接从命令行解析
+                        cmd.data(),                          // 命令行参数（必须可修改）
                         nullptr,
-                        nullptr,                      // 安全属性
-                        TRUE,                         // 继承句柄
+                        nullptr,                             // 安全属性
+                        TRUE,                                // 继承句柄
                         CREATE_NO_WINDOW | CREATE_SUSPENDED, // 先挂起，确保加入 Job 后再运行
-                        nullptr,                      // 使用父进程的环境变量
-                        nullptr,                      // 使用父进程的工作目录
-                        &si,                          // 指向 STARTUPINFO 结构体的指针
-                        &pi                           // 指向 PROCESS_INFORMATION 结构体的指针
+                        nullptr,                             // 使用父进程的环境变量
+                        nullptr,                             // 使用父进程的工作目录
+                        &si,                                 // 指向 STARTUPINFO 结构体的指针
+                        &pi                                  // 指向 PROCESS_INFORMATION 结构体的指针
                         )) {
         const DWORD err = GetLastError();
         LOG_ERROR("CreateProcess failed: {}", err);
@@ -242,16 +239,16 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
 std::string GetEnv(const std::string& env)
 {
-    DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
+    const DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
     if (need_size == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return std::string();
+        return { };
     }
 
     std::string buffer(need_size, '\0');
     if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return std::string();
+        return { };
     }
     buffer.pop_back(); // 去掉末尾的 '\0'
     return buffer;
@@ -289,11 +286,11 @@ std::string_view TrimSpaces(std::string_view sv)
     static constinit std::string_view whitespace_chars = " \t\n\r\f\v";
     auto first = sv.find_first_not_of(whitespace_chars);
     if (first == std::string_view::npos) {
-        return std::string_view();
+        return { };
     }
     sv.remove_prefix(first);
 
-    auto last = sv.find_last_not_of(whitespace_chars);
+    const auto last = sv.find_last_not_of(whitespace_chars);
     if (last == std::string_view::npos) {
         return sv;
     }
