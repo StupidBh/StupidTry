@@ -11,7 +11,7 @@
 
 | 库 | 版本 | 链接方式 | 用途 |
 |----|------|----------|------|
-| Boost | 1.91 | 动态库（DLL） | `program_options`（CLI 解析）、`container` |
+| Boost | 1.91 | 静态库（`.a`） | `program_options`（CLI 解析）、`container` |
 | CGNS | 4.5.1 | 静态库（`CGNS::cgns_static`） | CGNS 网格/解文件读取 |
 | HDF5 | 2.1.1 | 静态库（`hdf5::hdf5-static`） | CGNS 的 HDF5 存储后端 |
 | HighFive | 3.3.0 | 头文件库 | HDF5 C++ 封装 |
