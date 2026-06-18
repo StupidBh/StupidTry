@@ -84,11 +84,6 @@ namespace stupid {
                 last_sum = std::accumulate(view.begin(), view.end(), SumType { });
             }
             else {
-                // 并行归约：需链接 TBB（见 3rdparty/tbb 与 Core/CMakeLists.txt）。
-                // 工具链无 TBB 时 libstdc++ 会静默退化为串行，仍可编译运行。
-                // 注意：对浮点 T，par 的求和顺序与增量路径的串行 accumulate 不同，
-                //       浮点不满足结合律，故同一 index 经全量并行 vs 增量串行可能有
-                //       微小数值差异。整数 T 不受影响（加法满足结合律，结果一致）。
                 last_sum = std::reduce(std::execution::par, view.begin(), view.end(), SumType { });
             }
             last_idx = index;
