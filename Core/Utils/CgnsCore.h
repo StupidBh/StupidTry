@@ -1,9 +1,9 @@
 #pragma once
-
 #include <string>
 
 class CgnsCore {
     static int CG_INFO(int status);
+    static constexpr int CGNS_MAX_NAME = 256;
 
 public:
     CgnsCore() = default;
