@@ -12,7 +12,7 @@ public:
     void ProcessArguments(int argc, char* argv[]);
 
     const boost::program_options::variables_map& GetProgramOptions() const noexcept;
-    const std::filesystem::path& GetWorkDirectory() const;
+    const std::filesystem::path& GetOrCreateWorkDirectory() const;
 
     template<class T>
     T GetProgramOptions(const std::string& key) const
@@ -34,4 +34,4 @@ private:
 #define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workDirectory")
 #define IS_DEBUG   SINGLE_DATA.GetProgramOptions<bool>("DEBUG")
 
-#define WORK_DIR_PATH SINGLE_DATA.GetWorkDirectory()
+#define WORK_DIR_PATH SINGLE_DATA.GetOrCreateWorkDirectory()

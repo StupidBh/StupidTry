@@ -1,6 +1,5 @@
 #include "SingletonData.h"
-
-#include <iostream>
+#include "Functions.h"
 
 #include "Logger/logger.hpp"
 
@@ -9,10 +8,10 @@ void SingletonData::ProcessArguments(int argc, char* argv[])
     namespace bpo = boost::program_options;
 
     bpo::options_description desc("Usage: StupidBhh [options]", 150, 10);
-    desc.add_options()("help,h", "Display this help message")                                       //
-        ("inputPath,i", bpo::value<std::string>()->required(), "Path to the input file")            //
-        ("workDirectory,w", bpo::value<std::string>()->default_value("."), "Directory for working") //
-        ("DEBUG", bpo::bool_switch()->default_value(false), "Enable verbose output")                //
+    desc.add_options()("help,h", "Display this help message")                            //
+        ("inputPath,i", bpo::value<std::string>()->required(), "Path to the input file") //
+        ("workDirectory,w", bpo::value<std::string>(), "Directory for working")          //
+        ("DEBUG", bpo::bool_switch()->default_value(false), "Enable verbose output")     //
         ;
     std::ostringstream oss;
     oss << desc;
@@ -44,6 +43,15 @@ void SingletonData::ProcessArguments(int argc, char* argv[])
     this->m_vm.at("DEBUG").value() = true;
 #endif
 
+    if (!this->m_vm.contains("workDirectory")) {
+        auto work_dir = std::filesystem::path(this->m_vm["inputPath"].as<std::string>()).parent_path();
+        if (work_dir.empty()) {
+            work_dir = ".";
+            work_dir /= std::filesystem::path(this->m_vm["inputPath"].as<std::string>()).filename().stem();
+        }
+        this->m_vm.emplace("workDirectory", bpo::variable_value(work_dir.string(), true));
+    }
+
     dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(),
                                           "stupid-bhh",
                                           this->m_vm["DEBUG"].as<bool>());
@@ -74,12 +82,11 @@ const boost::program_options::variables_map& SingletonData::GetProgramOptions() 
     return m_vm;
 }
 
-const std::filesystem::path& SingletonData::GetWorkDirectory() const
+const std::filesystem::path& SingletonData::GetOrCreateWorkDirectory() const
 {
     static const std::filesystem::path workDirectory = this->GetProgramOptions<std::string>("workDirectory");
     if (!std::filesystem::exists(workDirectory)) {
-        std::error_code ec;
-        if (!std::filesystem::create_directories(workDirectory, ec)) {
+        if (std::error_code ec; !std::filesystem::create_directories(workDirectory, ec)) {
             LOG_ERROR("create_directories [{}] failed: {}", workDirectory, ec.message());
         }
     }
