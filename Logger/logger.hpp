@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <shared_mutex>
+#include <utility>
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
@@ -15,7 +16,7 @@ namespace dylog {
         SINGLETON_CLASS(Logger);
         std::shared_mutex m_mutex;
 
-        Logger() { spdlog::init_thread_pool(32768, 2); }
+        Logger() { spdlog::init_thread_pool(32768, 1); }
 
     public:
         ~Logger() override = default;
@@ -39,7 +40,7 @@ namespace dylog {
             // 写入外部文件的日志消息
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
             try {
-                std::filesystem::path log_dir = work_dir / "logs";
+                const std::filesystem::path log_dir = work_dir / "logs";
                 if (!std::filesystem::exists(log_dir)) {
                     std::filesystem::create_directories(log_dir);
                 }
@@ -53,7 +54,7 @@ namespace dylog {
             }
 
             // 创建异步记录器
-            auto async_logger =
+            const auto async_logger =
                 std::make_shared<spdlog::async_logger>(log_file_name,
                                                        spdlog::sinks_init_list { console_sink, file_sink },
                                                        spdlog::thread_pool(),
@@ -70,7 +71,7 @@ namespace dylog {
         void UpdateLog(std::shared_ptr<spdlog::logger> log)
         {
             std::unique_lock lock(this->m_mutex);
-            spdlog::set_default_logger(log);
+            spdlog::set_default_logger(std::move(log));
         }
     };
 } // namespace dylog
