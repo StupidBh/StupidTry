@@ -1,5 +1,7 @@
 #include "Functions.h"
 
+#include <windows.h>
+
 bool IsLikelyGBK(const std::string_view str)
 {
     bool has_high_bit = false;
@@ -53,6 +55,8 @@ std::string GBKToUTF8(const std::string_view gbk_str)
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
+    constexpr DWORD graceful_exit_timeout_ms = 5000;
+
     // 安全属性结构，用于允许管道句柄继承
     SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES),
                                .lpSecurityDescriptor = nullptr,
@@ -61,7 +65,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
     if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
-        DWORD err = GetLastError();
+        const DWORD err = GetLastError();
         LOG_ERROR("CreatePipe failed: {}", err);
         return;
     }
@@ -69,7 +73,38 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     auto hWritePipe = std::shared_ptr<void>(writePipeRaw, CloseHandle);
 
     // 防止子进程继承读取句柄，导致无法关闭（只继承写入）
-    SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0);
+    if (!SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0)) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("SetHandleInformation failed: {}", err);
+        return;
+    }
+
+    // 使用 Job Object 托管进程树，避免强制退出时遗留子进程
+    auto make_job = []() -> std::shared_ptr<void> {
+        const HANDLE raw = CreateJobObjectW(nullptr, nullptr);
+        if (raw == nullptr) {
+            LOG_ERROR("CreateJobObjectW failed: {}", GetLastError());
+            return { };
+        }
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit_info = { };
+        limit_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (!SetInformationJobObject(raw,
+                                     JobObjectExtendedLimitInformation,
+                                     &limit_info,
+                                     sizeof(limit_info))) {
+            LOG_ERROR("SetInformationJobObject failed: {}", GetLastError());
+            CloseHandle(raw);
+            return { };
+        }
+
+        return { raw, CloseHandle };
+    };
+
+    auto hJob = make_job();
+    if (hJob == nullptr) {
+        return;
+    }
 
     // 设置启动信息，重定向输出
     PROCESS_INFORMATION pi = { };
@@ -86,26 +121,44 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     }
     std::wstring cmd(wlen, L'\0');
     MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), cmd.data(), wlen);
-    if (!CreateProcessW(nullptr,          // 不指定应用程序名，直接从命令行解析
-                        cmd.data(),       // 命令行参数（必须可修改）
+
+    if (!CreateProcessW(nullptr,                      // 不指定应用程序名，直接从命令行解析
+                        cmd.data(),                   // 命令行参数（必须可修改）
                         nullptr,
-                        nullptr,          // 安全属性
-                        TRUE,             // 继承句柄
-                        CREATE_NO_WINDOW, // 不显示窗口
-                        nullptr,          // 使用父进程的环境变量
-                        nullptr,          // 使用父进程的工作目录
-                        &si,              // 指向 STARTUPINFO 结构体的指针
-                        &pi               // 指向 PROCESS_INFORMATION 结构体的指针
+                        nullptr,                      // 安全属性
+                        TRUE,                         // 继承句柄
+                        CREATE_NO_WINDOW | CREATE_SUSPENDED, // 先挂起，确保加入 Job 后再运行
+                        nullptr,                      // 使用父进程的环境变量
+                        nullptr,                      // 使用父进程的工作目录
+                        &si,                          // 指向 STARTUPINFO 结构体的指针
+                        &pi                           // 指向 PROCESS_INFORMATION 结构体的指针
                         )) {
-        DWORD err = GetLastError();
+        const DWORD err = GetLastError();
         LOG_ERROR("CreateProcess failed: {}", err);
         LOG_ERROR("Command Line: [{}].", command);
         return;
     }
 
-    // 先包装句柄，再关闭写端（确保异常安全）
-    auto hProcess = std::shared_ptr<void>(pi.hProcess, CloseHandle);
+    // 先包装句柄，再处理后续逻辑（确保异常安全）
+    const auto hProcess = std::shared_ptr<void>(pi.hProcess, CloseHandle);
     auto hThread = std::shared_ptr<void>(pi.hThread, CloseHandle);
+
+    if (!AssignProcessToJobObject(hJob.get(), hProcess.get())) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("AssignProcessToJobObject failed: {}", err);
+        TerminateProcess(hProcess.get(), 1);
+        WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+        return;
+    }
+
+    if (ResumeThread(hThread.get()) == static_cast<DWORD>(-1)) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("ResumeThread failed: {}", err);
+        TerminateJobObject(hJob.get(), 1);
+        WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+        return;
+    }
+
     hWritePipe.reset();
 
     // 读取子进程的回显消息，按行切分（正确处理跨读取块的行）
@@ -115,7 +168,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     std::string pending; // 尚未遇到换行符的跨块残留
 
     auto process_line = [&](std::string_view raw) -> bool {
-        std::string_view line_view = TrimSpaces(raw);
+        const std::string_view line_view = TrimSpaces(raw);
         if (line_view.empty()) {
             return false;
         }
@@ -149,17 +202,41 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     }
 
     if (early_exit) {
-        hReadPipe.reset(); // 关闭读端，子进程写管道时收到 BROKEN_PIPE 自行退出
+        hReadPipe.reset(); // 关闭读端；子进程后续写 stdout/stderr 时通常会收到 ERROR_BROKEN_PIPE
         LOG_INFO("Callback requested early termination, waiting for process to exit...");
-        DWORD waitResult = WaitForSingleObject(hProcess.get(), 5000);
+
+        const DWORD waitResult = WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
         if (waitResult == WAIT_TIMEOUT) {
-            LOG_WARN("Process did not exit gracefully after 5s, forcing termination.");
-            TerminateProcess(hProcess.get(), 1);
-            WaitForSingleObject(hProcess.get(), 5000);
+            LOG_WARN("Process did not exit gracefully after {} ms, terminating job.", graceful_exit_timeout_ms);
+            if (!TerminateJobObject(hJob.get(), 1)) {
+                LOG_ERROR("TerminateJobObject failed: {}", GetLastError());
+            }
+
+            const DWORD forcedWaitResult = WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+            if (forcedWaitResult == WAIT_TIMEOUT) {
+                LOG_ERROR("Process still alive after TerminateJobObject.");
+            }
+            else if (forcedWaitResult == WAIT_FAILED) {
+                LOG_ERROR("WaitForSingleObject failed after TerminateJobObject: {}", GetLastError());
+            }
+        }
+        else if (waitResult == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed: {}", GetLastError());
         }
     }
     else {
-        WaitForSingleObject(hProcess.get(), INFINITE);
+        const DWORD waitResult = WaitForSingleObject(hProcess.get(), INFINITE);
+        if (waitResult == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed: {}", GetLastError());
+        }
+    }
+
+    DWORD exitCode = 0;
+    if (GetExitCodeProcess(hProcess.get(), &exitCode)) {
+        LOG_INFO("Command exited with code {}.", exitCode);
+    }
+    else {
+        LOG_ERROR("GetExitCodeProcess failed: {}", GetLastError());
     }
 }
 
