@@ -4,8 +4,6 @@
 #include "CgnsCore.h"
 #include "HighFiveUtils.hpp"
 
-#include <ranges>
-
 int main(int argc, char* argv[])
 {
     SINGLE_DATA.ProcessArguments(argc, argv);
@@ -13,23 +11,21 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    CgnsCore cgns;
-    if (!cgns.OpenCGNS(INPUT_PATH)) {
-        return EXIT_FAILURE;
+    if (CgnsCore cgns; cgns.OpenCGNS(INPUT_PATH)) {
+        cgns.info();
     }
-    cgns.info();
 
     struct Grid
     {
         std::uint32_t ID = 1;
-        float X = 1;
-        float Y = 1;
-        float Z = 1;
+        float X = 1.F;
+        float Y = 1.F;
+        float Z = 1.F;
         std::string doc = "TryToStringMessage";
 
         static HighFive::CompoundType CompoundType()
         {
-            HighFive::CompoundType result(
+            return HighFive::CompoundType(
                 std::vector<HighFive::CompoundType::member_def> {
                     { "ID", HighFive::create_datatype<std::uint32_t>(), offsetof(Grid, ID) }, //
                     { "X", HighFive::create_datatype<float>(), offsetof(Grid, X) },           //
@@ -39,12 +35,10 @@ int main(int argc, char* argv[])
                 },
                 sizeof(Grid) //
             );
-
-            return result;
         }
     };
 
-    std::vector<Grid> coordinates(1000);
+    std::vector<Grid> coordinates(10000);
     std::vector<int> vec(1000);
     const auto HF_FILE = WORK_DIR_PATH / "Try1.h5";
 
@@ -53,7 +47,7 @@ int main(int argc, char* argv[])
         HighFive::File file(HF_FILE.string(), HighFive::File::Overwrite);
 
         try {
-            HFUtils::WriteDataSet(file, "Try", coordinates, Grid::CompoundType());
+            HFUtils::WriteDataSet(file, "Try1", coordinates, Grid::CompoundType());
             HFUtils::WriteDataSet(file, "Try2", vec);
         }
         catch (const HighFive::Exception& e) {
@@ -67,7 +61,7 @@ int main(int argc, char* argv[])
         SCOPED_TIMER_LOG("HighFive::Read file");
 
         HighFive::File file(HF_FILE.string(), HighFive::File::ReadOnly);
-        HighFive::DataSet dataset = file.getDataSet("Try");
+        HighFive::DataSet dataset = file.getDataSet("Try1");
         auto dataset_dims = dataset.getDimensions();
         coordinates.resize(dataset_dims.front());
 
@@ -84,6 +78,9 @@ int main(int argc, char* argv[])
         LOG_INFO(line);
         return false;
     });
+
+    LOG_INFO(GetExecutableDirectory());
+    LOG_INFO(GetExecutablePath());
 
     spdlog::shutdown();
     return 0;
