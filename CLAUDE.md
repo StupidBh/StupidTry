@@ -5,14 +5,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build
 
 ```bash
-# Configure (Ninja generator)
+# Configure a Debug build (Ninja)
 cmake -B cmake-build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
-# Build
+# Build the executable
 cmake --build cmake-build-debug
+
+# Configure a Release build
+cmake -B cmake-build-release -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+# Build Release
+cmake --build cmake-build-release
 ```
 
-CMake 4.0+, C++20 required. The root `CMakeLists.txt` sets up third-party paths and `add_subdirectory(Core)`. The build output is `bin/<Debug|Release>/Core.exe`. HDF5 and CGNS are linked statically (`hdf5::hdf5-static`, `CGNS::cgns_static`); Boost is the only runtime DLL dependency. The `POST_BUILD` step in `Core/CMakeLists.txt` auto-copies `$<TARGET_RUNTIME_DLLS:Core>` (the Boost DLLs) next to the executable, so the binary is self-contained after a build.
+The project root `CMakeLists.txt` sets `CMAKE_CXX_STANDARD 23` and only adds the `Core/` subdirectory. Build artifacts go to `bin/<Debug|Release>/Core.exe`.
+
+`Core/CMakeLists.txt` auto-collects `.cpp` files from `Core/Common/src/` and `Core/Utils/src/` via `file(GLOB ...)`, so adding a new Core source file usually means placing it under one of those directories.
 
 ## Run
 
@@ -20,95 +28,122 @@ CMake 4.0+, C++20 required. The root `CMakeLists.txt` sets up third-party paths 
 # Show CLI help
 ./bin/Debug/Core.exe --help
 
-# Run the app (inputPath is required)
+# Run with explicit work directory
 ./bin/Debug/Core.exe --inputPath <path-to-input-file> --workDirectory .
+
+# Run and let workDirectory auto-derive from inputPath
+./bin/Debug/Core.exe --inputPath <path-to-input-file>
 ```
 
-The CLI currently exposes `--help/-h`, `--inputPath/-i` (required), `--workDirectory/-w` (default `.`), and `--DEBUG`. In Debug builds, `--DEBUG` is forced on in `SingletonData::ProcessArguments()`.
+CLI contract:
+- `--help/-h`
+- `--inputPath/-i` (required)
+- `--workDirectory/-w` (optional)
+- `--DEBUG` (bool switch; forced on in Debug builds)
+
+If `--workDirectory` is omitted, `SingletonData` derives it from `inputPath`'s parent directory, or falls back to `./<input-stem>/` when the input has no parent component.
 
 ## Tests
 
-There is no first-party test target wired into CMake right now: the repo does not define `enable_testing()`, `add_test()`, or a dedicated `tests/` directory. Validation is currently by building the `Core` executable and running it manually against sample inputs.
+There is no first-party test target wired into CMake right now: no `enable_testing()`, no `add_test()`, and no dedicated `tests/` directory. Validation is currently manual:
+
+```bash
+cmake --build cmake-build-debug
+./bin/Debug/Core.exe --inputPath <path-to-input-file>
+```
+
+There is no single-test command because there are no registered CTest targets yet.
 
 ## Formatting
 
-`.clang-format` — WebKit-based, 120-column, 4-space indent, C++20, braces on own line for functions/structs/namespaces. Use clang-format 20.0.0.
-
-## Code Conventions
-
-- **Header guards**: `#pragma once` throughout (no `#ifndef` guards)
-- **Member variables**: `m_` prefix (e.g., `m_vm`, `m_mmap`, `m_is_ready`)
-- **Comments**: Code comments use a mix of English and Chinese; utility-level files tend toward English, business-logic files toward Chinese
-- **Namespaces**: `utils::` (generic utilities), `dylog::` (logger), `stupid::` (SmartPrefixSum)
-- **`this->`**: Used consistently when accessing members in templates and some classes
+Formatting is driven by `.clang-format`:
+- WebKit-based style
+- 120-column limit
+- 4-space indentation
+- `#pragma once` headers
+- includes are preserved (`SortIncludes: Never`)
+- function / struct braces break onto their own lines
 
 ## Architecture
 
-### Entry Point
+### Entry point
 
-`Core/src/Main.cpp` — creates a `SCOPED_TIMER`, calls `SINGLE_DATA.ProcessArguments(argc, argv)`, exits if `variables_map` is empty (help or parse error), then constructs a `CgnsCore` from `INPUT_PATH`, opens the CGNS file, and dumps its structure via `cgns.info()`.
+`Core/src/Main.cpp` is a thin bootstrap:
+1. parse CLI arguments through `SINGLE_DATA.ProcessArguments(argc, argv)`
+2. exit early if argument parsing produced an empty `variables_map` (help or parse failure)
+3. best-effort CGNS inspection via `CgnsCore`
+4. run a HighFive HDF5 write/read round-trip into `WORK_DIR_PATH / "Try1.h5"`
+5. run `CallCmd("ipconfig")`
+6. call `spdlog::shutdown()` before exit
 
-### Layer Map
+Notably, CGNS open failure no longer aborts the whole process; the HDF5 demo path still runs.
 
+### Layer map
+
+```text
+Core/src/Main.cpp          thin entry point and local demo flow
+Core/Common/               process-level bootstrap and Win32 helpers
+  SingletonData.*            CLI parsing, work dir derivation, logger bootstrap
+  Functions.*                string/path/process helpers, SCOPED_TIMER macros, subprocess execution
+Core/Utils/                domain and file-format utilities
+  CgnsCore.*                 RAII wrapper over the CGNS mid-level API
+  MioReader.*                mmap-backed text ingestion
+  HighFiveUtils.hpp          HDF5 dataset/group helper templates
+Utils/                     reusable header-only infrastructure, not all linked into Core today
+Logger/                    header-only async spdlog singleton wrapper
+3rdparty/                  vendored Boost / HDF5 / CGNS / HighFive / mio / spdlog / TBB
 ```
-Core/src/Main.cpp          ← thin entry point; parse args, init logger, then hand off to app logic
-Core/Common/               ← application boundary and process-level helpers
-    SingletonData.h/.cpp      owns Boost.ProgramOptions state, CLI contract, work dir, logger bootstrapping
-    Functions.h/.cpp          shared Win32/string/process utilities and SCOPED_TIMER macros
-Core/Utils/
-    MioReader.h/.cpp          mmap-backed sequential/batch line reader plus numeric parsing helpers
-    CgnsCore.h/.cpp           thin RAII wrapper over the CGNS mid-level (cgnslib) API; opens a file and walks base→zone→section→solution
-Utils/                      ← repo-level header-only building blocks, reusable outside Core
-    SingletonHolder.hpp      CRTP singleton base + helper macros
-    ScopedTimer.hpp          RAII elapsed-time reporter used by SCOPED_TIMER macros
-    Utils.hpp                generic vector/type-trait/math helpers
-    ThreadPool.hpp           jthread-based pool (currently not linked into Core)
-    SyncController.hpp       producer/consumer coordination primitive (currently not linked into Core)
-    SmartPrefixSum.hpp       cached prefix-sum helper with incremental recompute (currently not linked into Core)
-Logger/                     ← header-only async spdlog wrapper singleton (logger.hpp + logger_formatter.hpp)
-3rdparty/                   ← vendored headers/libs (Boost, HDF5, HighFive, CGNS, mio, spdlog)
-```
 
-### Key Patterns
+### Key patterns
 
-**Bootstrap flow**: `main()` is intentionally thin: it starts a process-wide `SCOPED_TIMER`, calls `SINGLE_DATA.ProcessArguments(argc, argv)`, and exits early when argument parsing produced an empty `variables_map` (help or parse failure). Business logic hangs off this bootstrap path — today that is the `CgnsCore` open-and-inspect sequence.
+**Singleton application context**  
+`SingletonData` is the runtime context. The macros `SINGLE_DATA`, `SINGLE_DATA_VM`, `INPUT_PATH`, `WORK_DIR`, `WORK_DIR_PATH`, and `IS_DEBUG` are the normal access path from the rest of the app. `WORK_DIR_PATH` returns a `std::filesystem::path` and creates the directory on demand.
 
-**Singleton**: `utils::SingletonHolder<T>` (CRTP, `Utils/SingletonHolder.hpp`) is the project-wide singleton pattern. Classes inherit from `SingletonHolder<Self>` with `SINGLETON_CLASS(Self)` (`DELETE_COPY_AND_MOVE` + friend declaration) and are accessed via `T::get_instance()`. Current concrete singletons are `SingletonData` and `dylog::Logger`.
+**Logger bootstrap order matters**  
+`Logger::InitLog(work_dir, "stupid-bhh", verbose)` is called from `SingletonData::ProcessArguments()`. Anything using `LOG_*` before argument parsing risks hitting an uninitialized default logger.
 
-**SingletonData as the application context** (`Core/Common/SingletonData.h`, `Core/Common/src/SingletonData.cpp`): wraps Boost `variables_map`, owns the CLI contract, forces verbose mode in Debug, and initializes the global logger. The convenience macros `SINGLE_DATA`, `SINGLE_DATA_VM`, `INPUT_PATH`, `WORK_DIR`, and `IS_DEBUG` are the expected way to access parsed runtime configuration from the rest of the app.
+**Windows-specific utilities are centralized**  
+`Core/Common/src/Functions.cpp` contains the Win32 boundary: ACP/UTF-8 conversion, environment lookups, executable path helpers, and `CallCmd`.
 
-**Logging initialization order matters**: `Logger::InitLog(work_dir, "stupid-bhh", verbose)` is called from `SingletonData::ProcessArguments()`. Anything that uses `LOG_*` before argument parsing/logger bootstrap risks logging through an uninitialized default logger. The logger writes both to the console and to `work_dir/logs/` via async spdlog sinks.
+`CallCmd` launches a child process with stdout/stderr redirected into a pipe, streams output line-by-line to a callback, and treats a callback return of `true` as an early-stop request. Early stop is cooperative first (close the read pipe so later writes usually hit `ERROR_BROKEN_PIPE`), then forced via a Job Object timeout path so the whole spawned process tree is cleaned up if the child does not exit promptly.
 
-**MioReader for large-file ingestion** (`Core/Utils/MioReader.h`, `Core/Utils/src/MioReader.cpp`): the codebase’s main text-file data-access primitive is memory-mapped file reading via `mio::mmap_source`. `GetLine()` provides sequential single-line iteration; `GetLineBatch()` is the bulk path, scanning with `memchr` to amortize work across many lines. `parse_line<T>()` is paired with it for extracting numeric values, including scientific notation.
+**CGNS inspection flow**  
+`CgnsCore` is a thin RAII wrapper around `cgnslib.h`. `OpenCGNS()` validates with `cg_is_cgns`, opens read-only, logs version/precision, and resets `m_cg_file_id` on failure so `IsOpen()` and destruction never see a stale handle.
 
-**CgnsCore for CGNS mesh/solution files** (`Core/Utils/CgnsCore.h`, `Core/Utils/src/CgnsCore.cpp`): RAII wrapper over the CGNS mid-level library (`cgnslib.h`). The constructor stores the path; `OpenCGNS()` validates via `cg_is_cgns`, opens read-only, and logs version/precision; the destructor closes any open file id. `info()` walks the CGNS hierarchy (base → zone → section → flow solution), branching on structured vs. unstructured zones. Every CGNS call is wrapped in the static `CG_INFO(status)` helper, which logs `cg_get_error()` on non-`CG_OK` returns — follow that pattern for new CGNS calls. The `*Name` lookup arrays (`SimulationTypeName`, `ZoneTypeName`, `ElementTypeName`, etc.) used for pretty-printing come from `3rdparty/cgns/include/cgnslib.h`.
+`CgnsCore::info()` is a read-only traversal/reporting pass. It walks:
+- bases
+- zones (structured and unstructured)
+- flow solutions
+- discrete data
+- zone subregions
+- grid entries and coordinate arrays
+- element connectivity sections
 
-**Windows utility boundary** (`Core/Common/Functions.h`, `Core/Common/src/Functions.cpp`): Win32-specific concerns are concentrated here — GBK/UTF-8 conversion, subprocess execution with redirected pipes (`CallCmd`), environment variable lookup, and case-insensitive/trim helpers. Keep platform-specific code in this layer instead of spreading raw Win32 calls through app logic.
+Every CGNS API call is expected to go through `CG_INFO(status)` so failures log `cg_get_error()` consistently.
 
-**Repo-level utilities are broader than the current executable**: `Utils/ThreadPool.hpp`, `Utils/SyncController.hpp`, and `Utils/SmartPrefixSum.hpp` are reusable C++20 helpers present in the repo but not currently wired into the `Core` target. They are library-style infrastructure, not part of today’s executable path.
+**HighFive helpers**  
+`Core/Utils/HighFiveUtils.hpp` provides the HDF5 convenience layer used by `Main.cpp`:
+- `WriteDataSet` overloads for vectors/arrays/spans
+- compound-type dataset writes
+- `WriteDataSet2` for extendable chunked datasets
+- `GetGroup` for create-or-open group access
 
-### Platform
+**Optional TBB-backed parallelism**  
+`Utils/SmartPrefixSum.hpp` uses `std::execution::par` for large-range reductions. `Core/CMakeLists.txt` links `TBB::tbb` only when `find_package(TBB CONFIG QUIET)` succeeds; otherwise the code still builds, but parallel STL execution silently falls back to serial behavior on this toolchain.
 
-Windows-only. Code uses `windows.h`, Win32 API (`CreateProcessW`, `MultiByteToWideChar`, `CreatePipe`, `SetConsoleOutputCP`, etc.), and links against GCC 13-built Boost DLLs.
+## Platform and dependencies
 
-### Third-party Libraries
+This is a Windows-only codebase using Win32 APIs (`CreateProcessW`, `CreatePipe`, `MultiByteToWideChar`, `GetModuleFileNameW`, etc.).
 
-| Library | Usage | Notes |
-|---------|-------|-------|
-| Boost.ProgramOptions 1.91 | CLI argument parsing in SingletonData | DLL, debug/release variants |
-| Boost.Container 1.91 | (dependency of ProgramOptions) | DLL |
-| CGNS | Mesh/solution file reading in CgnsCore | Static lib, linked via `CGNS::cgns_static`; built on HDF5 |
-| HDF5 1.14 | CGNS storage backend (CGNS HDF5 files) | Static lib, linked via `hdf5::hdf5-static`; ZLIB resolved from `3rdparty/hdf5/.../libzs[d].a` |
-| HighFive | HDF5 C++ wrapper (header-only) | Not yet used |
-| mio | Memory-mapped file I/O used by MioReader | Header-only |
-| spdlog | Async logging in Logger | Header-only, async mode with thread pool |
+Important dependency facts:
+- Boost.ProgramOptions / Boost.Container are vendored and linked statically
+- CGNS is linked via `CGNS::cgns_static`
+- HDF5 is linked via `hdf5::hdf5-static`
+- HighFive, mio, and spdlog are header-only in this repo
+- TBB is optional and only affects whether parallel STL work is truly parallel
 
-### Adding a New Source File
+## Include style
 
-Source files under `Core/Common/src/` and `Core/Utils/src/` are auto-collected via `file(GLOB CPP_RESOURCES ...)` in `Core/CMakeLists.txt`. Headers are found via `target_include_directories` which exposes `Core/Common/`, `Core/Utils/`, the repo root, and `3rdparty/`. To add a new `.cpp` to the Core target, place it under one of those `src/` directories (or update the GLOB in `Core/CMakeLists.txt`).
-
-### Header Include Style
-
-- Third-party headers (HDF5, Boost, mio): `#include <...>` — resolved via `target_include_directories` pointing to `3rdparty/`
-- Project headers: `#include "Utils/Utils.hpp"`, `#include "Common/Functions.h"` — repo root is in the include path
-- spdlog: `#include "spdlog/spdlog.h"` — finds it under `3rdparty/spdlog/`
+- third-party headers: `#include <...>`
+- project headers: `#include "Common/Functions.h"`, `#include "Utils/Utils.hpp"`
+- repo root, `Core/Common`, `Core/Utils`, and `3rdparty/` are all on the include path for the `Core` target
