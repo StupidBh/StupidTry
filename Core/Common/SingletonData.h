@@ -9,9 +9,7 @@ class SingletonData final : public utils::SingletonHolder<SingletonData> {
     SingletonData() = default;
 
 public:
-    void ProcessArguments(int argc, char* argv[]);
-
-    const boost::program_options::variables_map& GetProgramOptions() const noexcept;
+    bool ProcessArguments(int argc, char* argv[]);
     const std::filesystem::path& GetOrCreateWorkDirectory() const;
 
     template<class T>
@@ -27,8 +25,7 @@ private:
     boost::program_options::variables_map m_vm;
 };
 
-#define SINGLE_DATA    SingletonData::get_instance()
-#define SINGLE_DATA_VM SINGLE_DATA.GetProgramOptions()
+#define SINGLE_DATA SingletonData::get_instance()
 
 #define INPUT_PATH SINGLE_DATA.GetProgramOptions<std::string>("inputPath")
 #define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workDirectory")

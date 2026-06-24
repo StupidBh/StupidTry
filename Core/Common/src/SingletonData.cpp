@@ -3,7 +3,7 @@
 
 #include "Logger/logger.hpp"
 
-void SingletonData::ProcessArguments(int argc, char* argv[])
+bool SingletonData::ProcessArguments(int argc, char* argv[])
 {
     namespace bpo = boost::program_options;
 
@@ -21,7 +21,7 @@ void SingletonData::ProcessArguments(int argc, char* argv[])
         if (this->m_vm.contains("help")) {
             std::cerr << oss.str() << std::endl;
             this->m_vm.clear();
-            return;
+            return false;
         }
 
         bpo::notify(this->m_vm);
@@ -30,13 +30,13 @@ void SingletonData::ProcessArguments(int argc, char* argv[])
         std::cerr << "Parameter error: " << e.what() << std::endl;
         std::cerr << oss.str() << std::endl;
         this->m_vm.clear();
-        return;
+        return false;
     }
     catch (...) {
         std::cerr << "Unknown error in ProcessArguments." << std::endl;
         std::cerr << oss.str() << std::endl;
         this->m_vm.clear();
-        return;
+        return false;
     }
 
 #ifndef NDEBUG
@@ -75,11 +75,7 @@ void SingletonData::ProcessArguments(int argc, char* argv[])
         }
     }
 #endif
-}
-
-const boost::program_options::variables_map& SingletonData::GetProgramOptions() const noexcept
-{
-    return m_vm;
+    return true;
 }
 
 const std::filesystem::path& SingletonData::GetOrCreateWorkDirectory() const

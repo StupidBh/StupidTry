@@ -3,11 +3,11 @@
 
 #include "CgnsCore.h"
 #include "HighFiveUtils.hpp"
+#include "Utils/BlockingQueue.hpp"
 
 int main(int argc, char* argv[])
 {
-    SINGLE_DATA.ProcessArguments(argc, argv);
-    if (SINGLE_DATA_VM.empty()) {
+    if (!SINGLE_DATA.ProcessArguments(argc, argv)) {
         return EXIT_FAILURE;
     }
 
@@ -81,6 +81,51 @@ int main(int argc, char* argv[])
 
     LOG_INFO(GetExecutableDirectory());
     LOG_INFO(GetExecutablePath());
+
+    {
+        SCOPED_TIMER_LOG("ProducerConsumer demo");
+        constexpr std::size_t DATA_COUNT = 100000;
+
+        BlockingQueue<std::size_t> queue(10);
+        std::vector<std::size_t> consumed;
+        consumed.reserve(DATA_COUNT);
+
+        LOG_INFO("ProducerConsumer demo start, count={}, queue capacity={}", DATA_COUNT, queue.Capacity());
+
+        std::thread producer([&] {
+            for (std::size_t i = 0; i < DATA_COUNT; ++i) {
+                if (!queue.Push(i)) {
+                    LOG_WARN("Producer stopped early because queue is closed, next value={}", i);
+                    break;
+                }
+            }
+            queue.Close();
+            LOG_INFO("Producer finished, queue closed");
+        });
+
+        std::thread consumer([&] {
+            while (auto value = queue.Pop()) {
+                consumed.emplace_back(*value);
+            }
+            LOG_INFO("Consumer finished, consumed={}", consumed.size());
+        });
+
+        LOG_INFO("Producer and consumer threads launched in parallel");
+        producer.join();
+        consumer.join();
+
+        LOG_INFO("ProducerConsumer demo finished, total consumed={}", consumed.size());
+
+        const bool is_valid =
+            consumed.size() == DATA_COUNT &&
+            std::accumulate(consumed.begin(), consumed.end(), std::size_t { 0 }) == DATA_COUNT * (DATA_COUNT - 1) / 2;
+
+        if (!is_valid) {
+            LOG_ERROR("ProducerConsumer demo failed, consumed size={}", consumed.size());
+            return 1;
+        }
+        LOG_INFO("ProducerConsumer demo passed, consumed size={}", consumed.size());
+    }
 
     spdlog::shutdown();
     return 0;
