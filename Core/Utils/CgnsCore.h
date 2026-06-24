@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
+#include <filesystem>
 
 class CgnsCore {
-    static int CG_INFO(int status);
+    static int CG_INFO(int status, const std::filesystem::path& file, int line);
     static constexpr int CGNS_MAX_NAME = 256;
 
 public:

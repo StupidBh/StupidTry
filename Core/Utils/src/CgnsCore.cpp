@@ -5,14 +5,35 @@
 #include "cgnslib.h"
 #include "Logger/logger.hpp"
 
-int CgnsCore::CG_INFO(const int status)
+int CgnsCore::CG_INFO(int status, const std::filesystem::path& file, int line)
 {
-    if (status != CG_OK) {
-        LOG_ERROR("CGNS Failed: {}", cg_get_error());
-        LOG->flush();
+    switch (status) {
+    case CG_OK   : return CG_OK;
+    case CG_ERROR: {
+        LOG_ERROR("[{}:{}] [CG_ERROR]: {}", file.filename(), line, cg_get_error());
+        return CG_ERROR;
     }
-    return status;
+    case CG_NODE_NOT_FOUND: {
+        LOG_WARN("[{}:{}] [CG_NODE_NOT_FOUND]: {}", file.filename(), line, cg_get_error());
+        return CG_NODE_NOT_FOUND;
+    }
+    case CG_INCORRECT_PATH: {
+        LOG_WARN("[{}:{}] [CG_INCORRECT_PATH]: {}", file.filename(), line, cg_get_error());
+        return CG_INCORRECT_PATH;
+    }
+    case CG_NO_INDEX_DIM: {
+        LOG_WARN("[{}:{}] [CG_NO_INDEX_DIM]: {}", file.filename(), line, cg_get_error());
+        return CG_NO_INDEX_DIM;
+    }
+
+    default: {
+        LOG_WARN("Unknown status.");
+        return status;
+    }
+    }
 }
+
+#define CG_INFO(STATUS) CG_INFO(STATUS, __FILE__, __LINE__)
 
 CgnsCore::CgnsCore(const std::string& cgns_file_path) :
     m_cgns_file_path(cgns_file_path)
@@ -307,12 +328,12 @@ void CgnsCore::info() const
                 std::vector<cgsize_t> grid_boundingbox(1, 0);
 
                 CG_INFO(cg_grid_read(this->m_cg_file_id, base, zone, grid, grid_name.data()));
-                // CG_INFO(cg_grid_bounding_box_read(this->m_cg_file_id,
-                //                                   base,
-                //                                   zone,
-                //                                   grid,
-                //                                   grid_data_type,
-                //                                   grid_boundingbox.data()));
+                CG_INFO(cg_grid_bounding_box_read(this->m_cg_file_id,
+                                                  base,
+                                                  zone,
+                                                  grid,
+                                                  grid_data_type,
+                                                  grid_boundingbox.data()));
 
                 LOG_INFO("    [ZoneGird]{:>2}:[{}] {}", grid, cg_DataTypeName(grid_data_type), grid_name);
             }
@@ -367,7 +388,6 @@ void CgnsCore::info() const
                     CG_INFO(cg_elements_read(this->m_cg_file_id, base, zone, section, elements.data(), nullptr));
                 }
 
-                // std::ranges::min/max are UB on an empty range, so guard against an empty section.
                 if (elements.empty()) {
                     LOG_INFO("    [ElementConnectivity]{:>3}:[{}] {}, ElementRange=<empty>:{}",
                              section,
@@ -387,6 +407,26 @@ void CgnsCore::info() const
                              std::ranges::max(elements, std::ranges::less { }, by_abs),
                              section_element_sum);
                 }
+            }
+
+            // One-to-One Connectivity
+            int n1to1s = 0;
+            CG_INFO(cg_n1to1(this->m_cg_file_id, base, zone, &n1to1s));
+            for (int n1to1 = 1; n1to1 <= n1to1s; ++n1to1) {
+                std::string n1to1_connectname(33, '\0');
+                std::string n1to1_donorname(33, '\0');
+                cgsize_t n1to1_range = 0, donor_range = 0;
+                int transform = 0;
+
+                CG_INFO(cg_1to1_read(this->m_cg_file_id,
+                                     base,
+                                     zone,
+                                     n1to1,
+                                     n1to1_connectname.data(),
+                                     n1to1_donorname.data(),
+                                     &n1to1_range,
+                                     &donor_range,
+                                     &transform));
             }
         }
     }
