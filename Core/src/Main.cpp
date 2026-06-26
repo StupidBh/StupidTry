@@ -1,9 +1,32 @@
 #include "Functions.h"
 #include "SingletonData.h"
 
-#include "CgnsCore.h"
+#include "ReaderCGNS/CgnsCore.h"
 #include "HighFiveUtils.hpp"
 #include "Utils/BlockingQueue.hpp"
+
+void ReaderCGNSLogCallback(int level, const char* file, int line, const char* function, const char* message)
+{
+    spdlog::level::level_enum spd_level;
+    switch (level) {
+    case READER_CGNS_LOG_DEBUG: spd_level = spdlog::level::debug; break;
+    case READER_CGNS_LOG_WARN : spd_level = spdlog::level::warn; break;
+    case READER_CGNS_LOG_ERROR: spd_level = spdlog::level::err; break;
+    default                   : spd_level = spdlog::level::info;
+    }
+
+#ifndef NDEBUG
+    const std::filesystem::path file_path = file;
+    LOG->log(spd_level,
+             "[ReaderCGNS] [{}:{}:{}] {}",
+             file_path.filename(),
+             line,
+             function,
+             message != nullptr ? message : "");
+#else
+    LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "");
+#endif
+}
 
 int main(int argc, char* argv[])
 {
@@ -11,9 +34,17 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if (CgnsCore cgns; cgns.OpenCGNS(INPUT_PATH)) {
-        cgns.info();
+    if (!std::filesystem::exists(INPUT_PATH)) {
+        LOG_ERROR("Input path does not exist");
+        return -1;
     }
+
+    ReaderCGNS::Logger::SetLogCallback(ReaderCGNSLogCallback);
+    std::jthread test_thread([&] {
+        if (ReaderCGNS::CgnsCore cgns_core(INPUT_PATH); cgns_core.OpenCGNS()) {
+            cgns_core.info();
+        }
+    });
 
     struct Grid
     {
@@ -38,7 +69,7 @@ int main(int argc, char* argv[])
         }
     };
 
-    std::vector<Grid> coordinates(10000);
+    std::vector<Grid> coordinates(1000);
     std::vector<int> vec(1000);
     const auto HF_FILE = WORK_DIR_PATH / "Try1.h5";
 
@@ -74,19 +105,11 @@ int main(int argc, char* argv[])
         }
     }
 
-    CallCmd("ipconfig", [](const std::string_view& line) {
-        LOG_INFO(line);
-        return false;
-    });
-
-    LOG_INFO(GetExecutableDirectory());
-    LOG_INFO(GetExecutablePath());
-
     {
         SCOPED_TIMER_LOG("ProducerConsumer demo");
-        constexpr std::size_t DATA_COUNT = 100000;
+        constexpr std::size_t DATA_COUNT = 10000;
 
-        BlockingQueue<std::size_t> queue(10);
+        utils::BlockingQueue<std::size_t> queue(10);
         std::vector<std::size_t> consumed;
         consumed.reserve(DATA_COUNT);
 
@@ -115,7 +138,6 @@ int main(int argc, char* argv[])
         consumer.join();
 
         LOG_INFO("ProducerConsumer demo finished, total consumed={}", consumed.size());
-
         const bool is_valid =
             consumed.size() == DATA_COUNT &&
             std::accumulate(consumed.begin(), consumed.end(), std::size_t { 0 }) == DATA_COUNT * (DATA_COUNT - 1) / 2;
@@ -127,6 +149,8 @@ int main(int argc, char* argv[])
         LOG_INFO("ProducerConsumer demo passed, consumed size={}", consumed.size());
     }
 
+    test_thread.join();
+    ReaderCGNS::Logger::ClearLogCallback();
     spdlog::shutdown();
     return 0;
 }

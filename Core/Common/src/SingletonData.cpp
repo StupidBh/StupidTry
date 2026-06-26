@@ -57,6 +57,8 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
                                           this->m_vm["DEBUG"].as<bool>());
 
 #ifndef NDEBUG
+    LOG_INFO(GetExecutableDirectory());
+    LOG_INFO(GetExecutablePath());
     for (auto& [key, value] : this->m_vm) {
         if (value.empty()) {
             LOG_WARN("<empty>-[{}] = <empty>", key);

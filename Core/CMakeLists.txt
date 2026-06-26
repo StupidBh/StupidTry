@@ -7,7 +7,7 @@ file(GLOB CPP_RESOURCES
 )
 
 add_executable(${PROJECT_NAME}
-        src/main.cpp
+        src/Main.cpp
         ${CPP_RESOURCES}
 )
 
@@ -20,8 +20,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 set(BOOST_ROOT "${3RD_ROOT}/boost")
 set(HDF5_ROOT "${3RD_ROOT}/hdf5")
-set(CGNS_ROOT "${3RD_ROOT}/cgns")
-
 if (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
     set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/debug/lib/libzsd.a")
 else ()
@@ -29,14 +27,12 @@ else ()
 endif ()
 
 find_package(HDF5 CONFIG REQUIRED)
-find_package(cgns CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS container program_options)
-
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Boost::container
         Boost::program_options
         hdf5::hdf5-static
-        CGNS::cgns_static
+        ReaderCGNS
 )
 
 find_package(TBB CONFIG QUIET)
