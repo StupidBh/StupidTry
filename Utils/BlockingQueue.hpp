@@ -18,16 +18,16 @@ namespace utils {
     /// @note max_size == 0 表示无界队列；有界队列可以在消费较慢时向生产者施加背压。
     template<class T>
     class BlockingQueue {
+        BlockingQueue(const BlockingQueue&) = delete;
+        BlockingQueue& operator=(const BlockingQueue&) = delete;
+        BlockingQueue(BlockingQueue&&) = delete;
+        BlockingQueue& operator=(BlockingQueue&&) = delete;
+
     public:
         explicit BlockingQueue(std::size_t max_size = 0) :
             m_max_size(max_size)
         {
         }
-
-        BlockingQueue(const BlockingQueue&) = delete;
-        BlockingQueue& operator=(const BlockingQueue&) = delete;
-        BlockingQueue(BlockingQueue&&) = delete;
-        BlockingQueue& operator=(BlockingQueue&&) = delete;
 
         /// @brief 向队列写入一个元素。
         /// @retval true  写入成功。

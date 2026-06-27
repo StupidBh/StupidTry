@@ -326,7 +326,7 @@ std::filesystem::path GetExecutablePath()
 
         if (length < buffer.size()) {
             buffer.resize(length);
-            return std::filesystem::path(buffer);
+            return buffer;
         }
 
         buffer.resize(buffer.size() * 2);

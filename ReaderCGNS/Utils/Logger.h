@@ -5,7 +5,7 @@
 
 #include "Logger/logger_formatter.hpp"
 
-namespace reader_cgns {
+namespace ReaderCGNS::Logger {
     inline std::atomic<ReaderCGNS_LogCallback> g_log_callback = nullptr;
 
     inline void LogMessage(int level, const char* file, int line, const char* function, const std::string& message)
@@ -41,9 +41,11 @@ namespace reader_cgns {
     {
         LogMessage(level, file, line, function, std::string(message.data(), message.size()));
     }
-} // namespace reader_cgns
+} // namespace ReaderCGNS::Logger
 
-#define LOG_DEBUG(...) reader_cgns::LogFormat(READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_INFO(...)  reader_cgns::LogFormat(READER_CGNS_LOG_INFO, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_WARN(...)  reader_cgns::LogFormat(READER_CGNS_LOG_WARN, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_ERROR(...) reader_cgns::LogFormat(READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define LOG_DEBUG(...) \
+    ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define LOG_INFO(...) ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_INFO, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define LOG_WARN(...) ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_WARN, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define LOG_ERROR(...) \
+    ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)

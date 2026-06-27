@@ -28,11 +28,9 @@ extern "C"
 {
 #endif
 
-    namespace ReaderCGNS {
-        namespace Logger {
-            READER_CGNS_DLL void SetLogCallback(ReaderCGNS_LogCallback callback);
-            READER_CGNS_DLL void ClearLogCallback();
-        }
+    namespace ReaderCGNS::Logger {
+        READER_CGNS_DLL void SetLogCallback(ReaderCGNS_LogCallback callback);
+        READER_CGNS_DLL void ClearLogCallback();
     }
 
 #ifdef __cplusplus

@@ -14,13 +14,12 @@ namespace ReaderCGNS {
         CgnsCore(const std::string& cgns_file_path);
         ~CgnsCore();
 
+        bool IsOpen() const;
         bool OpenCGNS();
         bool OpenCGNS(const std::string& cgns_file_path);
 
         void CloseCGNS();
         void info();
-
-        bool IsOpen() const;
 
     private:
         std::string m_cgns_file_path;

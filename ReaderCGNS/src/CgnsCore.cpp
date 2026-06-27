@@ -48,6 +48,11 @@ namespace ReaderCGNS {
         this->CloseCGNS();
     }
 
+    bool CgnsCore::IsOpen() const
+    {
+        return this->m_cg_file_id != 0;
+    }
+
     bool CgnsCore::OpenCGNS()
     {
         LOG_INFO("Open in read only: [{}]", this->m_cgns_file_path);
@@ -436,10 +441,5 @@ namespace ReaderCGNS {
                 }
             }
         }
-    }
-
-    bool CgnsCore::IsOpen() const
-    {
-        return this->m_cg_file_id != 0;
     }
 } // namespace ReaderCGNS
