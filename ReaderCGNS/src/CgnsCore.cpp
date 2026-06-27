@@ -17,15 +17,15 @@ namespace ReaderCGNS {
             return CG_ERROR;
         }
         case CG_NODE_NOT_FOUND: {
-            LOG_WARN("[{}:{}] [CG_NODE_NOT_FOUND]: {}", file.filename().string(), line, cg_get_error());
+            LOG_WARN("[{}:{}] [CG_NODE_NOT_FOUND]: {}", file.filename(), line, cg_get_error());
             return CG_NODE_NOT_FOUND;
         }
         case CG_INCORRECT_PATH: {
-            LOG_WARN("[{}:{}] [CG_INCORRECT_PATH]: {}", file.filename().string(), line, cg_get_error());
+            LOG_WARN("[{}:{}] [CG_INCORRECT_PATH]: {}", file.filename(), line, cg_get_error());
             return CG_INCORRECT_PATH;
         }
         case CG_NO_INDEX_DIM: {
-            LOG_WARN("[{}:{}] [CG_NO_INDEX_DIM]: {}", file.filename().string(), line, cg_get_error());
+            LOG_WARN("[{}:{}] [CG_NO_INDEX_DIM]: {}", file.filename(), line, cg_get_error());
             return CG_NO_INDEX_DIM;
         }
 
