@@ -50,8 +50,7 @@ namespace utils {
             std::unique_lock lock(m_mtx);
             m_cv.wait(lock, [&] {
                 return m_is_stop.load(std::memory_order_relaxed) ||
-                       (is_consumer ? m_is_ready.load(std::memory_order_relaxed)
-                                    : !m_is_ready.load(std::memory_order_relaxed));
+                       (is_consumer ? m_is_ready.load(std::memory_order_relaxed) : !m_is_ready.load(std::memory_order_relaxed));
             });
         }
 

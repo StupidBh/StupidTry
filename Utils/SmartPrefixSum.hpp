@@ -9,9 +9,7 @@
 
 namespace stupid {
     template<typename T>
-    using SafeSumType_t = std::conditional_t<std::is_floating_point_v<T>,
-                                             double,
-                                             std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
+    using SafeSumType_t = std::conditional_t<std::is_floating_point_v<T>, double, std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
 
     // 单线程增量前缀和缓存。
     //

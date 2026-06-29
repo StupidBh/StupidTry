@@ -34,8 +34,7 @@ namespace dylog {
 #endif
 
             // 终端回显日志消息
-            std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink =
-                std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
             // 写入外部文件的日志消息
             std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
@@ -54,16 +53,14 @@ namespace dylog {
             }
 
             // 创建异步记录器
-            const auto async_logger =
-                std::make_shared<spdlog::async_logger>(log_file_name,
-                                                       spdlog::sinks_init_list { console_sink, file_sink },
-                                                       spdlog::thread_pool(),
-                                                       spdlog::async_overflow_policy::block);
+            const auto async_logger = std::make_shared<spdlog::async_logger>(log_file_name,
+                                                                             spdlog::sinks_init_list { console_sink, file_sink },
+                                                                             spdlog::thread_pool(),
+                                                                             spdlog::async_overflow_policy::block);
             async_logger->set_pattern(log_fmt);
             async_logger->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
             async_logger->flush_on(spdlog::level::trace);
-            async_logger->set_error_handler(
-                [](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
+            async_logger->set_error_handler([](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
 
             spdlog::set_default_logger(async_logger);
         }

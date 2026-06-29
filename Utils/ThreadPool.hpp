@@ -27,9 +27,7 @@ namespace utils {
                         std::function<void()> task;
                         {
                             std::unique_lock lock(m_mutex);
-                            m_task_cv.wait(lock, [this, &st] {
-                                return m_stopped || !m_tasks.empty() || st.stop_requested();
-                            });
+                            m_task_cv.wait(lock, [this, &st] { return m_stopped || !m_tasks.empty() || st.stop_requested(); });
 
                             if ((m_stopped && m_tasks.empty()) || st.stop_requested()) {
                                 return;

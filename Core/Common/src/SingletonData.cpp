@@ -52,9 +52,7 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
         this->m_vm.emplace("workDirectory", bpo::variable_value(work_dir.string(), true));
     }
 
-    dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(),
-                                          "stupid-bhh",
-                                          this->m_vm["DEBUG"].as<bool>());
+    dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(), "stupid-bhh", this->m_vm["DEBUG"].as<bool>());
 
 #ifndef NDEBUG
     LOG_INFO(GetExecutableDirectory());

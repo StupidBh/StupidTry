@@ -3,6 +3,7 @@ project(ReaderCGNS)
 
 file(GLOB CPP_RESOURCES
         "src/*.cpp"
+        "Utils/src/*.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED

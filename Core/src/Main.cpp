@@ -17,12 +17,7 @@ void ReaderCGNSLogCallback(int level, const char* file, int line, const char* fu
 
 #ifndef NDEBUG
     const std::filesystem::path file_path = file;
-    LOG->log(spd_level,
-             "[ReaderCGNS] [{}:{}:{}] {}",
-             file_path.filename(),
-             line,
-             function,
-             message != nullptr ? message : "");
+    LOG->log(spd_level, "[ReaderCGNS] [{}:{}:{}] {}", file_path.filename(), line, function, message != nullptr ? message : "");
 #else
     LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "");
 #endif
@@ -40,11 +35,7 @@ int main(int argc, char* argv[])
     }
 
     ReaderCGNS::Logger::SetLogCallback(ReaderCGNSLogCallback);
-    std::jthread test_thread([&] {
-        if (ReaderCGNS::CgnsCore cgns_core(INPUT_PATH); cgns_core.OpenCGNS()) {
-            cgns_core.info();
-        }
-    });
+    std::jthread test_thread([&] { ReaderCGNS::info(INPUT_PATH); });
 
     struct Grid
     {
@@ -138,9 +129,8 @@ int main(int argc, char* argv[])
         consumer.join();
 
         LOG_INFO("ProducerConsumer demo finished, total consumed={}", consumed.size());
-        const bool is_valid =
-            consumed.size() == DATA_COUNT &&
-            std::accumulate(consumed.begin(), consumed.end(), std::size_t { 0 }) == DATA_COUNT * (DATA_COUNT - 1) / 2;
+        const bool is_valid = consumed.size() == DATA_COUNT &&
+                              std::accumulate(consumed.begin(), consumed.end(), std::size_t { 0 }) == DATA_COUNT * (DATA_COUNT - 1) / 2;
 
         if (!is_valid) {
             LOG_ERROR("ProducerConsumer demo failed, consumed size={}", consumed.size());

@@ -58,9 +58,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     constexpr DWORD graceful_exit_timeout_ms = 5000;
 
     // 安全属性结构，用于允许管道句柄继承
-    SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES),
-                               .lpSecurityDescriptor = nullptr,
-                               .bInheritHandle = TRUE };
+    SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES), .lpSecurityDescriptor = nullptr, .bInheritHandle = TRUE };
 
     // 创建用于读子进程回显消息的管道
     HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
@@ -105,10 +103,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
     // 设置启动信息，重定向输出
     PROCESS_INFORMATION pi = { };
-    STARTUPINFOW si { .cb = sizeof(STARTUPINFOW),
-                      .dwFlags = STARTF_USESTDHANDLES,
-                      .hStdOutput = hWritePipe.get(),
-                      .hStdError = hWritePipe.get() };
+    STARTUPINFOW si { .cb = sizeof(STARTUPINFOW), .dwFlags = STARTF_USESTDHANDLES, .hStdOutput = hWritePipe.get(), .hStdError = hWritePipe.get() };
 
     // 编码转换：ACP -> UTF-16，正确处理非 ASCII 路径
     int wlen = MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), nullptr, 0);
@@ -254,20 +249,20 @@ std::string GetEnv(const std::string& env)
     return buffer;
 }
 
-std::size_t FindCaseInsensitive(std::string_view haystack, std::string_view needle)
+std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str)
 {
-    if (needle.empty()) {
+    if (sub_str.empty()) {
         return 0;
     }
 
-    const auto res = std::ranges::search(haystack, needle, [](unsigned char c1, unsigned char c2) {
+    const auto res = std::ranges::search(main_str, sub_str, [](unsigned char c1, unsigned char c2) {
         return (c1 == c2) || (std::tolower(c1) == std::tolower(c2));
     });
-    if (res.begin() == haystack.end()) {
+    if (res.begin() == main_str.end()) {
         return std::string_view::npos;
     }
 
-    return static_cast<std::size_t>(std::ranges::distance(haystack.begin(), res.begin()));
+    return static_cast<std::size_t>(std::ranges::distance(main_str.begin(), res.begin()));
 }
 
 bool IEquals(std::string_view lhs, std::string_view rhs)
@@ -276,9 +271,7 @@ bool IEquals(std::string_view lhs, std::string_view rhs)
         return false;
     }
 
-    return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) {
-        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2));
-    });
+    return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) { return (c1 == c2) || (std::tolower(c1) == std::tolower(c2)); });
 }
 
 std::string_view TrimSpaces(std::string_view sv)

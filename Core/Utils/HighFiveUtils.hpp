@@ -45,8 +45,7 @@ namespace HFUtils {
         HighFive::DataSet data_set;
         if (!loc.exist(name)) {
             const std::size_t total_size = input.size();
-            const std::size_t chunk_size =
-                std::clamp(total_size / 100, static_cast<std::size_t>(1024), static_cast<std::size_t>(1024 * 1024));
+            const std::size_t chunk_size = std::clamp(total_size / 100, static_cast<std::size_t>(1024), static_cast<std::size_t>(1024 * 1024));
 
             HighFive::DataSetCreateProps props;
             props.add(HighFive::Chunking(std::vector<hsize_t> { chunk_size }));
@@ -69,11 +68,9 @@ namespace HFUtils {
 
     template<class ValueType, class T>
     requires HDF5Writable<ValueType, T>
-    HighFive::DataSet
-        WriteDataSet(T&& loc, const std::string& name, ValueType&& input, const HighFive::CompoundType& comp_type)
+    HighFive::DataSet WriteDataSet(T&& loc, const std::string& name, ValueType&& input, const HighFive::CompoundType& comp_type)
     {
-        HighFive::DataSet data_set =
-            std::forward<T>(loc).createDataSet(name, HighFive::DataSpace({ input.size() }), comp_type);
+        HighFive::DataSet data_set = std::forward<T>(loc).createDataSet(name, HighFive::DataSpace({ input.size() }), comp_type);
         data_set.write_raw(std::forward<ValueType>(input).data(), comp_type);
 
         return data_set;
