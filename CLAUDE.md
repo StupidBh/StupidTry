@@ -68,6 +68,7 @@ The current `Core` entry point requires the input path to exist, registers a `Re
 
 There is no configured lint target. Formatting is driven by `.clang-format`:
 - WebKit-based style, 150-column limit, 4-space indentation, LF line endings
+- clang-format parses with `Standard: Latest`, while the CMake compile standard is C++23
 - function / struct / enum / union braces break onto their own lines; class and namespace braces do not
 - includes are preserved (`SortIncludes: Never`, `IncludeBlocks: Preserve`)
 - short inline functions and inline lambdas may stay on one line, but short `if`/loop blocks should not
@@ -88,7 +89,7 @@ Core                         executable target and integration/demo flow
 ReaderCGNS                   shared library target used by Core
 Logger                       header-only async spdlog singleton wrapper
 Utils                        reusable header-only infrastructure
-3rdparty                     vendored Boost / HDF5 / CGNS / HighFive / mio / spdlog
+3rdparty                     vendored Boost / HighFive / mio / spdlog and target-local HDF5/CGNS packages
 ```
 
 `ReaderCGNS` is a DLL subproject. `Core` links the `ReaderCGNS` CMake target and includes the public headers from `ReaderCGNS/include/` via paths such as `ReaderCGNS/ReaderCGNS.h` and `ReaderCGNS/CgnsCore.h`.
@@ -122,7 +123,7 @@ Utils/                            reusable header-only data structures/helpers
 `ReaderCGNS/include/ReaderCGNS/ReaderCGNS.h` exports `ReaderCGNS::Logger::SetLogCallback`, `ReaderCGNS::Logger::ClearLogCallback`, and `ReaderCGNS::info(const std::string&)` with `READER_CGNS_DLL`. `ReaderCGNS/src/ReaderCGNS.cpp` implements the exported inspection function and callback setters. `ReaderCGNS/include/ReaderCGNS/CgnsCore.h` exposes a small RAII-style `CgnsCore` class for opening and closing CGNS files.
 
 **CGNS inspection flow**  
-`ReaderCGNS::info()` validates files with `cg_is_cgns`, opens them read-only, logs version/precision, then walks bases, zones, flow solutions, discrete data, zone subregions, grid entries/coordinate arrays, element connectivity sections, one-to-one/generalized connectivity, holes, and boundary-condition datasets. CGNS API calls in this path go through `CG_INFO(status)` so failures log `cg_get_error()` with source location. `CgnsCore` separately wraps open/close lifetime and resets `m_cg_file_id` after failure or close.
+`ReaderCGNS::info()` validates files with `cg_is_cgns`, opens them read-only, logs version/precision, then walks bases, zones, flow solutions, discrete data, zone subregions, grid entries/coordinate arrays, element connectivity sections, one-to-one/generalized connectivity, holes, boundary-condition datasets, grid motion, zone grid connectivity, and particle data. CGNS API calls in this path go through `CG_INFO(status)` so failures log `cg_get_error()` with source location. `CgnsCore` separately wraps open/close lifetime and resets `m_cg_file_id` after failure or close.
 
 **Windows-specific utilities are centralized**  
 `Core/Common/src/Functions.cpp` contains the Win32 boundary: ACP/UTF-8 conversion, environment lookups, executable path helpers, and `CallCmd`. `CallCmd` launches a child process with stdout/stderr redirected into a pipe, streams output line-by-line to a callback, and uses a Job Object to clean up the spawned process tree if early termination is requested.
@@ -130,25 +131,30 @@ Utils/                            reusable header-only data structures/helpers
 **HighFive helpers**  
 `Core/Utils/HighFiveUtils.hpp` provides HDF5 convenience wrappers used by `Main.cpp`: vector/array/span dataset writes, compound-type dataset writes, extendable chunked datasets, and create-or-open group access.
 
-**Reusable utilities**  
+**Reusable concurrency utilities**  
 `Utils/BlockingQueue.hpp` is a bounded/unbounded blocking queue for producer-consumer flows. `max_size == 0` means unbounded; nonzero capacity makes `Push()` wait when the queue is full. `Close()` wakes waiters and prevents new writes, but consumers can keep popping already queued data until `Pop()` returns `std::nullopt`.
 
+`Utils/ThreadPool.hpp` is a `std::jthread`-based task pool. `enqueue()` returns a `std::future`, `wait_for_completion()` waits on the unfinished-task counter, `shutdown()` stops new enqueue calls after queued/in-flight work completes, and `shutdown_now()` drops queued work while letting already-running tasks finish.
+
+`Utils/SyncController.hpp` coordinates a single producer/consumer handoff with a shared condition variable and an atomic ready flag. Its `notify_one()` intentionally calls `notify_all()` because producer and consumer predicates are mutually exclusive on the same condition variable.
+
+**Prefix-sum utility**  
 `Utils/SmartPrefixSum.hpp` keeps a mutable incremental prefix-sum cache over a referenced vector. It is not thread-safe, assumes source data is read-only or append-only between `query()` calls, and requires `invalidate()` after modifying already-cached elements. Large recomputations use `std::execution::par`; `Core/CMakeLists.txt` links `TBB::tbb` only when `find_package(TBB CONFIG QUIET)` succeeds, otherwise the parallel STL path may run serially.
 
 ## Platform and dependencies
 
-This is a Windows-oriented codebase using Win32 APIs such as `CreateProcessW`, `CreatePipe`, `MultiByteToWideChar`, `GetModuleFileNameW`, and Job Objects. All listed third-party dependencies are vendored under `3rdparty/`.
+This is a Windows-oriented codebase using Win32 APIs such as `CreateProcessW`, `CreatePipe`, `MultiByteToWideChar`, `GetModuleFileNameW`, and Job Objects. Third-party dependencies are vendored rather than fetched at configure time.
 
 Important dependency facts from `README.md` and CMake:
-- Boost 1.91 components `program_options` and `container` are linked by `Core`
-- CGNS 4.5.1 is linked by `ReaderCGNS` via `CGNS::cgns_static`
-- HDF5 is linked via `hdf5::hdf5-static`; CMake chooses debug/release zlib archives based on `CMAKE_BUILD_TYPE`
-- HighFive 3.3.0 and mio are header-only; spdlog 1.17.0 is used from vendored headers
+- Boost 1.91 components `program_options` and `container` are linked by `Core` from `3rdparty/boost`
+- HighFive 3.3.0, mio, and spdlog 1.17.0 are header-oriented vendored dependencies under the root `3rdparty/`
+- `Core` sets `HDF5_ROOT` to `Core/3rdparty/hdf5` and links `hdf5::hdf5-shared`
+- `ReaderCGNS` sets `CGNS_ROOT` to `ReaderCGNS/3rdparty/cgns`, chooses a debug/release zlib archive based on `CMAKE_BUILD_TYPE`, and links `CGNS::cgns_static`
 - TBB is optional and only affects whether large `std::execution::par` reductions actually parallelize
 
 ## Include style
 
 - third-party headers use `#include <...>`
 - project headers usually use quoted paths such as `#include "Functions.h"`, `#include "ReaderCGNS/ReaderCGNS.h"`, or `#include "Utils/BlockingQueue.hpp"`
-- `Core` include roots include the repo root, `3rdparty/`, `Core/Common`, and `Core/Utils`
-- `ReaderCGNS` exposes `ReaderCGNS/include` publicly and uses the repo root, `3rdparty/`, and `ReaderCGNS/Utils` privately
+- `Core` include roots include the repo root, root `3rdparty/`, `Core/Common`, and `Core/Utils`
+- `ReaderCGNS` exposes `ReaderCGNS/include` publicly and uses the repo root, root `3rdparty/`, and `ReaderCGNS/Utils` privately
