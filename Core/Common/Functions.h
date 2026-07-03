@@ -19,7 +19,7 @@ std::string GetEnv(const std::string& env);
 std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str);
 bool IEquals(std::string_view lhs, std::string_view rhs);
 std::string_view TrimSpaces(std::string_view sv);
-std::string_view TrimQuotes(std::string_view sv);
+std::string_view StripEdgeChar(std::string_view sv, char c);
 
 std::filesystem::path GetExecutablePath();
 std::filesystem::path GetExecutableDirectory();

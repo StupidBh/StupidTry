@@ -292,15 +292,15 @@ std::string_view TrimSpaces(std::string_view sv)
     return sv;
 }
 
-std::string_view TrimQuotes(std::string_view sv)
+std::string_view StripEdgeChar(std::string_view sv, char c)
 {
     if (sv.size() < 2) {
         return sv;
     }
-    if (sv.front() == '"') {
+    if (sv.front() == c) {
         sv.remove_prefix(1);
     }
-    if (sv.back() == '"') {
+    if (sv.back() == c) {
         sv.remove_suffix(1);
     }
     return sv;

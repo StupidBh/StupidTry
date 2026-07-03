@@ -78,7 +78,7 @@ namespace HFUtils {
 
     template<class T>
     requires HDF5Node<T>
-    HighFive::Group GetGroup(T&& loc, const std::string& name)
+    HighFive::Group GetOrCreateGroup(T&& loc, const std::string& name)
     {
         if (!loc.exist(name)) {
             return std::forward<T>(loc).createGroup(name);
