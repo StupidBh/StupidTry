@@ -19,19 +19,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 set(BOOST_ROOT "${3RD_ROOT}/boost")
-set(HDF5_ROOT "${3RD_ROOT}/hdf5")
-if (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
-    set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/debug/lib/libzsd.a")
-else ()
-    set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/lib/libzs.a")
-endif ()
-
+set(HDF5_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/hdf5")
 find_package(HDF5 CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS container program_options)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Boost::container
         Boost::program_options
-        hdf5::hdf5-static
+        hdf5::hdf5-shared
         ReaderCGNS
 )
 
@@ -44,11 +38,17 @@ else ()
 endif ()
 
 
+set(HDF5_RUNTIME_DLL_DIR "$<IF:$<CONFIG:Debug>,${HDF5_ROOT}/debug/bin,${HDF5_ROOT}/bin>")
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND $<$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>:${CMAKE_COMMAND}>
         $<$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>:-E>
         $<$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>:copy_if_different>
         $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
         $<$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>:$<TARGET_FILE_DIR:${PROJECT_NAME}>>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${HDF5_RUNTIME_DLL_DIR}/libz$<$<CONFIG:Debug>:d>.dll
+        ${HDF5_RUNTIME_DLL_DIR}/libaec.dll
+        ${HDF5_RUNTIME_DLL_DIR}/libsz.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMAND_EXPAND_LISTS
 )

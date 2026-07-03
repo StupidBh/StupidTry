@@ -27,17 +27,13 @@ if (WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 endif ()
 
-set(CGNS_ROOT "${3RD_ROOT}/cgns")
-set(HDF5_ROOT "${3RD_ROOT}/hdf5")
+set(CGNS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cgns")
 if (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
-    set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/debug/lib/libzsd.a")
+    set(ZLIB_LIBRARY "${CGNS_ROOT}/debug/lib/libzsd.a")
 else ()
-    set(ZLIB_LIBRARY "${3RD_ROOT}/hdf5/lib/libzs.a")
+    set(ZLIB_LIBRARY "${CGNS_ROOT}/lib/libzs.a")
 endif ()
-
-find_package(HDF5 CONFIG REQUIRED)
 find_package(cgns CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        hdf5::hdf5-static
         CGNS::cgns_static
 )
