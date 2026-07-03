@@ -5,7 +5,7 @@
 # ============================================================================
 Language: Cpp
 BasedOnStyle: Webkit
-Standard: c++20
+Standard: Latest
 LineEnding: LF
 DisableFormat: false
 
