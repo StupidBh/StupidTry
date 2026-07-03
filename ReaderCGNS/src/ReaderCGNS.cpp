@@ -55,25 +55,25 @@ namespace ReaderCGNS {
         CG_INFO(cg_nbases(cg_file_id, &nbases));
         for (int base = 1; base <= nbases; ++base) {
             std::string base_name(33, '\0'), base_biter_name(33, '\0');
-            int base_cell_dim = 0, base_phys_dim = 0, base_biter_nsteps = 0, n1to1s_global = 0;
+            int base_cell_dim = 0, base_phys_dim = 0, base_iter_nsteps = 0, n1to1s_global = 0;
             CG_SimulationType_t base_simulation_type = CG_SimulationType_t::CG_SimulationTypeNull;
             CG_INFO(cg_base_read(cg_file_id, base, base_name.data(), &base_cell_dim, &base_phys_dim));
             CG_INFO(cg_simulation_type_read(cg_file_id, base, &base_simulation_type));
 
             // Base Iterative Data
-            CG_INFO(cg_biter_read(cg_file_id, base, base_biter_name.data(), &base_biter_nsteps));
+            CG_INFO(cg_biter_read(cg_file_id, base, base_biter_name.data(), &base_iter_nsteps));
 
             // One-to-One Connectivity Global
             CG_INFO(cg_n1to1_global(cg_file_id, base, &n1to1s_global));
 
-            LOG_INFO("[Base]{:>2}:[{}] {}, CellDim={}, PhyDim={}, [{}] Iterative={}, n1to1s_global={}",
+            LOG_INFO("[Base] {}:[{}] {}, CellDim={}, PhyDim={}, [{}] Iterative={}, n1to1s_global={}",
                      base,
                      cg_SimulationTypeName(base_simulation_type),
                      base_name.c_str(),
                      base_cell_dim,
                      base_phys_dim,
                      (base_biter_name.empty() ? "NULL" : base_biter_name.c_str()),
-                     base_biter_nsteps,
+                     base_iter_nsteps,
                      n1to1s_global);
 
             // Zone Information
@@ -96,7 +96,7 @@ namespace ReaderCGNS {
                     case 2: {
                         zone_vertex_sum = zone_size[0] * zone_size[1];
                         zone_cell_sum = zone_size[2] * zone_size[3];
-                        LOG_INFO("  [Zone]{:>3}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name={}",
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name={}",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
@@ -115,7 +115,7 @@ namespace ReaderCGNS {
                     case 3: {
                         zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
                         zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
-                        LOG_INFO("  [Zone]{:>3}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name={}",
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name={}",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
@@ -134,7 +134,7 @@ namespace ReaderCGNS {
                                  zone_iter_name.c_str());
                     } break;
                     default: {
-                        LOG_WARN("  [Zone]{:>3}:[{}] {}, Invalid-Dim={}, iter_name={}",
+                        LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name={}",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
@@ -147,7 +147,7 @@ namespace ReaderCGNS {
                     zone_vertex_sum = zone_size[0];
                     zone_cell_sum = zone_size[1];
 
-                    LOG_INFO("  [Zone]{:>3}:[{}] {}, NVertex={}, NCell={}, NBoundVertex={}, iter_name={}",
+                    LOG_INFO("  [Zone]{:>2}:[{}] {}, NVertex={}, NCell={}, NBoundVertex={}, iter_name={}",
                              zone,
                              cg_ZoneTypeName(zone_type),
                              zone_name.c_str(),
@@ -317,7 +317,7 @@ namespace ReaderCGNS {
                     }
 
                     if (elements.empty()) {
-                        LOG_INFO("    [ElementConnectivity]{:>3}:[{}] {}, ElementRange=<empty>:{}",
+                        LOG_INFO("    [ElementConnectivity]{:>2}:[{}] {}, ElementRange=<empty>:{}",
                                  section,
                                  cg_ElementTypeName(section_element_type),
                                  section_name.c_str(),
@@ -327,7 +327,7 @@ namespace ReaderCGNS {
                         auto by_abs = [](auto value) {
                             return std::abs(value);
                         };
-                        LOG_INFO("    [ElementConnectivity]{:>3}:[{}] {}, ElementRange=[{},{}]:{}",
+                        LOG_INFO("    [ElementConnectivity]{:>2}:[{}] {}, ElementRange=[{},{}]:{}",
                                  section,
                                  cg_ElementTypeName(section_element_type),
                                  section_name.c_str(),
@@ -355,7 +355,7 @@ namespace ReaderCGNS {
                                          &n1to1_range,
                                          &donor_range,
                                          &n1to1_transform));
-                    LOG_INFO("    [One-to-One Connectivity]{:>3}:[{}] {}, range={}, donor_range={}, transform={}",
+                    LOG_INFO("    [One-to-One Connectivity]{:>2}:[{}] {}, range={}, donor_range={}, transform={}",
                              n1to1,
                              n1to1_connectname,
                              n1to1_donorname,
@@ -391,7 +391,7 @@ namespace ReaderCGNS {
                                          &donor_datatype,
                                          &ndata_donor));
 
-                    LOG_INFO("    [GeneralizedConnectivity]{:>3}:[{}]-[{}] {}, [{}]:{}, [{}]-[{}] {}, [{}]:{}",
+                    LOG_INFO("    [GeneralizedConnectivity]{:>2}:[{}]-[{}] {}, [{}]:{}, [{}]-[{}] {}, [{}]:{}",
                              ncoon,
                              cg_GridLocationName(ncoon_loc),
                              cg_GridConnectivityTypeName(connect_type),
@@ -416,7 +416,7 @@ namespace ReaderCGNS {
                     CG_INFO(
                         cg_hole_info(cg_file_id, base, zone, hole, hole_name.data(), &hole_location, &hole_ptset_type, &hole_nptsets, &hole_npnts));
 
-                    LOG_INFO("    [GeneralizedConnectivity]{:>3}:[{}] {}, [{}] nptsets={}, npnts={}",
+                    LOG_INFO("    [GeneralizedConnectivity]{:>2}:[{}] {}, [{}] nptsets={}, npnts={}",
                              hole,
                              cg_GridLocationName(hole_location),
                              hole_name.c_str(),
@@ -434,8 +434,8 @@ namespace ReaderCGNS {
                     CG_PointSetType_t boco_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
                     CG_DataType_t boco_normal_datatype = CG_DataType_t::CG_DataTypeNull;
                     CG_GridLocation_t boco_location = CG_GridLocation_t::CG_GridLocationNull;
-                    int boco_npnts = 0, boco_normal_index = 0, boco_ndataset = 0;
-                    cgsize_t boco_normal_list_size = 0;
+                    cgsize_t boco_npnts = 0, boco_normal_list_size = 0;
+                    int boco_normal_index = 0, boco_ndataset = 0;
 
                     CG_INFO(cg_boco_gridlocation_read(cg_file_id, base, zone, boco, &boco_location));
                     CG_INFO(cg_boco_info(cg_file_id,
@@ -451,7 +451,7 @@ namespace ReaderCGNS {
                                          &boco_normal_datatype,
                                          &boco_ndataset));
 
-                    LOG_INFO("    [BoundaryConditions]{:>3}:[{}]-[{}] {}, [{}] npnts={}, [{}] index={}, listSize={}, ndataset={}",
+                    LOG_INFO("    [BoundaryConditions]{:>2}:[{}]-[{}] {}, [{}] npnts={}, [{}] index={}, listSize={}, ndataset={}",
                              boco,
                              cg_BCTypeName(boco_type),
                              cg_GridLocationName(boco_location),
@@ -478,7 +478,7 @@ namespace ReaderCGNS {
                                                 &boco_dataset_dirichlet_flag,
                                                 &boco_dataset_neumann_flag));
 
-                        LOG_INFO("      [BoundaryConditionsDataset]{:>3}:[{}]-[{}] {}, DirichletFlag={}, NeumannFlag ={}",
+                        LOG_INFO("      [BoundaryConditionsDataset]{:>2}:[{}]-[{}] {}, DirichletFlag={}, NeumannFlag ={}",
                                  boco_dataset,
                                  cg_BCTypeName(boco_dataset_type),
                                  cg_GridLocationName(boco_location),
@@ -487,8 +487,118 @@ namespace ReaderCGNS {
                                  boco_dataset_neumann_flag);
                     }
                 }
+
+                // Rigid Grid Motion
+                int n_rigid_motions = 0;
+                CG_INFO(cg_n_rigid_motions(cg_file_id, base, zone, &n_rigid_motions));
+                for (int rigid_motion = 1; rigid_motion <= n_rigid_motions; ++rigid_motion) {
+                    std::string rigid_motion_name(33, '\0');
+                    CG_RigidGridMotionType_t rigid_motion_type = CG_RigidGridMotionType_t::CG_RigidGridMotionTypeNull;
+                    CG_INFO(cg_rigid_motion_read(cg_file_id, base, zone, rigid_motion, rigid_motion_name.data(), &rigid_motion_type));
+
+                    LOG_INFO("    [RigidGridMotion]{:>2}:[{}] {}",
+                             rigid_motion,
+                             cg_RigidGridMotionTypeName(rigid_motion_type),
+                             rigid_motion_name.c_str());
+                }
+
+                // Arbitrary Grid Motion
+                int n_arbitrary_motions = 0;
+                CG_INFO(cg_n_arbitrary_motions(cg_file_id, base, zone, &n_arbitrary_motions));
+                for (int arbitrary_motion = 1; arbitrary_motion <= n_arbitrary_motions; ++arbitrary_motion) {
+                    std::string arbitrary_motion_name(33, '\0');
+                    CG_ArbitraryGridMotionType_t arbitrary_motion_type = CG_ArbitraryGridMotionType_t::CG_ArbitraryGridMotionTypeNull;
+                    CG_INFO(cg_arbitrary_motion_read(cg_file_id, base, zone, arbitrary_motion, arbitrary_motion_name.data(), &arbitrary_motion_type));
+
+                    LOG_INFO("    [ArbitraryGridMotion]{:>2}:[{}] {}",
+                             arbitrary_motion,
+                             cg_ArbitraryGridMotionTypeName(arbitrary_motion_type),
+                             arbitrary_motion_name.c_str());
+                }
+
+                // Zone Grid Connectivity
+                int nzconns = 0;
+                CG_INFO(cg_nzconns(cg_file_id, base, zone, &nzconns));
+                for (int zconn = 1; zconn <= nzconns; ++zconn) {
+                    std::string zconn_name(33, '\0');
+                    CG_INFO(cg_zconn_read(cg_file_id, base, zone, zconn, zconn_name.data()));
+
+                    LOG_INFO("    [ZoneGridConnectivity]{:>2}:[NULL] {}", zconn, zconn_name.c_str());
+                }
+            }
+
+            // Particle Zone Information
+            int nparticlezones = 0;
+            CG_INFO(cg_nparticle_zones(cg_file_id, base, &nparticlezones));
+            for (int particle_zone = 1; particle_zone <= nparticlezones; ++particle_zone) {
+                double particle_zone_id = 0;
+                std::string particle_zone_name(33, '\0');
+                cgsize_t particle_zone_size = 0;
+
+                CG_INFO(cg_particle_id(cg_file_id, base, particle_zone, &particle_zone_id));
+                CG_INFO(cg_particle_read(cg_file_id, base, particle_zone, particle_zone_name.data(), &particle_zone_size));
+
+                LOG_INFO("  [Particle]{:>2}:[NULL] {}, id={}, size={}",
+                         particle_zone,
+                         particle_zone_name.c_str(),
+                         particle_zone_id,
+                         particle_zone_size);
+
+                // Particle Coordinates
+                int particle_ncoord_nodes = 0;
+                CG_INFO(cg_particle_ncoord_nodes(cg_file_id, base, particle_zone, &particle_ncoord_nodes));
+                for (int particle_zone_coord = 1; particle_zone_coord <= particle_ncoord_nodes; ++particle_zone_coord) {
+                    std::string particle_zone_coord_name(33, '\0');
+                    CG_DataType_t particle_zone_coord_type = CG_DataType_t::CG_DataTypeNull;
+
+                    CG_INFO(cg_particle_coord_info(cg_file_id,
+                                                   base,
+                                                   particle_zone,
+                                                   particle_zone_coord,
+                                                   &particle_zone_coord_type,
+                                                   particle_zone_coord_name.data()));
+
+                    LOG_INFO("    [ParticleCoordinates]{:>2}:[{}] {}",
+                             particle_zone_coord,
+                             cg_DataTypeName(particle_zone_coord_type),
+                             particle_zone_coord_name.c_str());
+                }
+
+                // Particle Solution
+                int particle_nsols = 0;
+                CG_INFO(cg_particle_nsols(cg_file_id, base, particle_zone, &particle_nsols));
+                for (int particle_sol = 1; particle_sol <= particle_nsols; ++particle_sol) {
+                    std::string particle_sol_name(33, '\0');
+                    double particle_sol_id = 0.0;
+                    cgsize_t particle_sol_size = 0, particle_sol_npnts = 0;
+                    std::vector<cgsize_t> particle_sol_pnts;
+                    CG_PointSetType_t particle_sol_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
+
+                    CG_INFO(cg_particle_sol_info(cg_file_id, base, particle_zone, particle_sol, particle_sol_name.data()));
+                    CG_INFO(cg_particle_sol_id(cg_file_id, base, particle_zone, particle_sol, &particle_sol_id));
+                    CG_INFO(cg_particle_sol_size(cg_file_id, base, particle_zone, particle_sol, &particle_sol_size));
+                    CG_INFO(cg_particle_sol_ptset_info(cg_file_id, base, particle_zone, particle_sol, &particle_sol_ptset_type, &particle_sol_npnts));
+
+                    if (particle_sol_npnts != 0) {
+                        particle_sol_pnts.resize(particle_sol_npnts);
+                        CG_INFO(cg_particle_sol_ptset_read(cg_file_id, base, particle_zone, particle_sol, particle_sol_pnts.data()));
+                    }
+
+                    int particle_nfields = 0;
+                    CG_INFO(cg_particle_nfields(cg_file_id, base, particle_zone, particle_sol, &particle_nfields));
+                    LOG_INFO("    [ParticleSolution]{:>2}:[{}] {}, id={}, size={}, npnts={}, pnts={}, nfields={}",
+                             particle_sol,
+                             cg_PointSetTypeName(particle_sol_ptset_type),
+                             particle_sol_name.c_str(),
+                             particle_sol_id,
+                             particle_sol_size,
+                             particle_sol_npnts,
+                             particle_sol_pnts,
+                             particle_nfields);
+                }
             }
         }
-        return true;
+
+        return CG_INFO(cg_close(cg_file_id)) == CG_OK;
     }
 } // namespace ReaderCGNS
