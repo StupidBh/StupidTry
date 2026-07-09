@@ -19,7 +19,7 @@ namespace dylog {
         Logger() { spdlog::init_thread_pool(32768, 1); }
 
     public:
-        ~Logger() override = default;
+        ~Logger() override { spdlog::shutdown(); };
 
         void InitLog(const std::filesystem::path& work_dir, const std::string& log_file_name, bool verbose = false)
         {

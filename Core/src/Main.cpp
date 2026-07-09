@@ -142,6 +142,5 @@ int main(int argc, char* argv[])
 
     test_thread.join();
     ReaderCGNS::Logger::ClearLogCallback();
-    spdlog::shutdown();
     return 0;
 }
