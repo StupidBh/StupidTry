@@ -9,6 +9,8 @@ class SingletonData final : public utils::SingletonHolder<SingletonData> {
     SingletonData() = default;
 
 public:
+    ~SingletonData() override = default;
+
     bool ProcessArguments(int argc, char* argv[]);
     const std::filesystem::path& GetOrCreateWorkDirectory() const;
 
