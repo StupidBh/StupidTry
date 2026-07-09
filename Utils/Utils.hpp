@@ -128,13 +128,13 @@ namespace utils {
     }
 
     template<_container_::Clearable... Args>
-    constexpr void DeepClear(Args&... vecs) noexcept
+    constexpr void DeepClear(Args&... vecs)
     {
         ((vecs = Args()), ...);
     }
 
     template<class... Args>
-    constexpr void VectorShrink(Args&... vecs) noexcept
+    constexpr void VectorShrink(Args&... vecs)
     {
         auto lambda = [](auto& v) {
             if constexpr (requires { v.shrink_to_fit(); }) {
