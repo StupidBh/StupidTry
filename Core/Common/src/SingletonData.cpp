@@ -43,13 +43,30 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
     this->m_vm.at("DEBUG").value() = true;
 #endif
 
+    auto normalize_path_option = [this](const std::string& key) {
+        const auto iter = this->m_vm.find(key);
+        if (iter == this->m_vm.end() || iter->second.empty()) {
+            return;
+        }
+        auto path = std::filesystem::path(iter->second.as<std::string>());
+        path.make_preferred();
+        iter->second.value() = path.string();
+    };
+    normalize_path_option("inputPath");
+
     if (!this->m_vm.contains("workDirectory")) {
-        auto work_dir = std::filesystem::path(this->m_vm["inputPath"].as<std::string>()).parent_path();
+        auto input_path = std::filesystem::path(this->m_vm["inputPath"].as<std::string>());
+        auto work_dir = input_path.parent_path();
         if (work_dir.empty()) {
             work_dir = ".";
-            work_dir /= std::filesystem::path(this->m_vm["inputPath"].as<std::string>()).filename().stem();
+            work_dir /= input_path.filename().stem();
         }
+        work_dir.make_preferred();
+        std::cerr << std::format("Miss parameters <workDirectory>, use <inputPath> parent path: {}", work_dir.string()) << std::endl;
         this->m_vm.emplace("workDirectory", bpo::variable_value(work_dir.string(), true));
+    }
+    else {
+        normalize_path_option("workDirectory");
     }
 
     dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(), "stupid-bhh", this->m_vm["DEBUG"].as<bool>());
