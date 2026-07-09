@@ -1,9 +1,11 @@
 #pragma once
 #include <chrono>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iostream>
 #include <mutex>
+#include <string>
 #include <string_view>
 
 namespace utils {
@@ -25,13 +27,18 @@ namespace utils {
         {
         }
 
-        ~ScopedTimer()
+        ~ScopedTimer() noexcept
         {
             // 仅在非栈展开时输出：stop() 的回调（如 spdlog）可能抛异常，
             // 若此刻已有异常在传播，二次抛出会触发 std::terminate。
             // 栈展开中宁可放弃这条计时日志，也不冒 terminate 的风险。
             if (this->m_running && std::uncaught_exceptions() == 0) {
-                this->stop();
+                try {
+                    this->stop();
+                }
+                catch (...) {
+                    this->m_running = false;
+                }
             }
         }
 
