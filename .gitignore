@@ -1,9 +1,6 @@
 # === Build outputs ===
 /bin/
 /build/
-/Core/build/
-/CGNSRead/build/
-/ReaderH5/build/
 cmake-build-*/
 
 # === Compiled intermediates (safety net) ===
