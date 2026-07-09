@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
     if (!SINGLE_DATA.ProcessArguments(argc, argv)) {
         return EXIT_FAILURE;
     }
+    SCOPED_TIMER_LOG("Main");
 
     if (!std::filesystem::exists(INPUT_PATH)) {
         LOG_ERROR("Input path does not exist");
