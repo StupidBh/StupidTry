@@ -5,6 +5,7 @@
 #include <future>
 #include <mutex>
 #include <queue>
+#include <stdexcept>
 #include <stop_token>
 #include <thread>
 #include <type_traits>
@@ -18,7 +19,8 @@ namespace utils {
     public:
         explicit ThreadPool(size_t thread_count) :
             m_unfinished_tasks(0),
-            m_stopped(false)
+            m_stopped(false),
+            m_run_inline(thread_count == 0)
         {
             m_workers.reserve(thread_count);
             for (size_t i = 0; i < thread_count; ++i) {
@@ -68,6 +70,7 @@ namespace utils {
                 });
 
             std::future<return_type> future = task_ptr->get_future();
+            bool run_inline = false;
 
             {
                 std::scoped_lock lock(m_mutex);
@@ -75,15 +78,24 @@ namespace utils {
                     throw std::runtime_error("enqueue on stopped ThreadPool");
                 }
 
-                // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
-                m_tasks.emplace([task_ptr, this]() {
-                    (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
-                    if (m_unfinished_tasks.fetch_sub(1) == 1) {
-                        std::scoped_lock lk(m_mutex);
-                        m_completion_cv.notify_all();
-                    }
-                });
-                ++m_unfinished_tasks;
+                if (m_run_inline) {
+                    ++m_unfinished_tasks;
+                    run_inline = true;
+                }
+                else {
+                    // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
+                    m_tasks.emplace([task_ptr, this]() {
+                        (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
+                        this->finish_task();
+                    });
+                    ++m_unfinished_tasks;
+                }
+            }
+
+            if (run_inline) {
+                (*task_ptr)();
+                this->finish_task();
+                return future;
             }
 
             m_task_cv.notify_one();
@@ -157,6 +169,13 @@ namespace utils {
         }
 
     private:
+        void finish_task() noexcept
+        {
+            if (m_unfinished_tasks.fetch_sub(1) == 1) {
+                m_completion_cv.notify_all();
+            }
+        }
+
         // 串行化 m_workers.clear()，避免并发 shutdown / shutdown_now 对同一 vector 重复析构
         void clear_workers()
         {
@@ -169,6 +188,7 @@ namespace utils {
 
         std::atomic<size_t> m_unfinished_tasks;    // 未完成任务数
         bool m_stopped;                            // 停止标志位
+        bool m_run_inline;                         // thread_count == 0: execute enqueue tasks inline
 
         std::mutex m_mutex;                        // 任务队列互斥锁
         std::condition_variable m_task_cv;         // 新任务通知
