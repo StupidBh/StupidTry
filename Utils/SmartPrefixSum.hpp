@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace stupid {
+namespace utils {
     template<typename T>
     using SafeSumType_t = std::conditional_t<std::is_floating_point_v<T>, double, std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
 
@@ -89,4 +89,4 @@ namespace stupid {
             return last_sum;
         }
     };
-} // namespace stupid
+} // namespace utils
