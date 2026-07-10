@@ -2,9 +2,11 @@
 #include "logger_formatter.hpp"
 #include "Utils/SingletonHolder.hpp"
 
+#include <exception>
 #include <iostream>
 #include <shared_mutex>
 #include <utility>
+#include <vector>
 
 #include "spdlog/async.h"
 #include "spdlog/spdlog.h"
@@ -34,27 +36,25 @@ namespace dylog {
 #endif
 
             // 终端回显日志消息
-            std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            const auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            std::vector<spdlog::sink_ptr> log_sinks { console_sink };
 
             // 写入外部文件的日志消息
-            std::shared_ptr<spdlog::sinks::daily_file_sink_mt> file_sink = nullptr;
             try {
                 const std::filesystem::path log_dir = work_dir / "logs";
-                if (!std::filesystem::exists(log_dir)) {
-                    std::filesystem::create_directories(log_dir);
-                }
+                std::filesystem::create_directories(log_dir);
 
-                std::filesystem::path log_path = log_dir / (log_file_name + ".log");
-                file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path.string(), 0, 0, false, 30);
+                const std::filesystem::path log_path = log_dir / (log_file_name + ".log");
+                log_sinks.emplace_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path.string(), 0, 0, false, 30));
             }
-            catch (...) {
-                std::cerr << "The log file creation failed. Roll back to the terminal!\n";
-                file_sink = nullptr;
+            catch (const std::exception& e) {
+                std::cerr << "File logging disabled: " << e.what() << '\n';
             }
 
             // 创建异步记录器
             const auto async_logger = std::make_shared<spdlog::async_logger>(log_file_name,
-                                                                             spdlog::sinks_init_list { console_sink, file_sink },
+                                                                             log_sinks.begin(),
+                                                                             log_sinks.end(),
                                                                              spdlog::thread_pool(),
                                                                              spdlog::async_overflow_policy::block);
             async_logger->set_pattern(log_fmt);
