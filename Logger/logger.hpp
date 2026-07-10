@@ -67,6 +67,10 @@ namespace dylog {
 
         void UpdateLog(std::shared_ptr<spdlog::logger> log)
         {
+            if (log == nullptr) {
+                return;
+            }
+
             std::unique_lock lock(this->m_mutex);
             spdlog::set_default_logger(std::move(log));
         }
