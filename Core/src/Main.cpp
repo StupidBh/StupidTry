@@ -100,6 +100,7 @@ int main(int argc, char* argv[])
             return 1;
         }
     }
+    test_thread.join();
 
     {
         SCOPED_TIMER_LOG("ProducerConsumer demo");
@@ -144,7 +145,6 @@ int main(int argc, char* argv[])
         LOG_INFO("ProducerConsumer demo passed, consumed size={}", consumed.size());
     }
 
-    test_thread.join();
     ReaderCGNS::Logger::ClearLogCallback();
     return 0;
 }
