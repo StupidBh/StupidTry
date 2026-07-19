@@ -39,11 +39,16 @@ int main(int argc, char* argv[])
 
     struct Grid
     {
+        enum : std::size_t
+        {
+            DOC_CAPACITY = 64
+        };
+
         std::uint32_t ID = 1;
         float X = 1.F;
         float Y = 1.F;
         float Z = 1.F;
-        std::string doc = "TryToStringMessage";
+        char doc[DOC_CAPACITY] = "TryToStringMessage";
 
         static HighFive::CompoundType CompoundType()
         {
@@ -53,7 +58,7 @@ int main(int argc, char* argv[])
                     { "X", HighFive::create_datatype<float>(), offsetof(Grid, X) },           //
                     { "Y", HighFive::create_datatype<float>(), offsetof(Grid, Y) },           //
                     { "Z", HighFive::create_datatype<float>(), offsetof(Grid, Z) },           //
-                    { "DOC", HighFive::create_datatype<std::string>(), offsetof(Grid, doc) },
+                    { "DOC", HighFive::FixedLengthStringType(DOC_CAPACITY, HighFive::StringPadding::NullTerminated), offsetof(Grid, doc) },
                 },
                 sizeof(Grid) //
             );
