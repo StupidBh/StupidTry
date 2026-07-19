@@ -13,6 +13,18 @@ cmake-build-*/
 *.dll
 *.exe
 
+# === Vendored dependency binaries ===
+# These files are build inputs, not project build outputs.
+!/3rdparty/**/*.lib
+!/3rdparty/**/*.dll
+!/3rdparty/**/*.exe
+!/Core/3rdparty/**/*.lib
+!/Core/3rdparty/**/*.dll
+!/Core/3rdparty/**/*.exe
+!/ReaderCGNS/3rdparty/**/*.lib
+!/ReaderCGNS/3rdparty/**/*.dll
+!/ReaderCGNS/3rdparty/**/*.exe
+
 # === IDE — JetBrains ===
 .idea/
 
