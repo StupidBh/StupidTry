@@ -265,22 +265,27 @@ namespace ReaderCGNS {
                 CG_INFO(cg_ngrids(cg_file_id, base, zone, &ngrids));
                 for (int grid = 1; grid <= ngrids; ++grid) {
                     std::string grid_name(33, '\0');
-                    CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
-                    std::vector<cgsize_t> grid_boundingbox(1, 0);
+                    // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
+                    // std::vector<cgsize_t> grid_boundingbox(1, 0);
 
                     CG_INFO(cg_grid_read(cg_file_id, base, zone, grid, grid_name.data()));
-                    CG_INFO(cg_grid_bounding_box_read(cg_file_id, base, zone, grid, grid_data_type, grid_boundingbox.data()));
+                    // CG_INFO(cg_grid_bounding_box_read(cg_file_id, base, zone, grid, grid_data_type, grid_boundingbox.data()));
 
-                    LOG_INFO("    [ZoneGird]{:>2}:[{}] {}", grid, cg_DataTypeName(grid_data_type), grid_name);
+                    LOG_INFO("    [ZoneGird]{:>2}:[{}]", grid, grid_name.c_str());
                 }
                 int ncoords = 0;
+                std::string coord_info_msg;
                 CG_INFO(cg_ncoords(cg_file_id, base, zone, &ncoords));
                 for (int coord = 1; coord <= ncoords; ++coord) {
                     std::string coord_name(33, '\0');
                     CG_DataType_t coord_data_type = CG_DataType_t::CG_DataTypeNull;
                     CG_INFO(cg_coord_info(cg_file_id, base, zone, coord, &coord_data_type, coord_name.data()));
 
-                    LOG_INFO("    [ZoneCoords]{:>2}:[{}] {}", coord, cg_DataTypeName(coord_data_type), coord_name);
+                    coord_info_msg += std::format("[{}-{}-{}], ", coord, cg_DataTypeName(coord_data_type), coord_name.c_str());
+                }
+                if (!coord_info_msg.empty()) {
+                    coord_info_msg.erase(coord_info_msg.size() - 2);
+                    LOG_INFO("    [ZoneCoords] {}", coord_info_msg);
                 }
 
                 // Element Connectivity
