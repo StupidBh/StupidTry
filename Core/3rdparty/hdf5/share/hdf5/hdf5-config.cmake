@@ -85,10 +85,10 @@ set (${HDF5_PACKAGE_NAME}_DEFAULT_API_VERSION     "v200")
 set (${HDF5_PACKAGE_NAME}_PROVIDES_DEPRECATED_SYMBOLS ON)
 set (${HDF5_PACKAGE_NAME}_PROVIDES_DIMENSION_SCALES_WITH_NEW_REF )
 #-----------------------------------------------------------------------------
-set (${HDF5_PACKAGE_NAME}_PROVIDES_TOOLS           OFF)
+set (${HDF5_PACKAGE_NAME}_PROVIDES_TOOLS           ON)
 set (${HDF5_PACKAGE_NAME}_PROVIDES_STATIC_TOOLS    OFF)
 #-----------------------------------------------------------------------------
-set (${HDF5_PACKAGE_NAME}_PROVIDES_NONSTANDARD_FEATURE_FLOAT16 ON)
+set (${HDF5_PACKAGE_NAME}_PROVIDES_NONSTANDARD_FEATURE_FLOAT16 OFF)
 #-----------------------------------------------------------------------------
 set (${HDF5_PACKAGE_NAME}_PROVIDES_ZLIB_SUPPORT   ON)
 set (${HDF5_PACKAGE_NAME}_PROVIDES_SZIP_SUPPORT   ON)
@@ -103,7 +103,7 @@ set (${HDF5_PACKAGE_NAME}_PROVIDES_SUBFILING_VFD  OFF)
 set (${HDF5_PACKAGE_NAME}_PROVIDES_PLUGIN_SUPPORT OFF)
 #-----------------------------------------------------------------------------
 set (${HDF5_PACKAGE_NAME}_PACKAGE_EXTLIBS       OFF)
-set (${HDF5_PACKAGE_NAME}_EXPORT_LIBRARIES      hdf5-shared)
+set (${HDF5_PACKAGE_NAME}_EXPORT_LIBRARIES      hdf5-shared;hdf5_tools-shared)
 set (${HDF5_PACKAGE_NAME}_ARCHITECTURE         "")
 set (${HDF5_PACKAGE_NAME}_TOOLSET              "")
 

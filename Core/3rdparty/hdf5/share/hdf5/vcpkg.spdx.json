@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/hdf5-x64-mingw-dynamic-2.1.1#1-452c2835-094e-4d25-a5ac-aaca2c869459",
-  "name": "hdf5:x64-mingw-dynamic@2.1.1#1 4492037b8d907eb3d166c6f117d728ac13b9d065c6fd1f90b645a4486b5e375b",
+  "documentNamespace": "https://spdx.org/spdxdocs/hdf5-x64-windows-2.1.1#1-bc0ae6c7-b1c4-4984-a520-017b34c57f29",
+  "name": "hdf5:x64-windows@2.1.1#1 4828e20f60647c368f05902e112aab07cd8c02249363a58cfc4af84acfda4136",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-07-01T01:57:42Z"
+    "created": "2026-07-18T13:50:17Z"
   },
   "relationships": [
     {
@@ -451,6 +451,146 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-76"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-77"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-78"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-79"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-80"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-81"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-82"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-83"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-84"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-85"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-86"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-87"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-88"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-89"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-90"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-91"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-92"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-93"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-94"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-95"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-96"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-97"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-98"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-99"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-100"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-101"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-102"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-103"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-104"
     }
   ],
   "packages": [
@@ -467,9 +607,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "hdf5:x64-mingw-dynamic",
+      "name": "hdf5:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "4492037b8d907eb3d166c6f117d728ac13b9d065c6fd1f90b645a4486b5e375b",
+      "versionInfo": "4828e20f60647c368f05902e112aab07cd8c02249363a58cfc4af84acfda4136",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -601,12 +741,48 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./bin/libhdf5.dll",
+      "fileName": "./bin/hdf5.dll",
       "SPDXID": "SPDXRef-binary-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "86c0417768e78b79595899c738941bd1474d525b6ece50d83ab9ca189258be31"
+          "checksumValue": "2eab79af125d39fb24dac029e12a829b91f93adae15826e79191a54ecd37e22a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./bin/hdf5.pdb",
+      "SPDXID": "SPDXRef-binary-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "537a530ed185f42c067bb25f1e592f862b5f1ef147b89d3a00a8cd55feb8816e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./bin/hdf5_tools.dll",
+      "SPDXID": "SPDXRef-binary-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e6a6b37fe3e9155b69815136571258ef91f68c094661a83c017b86bd1d948c4c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./bin/hdf5_tools.pdb",
+      "SPDXID": "SPDXRef-binary-file-3",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "dd92f2219fc8cc463f30671098ff5642a223f850c58003d5ba98aba74fdc9848"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -614,35 +790,83 @@
     },
     {
       "fileName": "./BUILD_INFO",
-      "SPDXID": "SPDXRef-binary-file-1",
+      "SPDXID": "SPDXRef-binary-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6ab53fb9a3c8a8fd7267dfe9da42066bcaebbb691a450ba4a83145564fe9c597"
+          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/bin/libhdf5.dll",
-      "SPDXID": "SPDXRef-binary-file-2",
+      "fileName": "./debug/bin/hdf5.dll",
+      "SPDXID": "SPDXRef-binary-file-5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5cfcbc73adfcccc87d259b77875f9ab543c23d7960bbfa8908029c861cf88922"
+          "checksumValue": "ae86080bfb61142a898a34843d221d4ecaad4a25877a77b66fc20249e02adaa3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/lib/libhdf5.dll.a",
-      "SPDXID": "SPDXRef-binary-file-3",
+      "fileName": "./debug/bin/hdf5.pdb",
+      "SPDXID": "SPDXRef-binary-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "40c3994c526b26cc6d09f58bbe3c2a1347cdec415cdb19006977aaa4bd6761e4"
+          "checksumValue": "93885896f1dddf1a4816c65e836d0911bf15445aa092898a424e78360cc2b504"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/bin/hdf5_tools.dll",
+      "SPDXID": "SPDXRef-binary-file-7",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "18ed3c47e323dacf06440a3cc681c6237d7cd09ca967adb5ebf4b094a3bfd763"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/bin/hdf5_tools.pdb",
+      "SPDXID": "SPDXRef-binary-file-8",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0fc5f500496360b5c63710e05cd6fc29b86e84a4a716ba5c2b69ab72f252acd8"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/lib/hdf5.lib",
+      "SPDXID": "SPDXRef-binary-file-9",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ec98da6237eed3cdcb8c594227fe9f2f0387ca213360ae8b2b29bc4f21494638"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/lib/hdf5_tools.lib",
+      "SPDXID": "SPDXRef-binary-file-10",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "86187b54f68ec883378b1c29871128312e3ca70af8998030f724b1cb6c823596"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -650,11 +874,11 @@
     },
     {
       "fileName": "./debug/lib/libhdf5.settings",
-      "SPDXID": "SPDXRef-binary-file-4",
+      "SPDXID": "SPDXRef-binary-file-11",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5d7aca8b720885aa40b1462ff015c29a5ff96a627d85bfb4e1a8322712a75726"
+          "checksumValue": "4389deb69e63e06b47c4f33e25a4ab8c438f4a3532f2d8b842f52ea69bf2380a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -662,11 +886,11 @@
     },
     {
       "fileName": "./debug/lib/pkgconfig/hdf5.pc",
-      "SPDXID": "SPDXRef-binary-file-5",
+      "SPDXID": "SPDXRef-binary-file-12",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "03ce9fd406f3c0d4323cb703d94ded0eb14d2f38d119c43e20631cfe1dac2051"
+          "checksumValue": "16ba5fd00dbabac5f902b4d8db82cbeae7487f8299b9e956e45e4c50fb2bdf42"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -674,7 +898,7 @@
     },
     {
       "fileName": "./include/H5ACpublic.h",
-      "SPDXID": "SPDXRef-binary-file-6",
+      "SPDXID": "SPDXRef-binary-file-13",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -686,7 +910,7 @@
     },
     {
       "fileName": "./include/H5api_adpt.h",
-      "SPDXID": "SPDXRef-binary-file-7",
+      "SPDXID": "SPDXRef-binary-file-14",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -698,7 +922,7 @@
     },
     {
       "fileName": "./include/H5Apublic.h",
-      "SPDXID": "SPDXRef-binary-file-8",
+      "SPDXID": "SPDXRef-binary-file-15",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -710,7 +934,7 @@
     },
     {
       "fileName": "./include/H5Cpublic.h",
-      "SPDXID": "SPDXRef-binary-file-9",
+      "SPDXID": "SPDXRef-binary-file-16",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -722,7 +946,7 @@
     },
     {
       "fileName": "./include/H5Dpublic.h",
-      "SPDXID": "SPDXRef-binary-file-10",
+      "SPDXID": "SPDXRef-binary-file-17",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -734,7 +958,7 @@
     },
     {
       "fileName": "./include/H5Epubgen.h",
-      "SPDXID": "SPDXRef-binary-file-11",
+      "SPDXID": "SPDXRef-binary-file-18",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -746,7 +970,7 @@
     },
     {
       "fileName": "./include/H5Epublic.h",
-      "SPDXID": "SPDXRef-binary-file-12",
+      "SPDXID": "SPDXRef-binary-file-19",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -758,7 +982,7 @@
     },
     {
       "fileName": "./include/H5ESdevelop.h",
-      "SPDXID": "SPDXRef-binary-file-13",
+      "SPDXID": "SPDXRef-binary-file-20",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -770,7 +994,7 @@
     },
     {
       "fileName": "./include/H5ESpublic.h",
-      "SPDXID": "SPDXRef-binary-file-14",
+      "SPDXID": "SPDXRef-binary-file-21",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -782,7 +1006,7 @@
     },
     {
       "fileName": "./include/H5FDcore.h",
-      "SPDXID": "SPDXRef-binary-file-15",
+      "SPDXID": "SPDXRef-binary-file-22",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -794,7 +1018,7 @@
     },
     {
       "fileName": "./include/H5FDdevelop.h",
-      "SPDXID": "SPDXRef-binary-file-16",
+      "SPDXID": "SPDXRef-binary-file-23",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -806,7 +1030,7 @@
     },
     {
       "fileName": "./include/H5FDdirect.h",
-      "SPDXID": "SPDXRef-binary-file-17",
+      "SPDXID": "SPDXRef-binary-file-24",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -818,7 +1042,7 @@
     },
     {
       "fileName": "./include/H5FDfamily.h",
-      "SPDXID": "SPDXRef-binary-file-18",
+      "SPDXID": "SPDXRef-binary-file-25",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -830,7 +1054,7 @@
     },
     {
       "fileName": "./include/H5FDhdfs.h",
-      "SPDXID": "SPDXRef-binary-file-19",
+      "SPDXID": "SPDXRef-binary-file-26",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -842,7 +1066,7 @@
     },
     {
       "fileName": "./include/H5FDioc.h",
-      "SPDXID": "SPDXRef-binary-file-20",
+      "SPDXID": "SPDXRef-binary-file-27",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -854,7 +1078,7 @@
     },
     {
       "fileName": "./include/H5FDlog.h",
-      "SPDXID": "SPDXRef-binary-file-21",
+      "SPDXID": "SPDXRef-binary-file-28",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -866,7 +1090,7 @@
     },
     {
       "fileName": "./include/H5FDmirror.h",
-      "SPDXID": "SPDXRef-binary-file-22",
+      "SPDXID": "SPDXRef-binary-file-29",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -878,7 +1102,7 @@
     },
     {
       "fileName": "./include/H5FDmpi.h",
-      "SPDXID": "SPDXRef-binary-file-23",
+      "SPDXID": "SPDXRef-binary-file-30",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -890,7 +1114,7 @@
     },
     {
       "fileName": "./include/H5FDmpio.h",
-      "SPDXID": "SPDXRef-binary-file-24",
+      "SPDXID": "SPDXRef-binary-file-31",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -902,7 +1126,7 @@
     },
     {
       "fileName": "./include/H5FDmulti.h",
-      "SPDXID": "SPDXRef-binary-file-25",
+      "SPDXID": "SPDXRef-binary-file-32",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -914,7 +1138,7 @@
     },
     {
       "fileName": "./include/H5FDonion.h",
-      "SPDXID": "SPDXRef-binary-file-26",
+      "SPDXID": "SPDXRef-binary-file-33",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -926,7 +1150,7 @@
     },
     {
       "fileName": "./include/H5FDpublic.h",
-      "SPDXID": "SPDXRef-binary-file-27",
+      "SPDXID": "SPDXRef-binary-file-34",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -938,7 +1162,7 @@
     },
     {
       "fileName": "./include/H5FDros3.h",
-      "SPDXID": "SPDXRef-binary-file-28",
+      "SPDXID": "SPDXRef-binary-file-35",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -950,7 +1174,7 @@
     },
     {
       "fileName": "./include/H5FDsec2.h",
-      "SPDXID": "SPDXRef-binary-file-29",
+      "SPDXID": "SPDXRef-binary-file-36",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -962,7 +1186,7 @@
     },
     {
       "fileName": "./include/H5FDsplitter.h",
-      "SPDXID": "SPDXRef-binary-file-30",
+      "SPDXID": "SPDXRef-binary-file-37",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -974,7 +1198,7 @@
     },
     {
       "fileName": "./include/H5FDstdio.h",
-      "SPDXID": "SPDXRef-binary-file-31",
+      "SPDXID": "SPDXRef-binary-file-38",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -986,7 +1210,7 @@
     },
     {
       "fileName": "./include/H5FDsubfiling.h",
-      "SPDXID": "SPDXRef-binary-file-32",
+      "SPDXID": "SPDXRef-binary-file-39",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -998,7 +1222,7 @@
     },
     {
       "fileName": "./include/H5FDwindows.h",
-      "SPDXID": "SPDXRef-binary-file-33",
+      "SPDXID": "SPDXRef-binary-file-40",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1010,7 +1234,7 @@
     },
     {
       "fileName": "./include/H5Fpublic.h",
-      "SPDXID": "SPDXRef-binary-file-34",
+      "SPDXID": "SPDXRef-binary-file-41",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1022,7 +1246,7 @@
     },
     {
       "fileName": "./include/H5Gpublic.h",
-      "SPDXID": "SPDXRef-binary-file-35",
+      "SPDXID": "SPDXRef-binary-file-42",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1034,7 +1258,7 @@
     },
     {
       "fileName": "./include/H5Idevelop.h",
-      "SPDXID": "SPDXRef-binary-file-36",
+      "SPDXID": "SPDXRef-binary-file-43",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1046,7 +1270,7 @@
     },
     {
       "fileName": "./include/H5Ipublic.h",
-      "SPDXID": "SPDXRef-binary-file-37",
+      "SPDXID": "SPDXRef-binary-file-44",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1058,7 +1282,7 @@
     },
     {
       "fileName": "./include/H5Ldevelop.h",
-      "SPDXID": "SPDXRef-binary-file-38",
+      "SPDXID": "SPDXRef-binary-file-45",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1070,7 +1294,7 @@
     },
     {
       "fileName": "./include/H5Lpublic.h",
-      "SPDXID": "SPDXRef-binary-file-39",
+      "SPDXID": "SPDXRef-binary-file-46",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1082,7 +1306,7 @@
     },
     {
       "fileName": "./include/H5MMpublic.h",
-      "SPDXID": "SPDXRef-binary-file-40",
+      "SPDXID": "SPDXRef-binary-file-47",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1094,7 +1318,7 @@
     },
     {
       "fileName": "./include/H5Mpublic.h",
-      "SPDXID": "SPDXRef-binary-file-41",
+      "SPDXID": "SPDXRef-binary-file-48",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1106,7 +1330,7 @@
     },
     {
       "fileName": "./include/H5Opublic.h",
-      "SPDXID": "SPDXRef-binary-file-42",
+      "SPDXID": "SPDXRef-binary-file-49",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1118,7 +1342,7 @@
     },
     {
       "fileName": "./include/H5overflow.h",
-      "SPDXID": "SPDXRef-binary-file-43",
+      "SPDXID": "SPDXRef-binary-file-50",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1130,7 +1354,7 @@
     },
     {
       "fileName": "./include/H5PLextern.h",
-      "SPDXID": "SPDXRef-binary-file-44",
+      "SPDXID": "SPDXRef-binary-file-51",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1142,7 +1366,7 @@
     },
     {
       "fileName": "./include/H5PLpublic.h",
-      "SPDXID": "SPDXRef-binary-file-45",
+      "SPDXID": "SPDXRef-binary-file-52",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1154,7 +1378,7 @@
     },
     {
       "fileName": "./include/H5Ppublic.h",
-      "SPDXID": "SPDXRef-binary-file-46",
+      "SPDXID": "SPDXRef-binary-file-53",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1166,11 +1390,11 @@
     },
     {
       "fileName": "./include/H5pubconf.h",
-      "SPDXID": "SPDXRef-binary-file-47",
+      "SPDXID": "SPDXRef-binary-file-54",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cdec8628a3073d93fc7ca24358fff49d3d93dec0e0a1f0ed6a268c4f639024c2"
+          "checksumValue": "5ebcd43e957e18c4e1e21b2ba5a395fd48862842c62b9e8ddf283b565dd8302f"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1178,7 +1402,7 @@
     },
     {
       "fileName": "./include/H5public.h",
-      "SPDXID": "SPDXRef-binary-file-48",
+      "SPDXID": "SPDXRef-binary-file-55",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1190,7 +1414,7 @@
     },
     {
       "fileName": "./include/H5Rpublic.h",
-      "SPDXID": "SPDXRef-binary-file-49",
+      "SPDXID": "SPDXRef-binary-file-56",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1202,7 +1426,7 @@
     },
     {
       "fileName": "./include/H5Spublic.h",
-      "SPDXID": "SPDXRef-binary-file-50",
+      "SPDXID": "SPDXRef-binary-file-57",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1214,7 +1438,7 @@
     },
     {
       "fileName": "./include/H5Tdevelop.h",
-      "SPDXID": "SPDXRef-binary-file-51",
+      "SPDXID": "SPDXRef-binary-file-58",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1226,7 +1450,7 @@
     },
     {
       "fileName": "./include/H5Tpublic.h",
-      "SPDXID": "SPDXRef-binary-file-52",
+      "SPDXID": "SPDXRef-binary-file-59",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1238,7 +1462,7 @@
     },
     {
       "fileName": "./include/H5TSdevelop.h",
-      "SPDXID": "SPDXRef-binary-file-53",
+      "SPDXID": "SPDXRef-binary-file-60",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1250,7 +1474,7 @@
     },
     {
       "fileName": "./include/H5version.h",
-      "SPDXID": "SPDXRef-binary-file-54",
+      "SPDXID": "SPDXRef-binary-file-61",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1262,7 +1486,7 @@
     },
     {
       "fileName": "./include/H5VLconnector.h",
-      "SPDXID": "SPDXRef-binary-file-55",
+      "SPDXID": "SPDXRef-binary-file-62",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1274,7 +1498,7 @@
     },
     {
       "fileName": "./include/H5VLconnector_passthru.h",
-      "SPDXID": "SPDXRef-binary-file-56",
+      "SPDXID": "SPDXRef-binary-file-63",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1286,7 +1510,7 @@
     },
     {
       "fileName": "./include/H5VLnative.h",
-      "SPDXID": "SPDXRef-binary-file-57",
+      "SPDXID": "SPDXRef-binary-file-64",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1298,7 +1522,7 @@
     },
     {
       "fileName": "./include/H5VLpassthru.h",
-      "SPDXID": "SPDXRef-binary-file-58",
+      "SPDXID": "SPDXRef-binary-file-65",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1310,7 +1534,7 @@
     },
     {
       "fileName": "./include/H5VLpublic.h",
-      "SPDXID": "SPDXRef-binary-file-59",
+      "SPDXID": "SPDXRef-binary-file-66",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1322,7 +1546,7 @@
     },
     {
       "fileName": "./include/H5Zdevelop.h",
-      "SPDXID": "SPDXRef-binary-file-60",
+      "SPDXID": "SPDXRef-binary-file-67",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1334,7 +1558,7 @@
     },
     {
       "fileName": "./include/H5Zpublic.h",
-      "SPDXID": "SPDXRef-binary-file-61",
+      "SPDXID": "SPDXRef-binary-file-68",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1346,7 +1570,7 @@
     },
     {
       "fileName": "./include/hdf5.h",
-      "SPDXID": "SPDXRef-binary-file-62",
+      "SPDXID": "SPDXRef-binary-file-69",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1357,12 +1581,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./lib/libhdf5.dll.a",
-      "SPDXID": "SPDXRef-binary-file-63",
+      "fileName": "./lib/hdf5.lib",
+      "SPDXID": "SPDXRef-binary-file-70",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d34a084fc6b9adc435cf3b84c86127286f86d2a1a857c1f6ed6e9d486ae504f1"
+          "checksumValue": "5cba4226aaeef1c5bc9a21b67cdd497be82c4d752c8b2cfb12c0c0556c9a1a6e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./lib/hdf5_tools.lib",
+      "SPDXID": "SPDXRef-binary-file-71",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "86187b54f68ec883378b1c29871128312e3ca70af8998030f724b1cb6c823596"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1370,11 +1606,11 @@
     },
     {
       "fileName": "./lib/libhdf5.settings",
-      "SPDXID": "SPDXRef-binary-file-64",
+      "SPDXID": "SPDXRef-binary-file-72",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a57918c3dbadf8eef4b8fb172f1f36b41e499c63c555d50474e2898431ca9e79"
+          "checksumValue": "d3f94e24361045f2469fcb74d41dfd6df34367c731b9e4ff642694a29aff7759"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1382,11 +1618,11 @@
     },
     {
       "fileName": "./lib/pkgconfig/hdf5.pc",
-      "SPDXID": "SPDXRef-binary-file-65",
+      "SPDXID": "SPDXRef-binary-file-73",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f0bda431d617b76c87383da5208c625958c020294a42597136ed651165160318"
+          "checksumValue": "7b6488981525468126c3baea267193ed1045d18f186dea9960ae9f07809fefa9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1394,7 +1630,7 @@
     },
     {
       "fileName": "./share/hdf5/copyright",
-      "SPDXID": "SPDXRef-binary-file-66",
+      "SPDXID": "SPDXRef-binary-file-74",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1406,7 +1642,7 @@
     },
     {
       "fileName": "./share/hdf5/data/CHANGELOG.md",
-      "SPDXID": "SPDXRef-binary-file-67",
+      "SPDXID": "SPDXRef-binary-file-75",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1418,7 +1654,7 @@
     },
     {
       "fileName": "./share/hdf5/data/USING_HDF5_CMake.txt",
-      "SPDXID": "SPDXRef-binary-file-68",
+      "SPDXID": "SPDXRef-binary-file-76",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1430,7 +1666,7 @@
     },
     {
       "fileName": "./share/hdf5/data/USING_HDF5_VS.txt",
-      "SPDXID": "SPDXRef-binary-file-69",
+      "SPDXID": "SPDXRef-binary-file-77",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1442,7 +1678,7 @@
     },
     {
       "fileName": "./share/hdf5/hdf5-config-version.cmake",
-      "SPDXID": "SPDXRef-binary-file-70",
+      "SPDXID": "SPDXRef-binary-file-78",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1454,11 +1690,11 @@
     },
     {
       "fileName": "./share/hdf5/hdf5-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-71",
+      "SPDXID": "SPDXRef-binary-file-79",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "af6a47eaf5ca0557ade2985f47baa9e83eca20b3bbebd635d3d7839b475b0964"
+          "checksumValue": "7b169dd2a132ccc583b6337b817f6e37f409cea4ed53a536f93b0c017cb72e3e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1466,11 +1702,11 @@
     },
     {
       "fileName": "./share/hdf5/hdf5-targets-debug.cmake",
-      "SPDXID": "SPDXRef-binary-file-72",
+      "SPDXID": "SPDXRef-binary-file-80",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a5458256b26b4becc5723b880696a8c2486a058bd1aa9b1a360f4a07e9865f84"
+          "checksumValue": "254c62bb9737397d220093d3b292763bc1c36da729ba51fe7288de99d5642f9e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1478,11 +1714,11 @@
     },
     {
       "fileName": "./share/hdf5/hdf5-targets-release.cmake",
-      "SPDXID": "SPDXRef-binary-file-73",
+      "SPDXID": "SPDXRef-binary-file-81",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1cdd747ff79baed605486b3c6a59ba273fa49f46615d37e419b3e77dc99a044a"
+          "checksumValue": "4e02e7a494de1e94173eadc33ca48b54076cc274ba7d5f0e9408a99b220ddba6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1490,11 +1726,11 @@
     },
     {
       "fileName": "./share/hdf5/hdf5-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-74",
+      "SPDXID": "SPDXRef-binary-file-82",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "33406ff8dadcd3fbd2d707dda805e7c78c0ed80c594d6067dad8c3f46108c5d7"
+          "checksumValue": "bdbbdc517524475be423200d4f8ece3a503370ead746522c07d1a1ddeba53767"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1502,7 +1738,7 @@
     },
     {
       "fileName": "./share/hdf5/Modules/Findlibaec.cmake",
-      "SPDXID": "SPDXRef-binary-file-75",
+      "SPDXID": "SPDXRef-binary-file-83",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -1514,11 +1750,251 @@
     },
     {
       "fileName": "./share/hdf5/vcpkg-cmake-wrapper.cmake",
-      "SPDXID": "SPDXRef-binary-file-76",
+      "SPDXID": "SPDXRef-binary-file-84",
       "checksums": [
         {
           "algorithm": "SHA256",
           "checksumValue": "22be4c20253f15a4b0842b8e314cab844468c547ef988b487ea3b890920d9ca5"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5clear.exe",
+      "SPDXID": "SPDXRef-binary-file-85",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2d4a07973ffbf0b0f94eabe6344ad8ecdcd1e5f5d2a0e765ba5dabd9ddb41882"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5copy.exe",
+      "SPDXID": "SPDXRef-binary-file-86",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "86b949439dd04da69c20b676f6b93824f8f5c99e8e75d2c37227e30cccd3cf49"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5debug.exe",
+      "SPDXID": "SPDXRef-binary-file-87",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b2d73e93361c305759fdc0886d66964cca3e99a658df1e528a3e1aecb54310b4"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5delete.exe",
+      "SPDXID": "SPDXRef-binary-file-88",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ea364167eac8e67d164f04ca5030136c0803d2b7a2de917110e69163bbe5909d"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5diff.exe",
+      "SPDXID": "SPDXRef-binary-file-89",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6b8b091dff3351b1b831a0ca46d5716e712527e7a14d907385eda8f353386385"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5dump.exe",
+      "SPDXID": "SPDXRef-binary-file-90",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "aee3916adf97e481edecbd24497aea8c103408c9b05110ee27d9cecf6ec3dff8"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5format_convert.exe",
+      "SPDXID": "SPDXRef-binary-file-91",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6b9f147a9628b0339eb04c80c4712ea0ba3b394df1ecd503c18778a1fd987e38"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5import.exe",
+      "SPDXID": "SPDXRef-binary-file-92",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0b0f66a78fcac42182f7e7b1a988bae1c18236e0fb0e09f0eb741cfe36bb7a71"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5jam.exe",
+      "SPDXID": "SPDXRef-binary-file-93",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f34cbfd55d353bf989ea17dff5d955e5558af7c87cab54721fbc9d073cfef44c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5ls.exe",
+      "SPDXID": "SPDXRef-binary-file-94",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b2f0318c278665297e0aac83a38763089f8a2d07407055f8c98771ab0a24a971"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5mkgrp.exe",
+      "SPDXID": "SPDXRef-binary-file-95",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1beab0263d7069fa5cd39def7011547b3f7d4611e5f06637df7fcb2847f0ccfa"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5perf_serial.exe",
+      "SPDXID": "SPDXRef-binary-file-96",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5ef1ea0b96b5fa235c2afad631c33de0a3bdc0f976199d02ab4b2958a7654634"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5repack.exe",
+      "SPDXID": "SPDXRef-binary-file-97",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c210907c80237021b7f0e8d0a49dfbb0cdb2cd8eda9139fae25d54732423380f"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5repart.exe",
+      "SPDXID": "SPDXRef-binary-file-98",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d1f884c8d25c814f8ce8efec2215b9b86369f1c5dcc0a145d22ddfaa0b3b584e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5stat.exe",
+      "SPDXID": "SPDXRef-binary-file-99",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "41c69474630c950ce5d52da9516f39b82e1558e94ab173a8e3a1859833fad348"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/h5unjam.exe",
+      "SPDXID": "SPDXRef-binary-file-100",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f76f0b53fdf8dd78eb908fc71ff5aeb21f459c4d80ad9d734d349fba731d1d46"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/hdf5.dll",
+      "SPDXID": "SPDXRef-binary-file-101",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2eab79af125d39fb24dac029e12a829b91f93adae15826e79191a54ecd37e22a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/hdf5_tools.dll",
+      "SPDXID": "SPDXRef-binary-file-102",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e6a6b37fe3e9155b69815136571258ef91f68c094661a83c017b86bd1d948c4c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/szip.dll",
+      "SPDXID": "SPDXRef-binary-file-103",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b4a4c9929a46069095b51f254bde48f72cad576a1c9692e3788a1329c385caa9"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./tools/hdf5/z.dll",
+      "SPDXID": "SPDXRef-binary-file-104",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ac8c2928b3c73a4736605cdec760502905b07ec997c249bd2335915c98aa8d0a"
         }
       ],
       "licenseConcluded": "NOASSERTION",

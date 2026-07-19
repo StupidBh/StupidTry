@@ -10,6 +10,6 @@ Version: 2.1.1
 Cflags: "-I${includedir}" 
 Libs: "-L${libdir}" -lhdf5
 Requires: 
-Libs.private: -lm -lws2_32 -lwsock32 -lzd -lsz -laec
+Libs.private: -lzd -lszip -laec
 Requires.private: 
 

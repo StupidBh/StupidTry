@@ -19,7 +19,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_cmake_targets_defined "")
 set(_cmake_targets_not_defined "")
 set(_cmake_expected_targets "")
-foreach(_cmake_expected_target IN ITEMS hdf5::hdf5-shared)
+foreach(_cmake_expected_target IN ITEMS hdf5::hdf5-shared hdf5::hdf5_tools-shared hdf5::h5diff hdf5::h5ls hdf5::h5debug hdf5::h5repart hdf5::h5mkgrp hdf5::h5clear hdf5::h5delete hdf5::h5import hdf5::h5repack hdf5::h5jam hdf5::h5unjam hdf5::h5copy hdf5::h5stat hdf5::h5dump hdf5::h5format_convert hdf5::h5perf_serial)
   list(APPEND _cmake_expected_targets "${_cmake_expected_target}")
   if(TARGET "${_cmake_expected_target}")
     list(APPEND _cmake_targets_defined "${_cmake_expected_target}")
@@ -62,6 +62,63 @@ set_target_properties(hdf5::hdf5-shared PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "\$<\$<BOOL:OFF>:>;${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "shlwapi"
 )
+
+# Create imported target hdf5::hdf5_tools-shared
+add_library(hdf5::hdf5_tools-shared SHARED IMPORTED)
+
+set_target_properties(hdf5::hdf5_tools-shared PROPERTIES
+  INTERFACE_COMPILE_DEFINITIONS "H5_BUILT_AS_DYNAMIC_LIB"
+  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
+  INTERFACE_LINK_LIBRARIES "hdf5::hdf5-shared"
+)
+
+# Create imported target hdf5::h5diff
+add_executable(hdf5::h5diff IMPORTED)
+
+# Create imported target hdf5::h5ls
+add_executable(hdf5::h5ls IMPORTED)
+
+# Create imported target hdf5::h5debug
+add_executable(hdf5::h5debug IMPORTED)
+
+# Create imported target hdf5::h5repart
+add_executable(hdf5::h5repart IMPORTED)
+
+# Create imported target hdf5::h5mkgrp
+add_executable(hdf5::h5mkgrp IMPORTED)
+
+# Create imported target hdf5::h5clear
+add_executable(hdf5::h5clear IMPORTED)
+
+# Create imported target hdf5::h5delete
+add_executable(hdf5::h5delete IMPORTED)
+
+# Create imported target hdf5::h5import
+add_executable(hdf5::h5import IMPORTED)
+
+# Create imported target hdf5::h5repack
+add_executable(hdf5::h5repack IMPORTED)
+
+# Create imported target hdf5::h5jam
+add_executable(hdf5::h5jam IMPORTED)
+
+# Create imported target hdf5::h5unjam
+add_executable(hdf5::h5unjam IMPORTED)
+
+# Create imported target hdf5::h5copy
+add_executable(hdf5::h5copy IMPORTED)
+
+# Create imported target hdf5::h5stat
+add_executable(hdf5::h5stat IMPORTED)
+
+# Create imported target hdf5::h5dump
+add_executable(hdf5::h5dump IMPORTED)
+
+# Create imported target hdf5::h5format_convert
+add_executable(hdf5::h5format_convert IMPORTED)
+
+# Create imported target hdf5::h5perf_serial
+add_executable(hdf5::h5perf_serial IMPORTED)
 
 # Load information for each installed configuration.
 file(GLOB _cmake_config_files "${CMAKE_CURRENT_LIST_DIR}/hdf5-targets-*.cmake")

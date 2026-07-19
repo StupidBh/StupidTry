@@ -46,9 +46,9 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
         $<$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>:$<TARGET_FILE_DIR:${PROJECT_NAME}>>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${HDF5_RUNTIME_DLL_DIR}/libz$<$<CONFIG:Debug>:d>.dll
-        ${HDF5_RUNTIME_DLL_DIR}/libaec.dll
-        ${HDF5_RUNTIME_DLL_DIR}/libsz.dll
+        ${HDF5_RUNTIME_DLL_DIR}/z$<$<CONFIG:Debug>:d>.dll
+        ${HDF5_RUNTIME_DLL_DIR}/aec.dll
+        ${HDF5_RUNTIME_DLL_DIR}/szip.dll
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMAND_EXPAND_LISTS
 )

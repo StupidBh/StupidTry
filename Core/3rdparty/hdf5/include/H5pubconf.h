@@ -18,13 +18,13 @@
 #define H5_HAVE_WINDOWS 1
 
 /* Define if using MinGW */
-#define H5_HAVE_MINGW 1
+/* #undef H5_HAVE_MINGW */
 
 /* Define if on the Windows platform and using the Win32 API */
 #define H5_HAVE_WIN32_API 1
 
 /* Define if using a Windows compiler (i.e. Visual Studio) */
-/* #undef H5_HAVE_VISUAL_STUDIO */
+#define H5_HAVE_VISUAL_STUDIO 1
 
 /* Define the default plugins path to compile */
 #ifndef H5_DEFAULT_PLUGINDIR
@@ -92,19 +92,19 @@
 /* #undef H5_HAVE_ARPA_INET_H */
 
 /* Define to 1 if you have the `asprintf' function. */
-#define H5_HAVE_ASPRINTF 1
+/* #undef H5_HAVE_ASPRINTF */
 
 /* Define if the __attribute__(()) extension is present */
-#define H5_HAVE_ATTRIBUTE 1
+/* #undef H5_HAVE_ATTRIBUTE */
 
 /* Define if C99 complex number types are present */
-#define H5_HAVE_C99_COMPLEX_NUMBERS 1
+/* #undef H5_HAVE_C99_COMPLEX_NUMBERS */
 
 /* Define to 1 if you have the `clock_gettime' function. */
-#define H5_HAVE_CLOCK_GETTIME 1
+/* #undef H5_HAVE_CLOCK_GETTIME */
 
 /* Define if complex number support is available */
-#define H5_HAVE_COMPLEX_NUMBERS 1
+/* #undef H5_HAVE_COMPLEX_NUMBERS */
 
 /* Define to 1 if you have the <curl/curl.h> header file. */
 /* #undef H5_HAVE_CURL_CURL_H */
@@ -116,7 +116,7 @@
 /* #undef H5_HAVE_DIRECT */
 
 /* Define to 1 if you have the <dirent.h> header file. */
-#define H5_HAVE_DIRENT_H 1
+/* #undef H5_HAVE_DIRENT_H */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef H5_HAVE_DLFCN_H */
@@ -137,7 +137,7 @@
 #define H5_HAVE_FILTER_SZIP 1
 
 /* Determine if _Float16 is available */
-#define H5_HAVE__FLOAT16 1
+/* #undef H5_HAVE__FLOAT16 */
 
 /* Determine if __float128 will be used in the Fortran wrappers */
 /* #undef H5_HAVE_FLOAT128 */
@@ -158,7 +158,7 @@
 #define H5_HAVE_GETCONSOLESCREENBUFFERINFO 1
 
 /* Define to 1 if you have the `gethostname' function. */
-/* #undef H5_HAVE_GETHOSTNAME */
+#define H5_HAVE_GETHOSTNAME 1
 
 /* Define to 1 if you have the `getrusage' function. */
 /* #undef H5_HAVE_GETRUSAGE */
@@ -252,7 +252,7 @@
 /* #undef H5_HAVE_PREADWRITE */
 
 /* Define to 1 if you have the <pthread.h> header file. */
-#define H5_HAVE_PTHREAD_H 1
+/* #undef H5_HAVE_PTHREAD_H */
 
 /* Define to 1 if the compiler supports the pthread_barrier_*() routines */
 /* #undef H5_HAVE_PTHREAD_BARRIER */
@@ -286,13 +286,13 @@
 /* #undef H5_HAVE_SUBFILING_VFD */
 
 /* Define if have stdatomic.h for Subfiling VFD */
-#define H5_HAVE_STDATOMIC_H 1
+/* #undef H5_HAVE_STDATOMIC_H */
 
 /* Define to 1 if you have the `symlink' function. */
 /* #undef H5_HAVE_SYMLINK */
 
 /* Define to 1 if you have the <sys/file.h> header file. */
-#define H5_HAVE_SYS_FILE_H 1
+/* #undef H5_HAVE_SYS_FILE_H */
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 /* #undef H5_HAVE_SYS_IOCTL_H */
@@ -307,7 +307,7 @@
 #define H5_HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-#define H5_HAVE_SYS_TIME_H 1
+/* #undef H5_HAVE_SYS_TIME_H */
 
 /* Define to 1 if you have the <szlib.h> header file. */
 #define H5_HAVE_SZLIB_H 1
@@ -347,10 +347,10 @@
 /* #undef H5_HAVE_TM_GMTOFF */
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define H5_HAVE_UNISTD_H 1
+/* #undef H5_HAVE_UNISTD_H */
 
 /* Define to 1 if you have the `vasprintf' function. */
-#define H5_HAVE_VASPRINTF 1
+/* #undef H5_HAVE_VASPRINTF */
 
 /* Define to 1 if you have the `waitpid' function. */
 /* #undef H5_HAVE_WAITPID */
@@ -386,7 +386,7 @@
 /* #undef H5_DIMENSION_SCALES_WITH_NEW_REF */
 
 /* Define if your system can convert long double to _Float16 values correctly. */
-#define H5_LDOUBLE_TO_FLOAT16_CORRECT 1
+/* #undef H5_LDOUBLE_TO_FLOAT16_CORRECT */
 
 /* Define if your system can convert long double to (unsigned) long long
    values correctly. */
@@ -447,13 +447,13 @@
 #define H5_SIZEOF_DOUBLE 8
 
 /* The size of `double _Complex', as computed by sizeof. */
-#define H5_SIZEOF_DOUBLE_COMPLEX 16
+/* #undef H5_SIZEOF_DOUBLE_COMPLEX */
 
 /* The size of `float', as computed by sizeof. */
 #define H5_SIZEOF_FLOAT 4
 
 /* The size of `float _Complex', as computed by sizeof. */
-#define H5_SIZEOF_FLOAT_COMPLEX 8
+/* #undef H5_SIZEOF_FLOAT_COMPLEX */
 
 /* The size of `int', as computed by sizeof. */
 #define H5_SIZEOF_INT 4
@@ -471,7 +471,7 @@
 #define H5_SIZEOF_INT8_T 1
 
 /* The size of `int_fast16_t', as computed by sizeof. */
-#define H5_SIZEOF_INT_FAST16_T 2
+#define H5_SIZEOF_INT_FAST16_T 4
 
 /* The size of `int_fast32_t', as computed by sizeof. */
 #define H5_SIZEOF_INT_FAST32_T 4
@@ -500,16 +500,16 @@
 #define H5_SIZEOF_SIZE_T 8
 
 /* The size of `ssize_t', as computed by sizeof. */
-#define H5_SIZEOF_SSIZE_T 8
+/* #undef H5_SIZEOF_SSIZE_T */
 
 /* The size of `long', as computed by sizeof. */
 #define H5_SIZEOF_LONG 4
 
 /* The size of `long double', as computed by sizeof. */
-#define H5_SIZEOF_LONG_DOUBLE 16
+#define H5_SIZEOF_LONG_DOUBLE 8
 
 /* The size of `long double _Complex', as computed by sizeof. */
-#define H5_SIZEOF_LONG_DOUBLE_COMPLEX 32
+/* #undef H5_SIZEOF_LONG_DOUBLE_COMPLEX */
 
 #else
 
@@ -535,8 +535,8 @@
   #define H5_SIZEOF_LONG_DOUBLE 8
   #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 16
   # else
-  #define H5_SIZEOF_LONG_DOUBLE 16
-  #define H5_SIZEOF_LONG_DOUBLE_COMPLEX 32
+  #define H5_SIZEOF_LONG_DOUBLE 8
+/* #undef H5_SIZEOF_LONG_DOUBLE_COMPLEX */
   # endif
 
 #endif
@@ -552,7 +552,7 @@
 #define H5_SIZEOF_OFF_T 4
 
 /* The size of `ptrdiff_t', as computed by sizeof. */
-#define H5_SIZEOF_PTRDIFF_T 8
+/* #undef H5_SIZEOF_PTRDIFF_T */
 
 /* The size of `short', as computed by sizeof. */
 #define H5_SIZEOF_SHORT 2
@@ -573,7 +573,7 @@
 #define H5_SIZEOF_UINT8_T 1
 
 /* The size of `uint_fast16_t', as computed by sizeof. */
-#define H5_SIZEOF_UINT_FAST16_T 2
+#define H5_SIZEOF_UINT_FAST16_T 4
 
 /* The size of `uint_fast32_t', as computed by sizeof. */
 #define H5_SIZEOF_UINT_FAST32_T 4
@@ -600,7 +600,7 @@
 #define H5_SIZEOF_UNSIGNED 4
 
 /* The size of `_Float16', as computed by sizeof. */
-#define H5_SIZEOF__FLOAT16 2
+#define H5_SIZEOF__FLOAT16 0
 
 /* Define if strict file format checks are enabled */
 /* #undef H5_STRICT_FORMAT_CHECKS */
