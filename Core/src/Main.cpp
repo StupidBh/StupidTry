@@ -5,7 +5,7 @@
 #include "HighFiveUtils.hpp"
 #include "Utils/BlockingQueue.hpp"
 
-void ReaderCGNSLogCallback(int level, const char* file, int line, const char* function, const char* message)
+void ReaderCGNSLogCallback(int level, const char* file, int line, const char* message)
 {
     spdlog::level::level_enum spd_level;
     switch (level) {
@@ -16,7 +16,7 @@ void ReaderCGNSLogCallback(int level, const char* file, int line, const char* fu
     }
 
 #ifndef NDEBUG
-    LOG->log(spd_level, "[ReaderCGNS] [{}:{}:{}] {}", std::filesystem::path(file).filename(), line, function, message != nullptr ? message : "");
+    LOG->log(spd_level, "[ReaderCGNS] [{}:{}] {}", std::filesystem::path(file).filename(), line, message != nullptr ? message : "");
 #else
     LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "");
 #endif

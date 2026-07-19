@@ -8,7 +8,7 @@
         #define READER_CGNS_DLL __declspec(dllimport)
     #endif
 #else
-    #define READERCGNS_API
+    #define READER_CGNS_DLL
 #endif
 
 typedef enum ReaderCGNS_LogLevel
@@ -21,22 +21,13 @@ typedef enum ReaderCGNS_LogLevel
     READER_CGNS_LOG_CRITICAL = 5
 } ReaderCGNS_LogLevel;
 
-typedef void (*ReaderCGNS_LogCallback)(int level, const char* file, int line, const char* function, const char* message);
+typedef void (*ReaderCGNS_LogCallback)(int level, const char* file, int line, const char* message);
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-    namespace ReaderCGNS {
-        namespace Logger {
-            READER_CGNS_DLL void SetLogCallback(ReaderCGNS_LogCallback callback);
-            READER_CGNS_DLL void ClearLogCallback();
-        }
-
-        READER_CGNS_DLL bool info(const std::string& cgns_file_path);
+namespace ReaderCGNS {
+    namespace Logger {
+        READER_CGNS_DLL void SetLogCallback(ReaderCGNS_LogCallback callback);
+        READER_CGNS_DLL void ClearLogCallback();
     }
 
-#ifdef __cplusplus
+    READER_CGNS_DLL bool info(const std::string& cgns_file_path);
 }
-#endif
