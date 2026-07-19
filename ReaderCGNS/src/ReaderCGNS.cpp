@@ -348,8 +348,8 @@ namespace ReaderCGNS {
                 for (int n1to1 = 1; n1to1 <= n1to1s; ++n1to1) {
                     std::string n1to1_connectname(33, '\0');
                     std::string n1to1_donorname(33, '\0');
-                    cgsize_t n1to1_range = 0, donor_range = 0;
-                    int n1to1_transform = 0;
+                    std::vector<cgsize_t> n1to1_range(zone_dim * 2, 0), donor_range(zone_dim * 2, 0);
+                    std::vector<int> n1to1_transform(zone_dim, 0);
 
                     CG_INFO(cg_1to1_read(cg_file_id,
                                          base,
@@ -357,9 +357,9 @@ namespace ReaderCGNS {
                                          n1to1,
                                          n1to1_connectname.data(),
                                          n1to1_donorname.data(),
-                                         &n1to1_range,
-                                         &donor_range,
-                                         &n1to1_transform));
+                                         n1to1_range.data(),
+                                         donor_range.data(),
+                                         n1to1_transform.data()));
                     LOG_INFO("    [One-to-One Connectivity]{:>2}:[{}] {}, range={}, donor_range={}, transform={}",
                              n1to1,
                              n1to1_connectname,
