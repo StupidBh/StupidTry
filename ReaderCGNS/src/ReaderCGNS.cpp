@@ -81,7 +81,7 @@ namespace ReaderCGNS {
             CG_INFO(cg_nzones(cg_file_id, base, &nzones));
             for (int zone = 1; zone <= nzones; ++zone) {
                 std::string zone_name(33, '\0'), zone_iter_name(33, '\0');
-                int zone_dim = -1;
+                int zone_dim = 0;
                 CG_ZoneType_t zone_type = CG_ZoneType_t::CG_ZoneTypeNull;
                 std::array<cgsize_t, 9> zone_size { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -96,7 +96,7 @@ namespace ReaderCGNS {
                     case 2: {
                         zone_vertex_sum = zone_size[0] * zone_size[1];
                         zone_cell_sum = zone_size[2] * zone_size[3];
-                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name={}",
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name=[{}]",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
@@ -109,13 +109,13 @@ namespace ReaderCGNS {
                                  zone_cell_sum,
                                  zone_size[4],
                                  zone_size[5],
-                                 zone_iter_name.c_str());
+                                 (zone_iter_name.empty() ? "NULL" : zone_iter_name.c_str()));
 
                     } break;
                     case 3: {
                         zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
                         zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
-                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name={}",
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name=[{}]",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
@@ -131,15 +131,15 @@ namespace ReaderCGNS {
                                  zone_size[6],
                                  zone_size[7],
                                  zone_size[8],
-                                 zone_iter_name.c_str());
+                                 (zone_iter_name.empty() ? "NULL" : zone_iter_name.c_str()));
                     } break;
                     default: {
-                        LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name={}",
+                        LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]",
                                  zone,
                                  cg_ZoneTypeName(zone_type),
                                  zone_name.c_str(),
                                  zone_dim,
-                                 zone_iter_name.c_str());
+                                 (zone_iter_name.empty() ? "NULL" : zone_iter_name.c_str()));
                     } break;
                     }
                 }
@@ -147,14 +147,14 @@ namespace ReaderCGNS {
                     zone_vertex_sum = zone_size[0];
                     zone_cell_sum = zone_size[1];
 
-                    LOG_INFO("  [Zone]{:>2}:[{}] {}, NVertex={}, NCell={}, NBoundVertex={}, iter_name={}",
+                    LOG_INFO("  [Zone]{:>2}:[{}] {}, NVertex={}, NCell={}, NBoundVertex={}, iter_name=[{}]",
                              zone,
                              cg_ZoneTypeName(zone_type),
                              zone_name.c_str(),
                              zone_vertex_sum,
                              zone_cell_sum,
                              zone_size[2],
-                             zone_iter_name.c_str());
+                             (zone_iter_name.empty() ? "NULL" : zone_iter_name.c_str()));
                 }
 
                 // Flow Solution
