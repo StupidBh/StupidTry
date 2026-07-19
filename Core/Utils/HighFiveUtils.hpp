@@ -3,12 +3,7 @@
 
 #include <span>
 
-#pragma push_macro("FILE_CREATE")
-#undef FILE_CREATE
-
 #include "highfive/highfive.hpp"
-
-#pragma pop_macro("FILE_CREATE")
 
 namespace HFUtils {
     // HDF5Node: HighFive 节点类型约束
