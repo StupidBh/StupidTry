@@ -173,7 +173,7 @@ namespace ReaderCGNS {
                     CG_INFO(cg_sol_ptset_info(cg_file_id, base, zone, sol, &sol_point_set_type, sol_npnts.data()));
 
                     if (sol_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
-                        sol_npnts.resize(sol_npnts[0], 0);
+                        sol_npnts.resize(sol_npnts[0] * zone_dim, 0);
                         CG_INFO(cg_sol_ptset_read(cg_file_id, base, zone, sol, sol_npnts.data()));
                     }
 
@@ -201,8 +201,8 @@ namespace ReaderCGNS {
                     CG_INFO(cg_discrete_size(cg_file_id, base, zone, discrete, &discrete_data_dim, discrete_dim_vals.data()));
                     CG_INFO(cg_discrete_ptset_info(cg_file_id, base, zone, discrete, &discrete_point_set_type, discrete_npnts.data()));
 
-                    if (discrete_point_set_type == CG_PointSetType_t::CG_PointSetTypeNull) {
-                        discrete_npnts.resize(discrete_npnts[0], 0);
+                    if (discrete_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
+                        discrete_npnts.resize(discrete_npnts[0] * zone_dim, 0);
                         CG_INFO(cg_discrete_ptset_read(cg_file_id, base, zone, discrete, discrete_npnts.data()));
                     }
 
@@ -237,7 +237,7 @@ namespace ReaderCGNS {
                                            &subreg_bcname_len,
                                            &subreg_gcname_len));
                     if (subreg_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
-                        subreg_npnts.resize(subreg_npnts[0], 1);
+                        subreg_npnts.resize(subreg_npnts[0] * zone_dim, 1);
                         CG_INFO(cg_subreg_ptset_read(cg_file_id, base, zone, subreg, subreg_npnts.data()));
                     }
 
