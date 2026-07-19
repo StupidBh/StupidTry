@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-tokenizer-x64-mingw-static-1.91.0-899f26a9-b602-48bb-8fc5-bc8e73fb6573",
-  "name": "boost-tokenizer:x64-mingw-static@1.91.0 41c8717b6e7808c852748362c5d79186929c4b6986d4fa005b76da0cd3f6ee96",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-tokenizer-x64-windows-1.91.0-a7efa9c0-5aa4-45d3-bedc-926617aba740",
+  "name": "boost-tokenizer:x64-windows@1.91.0 11a564aaa6b6cb67823bb3bebf1b671d7d96b4137432192e1b6195c5fba7db06",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-06-03T01:11:26Z"
+    "created": "2026-07-18T13:54:08Z"
   },
   "relationships": [
     {
@@ -87,9 +87,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "boost-tokenizer:x64-mingw-static",
+      "name": "boost-tokenizer:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "41c8717b6e7808c852748362c5d79186929c4b6986d4fa005b76da0cd3f6ee96",
+      "versionInfo": "11a564aaa6b6cb67823bb3bebf1b671d7d96b4137432192e1b6195c5fba7db06",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -142,7 +142,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
+          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
         }
       ],
       "licenseConcluded": "NOASSERTION",

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-uninstall-x64-mingw-static-1.91.0-4fb36402-3330-4f15-bf14-4956df02cd5a",
-  "name": "boost-uninstall:x64-mingw-static@1.91.0 be937bfbcbb0cb5948ad6c2adeb36eac5eef30503c724d4ad0b033f1a45b1e71",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-uninstall-x64-windows-1.91.0-9e2f6124-b1a8-4b92-8161-2e2af0f616c7",
+  "name": "boost-uninstall:x64-windows@1.91.0 d2233a7b04b52c60677bef11d4d955a50407346c3511942c91cb06051ee2a0a5",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-05-30T08:16:51Z"
+    "created": "2026-07-18T13:52:34Z"
   },
   "relationships": [
     {
@@ -61,9 +61,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "boost-uninstall:x64-mingw-static",
+      "name": "boost-uninstall:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "be937bfbcbb0cb5948ad6c2adeb36eac5eef30503c724d4ad0b033f1a45b1e71",
+      "versionInfo": "d2233a7b04b52c60677bef11d4d955a50407346c3511942c91cb06051ee2a0a5",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -114,7 +114,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "72683627809af20bef88a7d56b7dec1cf140fa6a0683bd60eef5b177509c5d1c"
+          "checksumValue": "a73b10fef47d7e23b16c4603b4eed0f405d298ac520f9cf61cf5ba087ed4e225"
         }
       ],
       "licenseConcluded": "NOASSERTION",

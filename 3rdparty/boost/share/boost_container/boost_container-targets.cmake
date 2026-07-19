@@ -55,10 +55,10 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target Boost::container
-add_library(Boost::container STATIC IMPORTED)
+add_library(Boost::container SHARED IMPORTED)
 
 set_target_properties(Boost::container PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "BOOST_CONTAINER_NO_LIB;BOOST_CONTAINER_STATIC_LINK"
+  INTERFACE_COMPILE_DEFINITIONS "BOOST_CONTAINER_NO_LIB;BOOST_CONTAINER_DYN_LINK"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "Boost::assert;Boost::config;Boost::intrusive;Boost::move"
 )

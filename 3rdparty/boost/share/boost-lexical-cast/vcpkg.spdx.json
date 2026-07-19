@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-lexical-cast-x64-mingw-static-1.91.0-701d93e3-6883-4e5d-b3f0-b3c694c7a477",
-  "name": "boost-lexical-cast:x64-mingw-static@1.91.0 3e732d45331e3eff84a8bda65d3e8f0ef5983adacd808dc4d0146ea8a18e1561",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-lexical-cast-x64-windows-1.91.0-f3f309f2-90d8-48eb-a487-9c5d0effa6dc",
+  "name": "boost-lexical-cast:x64-windows@1.91.0 ae09cf48c4363d7a0d1bd8632498bc47a76279f22f0a56850ad782360985a2a6",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-06-03T01:11:18Z"
+    "created": "2026-07-18T13:54:01Z"
   },
   "relationships": [
     {
@@ -157,9 +157,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "boost-lexical-cast:x64-mingw-static",
+      "name": "boost-lexical-cast:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "3e732d45331e3eff84a8bda65d3e8f0ef5983adacd808dc4d0146ea8a18e1561",
+      "versionInfo": "ae09cf48c4363d7a0d1bd8632498bc47a76279f22f0a56850ad782360985a2a6",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -212,7 +212,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
+          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
         }
       ],
       "licenseConcluded": "NOASSERTION",

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-mingw-static-1.91.0-def27be8-c875-4415-bb6f-003eeeb57e1f",
-  "name": "boost-intrusive:x64-mingw-static@1.91.0 a5ce7ec80d8ab98269f74a9c283feef493047c795724d9435c09614462c7bd74",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-windows-1.91.0-8dab42fd-4b17-4e50-8ae8-cc8b6ff28e29",
+  "name": "boost-intrusive:x64-windows@1.91.0 9032246bad0165c4e2630d87dab66a7c7d961d945f746a7ebd6dfb9a61bb3a7b",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-06-03T01:10:21Z"
+    "created": "2026-07-18T13:53:17Z"
   },
   "relationships": [
     {
@@ -562,9 +562,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "boost-intrusive:x64-mingw-static",
+      "name": "boost-intrusive:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a5ce7ec80d8ab98269f74a9c283feef493047c795724d9435c09614462c7bd74",
+      "versionInfo": "9032246bad0165c4e2630d87dab66a7c7d961d945f746a7ebd6dfb9a61bb3a7b",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -617,7 +617,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
+          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
         }
       ],
       "licenseConcluded": "NOASSERTION",

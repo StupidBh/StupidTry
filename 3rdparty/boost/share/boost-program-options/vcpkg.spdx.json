@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-program-options-x64-mingw-static-1.91.0-9f83b10e-ba68-4f57-99b6-7c70417e086b",
-  "name": "boost-program-options:x64-mingw-static@1.91.0 853ac41f3f54e541cc988096e45daa6ce29777fddeee462f09c14ca684aca233",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-program-options-x64-windows-1.91.0-bef8720c-55bc-4621-9686-320bca5902ef",
+  "name": "boost-program-options:x64-windows@1.91.0 25babcc0f270fc30e16aee1f825e4875887c599f6a1889edbe7b556a68019cad",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-06-03T01:11:50Z"
+    "created": "2026-07-18T13:54:15Z"
   },
   "relationships": [
     {
@@ -171,6 +171,26 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-27"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-28"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-29"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-30"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-31"
     }
   ],
   "packages": [
@@ -187,9 +207,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "boost-program-options:x64-mingw-static",
+      "name": "boost-program-options:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "853ac41f3f54e541cc988096e45daa6ce29777fddeee462f09c14ca684aca233",
+      "versionInfo": "25babcc0f270fc30e16aee1f825e4875887c599f6a1889edbe7b556a68019cad",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -237,24 +257,72 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./BUILD_INFO",
+      "fileName": "./bin/boost_program_options-vc145-mt-x64-1_91.dll",
       "SPDXID": "SPDXRef-binary-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
+          "checksumValue": "ef67ba577f40a8a05f90c4edf3f0ae713b328f4ad86c8a783ceaefcd93a718f9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/lib/libboost_program_options-gcc13-mt-d-x64-1_91.a",
+      "fileName": "./bin/boost_program_options-vc145-mt-x64-1_91.pdb",
       "SPDXID": "SPDXRef-binary-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "445790fd74fb07dbeef9bd79b2389df61bacde8a880d1994325aa7c5b6a00766"
+          "checksumValue": "a48046ea3d4d55efbddfb599240c2c78cc608cb6b08c98a595db2018228c4ee2"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./BUILD_INFO",
+      "SPDXID": "SPDXRef-binary-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/bin/boost_program_options-vc145-mt-gd-x64-1_91.dll",
+      "SPDXID": "SPDXRef-binary-file-3",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "67754119f32b85a2248063e8f075bbb6133a25c789a1f59b58618acc814e1385"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/bin/boost_program_options-vc145-mt-gd-x64-1_91.pdb",
+      "SPDXID": "SPDXRef-binary-file-4",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "25c3a8c8d3901871391bbeb81efcc28e53bad30919f9dc54a575a3e0da8d96ab"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./debug/lib/boost_program_options-vc145-mt-gd-x64-1_91.lib",
+      "SPDXID": "SPDXRef-binary-file-5",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d32f4a2a014ec3a220fa4cd1f88c1b805d12a20c014236fed1c63f7ec1582196"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -262,7 +330,7 @@
     },
     {
       "fileName": "./include/boost/program_options/cmdline.hpp",
-      "SPDXID": "SPDXRef-binary-file-2",
+      "SPDXID": "SPDXRef-binary-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -274,7 +342,7 @@
     },
     {
       "fileName": "./include/boost/program_options/config.hpp",
-      "SPDXID": "SPDXRef-binary-file-3",
+      "SPDXID": "SPDXRef-binary-file-7",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -286,7 +354,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/cmdline.hpp",
-      "SPDXID": "SPDXRef-binary-file-4",
+      "SPDXID": "SPDXRef-binary-file-8",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -298,7 +366,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/config_file.hpp",
-      "SPDXID": "SPDXRef-binary-file-5",
+      "SPDXID": "SPDXRef-binary-file-9",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -310,7 +378,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/convert.hpp",
-      "SPDXID": "SPDXRef-binary-file-6",
+      "SPDXID": "SPDXRef-binary-file-10",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -322,7 +390,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/parsers.hpp",
-      "SPDXID": "SPDXRef-binary-file-7",
+      "SPDXID": "SPDXRef-binary-file-11",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -334,7 +402,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/utf8_codecvt_facet.hpp",
-      "SPDXID": "SPDXRef-binary-file-8",
+      "SPDXID": "SPDXRef-binary-file-12",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -346,7 +414,7 @@
     },
     {
       "fileName": "./include/boost/program_options/detail/value_semantic.hpp",
-      "SPDXID": "SPDXRef-binary-file-9",
+      "SPDXID": "SPDXRef-binary-file-13",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -358,7 +426,7 @@
     },
     {
       "fileName": "./include/boost/program_options/environment_iterator.hpp",
-      "SPDXID": "SPDXRef-binary-file-10",
+      "SPDXID": "SPDXRef-binary-file-14",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -370,7 +438,7 @@
     },
     {
       "fileName": "./include/boost/program_options/eof_iterator.hpp",
-      "SPDXID": "SPDXRef-binary-file-11",
+      "SPDXID": "SPDXRef-binary-file-15",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -382,7 +450,7 @@
     },
     {
       "fileName": "./include/boost/program_options/errors.hpp",
-      "SPDXID": "SPDXRef-binary-file-12",
+      "SPDXID": "SPDXRef-binary-file-16",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -394,7 +462,7 @@
     },
     {
       "fileName": "./include/boost/program_options/option.hpp",
-      "SPDXID": "SPDXRef-binary-file-13",
+      "SPDXID": "SPDXRef-binary-file-17",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -406,7 +474,7 @@
     },
     {
       "fileName": "./include/boost/program_options/options_description.hpp",
-      "SPDXID": "SPDXRef-binary-file-14",
+      "SPDXID": "SPDXRef-binary-file-18",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -418,7 +486,7 @@
     },
     {
       "fileName": "./include/boost/program_options/parsers.hpp",
-      "SPDXID": "SPDXRef-binary-file-15",
+      "SPDXID": "SPDXRef-binary-file-19",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -430,7 +498,7 @@
     },
     {
       "fileName": "./include/boost/program_options/positional_options.hpp",
-      "SPDXID": "SPDXRef-binary-file-16",
+      "SPDXID": "SPDXRef-binary-file-20",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -442,7 +510,7 @@
     },
     {
       "fileName": "./include/boost/program_options/value_semantic.hpp",
-      "SPDXID": "SPDXRef-binary-file-17",
+      "SPDXID": "SPDXRef-binary-file-21",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -454,7 +522,7 @@
     },
     {
       "fileName": "./include/boost/program_options/variables_map.hpp",
-      "SPDXID": "SPDXRef-binary-file-18",
+      "SPDXID": "SPDXRef-binary-file-22",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -466,7 +534,7 @@
     },
     {
       "fileName": "./include/boost/program_options/version.hpp",
-      "SPDXID": "SPDXRef-binary-file-19",
+      "SPDXID": "SPDXRef-binary-file-23",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -478,7 +546,7 @@
     },
     {
       "fileName": "./include/boost/program_options.hpp",
-      "SPDXID": "SPDXRef-binary-file-20",
+      "SPDXID": "SPDXRef-binary-file-24",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -489,12 +557,12 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./lib/libboost_program_options-gcc13-mt-x64-1_91.a",
-      "SPDXID": "SPDXRef-binary-file-21",
+      "fileName": "./lib/boost_program_options-vc145-mt-x64-1_91.lib",
+      "SPDXID": "SPDXRef-binary-file-25",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a2968e7057941e8d14be9ae0e1d6534df0b48f8627ca1501eb62471d855edb88"
+          "checksumValue": "2007ec1770c2cb3e667243e8d43e2b7d73fc9a8796b5c2c9f5ac210daf08c943"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -502,7 +570,7 @@
     },
     {
       "fileName": "./share/boost-program-options/copyright",
-      "SPDXID": "SPDXRef-binary-file-22",
+      "SPDXID": "SPDXRef-binary-file-26",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -514,7 +582,7 @@
     },
     {
       "fileName": "./share/boost_program_options/boost_program_options-config-version.cmake",
-      "SPDXID": "SPDXRef-binary-file-23",
+      "SPDXID": "SPDXRef-binary-file-27",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -526,7 +594,7 @@
     },
     {
       "fileName": "./share/boost_program_options/boost_program_options-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-24",
+      "SPDXID": "SPDXRef-binary-file-28",
       "checksums": [
         {
           "algorithm": "SHA256",
@@ -538,11 +606,11 @@
     },
     {
       "fileName": "./share/boost_program_options/boost_program_options-targets-debug.cmake",
-      "SPDXID": "SPDXRef-binary-file-25",
+      "SPDXID": "SPDXRef-binary-file-29",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4a67f68851997beb733ac4d3ec66c0c71d9817229d4f384282c23865f9a83e09"
+          "checksumValue": "437b2464478e24de0b9c3891a6c8dd80c83cfdab949243860698e74489ca9f1e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -550,11 +618,11 @@
     },
     {
       "fileName": "./share/boost_program_options/boost_program_options-targets-release.cmake",
-      "SPDXID": "SPDXRef-binary-file-26",
+      "SPDXID": "SPDXRef-binary-file-30",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "98466089ffecd749d85ce47dffb029a834cafab725f97f05de018f2de31edc9e"
+          "checksumValue": "d4d61e5e61e869db69e85f5e41f4735bc5b8b5fd20ca1ef7403225768c790367"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -562,11 +630,11 @@
     },
     {
       "fileName": "./share/boost_program_options/boost_program_options-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-27",
+      "SPDXID": "SPDXRef-binary-file-31",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4c66c4b332ee474b93c211f979897c0c4b37b7a96912f075415782c917871db1"
+          "checksumValue": "922d1f885be6a33975f8f416694abf8e4ab74bbebed31ea2f9120f4b156f0aeb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
