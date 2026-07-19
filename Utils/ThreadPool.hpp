@@ -1,20 +1,52 @@
 #pragma once
-#include <atomic>
+#include <chrono>
 #include <condition_variable>
+#include <cstddef>
 #include <functional>
 #include <future>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <stdexcept>
 #include <stop_token>
 #include <thread>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace utils {
     class ThreadPool {
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
+
+        class TaskExecutionScope;
+        inline static thread_local TaskExecutionScope* s_current_scope = nullptr;
+
+        class TaskExecutionScope {
+        public:
+            explicit TaskExecutionScope(ThreadPool* pool) noexcept :
+                m_pool(pool),
+                m_previous_scope(s_current_scope)
+            {
+                s_current_scope = this;
+            }
+
+            ~TaskExecutionScope() { s_current_scope = m_previous_scope; }
+
+            static bool Contains(const ThreadPool* pool) noexcept
+            {
+                for (auto* scope = s_current_scope; scope != nullptr; scope = scope->m_previous_scope) {
+                    if (scope->m_pool == pool) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        private:
+            ThreadPool* m_pool;
+            TaskExecutionScope* m_previous_scope;
+        };
 
     public:
         explicit ThreadPool(size_t thread_count) :
@@ -85,6 +117,7 @@ namespace utils {
                 else {
                     // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
                     m_tasks.emplace([task_ptr, this]() {
+                        TaskExecutionScope execution_scope(this);
                         (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
                         this->finish_task();
                     });
@@ -93,7 +126,10 @@ namespace utils {
             }
 
             if (run_inline) {
-                (*task_ptr)();
+                {
+                    TaskExecutionScope execution_scope(this);
+                    (*task_ptr)();
+                }
                 this->finish_task();
                 return future;
             }
@@ -104,11 +140,13 @@ namespace utils {
 
         /**
          * @brief 阻塞等待所有任务完成
+         * @throws std::logic_error 当前线程正在执行此线程池的任务
          */
         void wait_for_completion()
         {
+            this->throw_if_called_from_task("wait_for_completion cannot be called from a task running in the same ThreadPool");
             std::unique_lock lock(m_mutex);
-            m_completion_cv.wait(lock, [this] { return m_unfinished_tasks.load() == 0; });
+            m_completion_cv.wait(lock, [this] { return m_unfinished_tasks == 0; });
         }
 
         /**
@@ -117,19 +155,23 @@ namespace utils {
          * @tparam Period 周期
          * @param timeout 等待时间
          * @return true: 所有任务完成，false: 超时
+         * @throws std::logic_error 当前线程正在执行此线程池的任务
          */
         template<class Rep, class Period>
         bool wait_for_completion(const std::chrono::duration<Rep, Period>& timeout)
         {
+            this->throw_if_called_from_task("wait_for_completion cannot be called from a task running in the same ThreadPool");
             std::unique_lock lock(m_mutex);
-            return m_completion_cv.wait_for(lock, timeout, [this] { return m_unfinished_tasks.load() == 0; });
+            return m_completion_cv.wait_for(lock, timeout, [this] { return m_unfinished_tasks == 0; });
         }
 
         /**
          * @brief 优雅关闭，等待任务完成
+         * @throws std::logic_error 当前线程正在执行此线程池的任务
          */
         void shutdown()
         {
+            this->throw_if_called_from_task("shutdown cannot be called from a task running in the same ThreadPool");
             {
                 // 先置位 m_stopped 再等待，堵住关闭期间的新 enqueue，消除
                 // “wait 完成后、置位前”窗口内入队的任务被丢弃 / future 永挂的竞态。
@@ -146,9 +188,11 @@ namespace utils {
 
         /**
          * @brief 立即关闭，丢弃未执行的任务
+         * @throws std::logic_error 当前线程正在执行此线程池的任务
          */
         void shutdown_now()
         {
+            this->throw_if_called_from_task("shutdown_now cannot be called from a task running in the same ThreadPool");
             {
                 std::scoped_lock lock(m_mutex);
                 if (m_stopped) {
@@ -157,10 +201,9 @@ namespace utils {
                 m_stopped = true;
 
                 // 只扣减“尚未执行”的任务计数；正在执行中的任务不在队列里，
-                // 会在自己的包装体内 fetch_sub 递减。直接清零会导致在途任务的
-                // fetch_sub 把无符号计数下溢成 SIZE_MAX，使等待者永久挂起。
+                // 会在自己的包装体内递减。直接清零会破坏在途任务的计数。
                 std::queue<std::function<void()>> empty;
-                m_unfinished_tasks.fetch_sub(m_tasks.size());
+                m_unfinished_tasks -= m_tasks.size();
                 std::swap(m_tasks, empty);
             }
             m_task_cv.notify_all();
@@ -169,9 +212,22 @@ namespace utils {
         }
 
     private:
+        void throw_if_called_from_task(const char* message) const
+        {
+            if (TaskExecutionScope::Contains(this)) {
+                throw std::logic_error(message);
+            }
+        }
+
         void finish_task() noexcept
         {
-            if (m_unfinished_tasks.fetch_sub(1) == 1) {
+            bool all_finished = false;
+            {
+                std::lock_guard lock(m_mutex);
+                --m_unfinished_tasks;
+                all_finished = m_unfinished_tasks == 0;
+            }
+            if (all_finished) {
                 m_completion_cv.notify_all();
             }
         }
@@ -186,7 +242,7 @@ namespace utils {
         std::vector<std::jthread> m_workers;       // 工作线程
         std::queue<std::function<void()>> m_tasks; // 任务队列
 
-        std::atomic<size_t> m_unfinished_tasks;    // 未完成任务数
+        size_t m_unfinished_tasks;                 // 未完成任务数，由 m_mutex 保护
         bool m_stopped;                            // 停止标志位
         bool m_run_inline;                         // thread_count == 0: execute enqueue tasks inline
 
