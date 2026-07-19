@@ -440,7 +440,8 @@ namespace ReaderCGNS {
                     CG_DataType_t boco_normal_datatype = CG_DataType_t::CG_DataTypeNull;
                     CG_GridLocation_t boco_location = CG_GridLocation_t::CG_GridLocationNull;
                     cgsize_t boco_npnts = 0, boco_normal_list_size = 0;
-                    int boco_normal_index = 0, boco_ndataset = 0;
+                    std::vector<int> boco_normal_index(zone_dim, 0);
+                    int boco_ndataset = 0;
 
                     CG_INFO(cg_boco_gridlocation_read(cg_file_id, base, zone, boco, &boco_location));
                     CG_INFO(cg_boco_info(cg_file_id,
@@ -451,7 +452,7 @@ namespace ReaderCGNS {
                                          &boco_type,
                                          &boco_ptset_type,
                                          &boco_npnts,
-                                         &boco_normal_index,
+                                         boco_normal_index.data(),
                                          &boco_normal_list_size,
                                          &boco_normal_datatype,
                                          &boco_ndataset));
