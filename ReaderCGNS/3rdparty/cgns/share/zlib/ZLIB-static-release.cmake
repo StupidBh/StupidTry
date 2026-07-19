@@ -9,11 +9,11 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set_property(TARGET ZLIB::ZLIBSTATIC APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(ZLIB::ZLIBSTATIC PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libzs.a"
+  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/zs.lib"
   )
 
 list(APPEND _cmake_import_check_targets ZLIB::ZLIBSTATIC )
-list(APPEND _cmake_import_check_files_for_ZLIB::ZLIBSTATIC "${_IMPORT_PREFIX}/lib/libzs.a" )
+list(APPEND _cmake_import_check_files_for_ZLIB::ZLIBSTATIC "${_IMPORT_PREFIX}/lib/zs.lib" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

@@ -8,6 +8,6 @@ Description: HDF5 (Hierarchical Data Format 5) Software Library
 Version: 2.1.1
 
 
-Libs: "-L${libdir}" -lhdf5 -lm -lws2_32 -lwsock32 -lzsd -lsz -laec
+Libs: "-L${libdir}" -llibhdf5 -lzsd -lszip-static -laec-static
 Requires:  
 Cflags: "-I${includedir}" 

@@ -59,7 +59,7 @@
 
 /* Determine if hdf5 has collective metadata APIs  */
 
-#define HDF5_HAVE_COLL_METADATA 1
+#define HDF5_HAVE_COLL_METADATA 0
 
 /* Determine if hdf5 H5Pset_file_space_strategy */
 

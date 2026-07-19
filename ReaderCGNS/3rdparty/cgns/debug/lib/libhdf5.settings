@@ -4,12 +4,12 @@
 General Information:
 -------------------
                    HDF5 Version: 2.1.1
-                  Configured on: 2026-07-01
+                  Configured on: 2026-07-18
                   Configured by: Ninja
-                    Host system: Windows-10.0.19045
+                    Host system: Windows-10.0.26100
               Uname information: Windows
                        Byte sex: little-endian
-             Installation point: D:/SomeThingCode/vcpkg/packages/hdf5_x64-mingw-static/debug
+             Installation point: C:/Code/vcpkg/packages/hdf5_x64-windows-static-md/debug
 
 Compiling Options:
 ------------------
@@ -23,23 +23,23 @@ Linking Options:
 ----------------
                       Libraries: 
   Statically Linked Executables: OFF
-                        LDFLAGS: 
+                        LDFLAGS: /machine:x64
                      H5_LDFLAGS: 
                      AM_LDFLAGS: 
-                Extra libraries: m;ws2_32;wsock32;Threads::Threads
-                       Archiver: D:/SomeThingWork/CLion2026.1.2/bin/mingw/bin/ar.exe
+                Extra libraries: Threads::Threads
+                       Archiver: C:/Program Files/Microsoft Visual Studio/18/Insiders/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/lib.exe
                        AR_FLAGS:
-                         Ranlib: D:/SomeThingWork/CLion2026.1.2/bin/mingw/bin/ranlib.exe
+                         Ranlib: :
 
 Languages:
 ----------
                               C: YES
-                     C Compiler: D:/SomeThingWork/CLion2026.1.2/bin/mingw/bin/gcc.exe 13.1.0
+                     C Compiler: C:/Program Files/Microsoft Visual Studio/18/Insiders/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe 19.51.36251.0
                        CPPFLAGS: 
                     H5_CPPFLAGS: 
                     AM_CPPFLAGS: 
-                         CFLAGS:   -std=c11 -std=c17 -Og -ftrapv -fno-common -fmessage-length=0 -g
-                      H5_CFLAGS: -Wall;-Wcast-qual;-Wconversion;-Wextra;-Wfloat-equal;-Wformat=2;-Wformat-nonliteral;-Winit-self;-Winvalid-pch;-Wmissing-include-dirs;-Wshadow;-Wundef;-Wwrite-strings;-pedantic;-Wno-c++-compat;-Wbad-function-cast;-Wcast-align;-Wformat;-Wimplicit-function-declaration;-Wint-to-pointer-cast;-Wmissing-declarations;-Wmissing-prototypes;-Wnested-externs;-Wold-style-definition;-Wpacked;-Wpointer-sign;-Wpointer-to-int-cast;-Wredundant-decls;-Wstrict-prototypes;-Wswitch;-Wunused-but-set-variable;-Wunused-variable;-Wunused-function;-Wunused-parameter;-finline-functions;-Wno-aggregate-return;-Wno-inline;-Wno-missing-format-attribute;-Wno-missing-noreturn;-Wno-overlength-strings;-Wlarger-than=2584;-Wlogical-op;-Wframe-larger-than=16384;-Wpacked-bitfield-compat;-Wsync-nand;-Wno-unsuffixed-float-constants;-Wdouble-promotion;-Wtrampolines;-Wstack-usage=8192;-Wmaybe-uninitialized;-Wno-jump-misses-init;-Wstrict-overflow=2;-Wno-suggest-attribute=const;-Wno-suggest-attribute=noreturn;-Wno-suggest-attribute=pure;-Wno-suggest-attribute=format;-Wdate-time;-Warray-bounds=2;-Wincompatible-pointer-types;-Wint-conversion;-Wshadow;-Wduplicated-cond;-Whsa;-Wnormalized;-Wnull-dereference;-Wunused-const-variable;-Walloca;-Walloc-zero;-Wduplicated-branches;-Wformat-overflow=2;-Wformat-truncation=1;-Wrestrict;-Wattribute-alias;-Wshift-overflow=2;-Wcast-function-type;-Wmaybe-uninitialized;-Wcast-align=strict;-Wno-suggest-attribute=cold;-Wno-suggest-attribute=malloc;-Wattribute-alias=2;-Wmissing-profile;-Wc11-c2x-compat
+                         CFLAGS:  -std:c11  /nologo /DWIN32 /D_WINDOWS /utf-8 /MP  /std:c17 -wd5105 /MDd /Z7 /Ob0 /Od /RTC1 
+                      H5_CFLAGS: /W3;/wd4100;/wd4706;/wd4127
                       AM_CFLAGS: 
                Shared C Library: NO
                Static C Library: YES
@@ -51,11 +51,11 @@ Languages:
                AM Fortran Flags: 
          Shared Fortran Library: NO
          Static Fortran Library: YES
-               Module Directory: D:/SomeThingCode/vcpkg/buildtrees/hdf5/x64-mingw-static-dbg/mod
+               Module Directory: C:/Code/vcpkg/buildtrees/hdf5/x64-windows-static-md-dbg/mod
 
                             C++: OFF
-                   C++ Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
-                      C++ Flags:  
+                   C++ Compiler:  
+                      C++ Flags:  /nologo /DWIN32 /D_WINDOWS /utf-8 /GR /EHsc /MP  /std:c++20 
                    H5 C++ Flags: 
                    AM C++ Flags: 
              Shared C++ Library: NO
@@ -66,9 +66,9 @@ Languages:
 
 Features:
 ---------
-                     Parallel HDF5: ON
-  Parallel Filtered Dataset Writes: ON
-                Large Parallel I/O: ON
+                     Parallel HDF5: OFF
+  Parallel Filtered Dataset Writes: 
+                Large Parallel I/O: 
                 High-level library: OFF
 Dimension scales w/ new references: 
                   Build HDF5 Tests: OFF
@@ -79,7 +79,7 @@ Dimension scales w/ new references:
                Default API mapping: v200
     With deprecated public symbols: ON
             I/O filters (external):  DEFLATE DECODE ENCODE
-                  _Float16 support: ON
+                  _Float16 support: OFF
                      Map (H5M) API: OFF
                         Direct VFD: OFF
                         Mirror VFD: OFF

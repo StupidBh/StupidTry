@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/hdf5-x64-mingw-static-2.1.1#1-333fc870-5edd-489f-b081-5d153ee6b4c0",
-  "name": "hdf5:x64-mingw-static@2.1.1#1 42f59d03915529048eeb6c89859232ab7eef70ea41d8b55e62c68c8a83888081",
+  "documentNamespace": "https://spdx.org/spdxdocs/hdf5-x64-windows-static-md-2.1.1#1-15687786-5a4e-4f73-9d5a-b71e74faa939",
+  "name": "hdf5:x64-windows-static-md@2.1.1#1 3440432b420e1be07c52246e4cacc4fcb9de4129148cc2f28ae2dd69b14abc86",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-07-01T02:21:50Z"
+    "created": "2026-07-18T14:58:44Z"
   },
   "relationships": [
     {
@@ -441,11 +441,6 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-74"
-    },
-    {
-      "spdxElementId": "SPDXRef-binary",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-binary-file-75"
     }
   ],
   "packages": [
@@ -462,9 +457,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "hdf5:x64-mingw-static",
+      "name": "hdf5:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "42f59d03915529048eeb6c89859232ab7eef70ea41d8b55e62c68c8a83888081",
+      "versionInfo": "3440432b420e1be07c52246e4cacc4fcb9de4129148cc2f28ae2dd69b14abc86",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -608,12 +603,12 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/lib/libhdf5.a",
+      "fileName": "./debug/lib/libhdf5.lib",
       "SPDXID": "SPDXRef-binary-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a3646233e2165a3ea95fc572aff4f2b8072c5c7625947742ebae1eb0bcfb9d1d"
+          "checksumValue": "e403ea711e277ab81e3d349e130e68a59a25b41b7752bebdfb71c717f16843aa"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -625,7 +620,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8ecbaa3f48fe6afaf99e0a8cb956624f2bc876061c2cfc37910fa3ff59087fed"
+          "checksumValue": "fb2e6b8eb7c45d6afa1a3dec65a9e87f108c1a3cac61fcc774d26fbecba91920"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -637,7 +632,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8ec7d3a5870fb5136ba190df7d3959d5534e4df17a93855a1b690bd43a21ce1e"
+          "checksumValue": "9e9f2919a940522285562610a45fccf4c0d02058b52e5b293591c59cc8ecfa39"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1141,7 +1136,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3e8186d6eb0b3d46f3253cd6574f4e13e68111c09f7ded7a226db97e7523308e"
+          "checksumValue": "5b10c13aff72edcc7765dac8c65c6976b9d8cf636ddcdd7e5334e136ea3010d3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1328,12 +1323,12 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./lib/libhdf5.a",
+      "fileName": "./lib/libhdf5.lib",
       "SPDXID": "SPDXRef-binary-file-61",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3722f5fadeb9e522c892b5b04b0dd766d13949451f3f1eb57aeab2d4af35d4e1"
+          "checksumValue": "2abf28f607809b0caea2452abfbcfc7dbe48116e661dd5746224ecfbfa45d985"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1345,7 +1340,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c4a4636cf8987073859a3c20abd5d0fb8ce40d00bf5ca6e3fcd2db06880d0281"
+          "checksumValue": "dc3c4fbb9c01817e3dd2caf5d832fe53ba4de79cfe92c101f9e46d848a1b789d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1357,7 +1352,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "47de836b4a7245c63824ac665b68cf77e35f2e74fd491deba9a20936c656ce8c"
+          "checksumValue": "43cc4f3773eac91cdc2c8c2c90d83a138a22855c76a7b77fa85c14d21051406b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1429,7 +1424,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3d24bf0d20c606935ac4d1d77325c9900b43da90df71855a55c756dc8af42bcf"
+          "checksumValue": "878f66f4534cf6d599b52f9648e672b27983d3ea13df5f996c3b3dcfe8d1521d"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1441,7 +1436,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8e06a4757b86000751ede6fa9173ac3cb88d2e329c85e5e0567537d6c620c39e"
+          "checksumValue": "cce32da1f09660e61e1d7a70ec3007c826782800c4ada663a7a316b046432443"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1453,7 +1448,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "de29feba24237b6cd70cc575ba94ff4c8840a677b9468a150650dfbee7525bfe"
+          "checksumValue": "e818380c330bb4112f5b6bb952a18732ea2ef2e2284c498108ee7ac7e1e738ca"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1465,7 +1460,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1abcf0884e84260dea08dc0e3c3e28249b0b3115d5013a94cc82a6c9f5b0588d"
+          "checksumValue": "2078ff9ac6c8a489713270dc50dd826b47b9f35a5d9d03e3c5cd5d6b34063514"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1490,18 +1485,6 @@
         {
           "algorithm": "SHA256",
           "checksumValue": "6c9d7d16f956f62b90bd6eb6c428eb6ea215ae368b4b79609ae38e32b7dfff2e"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./share/hdf5/vcpkg-port-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-75",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "732de06a44578c5fdd8dca8483d824935fc84f6291718ff1d5b5d1ed12ad5fc3"
         }
       ],
       "licenseConcluded": "NOASSERTION",

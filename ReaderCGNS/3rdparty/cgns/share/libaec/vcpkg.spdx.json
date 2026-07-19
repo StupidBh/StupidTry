@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/libaec-x64-mingw-static-1.1.6-e8150ec2-0336-41bd-b9ce-025c9c9d74ab",
-  "name": "libaec:x64-mingw-static@1.1.6 8b68a39cb4236df48fbcf7db3538434dd48aa1dec7bca6b0fcd645417bc5d41a",
+  "documentNamespace": "https://spdx.org/spdxdocs/libaec-x64-windows-static-md-1.1.7-6457d3c4-6024-4361-8e07-f0bcb681d985",
+  "name": "libaec:x64-windows-static-md@1.1.7 9b9799f2ec976ce1e50932489237ee7035d918ab8296ac4d2746250d05b7c132",
   "creationInfo": {
     "creators": [
       "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
     ],
-    "created": "2026-07-01T02:07:33Z"
+    "created": "2026-07-18T14:56:46Z"
   },
   "relationships": [
     {
@@ -112,9 +112,9 @@
     {
       "name": "libaec",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.1.6",
+      "versionInfo": "1.1.7",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/libaec",
-      "homepage": "https://gitlab.dkrz.de/k202009/libaec",
+      "homepage": "https://gitlab.dkrz.de/dkrz-sw/libaec",
       "licenseConcluded": "BSD-2-Clause",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -122,9 +122,9 @@
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
-      "name": "libaec:x64-mingw-static",
+      "name": "libaec:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "8b68a39cb4236df48fbcf7db3538434dd48aa1dec7bca6b0fcd645417bc5d41a",
+      "versionInfo": "9b9799f2ec976ce1e50932489237ee7035d918ab8296ac4d2746250d05b7c132",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSD-2-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -133,15 +133,15 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "k202009/libaec",
-      "downloadLocation": "git+https://gitlab.dkrz.de/k202009/libaec@v1.1.6",
+      "name": "dkrz-sw/libaec",
+      "downloadLocation": "git+https://gitlab.dkrz.de/dkrz-sw/libaec@v1.1.7",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "c1023328895b5dfdd1831d9edeeaaafe2b3083cdf42a1b76358319b7afd552e1eeb389e8d2668eb2d5f43a07542ade1914a4db1b9095b3d901559826a9c91eba"
+          "checksumValue": "ede721986c1b7632ee2577964d02438a8ff5ed90481ea638412f6c2128af0bf1911ca3762acdbaf04fdcab75a363652bf5c992c11d9e38d4e5334f089d124617"
         }
       ]
     }
@@ -153,7 +153,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c784cca19802927271de9f881d635c655de6f38b3bb1523de1fbf7c941e5ce4e"
+          "checksumValue": "b40d72aec3cc8ea4db308d955846801b9e4abb61d94b2b0be6e3f4c12008de99"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -177,7 +177,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "970d3a25ce9f2b65992fbee7cb8bdbb33b839569ca97fcd7a51f30131c49e87a"
+          "checksumValue": "d120fcceca407b4ab9ad91e09a0180d52d3d1041f5db636a5274533609743bdd"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -196,24 +196,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/lib/libaec.a",
+      "fileName": "./debug/lib/aec-static.lib",
       "SPDXID": "SPDXRef-binary-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2dc7c675aa1589a08099d36cd5b351875cff226710ca7732f6ea1d9c642e88af"
+          "checksumValue": "1e1d06d4ca813f0bd08de3a258b90813320793c26adf53e99a0de20181b08087"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./debug/lib/libsz.a",
+      "fileName": "./debug/lib/szip-static.lib",
       "SPDXID": "SPDXRef-binary-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "fe940a96e020911c878daf6c9ac18a946184820acdc45c726006510b282c16cf"
+          "checksumValue": "07b3c7f5589d346ebb4983cb0eb9b52e3d4d38a2c0e42292852ad68cbe8049d8"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -225,7 +225,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a13b5057d22d3963e83137e9db4126eed140df654a894571aeaabcf3d8ba4c4a"
+          "checksumValue": "d6f773c5a32a876c453cb6c605d2c565fde43d857c581195a1b8d7f43d9258b6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -244,24 +244,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./lib/libaec.a",
+      "fileName": "./lib/aec-static.lib",
       "SPDXID": "SPDXRef-binary-file-5",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e4ad4b566d9c0d628c6e177f0671037c0eea04aa2d016f5acfed534c97d7db82"
+          "checksumValue": "874e40fad9c8e98865856866db8996226f3f615fc676ef9f0f39366b6116fab7"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./lib/libsz.a",
+      "fileName": "./lib/szip-static.lib",
       "SPDXID": "SPDXRef-binary-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5b9073b7268fbe7f2f2b092e04f7ef730165ef32d250c24d00c4c4b37defc598"
+          "checksumValue": "0fa8e02e578898d4fcba651631afdebba357d906958d12b05dc6ef96409f3313"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -285,7 +285,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4bf3bebcdde8b1390f654a196e2b5e16585663b30f471118c20dbac867baddfa"
+          "checksumValue": "f0d72a7b3ef73c416bb5d871555c1a3bd72fdfbd92dc7178a4dffdd00aeac47e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -309,7 +309,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e8df8806ad34ca5c800d526a831a97973a6ef989c74be79ffe7be7c5f463ef4f"
+          "checksumValue": "31ecc0843a5f26ecad5508e2cb34f765f1185ab205e1f811698930ad836c3fc1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -321,7 +321,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "44ddb85dfaf911731d596e5124ab9bba7984effb8264041ae9f5b8e733f4a08b"
+          "checksumValue": "ef65fdeccf49a200225a266615417de144cfd313a5e803115101f29ef45d9bcc"
         }
       ],
       "licenseConcluded": "NOASSERTION",

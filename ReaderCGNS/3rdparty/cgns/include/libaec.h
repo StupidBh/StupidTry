@@ -40,8 +40,8 @@
 
 #define AEC_VERSION_MAJOR 1
 #define AEC_VERSION_MINOR 1
-#define AEC_VERSION_PATCH 6
-#define AEC_VERSION_STR "1.1.6"
+#define AEC_VERSION_PATCH 7
+#define AEC_VERSION_STR "1.1.7"
 
 #include <stddef.h>
 
