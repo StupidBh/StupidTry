@@ -9,10 +9,10 @@ void ReaderCGNSLogCallback(int level, const char* file, int line, const char* me
 {
     spdlog::level::level_enum spd_level;
     switch (level) {
-    case READER_CGNS_LOG_DEBUG: spd_level = spdlog::level::debug; break;
-    case READER_CGNS_LOG_WARN : spd_level = spdlog::level::warn; break;
-    case READER_CGNS_LOG_ERROR: spd_level = spdlog::level::err; break;
-    default                   : spd_level = spdlog::level::info;
+    case ReaderCGNS::Logger::READER_CGNS_LOG_DEBUG: spd_level = spdlog::level::debug; break;
+    case ReaderCGNS::Logger::READER_CGNS_LOG_WARN : spd_level = spdlog::level::warn; break;
+    case ReaderCGNS::Logger::READER_CGNS_LOG_ERROR: spd_level = spdlog::level::err; break;
+    default                                       : spd_level = spdlog::level::info;
     }
 
 #ifndef NDEBUG

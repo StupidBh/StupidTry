@@ -2,8 +2,8 @@
 #include "ReaderCGNS/ReaderCGNS.h"
 
 #include <atomic>
-
-#include "Logger/logger_formatter.hpp"
+#include <format>
+#include <filesystem>
 
 namespace ReaderCGNS::Logger {
     inline std::atomic<ReaderCGNS_LogCallback> g_log_callback = nullptr;
@@ -19,20 +19,20 @@ namespace ReaderCGNS::Logger {
     }
 
     template<class... Args>
-    void LogFormat(int level, const char* file, int line, fmt::format_string<Args...> fmt_text, Args&&... args)
+    void LogFormat(int level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args)
     {
         try {
-            LogMessage(level, file, line, fmt::format(fmt_text, std::forward<Args>(args)...));
+            LogMessage(level, file, line, std::format(fmt_text, std::forward<Args>(args)...));
         }
         catch (const std::exception& e) {
-            LogMessage(level, file, line, fmt::format("ReaderCGNS log format failed: {}", e.what()));
+            LogMessage(level, file, line, std::format("ReaderCGNS log format failed: {}", e.what()));
         }
         catch (...) {
             LogMessage(level, file, line, "ReaderCGNS log format failed: unknown error.");
         }
     }
 
-    inline void LogFormat(int level, const char* file, int line, fmt::string_view message)
+    inline void LogFormat(int level, const char* file, int line, std::string_view message)
     {
         LogMessage(level, file, line, std::string(message.data(), message.size()));
     }
@@ -40,9 +40,9 @@ namespace ReaderCGNS::Logger {
     int cgns_catch_msg(int status, const std::filesystem::path& file, int line);
 } // namespace ReaderCGNS::Logger
 
-#define LOG_DEBUG(...) ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_INFO(...)  ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARN(...)  ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_ERROR(...) ReaderCGNS::Logger::LogFormat(READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...) ReaderCGNS::Logger::LogFormat(ReaderCGNS::Logger::READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)  ReaderCGNS::Logger::LogFormat(ReaderCGNS::Logger::READER_CGNS_LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...)  ReaderCGNS::Logger::LogFormat(ReaderCGNS::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) ReaderCGNS::Logger::LogFormat(ReaderCGNS::Logger::READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
 #define CG_INFO(STATUS) ReaderCGNS::Logger::cgns_catch_msg(STATUS, __FILE__, __LINE__)

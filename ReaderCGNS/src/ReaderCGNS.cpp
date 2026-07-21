@@ -220,7 +220,7 @@ namespace ReaderCGNS {
                 CG_INFO(cg_nsubregs(cg_file_id, base, zone, &nsubregs));
                 for (int subreg = 1; subreg <= nsubregs; ++subreg) {
                     std::string subreg_name(33, '\0');
-                    int subreg_dim = 0, subreg_bcname_len = 0, subreg_gcname_len;
+                    int subreg_dim = 0, subreg_bcname_len = 0, subreg_gcname_len = 0;
                     std::vector<cgsize_t> subreg_npnts(1, 0);
                     CG_GridLocation_t subreg_location = CG_GridLocation_t::CG_GridLocationNull;
                     CG_PointSetType_t subreg_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
@@ -241,21 +241,21 @@ namespace ReaderCGNS {
                         CG_INFO(cg_subreg_ptset_read(cg_file_id, base, zone, subreg, subreg_npnts.data()));
                     }
 
-                    std::string msg = fmt::format("    [ZoneSubregions]{:>2}:[{}]-[{}] {}, Dimension={}",
+                    std::string msg = std::format("    [ZoneSubregions]{:>2}:[{}]-[{}] {}, Dimension={}",
                                                   subreg,
                                                   cg_GridLocationName(subreg_location),
                                                   cg_PointSetTypeName(subreg_point_set_type),
-                                                  subreg_name.c_str(),
+                                                  std::string_view(subreg_name),
                                                   subreg_dim);
                     if (subreg_bcname_len > 0) {
-                        std::string subreg_bcname(subreg_bcname_len, '\0');
+                        std::string subreg_bcname(subreg_bcname_len + 1, '\0');
                         CG_INFO(cg_subreg_bcname_read(cg_file_id, base, zone, subreg, subreg_bcname.data()));
-                        msg += fmt::format(" baname={}", subreg_bcname);
+                        msg += std::format(" baname={}", std::string_view(subreg_name));
                     }
                     if (subreg_gcname_len > 0) {
-                        std::string subreg_gcname(subreg_gcname_len, '\0');
+                        std::string subreg_gcname(subreg_gcname_len + 1, '\0');
                         CG_INFO(cg_subreg_gcname_read(cg_file_id, base, zone, subreg, subreg_gcname.data()));
-                        msg += fmt::format(" gcname={}", subreg_gcname);
+                        msg += std::format(" gcname={}", std::string_view(subreg_name));
                     }
                     LOG_INFO("{} npnts={}", msg, subreg_npnts);
                 }
@@ -266,10 +266,10 @@ namespace ReaderCGNS {
                 for (int grid = 1; grid <= ngrids; ++grid) {
                     std::string grid_name(33, '\0');
                     // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
-                    // std::vector<cgsize_t> grid_boundingbox(1, 0);
+                    // std::vector<cgsize_t> grid_bounding_box(1, 0);
 
                     CG_INFO(cg_grid_read(cg_file_id, base, zone, grid, grid_name.data()));
-                    // CG_INFO(cg_grid_bounding_box_read(cg_file_id, base, zone, grid, grid_data_type, grid_boundingbox.data()));
+                    // CG_INFO(cg_grid_bounding_box_read(cg_file_id, base, zone, grid, grid_data_type, grid_bounding_box.data()));
 
                     LOG_INFO("    [ZoneGird]{:>2}:[{}]", grid, grid_name.c_str());
                 }
@@ -281,7 +281,7 @@ namespace ReaderCGNS {
                     CG_DataType_t coord_data_type = CG_DataType_t::CG_DataTypeNull;
                     CG_INFO(cg_coord_info(cg_file_id, base, zone, coord, &coord_data_type, coord_name.data()));
 
-                    coord_info_msg += std::format("[{}-{}-{}], ", coord, cg_DataTypeName(coord_data_type), coord_name.c_str());
+                    coord_info_msg += std::format("[{}-{}-{}], ", coord, cg_DataTypeName(coord_data_type), std::string_view(coord_name));
                 }
                 if (!coord_info_msg.empty()) {
                     coord_info_msg.erase(coord_info_msg.size() - 2);
