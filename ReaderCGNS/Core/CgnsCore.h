@@ -2,7 +2,7 @@
 #include "ReaderCGNS/ReaderCGNS.h"
 
 namespace ReaderCGNS {
-    class READER_CGNS_DLL CgnsCore {
+    class CgnsCore {
     public:
         CgnsCore() = default;
         CgnsCore(const std::string& cgns_file_path);

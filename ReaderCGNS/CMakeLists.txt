@@ -4,6 +4,7 @@ project(ReaderCGNS)
 file(GLOB CPP_RESOURCES
         "src/*.cpp"
         "Utils/src/*.cpp"
+        "Core/src/*.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -17,6 +18,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}
         ${3RD_ROOT}
         Utils
+        Core
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

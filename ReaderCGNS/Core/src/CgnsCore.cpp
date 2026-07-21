@@ -1,4 +1,4 @@
-#include "ReaderCGNS/CgnsCore.h"
+#include "../CgnsCore.h"
 #include "Logger.h"
 
 #include "cgnslib.h"

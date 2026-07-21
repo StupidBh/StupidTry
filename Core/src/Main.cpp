@@ -1,7 +1,7 @@
 #include "Functions.h"
 #include "SingletonData.h"
 
-#include "ReaderCGNS/CgnsCore.h"
+#include "ReaderCGNS/ReaderCGNS.h"
 #include "HighFiveUtils.hpp"
 #include "Utils/BlockingQueue.hpp"
 
