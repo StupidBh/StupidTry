@@ -5,9 +5,54 @@
 - **C++23**（`CMAKE_CXX_STANDARD 23`，`CMAKE_CXX_STANDARD_REQUIRED ON`）
 - **CMake 4.0+**
 
-## 第三方依赖（`3rdparty/`）
+## 工程目录
 
-所有依赖均已 vendored 在 `3rdparty/` 目录下。
+```text
+StupidTry/
+├── CMakeLists.txt                  # 根 CMake 入口，配置语言标准、输出目录和子工程
+├── Core/                           # 主程序 Core 可执行文件
+│   ├── CMakeLists.txt
+│   ├── src/
+│   │   └── Main.cpp                # 程序入口和功能示例
+│   ├── Common/                     # 参数处理、全局配置等通用实现
+│   │   ├── Functions.h
+│   │   ├── SingletonData.h
+│   │   └── src/
+│   ├── Utils/                      # Core 专用的 HDF5 和文件 I/O 工具
+│   │   ├── HighFiveUtils.hpp
+│   │   ├── MioReader.h
+│   │   └── src/
+│   └── 3rdparty/
+│       └── hdf5/                  # Core 使用的 HDF5 依赖
+├── ReaderCGNS/                     # CGNS 文件读取与检查共享库
+│   ├── CMakeLists.txt
+│   ├── include/ReaderCGNS/         # ReaderCGNS 对外公开头文件
+│   ├── src/                        # 公开 API 实现
+│   ├── Core/                       # CGNS 核心解析逻辑
+│   ├── Utils/                      # ReaderCGNS 内部日志工具
+│   └── 3rdparty/
+│       └── cgns/                  # ReaderCGNS 使用的 CGNS 依赖
+├── Utils/                          # 跨模块的头文件工具库
+│   ├── BlockingQueue.hpp           # 线程安全阻塞队列
+│   ├── ThreadPool.hpp              # 线程池
+│   └── ...
+├── Logger/                         # 基于 spdlog 的日志封装
+├── 3rdparty/                       # 多个目标共用的第三方依赖
+│   ├── boost/
+│   ├── highfive/
+│   ├── mio/
+│   └── spdlog/
+├── CGNS.md                        # CGNS 格式与接口说明
+├── .clang-format                   # C/C++ 代码格式化配置
+├── build/                          # CMake 构建目录（生成）
+└── bin/<Debug|Release>/            # 可执行文件和动态库输出（生成）
+```
+
+`Core` 依赖 `ReaderCGNS` 共享库；根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
+
+## 第三方依赖
+
+所有依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。
 
 | 库        | 版本     | 链接方式                     | 用途                                    |
 |----------|--------|--------------------------|---------------------------------------|
