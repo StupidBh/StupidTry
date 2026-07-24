@@ -4,9 +4,8 @@
 #include "ReaderCGNS/ReaderCGNS.h"
 #include "HighFiveUtils.hpp"
 #include "Utils/BlockingQueue.hpp"
-#include "mio/detail/string_util.hpp"
 
-void ReaderCGNSLogCallback(int level, const char* file, int line, const char* message)
+static void ReaderCGNSLogCallback(int level, const char* file, int line, const char* message)
 {
     spdlog::level::level_enum spd_level;
     switch (level) {
@@ -17,7 +16,7 @@ void ReaderCGNSLogCallback(int level, const char* file, int line, const char* me
     }
 
 #ifndef NDEBUG
-    LOG->log(spd_level, "[ReaderCGNS] [{}:{}] {}", std::filesystem::path(file).filename(), line, message != nullptr ? message : "");
+    LOG->log(spd_level, "[ReaderCGNS] [{}:{}] {}", std::filesystem::path(file).filename(), line, message != nullptr ? message : "EmptyMsg!");
 #else
     LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "");
 #endif
@@ -62,17 +61,6 @@ int main(int argc, char* argv[])
         }
     };
 
-    struct Coordinates : Grid
-    {
-        std::string doc_str;
-
-        explicit Coordinates(const Grid& grid) : Grid(grid)
-        {
-            doc_str = grid.doc;
-            doc = "NULL";
-        }
-    };
-
     std::vector<Grid> coordinates;
 
     {
@@ -112,7 +100,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    { 
+    {
         utils::DeepClear(coordinates);
         SCOPED_TIMER_LOG("HighFive::Read file");
         HighFive::File file(HF_FILE.string(), HighFive::File::ReadOnly);
@@ -123,10 +111,6 @@ int main(int argc, char* argv[])
         catch (const HighFive::Exception& e) {
             LOG_ERROR("Failed: {}", e.what());
             return 1;
-        }
-
-        for (std::size_t i = 0; i < std::min<std::size_t>(coordinates.size(), 10); ++i) {
-            LOG_INFO("DOC: {}", coordinates[i].doc);
         }
     }
 
@@ -139,7 +123,6 @@ int main(int argc, char* argv[])
         consumed.reserve(DATA_COUNT);
 
         LOG_INFO("ProducerConsumer demo start, count={}, queue capacity={}", DATA_COUNT, queue.Capacity());
-
         std::thread producer([&] {
             for (std::size_t i = 0; i < DATA_COUNT; ++i) {
                 if (!queue.Push(i)) {
