@@ -12,15 +12,15 @@ public:
     ~SingletonData() override = default;
 
     bool ProcessArguments(int argc, char* argv[]);
-    const std::filesystem::path& GetOrCreateWorkDirectory() const;
+    [[nodiscard]] const std::filesystem::path& GetOrCreateWorkDirectory();
 
     template<class T>
-    T GetProgramOptions(const std::string& key) const
+    T& GetProgramOptions(const std::string& key)
     {
         if (!this->m_vm.contains(key)) {
             throw std::logic_error("No such option \"" + key + "\"");
         }
-        return this->m_vm[key].as<T>();
+        return this->m_vm.at(key).as<T>();
     }
 
 private:
