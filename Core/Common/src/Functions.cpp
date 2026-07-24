@@ -164,10 +164,12 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         if (line_view.empty()) {
             return false;
         }
+
+        const std::string line = IsLikelyGBK(line_view) ? GBKToUTF8(line_view) : std::string(line_view);
         if (callback != nullptr) {
-            return callback(std::string(line_view));
+            return callback(line);
         }
-        std::cerr << line_view << '\n';
+        std::cerr << line << '\n';
         return false;
     };
 
