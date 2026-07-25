@@ -7,19 +7,29 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace utils {
-    template<typename Duration = std::chrono::duration<double>>
-    class ScopedTimer {
-        using OutputCallback = std::function<void(std::string_view)>;
+    namespace detail {
+        template<class T>
+        inline constexpr bool is_duration_v = false;
 
+        template<class Rep, class Period>
+        inline constexpr bool is_duration_v<std::chrono::duration<Rep, Period>> = true;
+    } // namespace detail
+
+    template<typename Duration = std::chrono::duration<double>>
+    requires detail::is_duration_v<Duration>
+    class ScopedTimer {
         ScopedTimer(const ScopedTimer&) = delete;
         ScopedTimer& operator=(const ScopedTimer&) = delete;
         ScopedTimer(ScopedTimer&&) = delete;
         ScopedTimer& operator=(ScopedTimer&&) = delete;
 
     public:
-        explicit ScopedTimer(std::string_view name = "", OutputCallback callback = nullptr) noexcept :
+        using OutputCallback = std::function<void(std::string_view)>;
+
+        explicit ScopedTimer(std::string_view name = "", OutputCallback callback = nullptr) :
             m_name(name),
             m_running(true),
             m_start(std::chrono::steady_clock::now()),
@@ -48,15 +58,15 @@ namespace utils {
                 return;
             }
             this->m_end_time = std::chrono::steady_clock::now();
-            Duration elapsed = this->m_end_time - this->m_start;
+            const auto elapsed_seconds = std::chrono::duration<double>(this->m_end_time - this->m_start).count();
             this->m_running = false;
 
             std::string msg;
             if (!this->m_name.empty()) {
-                msg = std::format("[{}] Execution time: {:.3f}s", this->m_name, elapsed.count());
+                msg = std::format("[{}] Execution time: {:.3f}s", this->m_name, elapsed_seconds);
             }
             else {
-                msg = std::format("Execution time: {:.3f}s", elapsed.count());
+                msg = std::format("Execution time: {:.3f}s", elapsed_seconds);
             }
 
             if (this->m_callback) {
@@ -69,10 +79,10 @@ namespace utils {
             }
         }
 
-        Duration elapsed() const noexcept
+        [[nodiscard]] Duration elapsed() const noexcept
         {
-            auto now = this->m_running ? std::chrono::steady_clock::now() : this->m_end_time;
-            return Duration(now - this->m_start);
+            const auto now = this->m_running ? std::chrono::steady_clock::now() : this->m_end_time;
+            return std::chrono::duration_cast<Duration>(now - this->m_start);
         }
 
     private:
