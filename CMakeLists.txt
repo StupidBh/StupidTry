@@ -22,3 +22,9 @@ set(3RD_ROOT "${CMAKE_SOURCE_DIR}/3rdparty")
 # ---- Sub-projects ----
 add_subdirectory(ReaderCGNS)
 add_subdirectory(Core)
+
+if (BUILD_TESTING)
+    add_executable(UtilsTests Utils/tests/UtilsTests.cpp)
+    target_include_directories(UtilsTests PRIVATE ${CMAKE_SOURCE_DIR})
+    add_test(NAME Utils.GenericUtilities COMMAND UtilsTests)
+endif ()
