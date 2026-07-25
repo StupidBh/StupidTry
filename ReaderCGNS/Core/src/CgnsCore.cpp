@@ -21,6 +21,7 @@ namespace ReaderCGNS {
 
     bool CgnsCore::OpenCGNS()
     {
+        this->CloseFile();
         LOG_INFO("Open in read only: [{}]", this->m_cgns_file_path);
 
         int cgns_file_type = -1;
@@ -62,12 +63,17 @@ namespace ReaderCGNS {
 
     void CgnsCore::CloseCGNS()
     {
+        this->CloseFile();
+        this->m_cgns_file_path.clear();
+    }
+
+    void CgnsCore::CloseFile()
+    {
         if (this->m_cg_file_id != 0) {
             LOG_INFO("Close CGNS file: [{}].", this->m_cgns_file_path);
             CG_INFO(cg_close(this->m_cg_file_id));
             this->m_cg_file_id = 0;
         }
-        this->m_cgns_file_path = "";
     }
 
 } // namespace ReaderCGNS
