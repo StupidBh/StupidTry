@@ -1,10 +1,18 @@
 #pragma once
-#include <format>
-#include <vector>
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <concepts>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <ranges>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-namespace _container_ {
+namespace utils::detail {
     template<class ValueType>
     struct is_std_vector : std::false_type
     {
@@ -31,25 +39,32 @@ namespace _container_ {
     template<class T>
     inline constexpr bool is_std_array_v = is_std_array<std::remove_cvref_t<T>>::value;
 
-    template<class _Ty>
-    concept Clearable = std::default_initializable<_Ty> && std::movable<_Ty>;
-} // namespace _container_
+    template<class Ty>
+    concept Clearable = std::default_initializable<Ty> && std::movable<Ty>;
+} // namespace utils::detail
 
 namespace utils {
     template<class ValueType>
-    concept VectorType = _container_::is_std_vector_v<ValueType>;
+    concept VectorType = detail::is_std_vector_v<ValueType>;
 
     template<class ValueType>
-    concept ArrayType = _container_::is_std_array_v<ValueType>;
+    concept ArrayType = detail::is_std_array_v<ValueType>;
 
-    template<std::floating_point _Ty>
-    constexpr bool almost_equal(_Ty lhs, _Ty rhs) noexcept
+    template<std::floating_point Ty>
+    constexpr bool almost_equal(Ty lhs, Ty rhs) noexcept
     {
-        constexpr auto get_tolerance = []() -> std::pair<_Ty, _Ty> {
-            if constexpr (std::same_as<_Ty, float>) {
+        if (lhs == rhs) {
+            return true;
+        }
+        if (!std::isfinite(lhs) || !std::isfinite(rhs)) {
+            return false;
+        }
+
+        constexpr auto get_tolerance = []() -> std::pair<Ty, Ty> {
+            if constexpr (std::same_as<Ty, float>) {
                 return { 1e-5f, 1e-7f };
             }
-            else if constexpr (std::same_as<_Ty, double>) {
+            else if constexpr (std::same_as<Ty, double>) {
                 return { 1e-9, 1e-12 };
             }
             else { // long double or custom
@@ -58,8 +73,8 @@ namespace utils {
         };
         const auto [rel_tol, abs_tol] = get_tolerance();
 
-        const _Ty diff = std::fabs(lhs - rhs);
-        const _Ty scale = std::max(std::fabs(lhs), std::fabs(rhs));
+        const Ty diff = std::fabs(lhs - rhs);
+        const Ty scale = std::max(std::fabs(lhs), std::fabs(rhs));
 
         return diff <= std::max(rel_tol * scale, abs_tol);
     }
@@ -81,35 +96,55 @@ namespace utils {
     }
 
     template<class ValueType, std::ranges::input_range Range>
-    requires std::constructible_from<ValueType, std::remove_cvref_t<std::ranges::range_reference_t<Range>>>
+    requires(!VectorType<Range>) && std::constructible_from<ValueType, std::ranges::range_reference_t<Range>> && std::move_constructible<ValueType>
     constexpr void AppendVector(std::vector<ValueType>& target, Range&& source)
     {
-        target.insert(target.end(), std::ranges::begin(source), std::ranges::end(source));
+        // 先物化输入范围，避免 source 是 target 的 span/subrange 时扩容使迭代器失效。
+        std::vector<ValueType> buffered;
+        if constexpr (std::ranges::sized_range<Range>) {
+            buffered.reserve(static_cast<std::size_t>(std::ranges::size(source)));
+        }
+        for (auto&& value : source) {
+            buffered.emplace_back(std::forward<decltype(value)>(value));
+        }
+        target.insert(target.end(), std::make_move_iterator(buffered.begin()), std::make_move_iterator(buffered.end()));
     }
 
-    template<class ValueType>
-    constexpr void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType>& source)
+    template<class ValueType, class Allocator>
+    requires std::copy_constructible<ValueType>
+    constexpr void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType, Allocator>& source)
     {
+        if constexpr (std::same_as<Allocator, std::allocator<ValueType>>) {
+            if (std::addressof(target) == std::addressof(source)) {
+                const std::vector<ValueType> copy(source);
+                target.insert(target.end(), copy.begin(), copy.end());
+                return;
+            }
+        }
         target.insert(target.end(), source.begin(), source.end());
     }
 
-    template<class ValueType>
-    constexpr void AppendVector(std::vector<ValueType>& target, std::vector<ValueType>&& source)
+    template<class ValueType, class Allocator>
+    requires std::move_constructible<ValueType>
+    constexpr void AppendVector(std::vector<ValueType>& target, std::vector<ValueType, Allocator>&& source)
     {
+        if constexpr (std::same_as<Allocator, std::allocator<ValueType>>) {
+            if (std::addressof(target) == std::addressof(source)) {
+                throw std::invalid_argument("AppendVector cannot move a vector into itself");
+            }
+        }
         target.insert(target.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
     }
 
-    template<class ValueType, class _Ty>
-    constexpr void AppendVector(std::vector<ValueType>& target, std::size_t count, _Ty&& value)
+    template<class ValueType, class SourceType>
+    requires std::constructible_from<ValueType, SourceType&&> && std::copy_constructible<ValueType>
+    constexpr void AppendVector(std::vector<ValueType>& target, std::size_t count, SourceType&& value)
     {
-        if constexpr (std::is_lvalue_reference_v<_Ty>) {
-            target.insert(target.end(), count, value);
+        if (count == 0) {
+            return;
         }
-        else {
-            for (std::size_t i = 0; i < count; ++i) {
-                target.emplace_back(value);
-            }
-        }
+        const ValueType stable_value(std::forward<SourceType>(value));
+        target.insert(target.end(), count, stable_value);
     }
 
     template<class ValueType = int>
@@ -127,7 +162,7 @@ namespace utils {
         return result;
     }
 
-    template<_container_::Clearable... Args>
+    template<detail::Clearable... Args>
     constexpr void DeepClear(Args&... vecs)
     {
         ((vecs = Args()), ...);
@@ -145,6 +180,3 @@ namespace utils {
         (lambda(vecs), ...);
     }
 } // namespace utils
-
-#define CONCAT_IMPL(x, y) x##y
-#define CONCAT(x, y)      CONCAT_IMPL(x, y)
