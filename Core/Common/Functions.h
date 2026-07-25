@@ -1,25 +1,34 @@
 #pragma once
-#include "Utils/Utils.hpp"
-#include "Utils/ScopedTimer.hpp"
+#include <cstddef>
+#include <filesystem>
+#include <functional>
+#include <string>
+#include <string_view>
 
-#include "Logger/logger.hpp"
+/// Returns true when the complete byte sequence is valid UTF-8.
+[[nodiscard]] bool IsValidUTF8(std::string_view str) noexcept;
 
-#define SCOPED_TIMER(out_msg) decltype(auto) CONCAT(timer_, __COUNTER__) = utils::ScopedTimer(std::string_view(out_msg))
-#define SCOPED_TIMER_LOG(out_msg) \
-    decltype(auto) CONCAT(timer_, __COUNTER__) = utils::ScopedTimer(std::string_view(out_msg), [](std::string_view msg) { LOG->info(msg); })
+/// Returns true when the non-ASCII bytes form valid GBK double-byte sequences.
+[[nodiscard]] bool IsLikelyGBK(std::string_view str) noexcept;
 
-bool IsLikelyGBK(std::string_view str);
+/// Converts GBK bytes to UTF-8. Returns the original bytes if conversion fails.
+[[nodiscard]] std::string GBKToUTF8(std::string_view gbk_str);
 
-std::string GBKToUTF8(std::string_view gbk_str);
+/// Preserves valid UTF-8 and converts input that is valid GBK but invalid UTF-8.
+[[nodiscard]] std::string NormalizeToUTF8(std::string_view str);
 
-void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = nullptr);
+/// Runs a command and forwards each non-empty, trimmed UTF-8 output line.
+/// Returning true from the callback requests early process termination.
+void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = { });
 
-std::string GetEnv(const std::string& env);
+/// Returns an environment variable, or an empty string when it cannot be read.
+[[nodiscard]] std::string GetEnv(const std::string& env);
 
-std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str);
-bool IEquals(std::string_view lhs, std::string_view rhs);
-std::string_view TrimSpaces(std::string_view sv);
-std::string_view StripEdgeChar(std::string_view sv, char c);
+/// Byte-wise comparisons with ASCII-only case folding.
+[[nodiscard]] std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str) noexcept;
+[[nodiscard]] bool IEquals(std::string_view lhs, std::string_view rhs) noexcept;
+[[nodiscard]] std::string_view TrimSpaces(std::string_view str) noexcept;
+[[nodiscard]] std::string_view StripEdgeChar(std::string_view str, char c) noexcept;
 
-std::filesystem::path GetExecutablePath();
-std::filesystem::path GetExecutableDirectory();
+[[nodiscard]] std::filesystem::path GetExecutablePath();
+[[nodiscard]] std::filesystem::path GetExecutableDirectory();

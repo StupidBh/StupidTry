@@ -1,8 +1,116 @@
 #include "Functions.h"
+#include "Logger/logger.hpp"
 
 #include <windows.h>
 
-bool IsLikelyGBK(const std::string_view str)
+#include <algorithm>
+#include <array>
+#include <iostream>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <optional>
+#include <utility>
+
+namespace {
+    constexpr UINT GBK_CODE_PAGE = 936;
+    constexpr DWORD GRACEFUL_EXIT_TIMEOUT_MS = 5000;
+
+    struct WinHandleCloser
+    {
+        void operator()(void* handle) const noexcept
+        {
+            if (handle != nullptr && handle != INVALID_HANDLE_VALUE) {
+                CloseHandle(handle);
+            }
+        }
+    };
+
+    using UniqueHandle = std::unique_ptr<void, WinHandleCloser>;
+
+    constexpr unsigned char ToAsciiLower(unsigned char value) noexcept
+    {
+        return value >= 'A' && value <= 'Z' ? static_cast<unsigned char>(value + ('a' - 'A')) : value;
+    }
+
+    std::optional<std::wstring> MultiByteToWide(UINT code_page, DWORD flags, std::string_view str)
+    {
+        if (str.empty()) {
+            return std::wstring { };
+        }
+        if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return std::nullopt;
+        }
+
+        const int input_size = static_cast<int>(str.size());
+        const int wide_size = MultiByteToWideChar(code_page, flags, str.data(), input_size, nullptr, 0);
+        if (wide_size <= 0) {
+            return std::nullopt;
+        }
+
+        std::wstring result(wide_size, L'\0');
+        if (MultiByteToWideChar(code_page, flags, str.data(), input_size, result.data(), wide_size) != wide_size) {
+            return std::nullopt;
+        }
+        return result;
+    }
+
+    std::optional<std::string> WideToUTF8(std::wstring_view str)
+    {
+        if (str.empty()) {
+            return std::string { };
+        }
+        if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return std::nullopt;
+        }
+
+        const int input_size = static_cast<int>(str.size());
+        const int utf8_size = WideCharToMultiByte(CP_UTF8, 0, str.data(), input_size, nullptr, 0, nullptr, nullptr);
+        if (utf8_size <= 0) {
+            return std::nullopt;
+        }
+
+        std::string result(utf8_size, '\0');
+        if (WideCharToMultiByte(CP_UTF8, 0, str.data(), input_size, result.data(), utf8_size, nullptr, nullptr) != utf8_size) {
+            return std::nullopt;
+        }
+        return result;
+    }
+
+    UniqueHandle CreateKillOnCloseJob()
+    {
+        UniqueHandle job(CreateJobObjectW(nullptr, nullptr));
+        if (!job) {
+            LOG_ERROR("CreateJobObjectW failed: {}", GetLastError());
+            return { };
+        }
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit_info = { };
+        limit_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (!SetInformationJobObject(job.get(), JobObjectExtendedLimitInformation, &limit_info, sizeof(limit_info))) {
+            LOG_ERROR("SetInformationJobObject failed: {}", GetLastError());
+            return { };
+        }
+
+        return job;
+    }
+} // namespace
+
+bool IsValidUTF8(const std::string_view str) noexcept
+{
+    if (str.empty()) {
+        return true;
+    }
+    if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+        return false;
+    }
+
+    return MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), nullptr, 0) > 0;
+}
+
+bool IsLikelyGBK(const std::string_view str) noexcept
 {
     bool has_high_bit = false;
     for (std::size_t i = 0; i < str.length(); ++i) {
@@ -35,27 +143,26 @@ std::string GBKToUTF8(const std::string_view gbk_str)
         return { };
     }
 
-    int wlen = MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), nullptr, 0);
-    if (wlen <= 0) {
+    const auto wide = MultiByteToWide(GBK_CODE_PAGE, 0, gbk_str);
+    if (!wide) {
         return std::string(gbk_str);
     }
 
-    std::wstring wstr(wlen, L'\0');
-    MultiByteToWideChar(936, 0, gbk_str.data(), static_cast<int>(gbk_str.size()), wstr.data(), wlen);
-    int u8len = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, nullptr, 0, nullptr, nullptr);
-    if (u8len <= 0) {
-        return std::string(gbk_str);
-    }
+    const auto utf8 = WideToUTF8(*wide);
+    return utf8.value_or(std::string(gbk_str));
+}
 
-    std::string utf8_str(u8len, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wlen, utf8_str.data(), u8len, nullptr, nullptr);
-
-    return utf8_str;
+std::string NormalizeToUTF8(const std::string_view str)
+{
+    return !IsValidUTF8(str) && IsLikelyGBK(str) ? GBKToUTF8(str) : std::string(str);
 }
 
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
 {
-    constexpr DWORD graceful_exit_timeout_ms = 5000;
+    if (command.empty()) {
+        LOG_ERROR("Command is empty.");
+        return;
+    }
 
     // 安全属性结构，用于允许管道句柄继承
     SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES), .lpSecurityDescriptor = nullptr, .bInheritHandle = TRUE };
@@ -67,8 +174,8 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         LOG_ERROR("CreatePipe failed: {}", err);
         return;
     }
-    auto hReadPipe = std::shared_ptr<void>(readPipeRaw, CloseHandle);
-    auto hWritePipe = std::shared_ptr<void>(writePipeRaw, CloseHandle);
+    UniqueHandle hReadPipe(readPipeRaw);
+    UniqueHandle hWritePipe(writePipeRaw);
 
     // 防止子进程继承读取句柄，导致无法关闭（只继承写入）
     if (!SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0)) {
@@ -78,26 +185,8 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     }
 
     // 使用 Job Object 托管进程树，避免强制退出时遗留子进程
-    auto make_job = []() -> std::shared_ptr<void> {
-        const HANDLE raw = CreateJobObjectW(nullptr, nullptr);
-        if (raw == nullptr) {
-            LOG_ERROR("CreateJobObjectW failed: {}", GetLastError());
-            return { };
-        }
-
-        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit_info = { };
-        limit_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        if (!SetInformationJobObject(raw, JobObjectExtendedLimitInformation, &limit_info, sizeof(limit_info))) {
-            LOG_ERROR("SetInformationJobObject failed: {}", GetLastError());
-            CloseHandle(raw);
-            return { };
-        }
-
-        return { raw, CloseHandle };
-    };
-
-    auto hJob = make_job();
-    if (hJob == nullptr) {
+    auto hJob = CreateKillOnCloseJob();
+    if (!hJob) {
         return;
     }
 
@@ -106,13 +195,12 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     STARTUPINFOW si { .cb = sizeof(STARTUPINFOW), .dwFlags = STARTF_USESTDHANDLES, .hStdOutput = hWritePipe.get(), .hStdError = hWritePipe.get() };
 
     // 编码转换：ACP -> UTF-16，正确处理非 ASCII 路径
-    int wlen = MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), nullptr, 0);
-    if (wlen <= 0) {
+    auto wide_command = MultiByteToWide(CP_ACP, 0, command);
+    if (!wide_command) {
         LOG_ERROR("MultiByteToWideChar failed: {}", GetLastError());
         return;
     }
-    std::wstring cmd(wlen, L'\0');
-    MultiByteToWideChar(CP_ACP, 0, command.data(), static_cast<int>(command.size()), cmd.data(), wlen);
+    std::wstring cmd = std::move(*wide_command);
 
     if (!CreateProcessW(nullptr,                             // 不指定应用程序名，直接从命令行解析
                         cmd.data(),                          // 命令行参数（必须可修改）
@@ -132,14 +220,14 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     }
 
     // 先包装句柄，再处理后续逻辑（确保异常安全）
-    const auto hProcess = std::shared_ptr<void>(pi.hProcess, CloseHandle);
-    auto hThread = std::shared_ptr<void>(pi.hThread, CloseHandle);
+    const UniqueHandle hProcess(pi.hProcess);
+    const UniqueHandle hThread(pi.hThread);
 
     if (!AssignProcessToJobObject(hJob.get(), hProcess.get())) {
         const DWORD err = GetLastError();
         LOG_ERROR("AssignProcessToJobObject failed: {}", err);
         TerminateProcess(hProcess.get(), 1);
-        WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+        WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
         return;
     }
 
@@ -147,15 +235,14 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         const DWORD err = GetLastError();
         LOG_ERROR("ResumeThread failed: {}", err);
         TerminateJobObject(hJob.get(), 1);
-        WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+        WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
         return;
     }
 
     hWritePipe.reset();
 
     // 读取子进程的回显消息，按行切分（正确处理跨读取块的行）
-    char buffer[4096] = { };
-    DWORD bytesRead = 0;
+    std::array<char, 4096> buffer { };
     bool early_exit = false;
     std::string pending; // 尚未遇到换行符的跨块残留
 
@@ -165,16 +252,27 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
             return false;
         }
 
-        const std::string line = IsLikelyGBK(line_view) ? GBKToUTF8(line_view) : std::string(line_view);
-        if (callback != nullptr) {
+        const std::string line = NormalizeToUTF8(line_view);
+        if (callback) {
             return callback(line);
         }
         std::cerr << line << '\n';
         return false;
     };
 
-    while (ReadFile(hReadPipe.get(), buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
-        pending.append(buffer, bytesRead);
+    while (true) {
+        DWORD bytes_read = 0;
+        if (!ReadFile(hReadPipe.get(), buffer.data(), static_cast<DWORD>(buffer.size()), &bytes_read, nullptr)) {
+            const DWORD error = GetLastError();
+            if (error != ERROR_BROKEN_PIPE) {
+                LOG_ERROR("ReadFile failed: {}", error);
+            }
+            break;
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        pending.append(buffer.data(), bytes_read);
 
         std::size_t start = 0;
         for (std::size_t nl; (nl = pending.find('\n', start)) != std::string::npos; start = nl + 1) {
@@ -199,14 +297,14 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         hReadPipe.reset(); // 关闭读端；子进程后续写 stdout/stderr 时通常会收到 ERROR_BROKEN_PIPE
         LOG_INFO("Callback requested early termination, waiting for process to exit...");
 
-        const DWORD waitResult = WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+        const DWORD waitResult = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
         if (waitResult == WAIT_TIMEOUT) {
-            LOG_WARN("Process did not exit gracefully after {} ms, terminating job.", graceful_exit_timeout_ms);
+            LOG_WARN("Process did not exit gracefully after {} ms, terminating job.", GRACEFUL_EXIT_TIMEOUT_MS);
             if (!TerminateJobObject(hJob.get(), 1)) {
                 LOG_ERROR("TerminateJobObject failed: {}", GetLastError());
             }
 
-            const DWORD forcedWaitResult = WaitForSingleObject(hProcess.get(), graceful_exit_timeout_ms);
+            const DWORD forcedWaitResult = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
             if (forcedWaitResult == WAIT_TIMEOUT) {
                 LOG_ERROR("Process still alive after TerminateJobObject.");
             }
@@ -236,30 +334,41 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
 std::string GetEnv(const std::string& env)
 {
-    const DWORD need_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
-    if (need_size == 0) {
+    if (env.empty()) {
+        LOG_ERROR("Environment variable name is empty.");
+        return { };
+    }
+
+    DWORD buffer_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
+    if (buffer_size == 0) {
         LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
         return { };
     }
 
-    std::string buffer(need_size, '\0');
-    if (GetEnvironmentVariableA(env.c_str(), buffer.data(), need_size) == 0) {
-        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return { };
+    std::string buffer(buffer_size, '\0');
+    while (true) {
+        const DWORD value_size = GetEnvironmentVariableA(env.c_str(), buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (value_size == 0) {
+            LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+            return { };
+        }
+        if (value_size < buffer.size()) {
+            buffer.resize(value_size);
+            return buffer;
+        }
+
+        buffer.resize(value_size);
     }
-    buffer.pop_back(); // 去掉末尾的 '\0'
-    return buffer;
 }
 
-std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str)
+std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str) noexcept
 {
     if (sub_str.empty()) {
         return 0;
     }
 
-    const auto res = std::ranges::search(main_str, sub_str, [](unsigned char c1, unsigned char c2) {
-        return (c1 == c2) || (std::tolower(c1) == std::tolower(c2));
-    });
+    const auto res =
+        std::ranges::search(main_str, sub_str, [](unsigned char lhs, unsigned char rhs) { return ToAsciiLower(lhs) == ToAsciiLower(rhs); });
     if (res.begin() == main_str.end()) {
         return std::string_view::npos;
     }
@@ -267,45 +376,41 @@ std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_
     return static_cast<std::size_t>(std::ranges::distance(main_str.begin(), res.begin()));
 }
 
-bool IEquals(std::string_view lhs, std::string_view rhs)
+bool IEquals(std::string_view lhs, std::string_view rhs) noexcept
 {
     if (lhs.size() != rhs.size()) {
         return false;
     }
 
-    return std::ranges::equal(lhs, rhs, [](unsigned char c1, unsigned char c2) { return (c1 == c2) || (std::tolower(c1) == std::tolower(c2)); });
+    return std::ranges::equal(lhs, rhs, [](unsigned char lhs_char, unsigned char rhs_char) {
+        return ToAsciiLower(lhs_char) == ToAsciiLower(rhs_char);
+    });
 }
 
-std::string_view TrimSpaces(std::string_view sv)
+std::string_view TrimSpaces(const std::string_view str) noexcept
 {
-    static constinit std::string_view whitespace_chars = " \t\n\r\f\v";
-    auto first = sv.find_first_not_of(whitespace_chars);
+    constexpr std::string_view whitespace_chars = " \t\n\r\f\v";
+    const std::size_t first = str.find_first_not_of(whitespace_chars);
     if (first == std::string_view::npos) {
         return { };
     }
-    sv.remove_prefix(first);
 
-    const auto last = sv.find_last_not_of(whitespace_chars);
-    if (last == std::string_view::npos) {
-        return sv;
-    }
-    sv.remove_suffix(sv.size() - last - 1);
-
-    return sv;
+    const std::size_t last = str.find_last_not_of(whitespace_chars);
+    return str.substr(first, last - first + 1);
 }
 
-std::string_view StripEdgeChar(std::string_view sv, char c)
+std::string_view StripEdgeChar(std::string_view str, char c) noexcept
 {
-    if (sv.size() < 2) {
-        return sv;
+    if (str.empty()) {
+        return str;
     }
-    if (sv.front() == c) {
-        sv.remove_prefix(1);
+    if (str.front() == c) {
+        str.remove_prefix(1);
     }
-    if (sv.back() == c) {
-        sv.remove_suffix(1);
+    if (!str.empty() && str.back() == c) {
+        str.remove_suffix(1);
     }
-    return sv;
+    return str;
 }
 
 std::filesystem::path GetExecutablePath()

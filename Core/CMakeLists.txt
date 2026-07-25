@@ -29,6 +29,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         ReaderCGNS
 )
 
+if (BUILD_TESTING)
+    add_executable(CoreFunctionsTests
+            tests/FunctionsTests.cpp
+            Common/src/Functions.cpp
+    )
+    target_include_directories(CoreFunctionsTests PRIVATE
+            ${CMAKE_SOURCE_DIR}
+            ${3RD_ROOT}
+            Common
+    )
+    add_test(NAME Core.Functions COMMAND CoreFunctionsTests)
+endif ()
+
 find_package(TBB CONFIG QUIET)
 if (TBB_FOUND)
     target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
