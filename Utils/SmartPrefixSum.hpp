@@ -1,5 +1,6 @@
 #pragma once
 #include <concepts>
+#include <cstddef>
 #include <cstdint>
 #include <execution>
 #include <numeric>
@@ -9,7 +10,12 @@
 
 namespace utils {
     template<typename T>
-    using SafeSumType_t = std::conditional_t<std::is_floating_point_v<T>, double, std::conditional_t<std::is_unsigned_v<T>, uint64_t, int64_t>>;
+    using PrefixSumType_t = std::conditional_t<std::floating_point<T>,
+                                               std::conditional_t<(sizeof(T) < sizeof(double)), double, T>,
+                                               std::conditional_t<std::is_unsigned_v<T>, std::uint64_t, std::int64_t>>;
+
+    template<typename T>
+    using SafeSumType_t [[deprecated("use PrefixSumType_t")]] = PrefixSumType_t<T>;
 
     // 单线程增量前缀和缓存。
     //
@@ -19,14 +25,11 @@ namespace utils {
     // 缓存约束：假设源数组“只读 / 只追加”。增量路径基于上次缓存的累加值前后滑动，
     //   若修改了已缓存范围 [0, last_idx] 内的任何元素，必须调用 invalidate()，
     //   否则后续 query 会基于过期的 last_sum 返回错误结果。
-    template<typename T, typename SumType = SafeSumType_t<T>>
+    template<typename T, typename SumType = PrefixSumType_t<T>>
     requires(std::integral<T> || std::floating_point<T>) && (std::integral<SumType> || std::floating_point<SumType>)
     class SmartPrefixSum {
-        const std::vector<T>& A;
-
-        mutable size_t last_idx = 0;
-        mutable SumType last_sum = 0;
-        mutable bool has_cache = false;
+        SmartPrefixSum(std::vector<T>&&) = delete;
+        SmartPrefixSum(const std::vector<T>&&) = delete;
 
     public:
         explicit SmartPrefixSum(const std::vector<T>& array) :
@@ -42,7 +45,7 @@ namespace utils {
             last_sum = SumType { };
         }
 
-        SumType query(size_t index) const
+        [[nodiscard]] SumType query(std::size_t index) const
         {
             if (index >= A.size()) {
                 return SumType { };
@@ -53,7 +56,7 @@ namespace utils {
             }
 
             if (index >= last_idx) {
-                size_t diff = index - last_idx;
+                const std::size_t diff = index - last_idx;
                 if (diff < 5'000'000) {
                     std::span<const T> view { A.data() + last_idx + 1, diff };
                     last_sum = std::accumulate(view.begin(), view.end(), last_sum);
@@ -62,7 +65,7 @@ namespace utils {
                 }
             }
             else {
-                size_t diff = last_idx - index;
+                const std::size_t diff = last_idx - index;
                 if (diff < 5'000'000) {
                     std::span<const T> view { A.data() + index + 1, diff };
                     last_sum = last_sum - std::accumulate(view.begin(), view.end(), SumType { });
@@ -75,7 +78,7 @@ namespace utils {
         }
 
     private:
-        SumType reset_and_calc(size_t index) const
+        SumType reset_and_calc(std::size_t index) const
         {
             std::span<const T> view { A.data(), index + 1 };
             if (view.size() < 100000) {
@@ -88,5 +91,11 @@ namespace utils {
             has_cache = true;
             return last_sum;
         }
+
+        const std::vector<T>& A;
+
+        mutable std::size_t last_idx = 0;
+        mutable SumType last_sum = 0;
+        mutable bool has_cache = false;
     };
 } // namespace utils
