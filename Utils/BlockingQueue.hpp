@@ -1,6 +1,6 @@
 #pragma once
+#include <concepts>
 #include <condition_variable>
-#include <cstddef>
 #include <mutex>
 #include <optional>
 #include <queue>
@@ -16,7 +16,8 @@ namespace utils {
     /// - Close() 表示生产端不再写入，消费者会在取尽已有数据后收到 std::nullopt。
     ///
     /// @note max_size == 0 表示无界队列；有界队列可以在消费较慢时向生产者施加背压。
-    template<class T>
+    /// @pre 析构队列前，调用方必须确保没有线程仍在调用或等待此对象。
+    template<std::move_constructible T>
     class BlockingQueue {
         BlockingQueue(const BlockingQueue&) = delete;
         BlockingQueue& operator=(const BlockingQueue&) = delete;
@@ -32,7 +33,7 @@ namespace utils {
         /// @brief 向队列写入一个元素。
         /// @retval true  写入成功。
         /// @retval false 队列已经关闭，元素未写入。
-        bool Push(T value)
+        [[nodiscard]] bool Push(T value)
         {
             std::unique_lock lock(m_mtx);
             m_cv_can_push.wait(lock, [this] { return m_is_closed || m_max_size == 0 || m_queue.size() < m_max_size; });
@@ -49,7 +50,7 @@ namespace utils {
 
         /// @brief 从队列取出一个元素。
         /// @return 队列有数据时返回元素；队列关闭且已取尽时返回 std::nullopt。
-        std::optional<T> Pop()
+        [[nodiscard]] std::optional<T> Pop()
         {
             std::unique_lock lock(m_mtx);
             m_cv_can_pop.wait(lock, [this] { return m_is_closed || !m_queue.empty(); });
@@ -67,7 +68,7 @@ namespace utils {
 
         /// @brief 关闭队列并唤醒所有等待线程。
         /// @note Close() 不会清空队列，消费者仍可继续取出关闭前已经写入的数据。
-        void Close() noexcept
+        void Close()
         {
             {
                 std::lock_guard lock(m_mtx);
@@ -78,21 +79,21 @@ namespace utils {
         }
 
         /// @brief 查询队列是否已经关闭。
-        bool IsClosed() const noexcept
+        [[nodiscard]] bool IsClosed() const
         {
             std::lock_guard lock(m_mtx);
             return m_is_closed;
         }
 
         /// @brief 查询当前队列元素数量。
-        std::size_t Size() const noexcept
+        [[nodiscard]] std::size_t Size() const
         {
             std::lock_guard lock(m_mtx);
             return m_queue.size();
         }
 
         /// @brief 查询队列容量；0 表示无界队列。
-        std::size_t Capacity() const noexcept { return m_max_size; }
+        [[nodiscard]] std::size_t Capacity() const noexcept { return m_max_size; }
 
     private:
         mutable std::mutex m_mtx;
