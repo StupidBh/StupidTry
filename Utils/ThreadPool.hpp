@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <concepts>
 #include <condition_variable>
 #include <cstddef>
 #include <functional>
@@ -49,33 +50,47 @@ namespace utils {
         };
 
     public:
-        explicit ThreadPool(size_t thread_count) :
+        explicit ThreadPool(std::size_t thread_count) :
             m_unfinished_tasks(0),
             m_stopped(false),
             m_run_inline(thread_count == 0)
         {
-            m_workers.reserve(thread_count);
-            for (size_t i = 0; i < thread_count; ++i) {
-                m_workers.emplace_back([this](std::stop_token st) {
-                    while (!st.stop_requested()) {
-                        std::function<void()> task;
-                        {
-                            std::unique_lock lock(m_mutex);
-                            m_task_cv.wait(lock, [this, &st] { return m_stopped || !m_tasks.empty() || st.stop_requested(); });
+            try {
+                m_workers.reserve(thread_count);
+                for (std::size_t i = 0; i < thread_count; ++i) {
+                    m_workers.emplace_back([this](std::stop_token st) {
+                        while (!st.stop_requested()) {
+                            std::function<void()> task;
+                            {
+                                std::unique_lock lock(m_mutex);
+                                m_task_cv.wait(lock, [this, &st] { return m_stopped || !m_tasks.empty() || st.stop_requested(); });
 
-                            if ((m_stopped && m_tasks.empty()) || st.stop_requested()) {
-                                return;
+                                if ((m_stopped && m_tasks.empty()) || st.stop_requested()) {
+                                    return;
+                                }
+
+                                task = std::move(m_tasks.front());
+                                m_tasks.pop();
                             }
 
-                            task = std::move(m_tasks.front());
-                            m_tasks.pop();
+                            if (task) {
+                                task();
+                            }
                         }
-
-                        if (task) {
-                            task();
-                        }
-                    }
-                });
+                    });
+                }
+            }
+            catch (...) {
+                {
+                    std::lock_guard lock(m_mutex);
+                    m_stopped = true;
+                }
+                for (auto& worker : m_workers) {
+                    worker.request_stop();
+                }
+                m_task_cv.notify_all();
+                m_workers.clear();
+                throw;
             }
         }
 
@@ -90,12 +105,12 @@ namespace utils {
          * @return std::future<任务返回类型>
          */
         template<class Func, class... Args>
-        requires std::invocable<Func, Args...>
-        auto enqueue(Func&& f, Args&&... args) -> std::future<std::invoke_result_t<Func, Args...>>
+        requires std::invocable<std::decay_t<Func>, std::decay_t<Args>...>
+        auto enqueue(Func&& f, Args&&... args) -> std::future<std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>>
         {
-            using return_type = std::invoke_result_t<Func, Args...>;
+            using return_type = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>;
 
-            // 用 lambda + init-capture 转发，保留 move-only / 引用语义（std::bind 会衰减拷贝）
+            // 与 std::thread 一致：任务和参数衰减复制进任务对象；引用语义通过 std::ref 显式表达。
             auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(
                 [f = std::forward<Func>(f), ... a = std::forward<Args>(args)]() mutable -> return_type {
                     return std::invoke(std::move(f), std::move(a)...);
@@ -242,9 +257,9 @@ namespace utils {
         std::vector<std::jthread> m_workers;       // 工作线程
         std::queue<std::function<void()>> m_tasks; // 任务队列
 
-        size_t m_unfinished_tasks;                 // 未完成任务数，由 m_mutex 保护
+        std::size_t m_unfinished_tasks;            // 未完成任务数，由 m_mutex 保护
         bool m_stopped;                            // 停止标志位
-        bool m_run_inline;                         // thread_count == 0: execute enqueue tasks inline
+        const bool m_run_inline;                   // thread_count == 0: execute enqueue tasks inline
 
         std::mutex m_mutex;                        // 任务队列互斥锁
         std::condition_variable m_task_cv;         // 新任务通知
