@@ -15,13 +15,13 @@
 
 namespace dylog {
     class Logger final : public utils::SingletonHolder<Logger> {
-        SINGLETON_CLASS(Logger);
+        friend class utils::SingletonHolder<Logger>;
         std::shared_mutex m_mutex;
 
         Logger() { spdlog::init_thread_pool(32768, 1); }
 
     public:
-        ~Logger() override { spdlog::shutdown(); };
+        ~Logger() { spdlog::shutdown(); };
 
         void InitLog(const std::filesystem::path& work_dir, const std::string& log_file_name, bool verbose = false)
         {

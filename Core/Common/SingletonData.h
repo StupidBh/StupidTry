@@ -5,11 +5,11 @@
 #include "boost/program_options.hpp"
 
 class SingletonData final : public utils::SingletonHolder<SingletonData> {
-    SINGLETON_CLASS(SingletonData);
+    friend class utils::SingletonHolder<SingletonData>;
     SingletonData() = default;
 
 public:
-    ~SingletonData() override = default;
+    ~SingletonData() = default;
 
     bool ProcessArguments(int argc, char* argv[]);
     [[nodiscard]] const std::filesystem::path& GetOrCreateWorkDirectory();

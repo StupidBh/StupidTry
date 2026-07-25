@@ -1,32 +1,24 @@
 ﻿#pragma once
 #include <concepts>
 
-#define DELETE_COPY_AND_MOVE(class_name)          \
-    class_name(class_name&&) = delete;            \
-    class_name(const class_name&) = delete;       \
-    class_name& operator=(class_name&&) = delete; \
-    class_name& operator=(const class_name&) = delete
-
-#define SINGLETON_CLASS(class_name)   \
-    DELETE_COPY_AND_MOVE(class_name); \
-    friend class SingletonHolder<class_name>
-
 namespace utils {
     template<class T>
     class SingletonHolder {
-        DELETE_COPY_AND_MOVE(SingletonHolder);
+        SingletonHolder(const SingletonHolder&) = delete;
+        SingletonHolder& operator=(const SingletonHolder&) = delete;
+        SingletonHolder(SingletonHolder&&) = delete;
+        SingletonHolder& operator=(SingletonHolder&&) = delete;
 
     public:
-        static T& get_instance()
+        [[nodiscard]] static T& get_instance()
         {
             static T unique_instance;
             return unique_instance;
         }
 
-        virtual ~SingletonHolder() = default;
-
     protected:
         SingletonHolder() = default;
+        ~SingletonHolder() = default;
     };
 
     template<class T>
