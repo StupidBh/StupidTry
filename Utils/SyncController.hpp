@@ -18,6 +18,11 @@ namespace utils {
     /// @note 不可拷贝/移动：内部持有 std::mutex 和 std::condition_variable。
     /// @note 线程安全：所有公开方法均为线程安全。
     class SyncController {
+        SyncController(const SyncController&) = delete;
+        SyncController& operator=(const SyncController&) = delete;
+        SyncController(SyncController&&) = delete;
+        SyncController& operator=(SyncController&&) = delete;
+
     protected:
         std::mutex m_mtx;                      ///< 保护 m_cv 及关联的等待-通知时序
         std::condition_variable m_cv;          ///< 生产者与消费者共享的条件变量
@@ -28,18 +33,13 @@ namespace utils {
         SyncController() = default;
         virtual ~SyncController() = default;
 
-        SyncController(const SyncController&) = delete;
-        SyncController& operator=(const SyncController&) = delete;
-        SyncController(SyncController&&) = delete;
-        SyncController& operator=(SyncController&&) = delete;
-
         /// @brief 将内部状态重置为初始值。
         /// @pre 在所有线程启动前调用，线程创建本身提供所需的同步。
         /// @post m_is_stop == false, m_is_ready == false
         void init() noexcept
         {
-            m_is_stop.store(false, std::memory_order_relaxed);
-            m_is_ready = false;
+            this->m_is_stop.store(false, std::memory_order_relaxed);
+            this->m_is_ready = false;
         }
 
         /// @brief 阻塞当前线程，直到被通知或停止。
@@ -48,9 +48,10 @@ namespace utils {
         /// @return true 表示目标状态就绪；false 表示等待被 stop() 中断。
         [[nodiscard]] bool wait_for(bool is_consumer)
         {
-            std::unique_lock lock(m_mtx);
-            m_cv.wait(lock, [&] { return m_is_stop.load(std::memory_order_relaxed) || (is_consumer ? m_is_ready : !m_is_ready); });
-            return !m_is_stop.load(std::memory_order_relaxed);
+            std::unique_lock lock(this->m_mtx);
+            this->m_cv.wait(lock,
+                            [&] { return this->m_is_stop.load(std::memory_order_relaxed) || (is_consumer ? this->m_is_ready : !this->m_is_ready); });
+            return !this->m_is_stop.load(std::memory_order_relaxed);
         }
 
         /// @brief 阻塞当前线程，直到自定义谓词满足或停止。
@@ -61,9 +62,9 @@ namespace utils {
         requires std::predicate<Predicate&>
         [[nodiscard]] bool wait_for(Predicate&& pred)
         {
-            std::unique_lock lock(m_mtx);
-            m_cv.wait(lock, [&] { return m_is_stop.load(std::memory_order_relaxed) || std::invoke(pred); });
-            return !m_is_stop.load(std::memory_order_relaxed);
+            std::unique_lock lock(this->m_mtx);
+            this->m_cv.wait(lock, [&] { return this->m_is_stop.load(std::memory_order_relaxed) || std::invoke(pred); });
+            return !this->m_is_stop.load(std::memory_order_relaxed);
         }
 
         /// @brief 发出全局停止信号并唤醒所有等待线程。
@@ -73,17 +74,17 @@ namespace utils {
         void stop()
         {
             {
-                std::lock_guard lock(m_mtx);
-                m_is_stop.store(true, std::memory_order_release);
+                std::lock_guard lock(this->m_mtx);
+                this->m_is_stop.store(true, std::memory_order_release);
             }
-            m_cv.notify_all();
+            this->m_cv.notify_all();
         }
 
         /// @brief 查询是否已收到停止信号。
         /// @retval true  stop() 已被调用
         /// @retval false 正常运行中
         /// @note 使用 acquire 语义，与 stop() 的 release 语义配对。
-        bool is_stopped() const noexcept { return m_is_stop.load(std::memory_order_acquire); }
+        bool is_stopped() const noexcept { return this->m_is_stop.load(std::memory_order_acquire); }
 
         /// @brief 翻转 m_is_ready 并唤醒所有等待线程。
         ///
@@ -98,10 +99,10 @@ namespace utils {
         void toggle_ready_and_notify_all()
         {
             {
-                std::lock_guard lock(m_mtx);
-                m_is_ready = !m_is_ready;
+                std::lock_guard lock(this->m_mtx);
+                this->m_is_ready = !this->m_is_ready;
             }
-            m_cv.notify_all();
+            this->m_cv.notify_all();
         }
 
         [[deprecated("use toggle_ready_and_notify_all()")]] void notify_one() { toggle_ready_and_notify_all(); }
