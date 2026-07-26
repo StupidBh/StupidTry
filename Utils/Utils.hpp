@@ -99,7 +99,6 @@ namespace utils {
     requires(!VectorType<Range>) && std::constructible_from<ValueType, std::ranges::range_reference_t<Range>> && std::move_constructible<ValueType>
     constexpr void AppendVector(std::vector<ValueType>& target, Range&& source)
     {
-        // 先物化输入范围，避免 source 是 target 的 span/subrange 时扩容使迭代器失效。
         std::vector<ValueType> buffered;
         if constexpr (std::ranges::sized_range<Range>) {
             buffered.reserve(static_cast<std::size_t>(std::ranges::size(source)));
@@ -176,7 +175,6 @@ namespace utils {
                 v.shrink_to_fit();
             }
         };
-
         (lambda(vecs), ...);
     }
 } // namespace utils
