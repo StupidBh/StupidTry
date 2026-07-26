@@ -33,44 +33,44 @@ namespace utils {
 
     public:
         explicit SmartPrefixSum(const std::vector<T>& array) :
-            A(array)
+            m_vec_data(array)
         {
         }
 
         // 源数据被修改后调用，丢弃缓存，下次 query 全量重算
         void invalidate() noexcept
         {
-            has_cache = false;
-            last_idx = 0;
-            last_sum = SumType { };
+            this->m_has_cache = false;
+            this->m_last_idx = 0;
+            this->m_last_sum = SumType { };
         }
 
         [[nodiscard]] SumType query(std::size_t index) const
         {
-            if (index >= A.size()) {
+            if (index >= this->m_vec_data.size()) {
                 return SumType { };
             }
 
-            if (!has_cache || index < 1000) {
+            if (!this->m_has_cache || index < 1000) {
                 return reset_and_calc(index);
             }
 
-            if (index >= last_idx) {
-                const std::size_t diff = index - last_idx;
+            if (index >= this->m_last_idx) {
+                const std::size_t diff = index - this->m_last_idx;
                 if (diff < 5'000'000) {
-                    std::span<const T> view { A.data() + last_idx + 1, diff };
-                    last_sum = std::accumulate(view.begin(), view.end(), last_sum);
-                    last_idx = index;
-                    return last_sum;
+                    std::span<const T> view { this->m_vec_data.data() + this->m_last_idx + 1, diff };
+                    this->m_last_sum = std::accumulate(view.begin(), view.end(), this->m_last_sum);
+                    this->m_last_idx = index;
+                    return this->m_last_sum;
                 }
             }
             else {
-                const std::size_t diff = last_idx - index;
+                const std::size_t diff = this->m_last_idx - index;
                 if (diff < 5'000'000) {
-                    std::span<const T> view { A.data() + index + 1, diff };
-                    last_sum = last_sum - std::accumulate(view.begin(), view.end(), SumType { });
-                    last_idx = index;
-                    return last_sum;
+                    std::span<const T> view { this->m_vec_data.data() + index + 1, diff };
+                    this->m_last_sum = this->m_last_sum - std::accumulate(view.begin(), view.end(), SumType { });
+                    this->m_last_idx = index;
+                    return this->m_last_sum;
                 }
             }
 
@@ -80,22 +80,22 @@ namespace utils {
     private:
         SumType reset_and_calc(std::size_t index) const
         {
-            std::span<const T> view { A.data(), index + 1 };
+            std::span<const T> view { this->m_vec_data.data(), index + 1 };
             if (view.size() < 100000) {
-                last_sum = std::accumulate(view.begin(), view.end(), SumType { });
+                this->m_last_sum = std::accumulate(view.begin(), view.end(), SumType { });
             }
             else {
-                last_sum = std::reduce(std::execution::par, view.begin(), view.end(), SumType { });
+                this->m_last_sum = std::reduce(std::execution::par, view.begin(), view.end(), SumType { });
             }
-            last_idx = index;
-            has_cache = true;
-            return last_sum;
+            this->m_last_idx = index;
+            this->m_has_cache = true;
+            return this->m_last_sum;
         }
 
-        const std::vector<T>& A;
+        const std::vector<T>& m_vec_data;
 
-        mutable std::size_t last_idx = 0;
-        mutable SumType last_sum = 0;
-        mutable bool has_cache = false;
+        mutable std::size_t m_last_idx = 0;
+        mutable SumType m_last_sum = 0;
+        mutable bool m_has_cache = false;
     };
 } // namespace utils
