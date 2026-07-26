@@ -35,16 +35,16 @@ namespace utils {
         /// @retval false 队列已经关闭，元素未写入。
         [[nodiscard]] bool Push(T value)
         {
-            std::unique_lock lock(m_mtx);
-            m_cv_can_push.wait(lock, [this] { return m_is_closed || m_max_size == 0 || m_queue.size() < m_max_size; });
+            std::unique_lock lock(this->m_mtx);
+            this->m_cv_can_push.wait(lock, [this] { return this->m_is_closed || this->m_max_size == 0 || this->m_queue.size() < this->m_max_size; });
 
-            if (m_is_closed) {
+            if (this->m_is_closed) {
                 return false;
             }
 
-            m_queue.emplace(std::move(value));
+            this->m_queue.emplace(std::move(value));
             lock.unlock();
-            m_cv_can_pop.notify_one();
+            this->m_cv_can_pop.notify_one();
             return true;
         }
 
@@ -52,17 +52,17 @@ namespace utils {
         /// @return 队列有数据时返回元素；队列关闭且已取尽时返回 std::nullopt。
         [[nodiscard]] std::optional<T> Pop()
         {
-            std::unique_lock lock(m_mtx);
-            m_cv_can_pop.wait(lock, [this] { return m_is_closed || !m_queue.empty(); });
+            std::unique_lock lock(this->m_mtx);
+            this->m_cv_can_pop.wait(lock, [this] { return this->m_is_closed || !this->m_queue.empty(); });
 
-            if (m_queue.empty()) {
+            if (this->m_queue.empty()) {
                 return std::nullopt;
             }
 
-            T value = std::move(m_queue.front());
-            m_queue.pop();
+            T value = std::move(this->m_queue.front());
+            this->m_queue.pop();
             lock.unlock();
-            m_cv_can_push.notify_one();
+            this->m_cv_can_push.notify_one();
             return value;
         }
 
@@ -71,29 +71,29 @@ namespace utils {
         void Close()
         {
             {
-                std::lock_guard lock(m_mtx);
-                m_is_closed = true;
+                std::lock_guard lock(this->m_mtx);
+                this->m_is_closed = true;
             }
-            m_cv_can_push.notify_all();
-            m_cv_can_pop.notify_all();
+            this->m_cv_can_push.notify_all();
+            this->m_cv_can_pop.notify_all();
         }
 
         /// @brief 查询队列是否已经关闭。
         [[nodiscard]] bool IsClosed() const
         {
-            std::lock_guard lock(m_mtx);
-            return m_is_closed;
+            std::lock_guard lock(this->m_mtx);
+            return this->m_is_closed;
         }
 
         /// @brief 查询当前队列元素数量。
         [[nodiscard]] std::size_t Size() const
         {
-            std::lock_guard lock(m_mtx);
-            return m_queue.size();
+            std::lock_guard lock(this->m_mtx);
+            return this->m_queue.size();
         }
 
         /// @brief 查询队列容量；0 表示无界队列。
-        [[nodiscard]] std::size_t Capacity() const noexcept { return m_max_size; }
+        [[nodiscard]] std::size_t Capacity() const noexcept { return this->m_max_size; }
 
     private:
         mutable std::mutex m_mtx;
