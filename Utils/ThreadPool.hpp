@@ -32,7 +32,7 @@ namespace utils {
                 s_current_scope = this;
             }
 
-            ~TaskExecutionScope() { s_current_scope = m_previous_scope; }
+            ~TaskExecutionScope() { s_current_scope = this->m_previous_scope; }
 
             static bool Contains(const ThreadPool* pool) noexcept
             {
@@ -56,21 +56,21 @@ namespace utils {
             m_run_inline(thread_count == 0)
         {
             try {
-                m_workers.reserve(thread_count);
+                this->m_workers.reserve(thread_count);
                 for (std::size_t i = 0; i < thread_count; ++i) {
-                    m_workers.emplace_back([this](std::stop_token st) {
+                    this->m_workers.emplace_back([this](std::stop_token st) {
                         while (!st.stop_requested()) {
                             std::function<void()> task;
                             {
-                                std::unique_lock lock(m_mutex);
-                                m_task_cv.wait(lock, [this, &st] { return m_stopped || !m_tasks.empty() || st.stop_requested(); });
+                                std::unique_lock lock(this->m_mutex);
+                                this->m_task_cv.wait(lock, [this, &st] { return this->m_stopped || !this->m_tasks.empty() || st.stop_requested(); });
 
-                                if ((m_stopped && m_tasks.empty()) || st.stop_requested()) {
+                                if ((this->m_stopped && this->m_tasks.empty()) || st.stop_requested()) {
                                     return;
                                 }
 
-                                task = std::move(m_tasks.front());
-                                m_tasks.pop();
+                                task = std::move(this->m_tasks.front());
+                                this->m_tasks.pop();
                             }
 
                             if (task) {
@@ -82,19 +82,19 @@ namespace utils {
             }
             catch (...) {
                 {
-                    std::lock_guard lock(m_mutex);
-                    m_stopped = true;
+                    std::lock_guard lock(this->m_mutex);
+                    this->m_stopped = true;
                 }
-                for (auto& worker : m_workers) {
+                for (auto& worker : this->m_workers) {
                     worker.request_stop();
                 }
-                m_task_cv.notify_all();
-                m_workers.clear();
+                this->m_task_cv.notify_all();
+                this->m_workers.clear();
                 throw;
             }
         }
 
-        ~ThreadPool() { shutdown(); }
+        ~ThreadPool() { this->shutdown(); }
 
         /**
          * @brief 提交任务到线程池
@@ -120,23 +120,23 @@ namespace utils {
             bool run_inline = false;
 
             {
-                std::scoped_lock lock(m_mutex);
-                if (m_stopped) {
+                std::scoped_lock lock(this->m_mutex);
+                if (this->m_stopped) {
                     throw std::runtime_error("enqueue on stopped ThreadPool");
                 }
 
-                if (m_run_inline) {
-                    ++m_unfinished_tasks;
+                if (this->m_run_inline) {
+                    ++this->m_unfinished_tasks;
                     run_inline = true;
                 }
                 else {
                     // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
-                    m_tasks.emplace([task_ptr, this]() {
+                    this->m_tasks.emplace([task_ptr, this]() {
                         TaskExecutionScope execution_scope(this);
                         (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
                         this->finish_task();
                     });
-                    ++m_unfinished_tasks;
+                    ++this->m_unfinished_tasks;
                 }
             }
 
@@ -149,7 +149,7 @@ namespace utils {
                 return future;
             }
 
-            m_task_cv.notify_one();
+            this->m_task_cv.notify_one();
             return future;
         }
 
@@ -160,8 +160,8 @@ namespace utils {
         void wait_for_completion()
         {
             this->throw_if_called_from_task("wait_for_completion cannot be called from a task running in the same ThreadPool");
-            std::unique_lock lock(m_mutex);
-            m_completion_cv.wait(lock, [this] { return m_unfinished_tasks == 0; });
+            std::unique_lock lock(this->m_mutex);
+            this->m_completion_cv.wait(lock, [this] { return this->m_unfinished_tasks == 0; });
         }
 
         /**
@@ -176,8 +176,8 @@ namespace utils {
         bool wait_for_completion(const std::chrono::duration<Rep, Period>& timeout)
         {
             this->throw_if_called_from_task("wait_for_completion cannot be called from a task running in the same ThreadPool");
-            std::unique_lock lock(m_mutex);
-            return m_completion_cv.wait_for(lock, timeout, [this] { return m_unfinished_tasks == 0; });
+            std::unique_lock lock(this->m_mutex);
+            return this->m_completion_cv.wait_for(lock, timeout, [this] { return this->m_unfinished_tasks == 0; });
         }
 
         /**
@@ -190,14 +190,14 @@ namespace utils {
             {
                 // 先置位 m_stopped 再等待，堵住关闭期间的新 enqueue，消除
                 // “wait 完成后、置位前”窗口内入队的任务被丢弃 / future 永挂的竞态。
-                std::scoped_lock lock(m_mutex);
-                if (m_stopped) {
+                std::scoped_lock lock(this->m_mutex);
+                if (this->m_stopped) {
                     return;
                 }
-                m_stopped = true;
+                this->m_stopped = true;
             }
             this->wait_for_completion();
-            m_task_cv.notify_all();
+            this->m_task_cv.notify_all();
             this->clear_workers();
         }
 
@@ -209,8 +209,8 @@ namespace utils {
         {
             this->throw_if_called_from_task("shutdown_now cannot be called from a task running in the same ThreadPool");
             {
-                std::scoped_lock lock(m_mutex);
-                if (m_stopped) {
+                std::scoped_lock lock(this->m_mutex);
+                if (this->m_stopped) {
                     return;
                 }
                 m_stopped = true;
@@ -218,11 +218,11 @@ namespace utils {
                 // 只扣减“尚未执行”的任务计数；正在执行中的任务不在队列里，
                 // 会在自己的包装体内递减。直接清零会破坏在途任务的计数。
                 std::queue<std::function<void()>> empty;
-                m_unfinished_tasks -= m_tasks.size();
-                std::swap(m_tasks, empty);
+                this->m_unfinished_tasks -= this->m_tasks.size();
+                std::swap(this->m_tasks, empty);
             }
-            m_task_cv.notify_all();
-            m_completion_cv.notify_all();
+            this->m_task_cv.notify_all();
+            this->m_completion_cv.notify_all();
             this->clear_workers();
         }
 
@@ -238,19 +238,19 @@ namespace utils {
         {
             bool all_finished = false;
             {
-                std::lock_guard lock(m_mutex);
-                --m_unfinished_tasks;
-                all_finished = m_unfinished_tasks == 0;
+                std::lock_guard lock(this->m_mutex);
+                --this->m_unfinished_tasks;
+                all_finished = this->m_unfinished_tasks == 0;
             }
             if (all_finished) {
-                m_completion_cv.notify_all();
+                this->m_completion_cv.notify_all();
             }
         }
 
         // 串行化 m_workers.clear()，避免并发 shutdown / shutdown_now 对同一 vector 重复析构
         void clear_workers()
         {
-            std::call_once(m_clear_once, [this] { m_workers.clear(); });
+            std::call_once(this->m_clear_once, [this] { this->m_workers.clear(); });
         }
 
     private:
