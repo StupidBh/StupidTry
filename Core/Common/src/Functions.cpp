@@ -1,12 +1,13 @@
 #include "Functions.h"
 #include "Logger/logger.hpp"
 
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 
 #include <algorithm>
 #include <array>
 #include <iostream>
-#include <iterator>
 #include <limits>
 #include <memory>
 #include <optional>

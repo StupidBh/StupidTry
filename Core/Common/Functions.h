@@ -1,5 +1,4 @@
 #pragma once
-#include <cstddef>
 #include <filesystem>
 #include <functional>
 #include <string>
