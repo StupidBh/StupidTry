@@ -55,7 +55,7 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
     normalize_path_option("inputPath");
 
     if (!this->m_vm.contains("workDirectory")) {
-        auto input_path = std::filesystem::path(this->m_vm["inputPath"].as<std::string>());
+        const auto input_path = std::filesystem::path(this->m_vm["inputPath"].as<std::string>());
         auto work_dir = input_path.parent_path();
         if (work_dir.empty()) {
             work_dir = ".";
@@ -101,6 +101,7 @@ const std::filesystem::path& SingletonData::GetOrCreateWorkDirectory()
     if (!std::filesystem::exists(workDirectory)) {
         if (std::error_code ec; !std::filesystem::create_directories(workDirectory, ec)) {
             LOG_ERROR("create_directories [{}] failed: {}", workDirectory, ec.message());
+            exit(1003);
         }
     }
     return workDirectory;
