@@ -4,39 +4,39 @@ MioReader::MioReader(const std::string& filename) :
     m_mmap(filename),
     m_pos(0)
 {
-    if (!m_mmap.is_open()) {
+    if (!this->m_mmap.is_open()) {
         throw std::runtime_error("Open fail: " + filename);
     }
 
-    m_data = m_mmap.data();
-    m_size = m_mmap.size();
+    this->m_data = this->m_mmap.data();
+    this->m_size = this->m_mmap.size();
 }
 
 bool MioReader::GetLine(std::string_view& line)
 {
-    if (m_pos >= m_size) {
+    if (this->m_pos >= this->m_size) {
         return false;
     }
 
-    const size_t line_start = m_pos;
-    while (m_pos < m_size && m_data[m_pos] != '\n' && m_data[m_pos] != '\r') {
-        ++m_pos;
+    const size_t line_start = this->m_pos;
+    while (this->m_pos < this->m_size && this->m_data[this->m_pos] != '\n' && this->m_data[this->m_pos] != '\r') {
+        ++this->m_pos;
     }
 
-    const size_t line_end = m_pos;
+    const size_t line_end = this->m_pos;
 
     // 如果是 \r\n，跳过两个字符
-    if (m_pos < m_size && m_data[m_pos] == '\r') {
-        ++m_pos;
-        if (m_pos < m_size && m_data[m_pos] == '\n') {
-            ++m_pos;
+    if (this->m_pos < this->m_size && this->m_data[this->m_pos] == '\r') {
+        ++this->m_pos;
+        if (this->m_pos < this->m_size && this->m_data[this->m_pos] == '\n') {
+            ++this->m_pos;
         }
     }
-    else if (m_pos < m_size && m_data[m_pos] == '\n') {
-        ++m_pos;
+    else if (this->m_pos < this->m_size && this->m_data[this->m_pos] == '\n') {
+        ++this->m_pos;
     }
 
-    line = std::string_view(&m_data[line_start], line_end - line_start);
+    line = std::string_view(&this->m_data[line_start], line_end - line_start);
     return true;
 }
 
@@ -46,8 +46,8 @@ size_t MioReader::GetLineBatch(std::vector<std::string_view>& lines, const size_
     lines.reserve(max_lines);
 
     size_t count = 0;
-    const char* cur = m_data + m_pos;
-    const char* end = m_data + m_size;
+    const char* cur = this->m_data + this->m_pos;
+    const char* end = this->m_data + this->m_size;
     const char* line_start = cur;
 
     while (cur < end && count < max_lines) {
@@ -87,6 +87,6 @@ size_t MioReader::GetLineBatch(std::vector<std::string_view>& lines, const size_
         line_start = cur;
     }
 
-    m_pos = cur - m_data;
+    this->m_pos = cur - this->m_data;
     return count;
 }
