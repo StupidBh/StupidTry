@@ -13,7 +13,7 @@ namespace ReaderCGNS {
         CgnsCore(CgnsCore&&) = delete;
         CgnsCore& operator=(CgnsCore&&) = delete;
 
-        bool IsOpen() const;
+        [[nodiscard]] bool IsOpen() const;
         bool OpenCGNS();
         bool OpenCGNS(const std::string& cgns_file_path);
         void CloseCGNS();
