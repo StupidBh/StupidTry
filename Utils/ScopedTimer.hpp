@@ -21,13 +21,13 @@ namespace utils {
     template<typename Duration = std::chrono::duration<double>>
     requires detail::is_duration_v<Duration>
     class ScopedTimer {
+        using OutputCallback = std::function<void(std::string_view)>;
+
+    public:
         ScopedTimer(const ScopedTimer&) = delete;
         ScopedTimer& operator=(const ScopedTimer&) = delete;
         ScopedTimer(ScopedTimer&&) = delete;
         ScopedTimer& operator=(ScopedTimer&&) = delete;
-
-    public:
-        using OutputCallback = std::function<void(std::string_view)>;
 
         explicit ScopedTimer(std::string_view name = "", OutputCallback callback = nullptr) :
             m_name(name),

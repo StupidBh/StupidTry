@@ -4,12 +4,12 @@
 namespace utils {
     template<class T>
     class SingletonHolder {
+    public:
         SingletonHolder(const SingletonHolder&) = delete;
         SingletonHolder& operator=(const SingletonHolder&) = delete;
         SingletonHolder(SingletonHolder&&) = delete;
         SingletonHolder& operator=(SingletonHolder&&) = delete;
 
-    public:
         [[nodiscard]] static T& get_instance()
         {
             static T unique_instance;

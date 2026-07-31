@@ -28,17 +28,17 @@ namespace utils {
     template<typename T, typename SumType = PrefixSumType_t<T>>
     requires(std::integral<T> || std::floating_point<T>) && (std::integral<SumType> || std::floating_point<SumType>)
     class SmartPrefixSum {
+    public:
         SmartPrefixSum(std::vector<T>&&) = delete;
         SmartPrefixSum(const std::vector<T>&&) = delete;
 
-    public:
         explicit SmartPrefixSum(const std::vector<T>& array) :
             m_vec_data(array)
         {
         }
 
         // 源数据被修改后调用，丢弃缓存，下次 query 全量重算
-        void invalidate() noexcept
+        void invalidate() const noexcept
         {
             this->m_has_cache = false;
             this->m_last_idx = 0;

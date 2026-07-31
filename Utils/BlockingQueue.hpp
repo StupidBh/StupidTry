@@ -19,12 +19,12 @@ namespace utils {
     /// @pre 析构队列前，调用方必须确保没有线程仍在调用或等待此对象。
     template<std::move_constructible T>
     class BlockingQueue {
+    public:
         BlockingQueue(const BlockingQueue&) = delete;
         BlockingQueue& operator=(const BlockingQueue&) = delete;
         BlockingQueue(BlockingQueue&&) = delete;
         BlockingQueue& operator=(BlockingQueue&&) = delete;
 
-    public:
         explicit BlockingQueue(std::size_t max_size = 0) :
             m_max_size(max_size)
         {

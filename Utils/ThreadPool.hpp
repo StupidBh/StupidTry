@@ -17,9 +17,6 @@
 
 namespace utils {
     class ThreadPool {
-        ThreadPool(const ThreadPool&) = delete;
-        ThreadPool& operator=(const ThreadPool&) = delete;
-
         class TaskExecutionScope;
         inline static thread_local TaskExecutionScope* s_current_scope = nullptr;
 
@@ -50,6 +47,9 @@ namespace utils {
         };
 
     public:
+        ThreadPool(const ThreadPool&) = delete;
+        ThreadPool& operator=(const ThreadPool&) = delete;
+
         explicit ThreadPool(std::size_t thread_count) :
             m_unfinished_tasks(0),
             m_stopped(false),
@@ -131,7 +131,7 @@ namespace utils {
                 }
                 else {
                     // 先入队，成功后再自增计数，避免 emplace 抛异常导致计数器泄漏
-                    this->m_tasks.emplace([task_ptr, this]() {
+                    this->m_tasks.emplace([task_ptr, this] {
                         TaskExecutionScope execution_scope(this);
                         (*task_ptr)(); // 注意：异常会由 packaged_task 保存到 future
                         this->finish_task();
@@ -253,7 +253,6 @@ namespace utils {
             std::call_once(this->m_clear_once, [this] { this->m_workers.clear(); });
         }
 
-    private:
         std::vector<std::jthread> m_workers;       // 工作线程
         std::queue<std::function<void()>> m_tasks; // 任务队列
 

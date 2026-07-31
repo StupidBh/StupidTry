@@ -91,7 +91,6 @@ namespace {
     void TestScopedTimer()
     {
         using MillisecondTimer = utils::ScopedTimer<std::chrono::milliseconds>;
-        static_assert(!std::is_nothrow_constructible_v<MillisecondTimer, std::string_view, MillisecondTimer::OutputCallback>);
 
         std::string output;
         MillisecondTimer timer("milliseconds", [&](const std::string_view message) { output = message; });

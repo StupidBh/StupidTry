@@ -18,18 +18,12 @@ namespace utils {
     /// @note 不可拷贝/移动：内部持有 std::mutex 和 std::condition_variable。
     /// @note 线程安全：所有公开方法均为线程安全。
     class SyncController {
+    public:
         SyncController(const SyncController&) = delete;
         SyncController& operator=(const SyncController&) = delete;
         SyncController(SyncController&&) = delete;
         SyncController& operator=(SyncController&&) = delete;
 
-    protected:
-        std::mutex m_mtx;                      ///< 保护 m_cv 及关联的等待-通知时序
-        std::condition_variable m_cv;          ///< 生产者与消费者共享的条件变量
-        std::atomic<bool> m_is_stop { false }; ///< 停止标志：为 true 时所有阻塞等待终止
-        bool m_is_ready = false;               ///< 就绪标志：由 m_mtx 保护
-
-    public:
         SyncController() = default;
         virtual ~SyncController() = default;
 
@@ -106,5 +100,11 @@ namespace utils {
         }
 
         [[deprecated("use toggle_ready_and_notify_all()")]] void notify_one() { toggle_ready_and_notify_all(); }
+
+    protected:
+        std::mutex m_mtx;                      ///< 保护 m_cv 及关联的等待-通知时序
+        std::condition_variable m_cv;          ///< 生产者与消费者共享的条件变量
+        std::atomic<bool> m_is_stop { false }; ///< 停止标志：为 true 时所有阻塞等待终止
+        bool m_is_ready = false;               ///< 就绪标志：由 m_mtx 保护
     };
 } // namespace utils
