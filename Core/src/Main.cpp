@@ -16,9 +16,9 @@ static void ReaderCGNSLogCallback(int level, const char* file, int line, const c
     }
 
 #ifndef NDEBUG
-    LOG->log(spd_level, "[ReaderCGNS] [{}:{}] {}", std::filesystem::path(file).filename(), line, message != nullptr ? message : "EmptyMsg!");
+    LOG->log(spd_level, "[ReaderCGNS] [{}:{}] {}", std::filesystem::path(file).filename(), line, message != nullptr ? message : "EmptyMsg");
 #else
-    LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "");
+    LOG->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "EmptyMsg");
 #endif
 }
 
