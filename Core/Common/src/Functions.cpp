@@ -97,6 +97,25 @@ namespace {
 
         return job;
     }
+
+    std::optional<std::wstring> GetCommandInterpreterPath()
+    {
+        std::wstring system_directory(MAX_PATH, L'\0');
+        while (true) {
+            const UINT length = GetSystemDirectoryW(system_directory.data(), static_cast<UINT>(system_directory.size()));
+            if (length == 0) {
+                return std::nullopt;
+            }
+            if (length < system_directory.size()) {
+                system_directory.resize(length);
+                break;
+            }
+
+            system_directory.resize(static_cast<std::size_t>(length) + 1);
+        }
+
+        return (std::filesystem::path(system_directory) / L"cmd.exe").wstring();
+    }
 } // namespace
 
 bool IsValidUTF8(const std::string_view str) noexcept
@@ -201,10 +220,24 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
         LOG_ERROR("MultiByteToWideChar failed: {}", GetLastError());
         return;
     }
-    std::wstring cmd = std::move(*wide_command);
 
-    if (!CreateProcessW(nullptr,                             // 不指定应用程序名，直接从命令行解析
-                        cmd.data(),                          // 命令行参数（必须可修改）
+    const auto command_interpreter = GetCommandInterpreterPath();
+    if (!command_interpreter) {
+        LOG_ERROR("GetSystemDirectoryW failed: {}", GetLastError());
+        return;
+    }
+
+    // CallCmd 接受 CMD 命令串。外层引号由 /S /C 去除，命令自身的引号和操作符交给 cmd.exe 解析。
+    std::wstring cmd_line;
+    cmd_line.reserve(command_interpreter->size() + wide_command->size() + 20);
+    cmd_line.push_back(L'"');
+    cmd_line.append(*command_interpreter);
+    cmd_line.append(L"\" /d /s /c \"");
+    cmd_line.append(*wide_command);
+    cmd_line.push_back(L'"');
+
+    if (!CreateProcessW(command_interpreter->c_str(),        // 使用系统目录中的 cmd.exe，避免搜索路径歧义
+                        cmd_line.data(),                     // 命令行参数（必须可修改）
                         nullptr,
                         nullptr,                             // 安全属性
                         TRUE,                                // 继承句柄

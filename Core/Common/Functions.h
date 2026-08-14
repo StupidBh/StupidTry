@@ -16,7 +16,7 @@
 /// Preserves valid UTF-8 and converts input that is valid GBK but invalid UTF-8.
 [[nodiscard]] std::string NormalizeToUTF8(std::string_view str);
 
-/// Runs a command and forwards each non-empty, trimmed UTF-8 output line.
+/// Runs a command through cmd.exe and forwards each non-empty, trimmed UTF-8 output line.
 /// Returning true from the callback requests early process termination.
 void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = { });
 
