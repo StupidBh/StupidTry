@@ -40,6 +40,7 @@ StupidTry/
 ├── 3rdparty/                       # 多个目标共用的第三方依赖
 │   ├── boost/
 │   ├── highfive/
+│   ├── meojson/                    # JSON/JSON5 头文件库
 │   ├── mio/
 │   └── spdlog/
 ├── CGNS.md                        # CGNS 格式与接口说明
@@ -60,5 +61,6 @@ StupidTry/
 | CGNS     | 4.5.1  | 静态库（`CGNS::cgns_static`） | CGNS 网格/解文件读取                         |
 | HDF5     | 2.1.1  | 动态库（`hdf5::hdf5-shared`） | CGNS 的 HDF5 存储后端                      |
 | HighFive | 3.3.0  | 头文件库                     | HDF5 C++ 封装                           |
+| meojson  | vendored snapshot | 头文件库             | JSON/JSON5 解析与序列化                  |
 | mio      | —      | 头文件库                     | 内存映射文件 I/O                            |
 | spdlog   | 1.17.0 | 头文件库                     | 异步日志                                  |
