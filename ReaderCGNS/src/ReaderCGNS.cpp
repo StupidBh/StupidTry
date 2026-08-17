@@ -407,8 +407,7 @@ namespace ReaderCGNS {
                     int hole_nptsets = 0;
                     cgsize_t hole_npnts = 0;
 
-                    CG_INFO(
-                        cg_hole_info(cg_file_id, base, zone, hole, hole_name, &hole_location, &hole_ptset_type, &hole_nptsets, &hole_npnts));
+                    CG_INFO(cg_hole_info(cg_file_id, base, zone, hole, hole_name, &hole_location, &hole_ptset_type, &hole_nptsets, &hole_npnts));
 
                     LOG_INFO("    [GeneralizedConnectivity]{:>2}:[{}] {}, [{}] nptsets={}, npnts={}",
                              hole,
@@ -491,10 +490,7 @@ namespace ReaderCGNS {
                     CG_RigidGridMotionType_t rigid_motion_type = CG_RigidGridMotionType_t::CG_RigidGridMotionTypeNull;
                     CG_INFO(cg_rigid_motion_read(cg_file_id, base, zone, rigid_motion, rigid_motion_name, &rigid_motion_type));
 
-                    LOG_INFO("    [RigidGridMotion]{:>2}:[{}] {}",
-                             rigid_motion,
-                             cg_RigidGridMotionTypeName(rigid_motion_type),
-                             rigid_motion_name);
+                    LOG_INFO("    [RigidGridMotion]{:>2}:[{}] {}", rigid_motion, cg_RigidGridMotionTypeName(rigid_motion_type), rigid_motion_name);
                 }
 
                 // Arbitrary Grid Motion
@@ -533,11 +529,7 @@ namespace ReaderCGNS {
                 CG_INFO(cg_particle_id(cg_file_id, base, particle_zone, &particle_zone_id));
                 CG_INFO(cg_particle_read(cg_file_id, base, particle_zone, particle_zone_name, &particle_zone_size));
 
-                LOG_INFO("  [Particle]{:>2}:[NULL] {}, id={}, size={}",
-                         particle_zone,
-                         particle_zone_name,
-                         particle_zone_id,
-                         particle_zone_size);
+                LOG_INFO("  [Particle]{:>2}:[NULL] {}, id={}, size={}", particle_zone, particle_zone_name, particle_zone_id, particle_zone_size);
 
                 // Particle Coordinates
                 int particle_ncoord_nodes = 0;
