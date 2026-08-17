@@ -1,14 +1,11 @@
 cmake_minimum_required(VERSION 4.0)
 project(ReaderCGNS)
 
-file(GLOB CPP_RESOURCES
-        "src/*.cpp"
-        "Utils/src/*.cpp"
-        "Core/src/*.cpp"
-)
-
-add_library(${PROJECT_NAME} SHARED
-        ${CPP_RESOURCES}
+add_library(${PROJECT_NAME} SHARED)
+target_sources(${PROJECT_NAME} PRIVATE
+        src/ReaderCGNS.cpp
+        Utils/src/Logger.cpp
+        Core/src/CgnsCore.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
