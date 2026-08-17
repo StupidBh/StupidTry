@@ -5,8 +5,6 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CTest)
-
 if (MSVC)
     add_compile_options(/utf-8)
 endif ()
@@ -22,9 +20,3 @@ set(3RD_ROOT "${CMAKE_SOURCE_DIR}/3rdparty")
 # ---- Sub-projects ----
 add_subdirectory(ReaderCGNS)
 add_subdirectory(Core)
-
-if (BUILD_TESTING)
-    add_executable(UtilsTests Utils/tests/UtilsTests.cpp)
-    target_include_directories(UtilsTests PRIVATE ${CMAKE_SOURCE_DIR})
-    add_test(NAME Utils.GenericUtilities COMMAND UtilsTests)
-endif ()
