@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 4.0)
 project(Core)
 
-file(GLOB CPP_RESOURCES
-        "Common/src/*.cpp"
-        "Utils/src/*.cpp"
-)
-
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE
         src/Main.cpp
-        ${CPP_RESOURCES}
+        Common/src/Functions.cpp
+        Common/src/SingletonData.cpp
+        Utils/src/MioReader.cpp
+        Utils/src/ReaderCGNSLogGuard.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
