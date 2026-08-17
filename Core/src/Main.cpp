@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     SCOPED_TIMER_LOG("Main");
 
     if (!std::filesystem::exists(INPUT_PATH)) {
-        LOG_ERROR("Input path does not exist");
+        LOG_ERROR("Input path [{}] does not exist.", INPUT_PATH);
         return -1;
     }
 
