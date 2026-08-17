@@ -29,9 +29,10 @@ StupidTry/
 │   │   ├── Functions.h
 │   │   ├── SingletonData.h
 │   │   └── src/
-│   ├── Utils/                      # Core 专用的 HDF5 和文件 I/O 工具
+│   ├── Utils/                      # Core 专用的 HDF5、文件 I/O 和集成工具
 │   │   ├── HighFiveUtils.hpp
 │   │   ├── MioReader.h
+│   │   ├── ReaderCGNSLogGuard.h    # ReaderCGNS 日志回调的作用域清理
 │   │   └── src/
 │   └── 3rdparty/
 │       └── hdf5/                  # Core 使用的 HDF5 依赖
