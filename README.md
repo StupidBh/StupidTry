@@ -6,14 +6,16 @@
 - **CMake 4.0+**
 - **首选生成器：Visual Studio 18 2026（x64）**
 
-## 构建
+## 构建与测试
 
 优先使用 Visual Studio 18 安装目录中附带的 CMake、MSBuild 和 LLVM 工具；如果系统 `PATH` 中的 CMake 不支持 VS 18 生成器，应先定位 VS 18 自带的 CMake。
 
 ```powershell
 cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64
 cmake --build build/Debug --config Debug
+ctest --test-dir build/Debug -C Debug
 cmake --build build/Debug --config Release
+ctest --test-dir build/Debug -C Release
 ```
 
 ## 工程目录
@@ -42,6 +44,7 @@ StupidTry/
 │   ├── src/                        # 公开 API 实现
 │   ├── Core/                       # CGNS 核心解析逻辑
 │   ├── Utils/                      # ReaderCGNS 内部日志工具
+│   ├── tests/                      # ReaderCGNS 模块级 CTest 测试
 │   └── 3rdparty/
 │       └── cgns/                  # ReaderCGNS 使用的 CGNS 依赖
 ├── Utils/                          # 跨模块的头文件工具库
