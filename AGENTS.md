@@ -13,19 +13,24 @@ Build products are written to `bin/<Debug|Release>/`; generated CMake files belo
 
 ## Build, Test, and Development Commands
 
-- `cmake -S . -B build/Debug -DCMAKE_BUILD_TYPE=Debug`: configure a Debug build.
+- Visual Studio 18 2026 is the preferred generator. Look for the VS 18 installation and its bundled CMake, MSBuild, and LLVM tools before falling back to older Visual Studio installations or system-wide tools.
+- `cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64`: configure the Visual Studio 18 build tree.
 - `cmake --build build/Debug --config Debug`: compile `Core` and `ReaderCGNS`.
-- `cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release`: configure an optimized build.
-- `cmake --build build/Release --config Release`: compile Release artifacts.
-- `ctest --test-dir build/Debug -C Debug`: run tests if CTest tests are added.
+- `cmake --build build/Debug --config Release`: compile Release artifacts from the same multi-config build tree.
 
 Dependencies are vendored, so do not add package-manager downloads to normal build steps without documenting the change.
+
+Keep `README.md` synchronized with project-level changes. Updates to dependencies, toolchain requirements, CMake configuration, build options, or build/test commands must include the corresponding README changes in the same change set.
 
 ## Coding Style & Naming Conventions
 
 Use the checked-in `.clang-format` for C++ formatting: 4-space indentation, no tabs, LF line endings, and a 150-column limit. Format touched files before committing, for example `clang-format -i Core/src/Main.cpp ReaderCGNS/src/ReaderCGNS.cpp`.
 
 Follow existing C++ naming: classes use `PascalCase`, private data members use `m_` prefixes, namespaces are lowercase or project-named (`utils`, `ReaderCGNS`), and macros/constants use uppercase where already established.
+
+The project language standards are C++23 and C17. When modifying project code, prefer modern, standard-library-based implementations available within those language versions; do not introduce C++26 or later language/library requirements without intentionally updating the project standard and documentation.
+
+The project requires CMake 4.0 or newer. When modifying `CMakeLists.txt` files, prefer modern CMake 4.0+ target-based commands and generator expressions over directory-wide or legacy patterns.
 
 ## Testing Guidelines
 

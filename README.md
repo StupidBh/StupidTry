@@ -4,6 +4,17 @@
 
 - **C++23**（`CMAKE_CXX_STANDARD 23`，`CMAKE_CXX_STANDARD_REQUIRED ON`）
 - **CMake 4.0+**
+- **首选生成器：Visual Studio 18 2026（x64）**
+
+## 构建
+
+优先使用 Visual Studio 18 安装目录中附带的 CMake、MSBuild 和 LLVM 工具；如果系统 `PATH` 中的 CMake 不支持 VS 18 生成器，应先定位 VS 18 自带的 CMake。
+
+```powershell
+cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64
+cmake --build build/Debug --config Debug
+cmake --build build/Debug --config Release
+```
 
 ## 工程目录
 
