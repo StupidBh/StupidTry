@@ -17,6 +17,8 @@ Build products are written to `bin/<Debug|Release>/`; generated CMake files belo
 - `cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64`: configure the Visual Studio 18 build tree.
 - `cmake --build build/Debug --config Debug`: compile `Core` and `ReaderCGNS`.
 - `cmake --build build/Debug --config Release`: compile Release artifacts from the same multi-config build tree.
+- On the `test` branch, `ctest --test-dir build/Debug -C Debug`: run the Debug test suite.
+- On the `test` branch, `ctest --test-dir build/Debug -C Release`: run the Release test suite.
 
 Dependencies are vendored, so do not add package-manager downloads to normal build steps without documenting the change.
 
@@ -34,10 +36,16 @@ The project requires CMake 4.0 or newer. When modifying `CMakeLists.txt` files, 
 
 ## Testing Guidelines
 
-There is currently no first-party test suite in the repository. When adding tests, place them in a clear module-local `tests/` directory, register them with CTest from CMake, and name test files after the behavior under test, such as `ReaderCGNS/tests/CgnsCoreTests.cpp`.
+First-party tests live only on the local `test` branch. Keep test sources in module-local `tests/` directories and register them with CTest from CMake. Name test files after the behavior under test, such as `ReaderCGNS/tests/CgnsCoreTests.cpp`.
+
+The `dev-ai` branch contains production code and must not contain first-party test sources, test-only fixtures or scripts, or CTest registration. Treat documentation and build logic used exclusively to run tests as test content as well.
 
 ## Commit & Pull Request Guidelines
 
 Recent commits use concise conventional-style messages such as `feat(ReaderCGNS): ...`, `refactor(utils): ...`, `build(deps): ...`, and `docs: ...`. Keep commits scoped and use an imperative summary.
+
+Before every commit, classify changes by function at hunk level and commit the smallest coherent behavior. Do not combine unrelated production changes, repository guidance, dependency updates, formatting, or tests in one commit.
+
+When a worktree contains both production and test changes, commit the production changes to `dev-ai` first. Then bring those production commits into the local `test` branch and commit test sources, CTest wiring, fixtures, scripts, and test-only documentation there. Return to `dev-ai` after the test commit. Never merge or cherry-pick test-only commits back into `dev-ai`; bring later production changes into `test` instead.
 
 Pull requests should describe the change, list build/test commands run, link related issues, and include screenshots or sample output when behavior visible to users changes.
