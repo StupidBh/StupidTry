@@ -1,40 +1,45 @@
 #pragma once
 #include "ReaderCGNS/ReaderCGNS.h"
 
-#include <atomic>
-#include <format>
 #include <filesystem>
+#include <format>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace ReaderCGNS::Logger {
-    inline std::atomic<ReaderCGNS_LogCallback> g_log_callback = nullptr;
+    bool ShouldLog(ReaderCGNS_LogLevel level) noexcept;
+    void LogMessage(ReaderCGNS_LogLevel level, const char* file, int line, const char* message) noexcept;
 
-    inline void LogMessage(int level, const char* file, int line, const std::string& message)
+    template<class... Args>
+    void LogFormat(ReaderCGNS_LogLevel level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args) noexcept
     {
-        const auto callback = g_log_callback.load(std::memory_order_acquire);
-        if (callback == nullptr) {
+        if (!ShouldLog(level)) {
             return;
         }
 
-        callback(level, file, line, message.c_str());
-    }
-
-    template<class... Args>
-    void LogFormat(int level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args)
-    {
         try {
-            LogMessage(level, file, line, std::format(fmt_text, std::forward<Args>(args)...));
-        }
-        catch (const std::exception& e) {
-            LogMessage(level, file, line, std::format("ReaderCGNS log format failed: {}", e.what()));
+            const std::string message = std::format(fmt_text, std::forward<Args>(args)...);
+            LogMessage(level, file, line, message.c_str());
         }
         catch (...) {
-            LogMessage(level, file, line, "ReaderCGNS log format failed: unknown error.");
+            LogMessage(level, file, line, "ReaderCGNS log formatting failed.");
         }
     }
 
-    inline void LogFormat(int level, const char* file, int line, std::string_view message)
+    inline void LogFormat(ReaderCGNS_LogLevel level, const char* file, int line, std::string_view message) noexcept
     {
-        LogMessage(level, file, line, std::string(message.data(), message.size()));
+        if (!ShouldLog(level)) {
+            return;
+        }
+
+        try {
+            const std::string owned_message(message);
+            LogMessage(level, file, line, owned_message.c_str());
+        }
+        catch (...) {
+            LogMessage(level, file, line, "ReaderCGNS log formatting failed.");
+        }
     }
 
     int cgns_catch_msg(int status, const std::filesystem::path& file, int line);

@@ -14,8 +14,19 @@
 
 namespace ReaderCGNS {
     namespace Logger {
-        READER_CGNS_DLL void SetLogCallback(ReaderCGNS_LogCallback callback);
-        READER_CGNS_DLL void ClearLogCallback();
+        /// Installs the process-wide log callback and waits for the previous callback to finish.
+        /// The callback runs synchronously on the calling ReaderCGNS thread and may run concurrently
+        /// on multiple threads. The context and string pointers are borrowed for the callback duration.
+        /// Callback exceptions are caught by ReaderCGNS. Calling SetLogCallback or ClearLogCallback
+        /// from inside the callback is rejected to avoid a self-wait.
+        READER_CGNS_DLL bool SetLogCallback(ReaderCGNS_LogCallback callback, void* context = nullptr) noexcept;
+
+        /// Removes the callback and waits for all callback invocations on other threads to finish.
+        READER_CGNS_DLL bool ClearLogCallback() noexcept;
+
+        /// Sets the lowest severity dispatched to the callback. Defaults to trace.
+        READER_CGNS_DLL bool SetMinimumLogLevel(ReaderCGNS_LogLevel level) noexcept;
+        READER_CGNS_DLL ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept;
     }
 
     READER_CGNS_DLL bool info(const std::string& cgns_file_path);

@@ -9,18 +9,6 @@
 #include "cgnslib.h"
 
 namespace ReaderCGNS {
-    namespace Logger {
-        void SetLogCallback(ReaderCGNS_LogCallback callback)
-        {
-            g_log_callback.store(callback, std::memory_order_release);
-        }
-
-        void ClearLogCallback()
-        {
-            g_log_callback.store(nullptr, std::memory_order_release);
-        }
-    }
-
     bool info(const std::string& cgns_file_path)
     {
         LOG_INFO("Open in read only: [{}]", cgns_file_path);
