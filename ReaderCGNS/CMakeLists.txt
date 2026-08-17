@@ -33,3 +33,13 @@ find_package(cgns CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CGNS::cgns_static
 )
+
+if (BUILD_TESTING)
+    add_executable(ReaderCGNSLoggerTests)
+    target_sources(ReaderCGNSLoggerTests PRIVATE
+            tests/LoggerCallbackTests.cpp
+    )
+    target_compile_features(ReaderCGNSLoggerTests PRIVATE cxx_std_23)
+    target_link_libraries(ReaderCGNSLoggerTests PRIVATE ReaderCGNS)
+    add_test(NAME ReaderCGNS.LoggerCallback COMMAND ReaderCGNSLoggerTests)
+endif ()
