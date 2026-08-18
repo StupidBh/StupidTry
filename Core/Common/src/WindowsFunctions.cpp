@@ -1,0 +1,423 @@
+#include "WindowsFunctions.h"
+
+#include "Functions.h"
+#include "Logger/logger.hpp"
+
+#include <windows.h>
+
+#include <array>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <optional>
+
+namespace {
+    constexpr UINT GBK_CODE_PAGE = 936;
+    constexpr DWORD GRACEFUL_EXIT_TIMEOUT_MS = 5000;
+
+    struct WinHandleCloser
+    {
+        void operator()(void* handle) const noexcept
+        {
+            if (handle != nullptr && handle != INVALID_HANDLE_VALUE) {
+                CloseHandle(handle);
+            }
+        }
+    };
+
+    using UniqueHandle = std::unique_ptr<void, WinHandleCloser>;
+
+    std::optional<std::wstring> MultiByteToWide(UINT code_page, DWORD flags, std::string_view str)
+    {
+        if (str.empty()) {
+            return std::wstring { };
+        }
+        if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return std::nullopt;
+        }
+
+        const int input_size = static_cast<int>(str.size());
+        const int wide_size = MultiByteToWideChar(code_page, flags, str.data(), input_size, nullptr, 0);
+        if (wide_size <= 0) {
+            return std::nullopt;
+        }
+
+        std::wstring result(wide_size, L'\0');
+        if (MultiByteToWideChar(code_page, flags, str.data(), input_size, result.data(), wide_size) != wide_size) {
+            return std::nullopt;
+        }
+        return result;
+    }
+
+    std::optional<std::string> WideToUTF8(std::wstring_view str)
+    {
+        if (str.empty()) {
+            return std::string { };
+        }
+        if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+            SetLastError(ERROR_INVALID_PARAMETER);
+            return std::nullopt;
+        }
+
+        const int input_size = static_cast<int>(str.size());
+        const int utf8_size = WideCharToMultiByte(CP_UTF8, 0, str.data(), input_size, nullptr, 0, nullptr, nullptr);
+        if (utf8_size <= 0) {
+            return std::nullopt;
+        }
+
+        std::string result(utf8_size, '\0');
+        if (WideCharToMultiByte(CP_UTF8, 0, str.data(), input_size, result.data(), utf8_size, nullptr, nullptr) != utf8_size) {
+            return std::nullopt;
+        }
+        return result;
+    }
+
+    UniqueHandle CreateKillOnCloseJob()
+    {
+        UniqueHandle job(CreateJobObjectW(nullptr, nullptr));
+        if (!job) {
+            LOG_ERROR("CreateJobObjectW failed: {}", GetLastError());
+            return { };
+        }
+
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit_info = { };
+        limit_info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (!SetInformationJobObject(job.get(), JobObjectExtendedLimitInformation, &limit_info, sizeof(limit_info))) {
+            LOG_ERROR("SetInformationJobObject failed: {}", GetLastError());
+            return { };
+        }
+
+        return job;
+    }
+
+    std::optional<std::wstring> GetCommandInterpreterPath()
+    {
+        std::wstring system_directory(MAX_PATH, L'\0');
+        while (true) {
+            const UINT length = GetSystemDirectoryW(system_directory.data(), static_cast<UINT>(system_directory.size()));
+            if (length == 0) {
+                return std::nullopt;
+            }
+            if (length < system_directory.size()) {
+                system_directory.resize(length);
+                break;
+            }
+
+            system_directory.resize(static_cast<std::size_t>(length) + 1);
+        }
+
+        return (std::filesystem::path(system_directory) / L"cmd.exe").wstring();
+    }
+} // namespace
+
+bool IsValidUTF8(const std::string_view str) noexcept
+{
+    if (str.empty()) {
+        return true;
+    }
+    if (str.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+        return false;
+    }
+
+    return MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), nullptr, 0) > 0;
+}
+
+bool IsLikelyGBK(const std::string_view str) noexcept
+{
+    bool has_high_bit = false;
+    for (std::size_t i = 0; i < str.length(); ++i) {
+        const unsigned char c1 = static_cast<unsigned char>(str[i]);
+        if (c1 <= 0x7F) {
+            continue;
+        }
+
+        has_high_bit = true;
+        if (c1 >= 0x81 && c1 <= 0xFE) {
+            if (i + 1 >= str.length()) {
+                return false; // 截断
+            }
+
+            if (const auto c2 = static_cast<unsigned char>(str[i + 1]); c2 < 0x40 || c2 > 0xFE || c2 == 0x7F) {
+                return false;
+            }
+            ++i;
+        }
+        else {
+            return false; // 出现非法字节
+        }
+    }
+    return has_high_bit;
+}
+
+std::string GBKToUTF8(const std::string_view gbk_str)
+{
+    if (gbk_str.empty()) {
+        return { };
+    }
+
+    const auto wide = MultiByteToWide(GBK_CODE_PAGE, 0, gbk_str);
+    if (!wide) {
+        return std::string(gbk_str);
+    }
+
+    const auto utf8 = WideToUTF8(*wide);
+    return utf8.value_or(std::string(gbk_str));
+}
+
+std::string NormalizeToUTF8(const std::string_view str)
+{
+    return !IsValidUTF8(str) && IsLikelyGBK(str) ? GBKToUTF8(str) : std::string(str);
+}
+
+void CallCmd(const std::string& command, std::function<CallCmdAction(const std::string&)> callback)
+{
+    if (command.empty()) {
+        LOG_ERROR("Command is empty.");
+        return;
+    }
+
+    // 安全属性结构，用于允许管道句柄继承
+    SECURITY_ATTRIBUTES sa = { .nLength = sizeof(SECURITY_ATTRIBUTES), .lpSecurityDescriptor = nullptr, .bInheritHandle = TRUE };
+
+    // 创建用于读子进程回显消息的管道
+    HANDLE readPipeRaw = nullptr, writePipeRaw = nullptr;
+    if (!CreatePipe(&readPipeRaw, &writePipeRaw, &sa, 0)) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("CreatePipe failed: {}", err);
+        return;
+    }
+    UniqueHandle hReadPipe(readPipeRaw);
+    UniqueHandle hWritePipe(writePipeRaw);
+
+    // 防止子进程继承读取句柄，导致无法关闭（只继承写入）
+    if (!SetHandleInformation(hReadPipe.get(), HANDLE_FLAG_INHERIT, 0)) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("SetHandleInformation failed: {}", err);
+        return;
+    }
+
+    // 使用 Job Object 托管进程树，避免强制退出时遗留子进程
+    auto hJob = CreateKillOnCloseJob();
+    if (!hJob) {
+        return;
+    }
+
+    // 设置启动信息，重定向输出
+    PROCESS_INFORMATION pi = { };
+    STARTUPINFOW si { .cb = sizeof(STARTUPINFOW), .dwFlags = STARTF_USESTDHANDLES, .hStdOutput = hWritePipe.get(), .hStdError = hWritePipe.get() };
+
+    // 编码转换：UTF-8 -> UTF-16，正确处理非 ASCII 路径
+    auto wide_command = MultiByteToWide(CP_UTF8, MB_ERR_INVALID_CHARS, command);
+    if (!wide_command) {
+        LOG_ERROR("MultiByteToWideChar failed: {}", GetLastError());
+        return;
+    }
+
+    const auto command_interpreter = GetCommandInterpreterPath();
+    if (!command_interpreter) {
+        LOG_ERROR("GetSystemDirectoryW failed: {}", GetLastError());
+        return;
+    }
+
+    // CallCmd 接受 CMD 命令串。外层引号由 /S /C 去除，命令自身的引号和操作符交给 cmd.exe 解析。
+    std::wstring cmd_line;
+    cmd_line.reserve(command_interpreter->size() + wide_command->size() + 20);
+    cmd_line.push_back(L'"');
+    cmd_line.append(*command_interpreter);
+    cmd_line.append(L"\" /d /s /c \"");
+    cmd_line.append(*wide_command);
+    cmd_line.push_back(L'"');
+
+    if (!CreateProcessW(command_interpreter->c_str(),        // 使用系统目录中的 cmd.exe，避免搜索路径歧义
+                        cmd_line.data(),                     // 命令行参数（必须可修改）
+                        nullptr,
+                        nullptr,                             // 安全属性
+                        TRUE,                                // 继承句柄
+                        CREATE_NO_WINDOW | CREATE_SUSPENDED, // 先挂起，确保加入 Job 后再运行
+                        nullptr,                             // 使用父进程的环境变量
+                        nullptr,                             // 使用父进程的工作目录
+                        &si,                                 // 指向 STARTUPINFO 结构体的指针
+                        &pi                                  // 指向 PROCESS_INFORMATION 结构体的指针
+                        )) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("CreateProcess failed: {}", err);
+        LOG_ERROR("Command Line: [{}].", command);
+        return;
+    }
+
+    // 先包装句柄，再处理后续逻辑（确保异常安全）
+    const UniqueHandle hProcess(pi.hProcess);
+    const UniqueHandle hThread(pi.hThread);
+
+    if (!AssignProcessToJobObject(hJob.get(), hProcess.get())) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("AssignProcessToJobObject failed: {}", err);
+        TerminateProcess(hProcess.get(), 1);
+        WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
+        return;
+    }
+
+    if (ResumeThread(hThread.get()) == static_cast<DWORD>(-1)) {
+        const DWORD err = GetLastError();
+        LOG_ERROR("ResumeThread failed: {}", err);
+        TerminateJobObject(hJob.get(), 1);
+        WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
+        return;
+    }
+
+    hWritePipe.reset();
+
+    // 读取子进程的回显消息，按行切分（正确处理跨读取块的行）
+    std::array<char, 4096> buffer { };
+    CallCmdAction action = CallCmdAction::Continue;
+    std::string pending; // 尚未遇到换行符的跨块残留
+
+    auto process_line = [&](std::string_view raw) -> CallCmdAction {
+        const std::string_view line_view = TrimSpaces(raw);
+        if (line_view.empty()) {
+            return CallCmdAction::Continue;
+        }
+
+        const std::string line = NormalizeToUTF8(line_view);
+        if (callback) {
+            return callback(line);
+        }
+        std::cerr << line << '\n';
+        return CallCmdAction::Continue;
+    };
+
+    while (true) {
+        DWORD bytes_read = 0;
+        if (!ReadFile(hReadPipe.get(), buffer.data(), static_cast<DWORD>(buffer.size()), &bytes_read, nullptr)) {
+            const DWORD error = GetLastError();
+            if (error != ERROR_BROKEN_PIPE) {
+                LOG_ERROR("ReadFile failed: {}", error);
+            }
+            break;
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        pending.append(buffer.data(), bytes_read);
+
+        std::size_t start = 0;
+        for (std::size_t nl; (nl = pending.find('\n', start)) != std::string::npos; start = nl + 1) {
+            action = process_line(std::string_view(pending).substr(start, nl - start));
+            if (action != CallCmdAction::Continue) {
+                break;
+            }
+        }
+        pending.erase(0, start);
+
+        if (action != CallCmdAction::Continue) {
+            break;
+        }
+    }
+
+    // 处理最后一行（子进程输出未以换行结尾的残留）
+    if (action == CallCmdAction::Continue && !pending.empty()) {
+        action = process_line(pending);
+    }
+
+    auto terminate_job_and_wait = [&] {
+        if (!TerminateJobObject(hJob.get(), 1)) {
+            LOG_ERROR("TerminateJobObject failed: {}", GetLastError());
+        }
+
+        const DWORD wait_result = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
+        if (wait_result == WAIT_TIMEOUT) {
+            LOG_ERROR("Process still alive after TerminateJobObject.");
+        }
+        else if (wait_result == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed after TerminateJobObject: {}", GetLastError());
+        }
+    };
+
+    if (action == CallCmdAction::StopReadingAndWait) {
+        hReadPipe.reset(); // 关闭读端；子进程后续写 stdout/stderr 时通常会收到 ERROR_BROKEN_PIPE
+        LOG_INFO("Callback requested early termination, waiting for process to exit...");
+
+        const DWORD waitResult = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
+        if (waitResult == WAIT_TIMEOUT) {
+            LOG_WARN("Process did not exit gracefully after {} ms, terminating job.", GRACEFUL_EXIT_TIMEOUT_MS);
+            terminate_job_and_wait();
+        }
+        else if (waitResult == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed: {}", GetLastError());
+        }
+    }
+    else if (action == CallCmdAction::TerminateImmediately) {
+        hReadPipe.reset();
+        LOG_INFO("Callback requested immediate process termination.");
+        terminate_job_and_wait();
+    }
+    else {
+        const DWORD waitResult = WaitForSingleObject(hProcess.get(), INFINITE);
+        if (waitResult == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed: {}", GetLastError());
+        }
+    }
+
+    DWORD exitCode = 0;
+    if (GetExitCodeProcess(hProcess.get(), &exitCode)) {
+        LOG_INFO("Command exited with code {}.", exitCode);
+    }
+    else {
+        LOG_ERROR("GetExitCodeProcess failed: {}", GetLastError());
+    }
+}
+
+std::string GetEnv(const std::string& env)
+{
+    if (env.empty()) {
+        LOG_ERROR("Environment variable name is empty.");
+        return { };
+    }
+
+    DWORD buffer_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
+    if (buffer_size == 0) {
+        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+        return { };
+    }
+
+    std::string buffer(buffer_size, '\0');
+    while (true) {
+        const DWORD value_size = GetEnvironmentVariableA(env.c_str(), buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (value_size == 0) {
+            LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
+            return { };
+        }
+        if (value_size < buffer.size()) {
+            buffer.resize(value_size);
+            return buffer;
+        }
+
+        buffer.resize(value_size);
+    }
+}
+
+std::filesystem::path GetExecutablePath()
+{
+    std::wstring buffer(256, L'\0');
+
+    while (true) {
+        const DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (length == 0) {
+            LOG_ERROR("GetModuleFileNameW failed: {}", GetLastError());
+            return { };
+        }
+
+        if (length < buffer.size()) {
+            buffer.resize(length);
+            return buffer;
+        }
+
+        buffer.resize(buffer.size() * 2);
+    }
+}
+
+std::filesystem::path GetExecutableDirectory()
+{
+    return GetExecutablePath().parent_path();
+}
