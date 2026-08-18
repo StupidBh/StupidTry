@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    const ReaderCGNSLogGuard reader_cgns_log_guard(LOG.get());
+    const ReaderCGNSLogGuard reader_cgns_log_guard;
     if (!reader_cgns_log_guard) {
         LOG_ERROR("Failed to install the ReaderCGNS log callback.");
         return EXIT_FAILURE;

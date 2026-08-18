@@ -1,13 +1,13 @@
 #include "ReaderCGNSLogGuard.h"
 
-#include "ReaderCGNS/ReaderCGNS.h"
-#include "spdlog/spdlog.h"
-
 #include <string_view>
 
-ReaderCGNSLogGuard::ReaderCGNSLogGuard(spdlog::logger* logger) noexcept :
-    m_active(logger != nullptr && ReaderCGNS::Logger::SetLogCallback(LogCallback, logger))
+#include "ReaderCGNS/ReaderCGNS.h"
+#include "Logger/logger.hpp"
+
+ReaderCGNSLogGuard::ReaderCGNSLogGuard() noexcept
 {
+    this->m_active = ReaderCGNS::Logger::SetLogCallback(LogCallback, LOG.get());
 }
 
 ReaderCGNSLogGuard::~ReaderCGNSLogGuard() noexcept
