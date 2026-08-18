@@ -1,9 +1,13 @@
 #include "Functions.h"
 
+#include <windows.h>
+
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -16,7 +20,13 @@ namespace {
             ++g_failures;
         }
     }
-}
+
+    std::string PathToUTF8(const std::filesystem::path& path)
+    {
+        const std::u8string utf8 = path.u8string();
+        return { reinterpret_cast<const char*>(utf8.data()), utf8.size() };
+    }
+} // namespace
 
 int main(int argc, char* argv[])
 {
@@ -27,6 +37,17 @@ int main(int argc, char* argv[])
         if (const char* value = std::getenv("A")) {
             std::cout << "A=" << value << '\n';
         }
+        return EXIT_SUCCESS;
+    }
+    if (argc >= 2 && std::string_view(argv[1]) == "--call-cmd-utf8-probe") {
+        const std::wstring_view command_line(GetCommandLineW());
+        std::cout << (command_line.contains(L"\u4E2D\u6587") ? "utf8-command-ok" : "utf8-command-bad") << '\n';
+        return EXIT_SUCCESS;
+    }
+    if (argc >= 2 && std::string_view(argv[1]) == "--call-cmd-slow-probe") {
+        std::cout << "Ready" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cout << "Finished" << '\n';
         return EXIT_SUCCESS;
     }
 
@@ -60,16 +81,16 @@ int main(int argc, char* argv[])
     std::vector<std::string> command_output;
     CallCmd(R"(cmd.exe /d /s /c "echo Alpha&&echo Beta")", [&](const std::string& line) {
         command_output.emplace_back(line);
-        return false;
+        return CallCmdAction::Continue;
     });
     Check(command_output == std::vector<std::string> { "Alpha", "Beta" }, "command output is split into normalized lines");
 
-    const std::string quoted_test_executable = '"' + GetExecutablePath().string() + '"';
+    const std::string quoted_test_executable = '"' + PathToUTF8(GetExecutablePath()) + '"';
 
     std::vector<std::string> compound_command_output;
     CallCmd("set \"A=1\" && " + quoted_test_executable + " --call-cmd-probe --DBUG", [&](const std::string& line) {
         compound_command_output.emplace_back(line);
-        return false;
+        return CallCmdAction::Continue;
     });
     Check(std::ranges::find(compound_command_output, "arg=--DBUG") != compound_command_output.end(), "compound command preserves arguments");
     Check(std::ranges::find(compound_command_output, "A=1") != compound_command_output.end(), "compound command passes the configured environment");
@@ -77,16 +98,33 @@ int main(int argc, char* argv[])
     std::vector<std::string> direct_command_output;
     CallCmd(quoted_test_executable + " --call-cmd-probe --DEBUG", [&](const std::string& line) {
         direct_command_output.emplace_back(line);
-        return false;
+        return CallCmdAction::Continue;
     });
     Check(std::ranges::find(direct_command_output, "arg=--DEBUG") != direct_command_output.end(), "direct command preserves arguments");
+
+    std::vector<std::string> utf8_command_output;
+    CallCmd(quoted_test_executable + " --call-cmd-utf8-probe " + utf8_chinese, [&](const std::string& line) {
+        utf8_command_output.emplace_back(line);
+        return CallCmdAction::Continue;
+    });
+    Check(utf8_command_output == std::vector<std::string> { "utf8-command-ok" }, "UTF-8 command arguments reach the child process intact");
 
     std::vector<std::string> early_exit_output;
     CallCmd("echo First&&echo Second", [&](const std::string& line) {
         early_exit_output.emplace_back(line);
-        return true;
+        return CallCmdAction::StopReadingAndWait;
     });
     Check(early_exit_output == std::vector<std::string> { "First" }, "callback still stops output processing early");
+
+    std::vector<std::string> immediate_exit_output;
+    const auto immediate_exit_start = std::chrono::steady_clock::now();
+    CallCmd(quoted_test_executable + " --call-cmd-slow-probe", [&](const std::string& line) {
+        immediate_exit_output.emplace_back(line);
+        return CallCmdAction::TerminateImmediately;
+    });
+    const auto immediate_exit_duration = std::chrono::steady_clock::now() - immediate_exit_start;
+    Check(immediate_exit_output == std::vector<std::string> { "Ready" }, "immediate termination stops further output processing");
+    Check(immediate_exit_duration < std::chrono::seconds(4), "immediate termination skips the natural-exit window");
 
     return g_failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
