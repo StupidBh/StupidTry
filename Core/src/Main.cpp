@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    const auto reader_cgns_log_guard = ReaderCGNSLogGuard::Create(LOG);
-    if (reader_cgns_log_guard == nullptr) {
+    const ReaderCGNSLogGuard reader_cgns_log_guard(LOG.get());
+    if (!reader_cgns_log_guard) {
         LOG_ERROR("Failed to install the ReaderCGNS log callback.");
         return EXIT_FAILURE;
     }
