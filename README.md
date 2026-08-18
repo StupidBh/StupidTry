@@ -27,8 +27,9 @@ StupidTry/
 │   ├── src/
 │   │   └── Main.cpp                # 程序入口和功能示例
 │   ├── Common/                     # 参数处理、全局配置等通用实现
-│   │   ├── Functions.h
+│   │   ├── Functions.h             # 仅依赖标准库的字符串工具
 │   │   ├── SingletonData.h
+│   │   ├── WindowsFunctions.h      # Win32 编码、进程、环境和路径工具
 │   │   └── src/
 │   ├── Utils/                      # Core 专用的 HDF5、文件 I/O 和集成工具
 │   │   ├── HighFiveUtils.hpp
