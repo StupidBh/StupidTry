@@ -192,6 +192,21 @@ namespace {
         pop_waiter.join();
         Check(!cancelled_pop_result.has_value(), "stop token cancels a blocked pop");
 
+        utils::BlockingQueue<int> pre_cancelled_pop_queue;
+        Check(pre_cancelled_pop_queue.Push(9), "queue accepts a value before pop cancellation");
+        std::stop_source pre_cancelled_pop_source;
+        pre_cancelled_pop_source.request_stop();
+        Check(!pre_cancelled_pop_queue.Pop(pre_cancelled_pop_source.get_token()).has_value(), "pre-cancelled pop does not consume ready data");
+        Check(pre_cancelled_pop_queue.Pop() == std::optional<int>(9), "ready data remains after a pre-cancelled pop");
+
+        utils::BlockingQueue<std::unique_ptr<int>> pre_cancelled_push_queue;
+        std::stop_source pre_cancelled_push_source;
+        pre_cancelled_push_source.request_stop();
+        auto pre_cancelled_push_value = std::make_unique<int>(3);
+        Check(!pre_cancelled_push_queue.Push(pre_cancelled_push_source.get_token(), std::move(pre_cancelled_push_value)),
+              "pre-cancelled push does not use available capacity");
+        Check(pre_cancelled_push_value != nullptr && pre_cancelled_push_queue.Size() == 0, "pre-cancelled push preserves the value and queue");
+
         utils::BlockingQueue<std::unique_ptr<int>> cancelled_push_queue(1);
         Check(cancelled_push_queue.Push(std::make_unique<int>(1)), "bounded queue accepts its first value");
         std::stop_source push_stop_source;
