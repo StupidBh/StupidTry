@@ -12,6 +12,10 @@ namespace utils {
 
         [[nodiscard]] static T& get_instance()
         {
+            static_assert(std::derived_from<T, SingletonHolder<T>>, "T must publicly derive from SingletonHolder<T>");
+
+            // Initialization is thread-safe. Destruction follows normal function-local
+            // static lifetime rules, so dependent singletons must not outlive T.
             static T unique_instance;
             return unique_instance;
         }
