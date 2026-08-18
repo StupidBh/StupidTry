@@ -33,6 +33,7 @@ if (BUILD_TESTING)
     add_executable(CoreFunctionsTests
             tests/FunctionsTests.cpp
             Common/src/Functions.cpp
+            Common/src/WindowsFunctions.cpp
     )
     target_include_directories(CoreFunctionsTests PRIVATE
             ${CMAKE_SOURCE_DIR}

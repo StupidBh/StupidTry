@@ -1,4 +1,5 @@
 #include "Functions.h"
+#include "WindowsFunctions.h"
 
 #include <windows.h>
 
