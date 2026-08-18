@@ -25,6 +25,7 @@ StupidTry/
 ├── CMakeLists.txt                  # 根 CMake 入口，配置语言标准、输出目录和子工程
 ├── Core/                           # 主程序 Core 可执行文件
 │   ├── CMakeLists.txt
+│   ├── Readme.md                    # Core 架构、运行与开发说明
 │   ├── src/
 │   │   └── Main.cpp                # 程序入口和功能示例
 │   ├── Common/                     # 参数处理、全局配置等通用实现
@@ -40,6 +41,8 @@ StupidTry/
 │       └── hdf5/                  # Core 使用的 HDF5 依赖
 ├── ReaderCGNS/                     # CGNS 文件读取与检查共享库
 │   ├── CMakeLists.txt
+│   ├── Readme.md                    # ReaderCGNS 接口、并发与构建说明
+│   ├── CGNS.md                      # CGNS 数据结构与 C API 指南
 │   ├── include/ReaderCGNS/         # ReaderCGNS 对外公开头文件
 │   ├── src/                        # 公开 API 实现
 │   ├── Core/                       # CGNS 核心解析逻辑
@@ -58,13 +61,18 @@ StupidTry/
 │   ├── meojson/                    # JSON/JSON5 头文件库
 │   ├── mio/
 │   └── spdlog/
-├── CGNS.md                        # CGNS 格式与接口说明
 ├── .clang-format                   # C/C++ 代码格式化配置
 ├── build/                          # CMake 构建目录（生成）
 └── bin/<Debug|Release>/            # 可执行文件和动态库输出（生成）
 ```
 
 `Core` 依赖 `ReaderCGNS` 共享库；根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
+
+## 模块文档
+
+- [`Core/Readme.md`](Core/Readme.md)：命令行接口、运行流程、输出、依赖和日志生命周期。
+- [`ReaderCGNS/Readme.md`](ReaderCGNS/Readme.md)：共享库能力、公开 API、回调并发约定和集成方式。
+- [`ReaderCGNS/CGNS.md`](ReaderCGNS/CGNS.md)：CGNS 数据结构、元素类型与 Mid-Level Library C API 指南。
 
 ## 第三方依赖
 
