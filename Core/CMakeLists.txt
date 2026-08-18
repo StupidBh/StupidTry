@@ -46,6 +46,7 @@ if (BUILD_TESTING)
             Utils/src/ReaderCGNSLogGuard.cpp
     )
     target_include_directories(CoreReaderCGNSLogGuardTests PRIVATE
+            ${CMAKE_SOURCE_DIR}
             ${3RD_ROOT}
             Utils
     )

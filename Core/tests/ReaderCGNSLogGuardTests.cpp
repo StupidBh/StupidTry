@@ -1,8 +1,8 @@
 #include "ReaderCGNSLogGuard.h"
 
 #include "ReaderCGNS/ReaderCGNS.h"
-#include "spdlog/logger.h"
 #include "spdlog/sinks/ostream_sink.h"
+#include "spdlog/spdlog.h"
 
 #include <iostream>
 #include <memory>
@@ -26,8 +26,6 @@ namespace {
 int main()
 {
     Check(ReaderCGNS::Logger::ClearLogCallback(), "initial callback state can be cleared");
-    const ReaderCGNSLogGuard null_logger_guard(nullptr);
-    Check(!null_logger_guard, "a null logger is rejected");
 
     std::ostringstream output;
     const auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(output, true);
@@ -35,8 +33,10 @@ int main()
     logger->set_level(spdlog::level::trace);
     logger->set_pattern("%v");
 
+    const auto previous_logger = spdlog::default_logger();
+    spdlog::set_default_logger(logger);
     {
-        const ReaderCGNSLogGuard guard(logger.get());
+        const ReaderCGNSLogGuard guard;
         Check(static_cast<bool>(guard), "the guard installs its callback");
 
         const std::string output_before_log = output.str();
@@ -46,6 +46,7 @@ int main()
         Check(output_during_guard.find("[ReaderCGNS]") != std::string::npos, "forwarded messages include the ReaderCGNS prefix");
         Check(output_during_guard.find(MissingCgnsPath) != std::string::npos, "forwarded messages preserve their content");
     }
+    spdlog::set_default_logger(previous_logger);
 
     const std::string output_after_clear = output.str();
     ReaderCGNS::info(std::string(MissingCgnsPath));
