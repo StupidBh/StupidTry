@@ -4,6 +4,7 @@
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <stop_token>
 #include <utility>
 
 namespace utils {
@@ -30,10 +31,12 @@ namespace utils {
         {
         }
 
-        /// @brief 向队列写入一个元素。
+        /// @brief 在队列中原地构造一个元素。
         /// @retval true  写入成功。
-        /// @retval false 队列已经关闭，元素未写入。
-        [[nodiscard]] bool Push(T value)
+        /// @retval false 队列已经关闭，元素未构造。
+        template<class... Args>
+        requires std::constructible_from<T, Args...>
+        [[nodiscard]] bool Emplace(Args&&... args)
         {
             std::unique_lock lock(this->m_mtx);
             this->m_cv_can_push.wait(lock, [this] { return this->m_is_closed || this->m_max_size == 0 || this->m_queue.size() < this->m_max_size; });
@@ -42,10 +45,47 @@ namespace utils {
                 return false;
             }
 
-            this->m_queue.emplace(std::move(value));
+            this->m_queue.emplace(std::forward<Args>(args)...);
             lock.unlock();
             this->m_cv_can_pop.notify_one();
             return true;
+        }
+
+        /// @brief 可取消地在队列中原地构造一个元素。
+        /// @retval false 队列已经关闭或停止已被请求，元素未构造。
+        template<class... Args>
+        requires std::constructible_from<T, Args...>
+        [[nodiscard]] bool Emplace(const std::stop_token stop_token, Args&&... args)
+        {
+            std::unique_lock lock(this->m_mtx);
+            const bool ready = this->m_cv_can_push.wait(lock, stop_token, [this] {
+                return this->m_is_closed || this->m_max_size == 0 || this->m_queue.size() < this->m_max_size;
+            });
+
+            if (!ready || this->m_is_closed) {
+                return false;
+            }
+
+            this->m_queue.emplace(std::forward<Args>(args)...);
+            lock.unlock();
+            this->m_cv_can_pop.notify_one();
+            return true;
+        }
+
+        [[nodiscard]] bool Push(T&& value) { return this->Emplace(std::move(value)); }
+
+        [[nodiscard]] bool Push(const T& value)
+        requires std::copy_constructible<T>
+        {
+            return this->Emplace(value);
+        }
+
+        [[nodiscard]] bool Push(const std::stop_token stop_token, T&& value) { return this->Emplace(stop_token, std::move(value)); }
+
+        [[nodiscard]] bool Push(const std::stop_token stop_token, const T& value)
+        requires std::copy_constructible<T>
+        {
+            return this->Emplace(stop_token, value);
         }
 
         /// @brief 从队列取出一个元素。
@@ -56,6 +96,24 @@ namespace utils {
             this->m_cv_can_pop.wait(lock, [this] { return this->m_is_closed || !this->m_queue.empty(); });
 
             if (this->m_queue.empty()) {
+                return std::nullopt;
+            }
+
+            T value = std::move(this->m_queue.front());
+            this->m_queue.pop();
+            lock.unlock();
+            this->m_cv_can_push.notify_one();
+            return value;
+        }
+
+        /// @brief 可取消地从队列取出一个元素。
+        /// @return 队列有数据时返回元素；队列关闭、取尽或停止已被请求时返回 std::nullopt。
+        [[nodiscard]] std::optional<T> Pop(const std::stop_token stop_token)
+        {
+            std::unique_lock lock(this->m_mtx);
+            const bool ready = this->m_cv_can_pop.wait(lock, stop_token, [this] { return this->m_is_closed || !this->m_queue.empty(); });
+
+            if (!ready || this->m_queue.empty()) {
                 return std::nullopt;
             }
 
@@ -97,8 +155,8 @@ namespace utils {
 
     private:
         mutable std::mutex m_mtx;
-        std::condition_variable m_cv_can_push;
-        std::condition_variable m_cv_can_pop;
+        std::condition_variable_any m_cv_can_push;
+        std::condition_variable_any m_cv_can_pop;
         std::queue<T> m_queue;
         std::size_t m_max_size = 0;
         bool m_is_closed = false;
