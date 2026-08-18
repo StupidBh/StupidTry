@@ -4,9 +4,9 @@
 #include <format>
 #include <functional>
 #include <iostream>
-#include <mutex>
 #include <string>
 #include <string_view>
+#include <syncstream>
 #include <utility>
 
 namespace utils {
@@ -21,7 +21,7 @@ namespace utils {
     template<typename Duration = std::chrono::duration<double>>
     requires detail::is_duration_v<Duration>
     class ScopedTimer {
-        using OutputCallback = std::function<void(std::string_view)>;
+        using OutputCallback = std::move_only_function<void(std::string_view)>;
 
     public:
         ScopedTimer(const ScopedTimer&) = delete;
@@ -70,12 +70,11 @@ namespace utils {
             }
 
             if (this->m_callback) {
+                // The callback receives a borrowed view that is valid only for this invocation.
                 this->m_callback(msg);
             }
             else {
-                static std::mutex mtx;
-                std::scoped_lock lock(mtx);
-                std::cerr << msg << std::endl;
+                std::osyncstream(std::cerr) << msg << '\n';
             }
         }
 
