@@ -49,11 +49,40 @@ namespace {
         int value = 0;
     };
 
+    struct MoveConstructOnly
+    {
+        explicit MoveConstructOnly(const int initial_value) :
+            value(initial_value)
+        {
+        }
+
+        MoveConstructOnly(const MoveConstructOnly&) = delete;
+        MoveConstructOnly& operator=(const MoveConstructOnly&) = delete;
+        MoveConstructOnly(MoveConstructOnly&&) noexcept = default;
+        MoveConstructOnly& operator=(MoveConstructOnly&&) = delete;
+
+        int value;
+    };
+
+    struct ShrinkableProbe
+    {
+        void shrink_to_fit() { ++calls; }
+
+        int calls = 0;
+    };
+
+    template<class... Types>
+    concept CanVectorShrink = requires(Types&... values) { utils::VectorShrink(values...); };
+
     static_assert(utils::Singleton<TestSingleton>);
     static_assert(!std::is_polymorphic_v<TestSingleton>);
     static_assert(std::same_as<utils::PrefixSumType_t<float>, double>);
     static_assert(std::same_as<utils::PrefixSumType_t<long double>, long double>);
     static_assert(!std::is_constructible_v<utils::SmartPrefixSum<int>, std::vector<int>&&>);
+    static_assert(CanVectorShrink<std::vector<int>>);
+    static_assert(!CanVectorShrink<const std::vector<int>>);
+    static_assert(!CanVectorShrink<int>);
+    static_assert(!CanVectorShrink<>);
 
     void TestContainerUtilities()
     {
@@ -71,6 +100,21 @@ namespace {
         const std::span<const int> source_view(aliased_range);
         utils::AppendVector(aliased_range, source_view);
         Check(aliased_range == std::vector<int>({ 3, 4, 3, 4 }), "aliased range is materialized before append");
+
+        std::vector<double> converted_target { 0.5 };
+        const std::vector<int> converted_source { 1, 2 };
+        utils::AppendVector(converted_target, converted_source);
+        utils::AppendVector(converted_target, std::vector<int> { 3, 4 });
+        Check(converted_target == std::vector<double>({ 0.5, 1.0, 2.0, 3.0, 4.0 }), "vectors with convertible element types can be appended");
+
+        std::vector<MoveConstructOnly> move_target;
+        move_target.emplace_back(1);
+        std::vector<MoveConstructOnly> move_source;
+        move_source.emplace_back(2);
+        move_source.emplace_back(3);
+        utils::AppendVector(move_target, std::move(move_source));
+        Check(move_target.size() == 3 && move_target[0].value == 1 && move_target[1].value == 2 && move_target[2].value == 3,
+              "append only requires element move construction");
 
         bool rejected_move_to_self = false;
         try {
@@ -93,6 +137,11 @@ namespace {
         auto clearable = std::vector<int> { 1, 2, 3 };
         utils::DeepClear(clearable);
         Check(clearable.empty(), "DeepClear resets a container");
+
+        ShrinkableProbe first_probe;
+        ShrinkableProbe second_probe;
+        utils::VectorShrink(first_probe, second_probe);
+        Check(first_probe.calls == 1 && second_probe.calls == 1, "VectorShrink invokes every supported argument");
     }
 
     void TestScopedTimer()
