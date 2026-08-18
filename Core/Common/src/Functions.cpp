@@ -177,7 +177,7 @@ std::string NormalizeToUTF8(const std::string_view str)
     return !IsValidUTF8(str) && IsLikelyGBK(str) ? GBKToUTF8(str) : std::string(str);
 }
 
-void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback)
+void CallCmd(const std::string& command, std::function<CallCmdAction(const std::string&)> callback)
 {
     if (command.empty()) {
         LOG_ERROR("Command is empty.");
@@ -214,8 +214,8 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
     PROCESS_INFORMATION pi = { };
     STARTUPINFOW si { .cb = sizeof(STARTUPINFOW), .dwFlags = STARTF_USESTDHANDLES, .hStdOutput = hWritePipe.get(), .hStdError = hWritePipe.get() };
 
-    // 编码转换：ACP -> UTF-16，正确处理非 ASCII 路径
-    auto wide_command = MultiByteToWide(CP_ACP, 0, command);
+    // 编码转换：UTF-8 -> UTF-16，正确处理非 ASCII 路径
+    auto wide_command = MultiByteToWide(CP_UTF8, MB_ERR_INVALID_CHARS, command);
     if (!wide_command) {
         LOG_ERROR("MultiByteToWideChar failed: {}", GetLastError());
         return;
@@ -277,13 +277,13 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
     // 读取子进程的回显消息，按行切分（正确处理跨读取块的行）
     std::array<char, 4096> buffer { };
-    bool early_exit = false;
+    CallCmdAction action = CallCmdAction::Continue;
     std::string pending; // 尚未遇到换行符的跨块残留
 
-    auto process_line = [&](std::string_view raw) -> bool {
+    auto process_line = [&](std::string_view raw) -> CallCmdAction {
         const std::string_view line_view = TrimSpaces(raw);
         if (line_view.empty()) {
-            return false;
+            return CallCmdAction::Continue;
         }
 
         const std::string line = NormalizeToUTF8(line_view);
@@ -291,7 +291,7 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
             return callback(line);
         }
         std::cerr << line << '\n';
-        return false;
+        return CallCmdAction::Continue;
     };
 
     while (true) {
@@ -310,45 +310,54 @@ void CallCmd(const std::string& command, std::function<bool(const std::string&)>
 
         std::size_t start = 0;
         for (std::size_t nl; (nl = pending.find('\n', start)) != std::string::npos; start = nl + 1) {
-            if (process_line(std::string_view(pending).substr(start, nl - start))) {
-                early_exit = true;
+            action = process_line(std::string_view(pending).substr(start, nl - start));
+            if (action != CallCmdAction::Continue) {
                 break;
             }
         }
         pending.erase(0, start);
 
-        if (early_exit) {
+        if (action != CallCmdAction::Continue) {
             break;
         }
     }
 
     // 处理最后一行（子进程输出未以换行结尾的残留）
-    if (!early_exit && !pending.empty() && process_line(pending)) {
-        early_exit = true;
+    if (action == CallCmdAction::Continue && !pending.empty()) {
+        action = process_line(pending);
     }
 
-    if (early_exit) {
+    auto terminate_job_and_wait = [&] {
+        if (!TerminateJobObject(hJob.get(), 1)) {
+            LOG_ERROR("TerminateJobObject failed: {}", GetLastError());
+        }
+
+        const DWORD wait_result = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
+        if (wait_result == WAIT_TIMEOUT) {
+            LOG_ERROR("Process still alive after TerminateJobObject.");
+        }
+        else if (wait_result == WAIT_FAILED) {
+            LOG_ERROR("WaitForSingleObject failed after TerminateJobObject: {}", GetLastError());
+        }
+    };
+
+    if (action == CallCmdAction::StopReadingAndWait) {
         hReadPipe.reset(); // 关闭读端；子进程后续写 stdout/stderr 时通常会收到 ERROR_BROKEN_PIPE
         LOG_INFO("Callback requested early termination, waiting for process to exit...");
 
         const DWORD waitResult = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
         if (waitResult == WAIT_TIMEOUT) {
             LOG_WARN("Process did not exit gracefully after {} ms, terminating job.", GRACEFUL_EXIT_TIMEOUT_MS);
-            if (!TerminateJobObject(hJob.get(), 1)) {
-                LOG_ERROR("TerminateJobObject failed: {}", GetLastError());
-            }
-
-            const DWORD forcedWaitResult = WaitForSingleObject(hProcess.get(), GRACEFUL_EXIT_TIMEOUT_MS);
-            if (forcedWaitResult == WAIT_TIMEOUT) {
-                LOG_ERROR("Process still alive after TerminateJobObject.");
-            }
-            else if (forcedWaitResult == WAIT_FAILED) {
-                LOG_ERROR("WaitForSingleObject failed after TerminateJobObject: {}", GetLastError());
-            }
+            terminate_job_and_wait();
         }
         else if (waitResult == WAIT_FAILED) {
             LOG_ERROR("WaitForSingleObject failed: {}", GetLastError());
         }
+    }
+    else if (action == CallCmdAction::TerminateImmediately) {
+        hReadPipe.reset();
+        LOG_INFO("Callback requested immediate process termination.");
+        terminate_job_and_wait();
     }
     else {
         const DWORD waitResult = WaitForSingleObject(hProcess.get(), INFINITE);
