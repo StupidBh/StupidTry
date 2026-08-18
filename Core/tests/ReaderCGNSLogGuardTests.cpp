@@ -26,7 +26,8 @@ namespace {
 int main()
 {
     Check(ReaderCGNS::Logger::ClearLogCallback(), "initial callback state can be cleared");
-    Check(ReaderCGNSLogGuard::Create(nullptr) == nullptr, "a null logger is rejected");
+    const ReaderCGNSLogGuard null_logger_guard(nullptr);
+    Check(!null_logger_guard, "a null logger is rejected");
 
     std::ostringstream output;
     const auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(output, true);
@@ -34,22 +35,17 @@ int main()
     logger->set_level(spdlog::level::trace);
     logger->set_pattern("%v");
 
-    const std::weak_ptr<spdlog::logger> logger_lifetime = logger;
-    auto guard = ReaderCGNSLogGuard::Create(logger);
-    Check(guard != nullptr, "the guard installs its callback");
+    {
+        const ReaderCGNSLogGuard guard(logger.get());
+        Check(static_cast<bool>(guard), "the guard installs its callback");
 
-    logger.reset();
-    Check(!logger_lifetime.expired(), "the guard owns the callback logger");
-
-    const std::string output_before_log = output.str();
-    ReaderCGNS::info(std::string(MissingCgnsPath));
-    const std::string output_during_guard = output.str();
-    Check(output_during_guard.size() > output_before_log.size(), "ReaderCGNS messages are forwarded while the guard is active");
-    Check(output_during_guard.find("[ReaderCGNS]") != std::string::npos, "forwarded messages include the ReaderCGNS prefix");
-    Check(output_during_guard.find(MissingCgnsPath) != std::string::npos, "forwarded messages preserve their content");
-
-    guard.reset();
-    Check(logger_lifetime.expired(), "the logger is released after callback cleanup");
+        const std::string output_before_log = output.str();
+        ReaderCGNS::info(std::string(MissingCgnsPath));
+        const std::string output_during_guard = output.str();
+        Check(output_during_guard.size() > output_before_log.size(), "ReaderCGNS messages are forwarded while the guard is active");
+        Check(output_during_guard.find("[ReaderCGNS]") != std::string::npos, "forwarded messages include the ReaderCGNS prefix");
+        Check(output_during_guard.find(MissingCgnsPath) != std::string::npos, "forwarded messages preserve their content");
+    }
 
     const std::string output_after_clear = output.str();
     ReaderCGNS::info(std::string(MissingCgnsPath));
