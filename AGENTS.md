@@ -13,11 +13,11 @@ Build products are written to `bin/<Debug|Release>/`; generated CMake files belo
 
 ## Branch Responsibilities
 
-- `dev-ai` is the primary production-development branch. Author and commit new features, production behavior, bug fixes, refactors, production build changes, dependency updates, and their user-facing documentation here. Do not commit first-party tests or test-only changes to `dev-ai`.
-- `test` is the primary test-development branch. Direct commits here should focus on test sources, CTest wiring, fixtures, test scripts, and test-only documentation. Bring production changes in from `dev-ai`; do not independently develop or duplicate production behavior on `test`.
-- `main` is the user-controlled integration branch and, when updated, covers the complete repository: production content from `dev-ai` plus test content from `test`. Do not use `main` as the primary branch for routine production or test development. Only the user decides when `test` is merged into `main`.
+- `dev` is the primary production-development branch. Author and commit new features, production behavior, bug fixes, refactors, production build changes, dependency updates, and their user-facing documentation here. Do not commit first-party tests or test-only changes to `dev`.
+- `test` is the primary test-development branch. Direct commits here should focus on test sources, CTest wiring, fixtures, test scripts, and test-only documentation. Bring production changes in from `dev`; do not independently develop or duplicate production behavior on `test`.
+- `main` is the user-controlled integration branch and, when updated, covers the complete repository: production content from `dev` plus test content from `test`. Do not use `main` as the primary branch for routine production or test development. Only the user decides when `test` is merged into `main`.
 
-Route each change to its owning branch before committing. The normal agent-controlled flow ends after integrating `dev-ai` into `test`, then returning to `dev-ai`. Agents MUST NOT automatically switch to, merge into, rebase, cherry-pick into, or otherwise update `main`. Stop on `dev-ai` and report that main integration is pending. Update `main` only when the user's current request explicitly instructs that merge.
+Route each change to its owning branch before committing. The normal agent-controlled flow ends after integrating `dev` into `test`, then returning to `dev`. Agents MUST NOT automatically switch to, merge into, rebase, cherry-pick into, or otherwise update `main`. Stop on `dev` and report that main integration is pending. Update `main` only when the user's current request explicitly instructs that merge.
 
 ## Build, Test, and Development Commands
 
@@ -46,7 +46,7 @@ The project requires CMake 4.0 or newer. When modifying `CMakeLists.txt` files, 
 
 Author and directly commit first-party tests on the local `test` branch, then integrate them into `main`. Keep test sources in module-local `tests/` directories and register them with CTest from CMake. Name test files after the behavior under test, such as `ReaderCGNS/tests/CgnsCoreTests.cpp`.
 
-The `dev-ai` branch contains production code and must not contain first-party test sources, test-only fixtures or scripts, or CTest registration. Treat documentation and build logic used exclusively to run tests as test content as well.
+The `dev` branch contains production code and must not contain first-party test sources, test-only fixtures or scripts, or CTest registration. Treat documentation and build logic used exclusively to run tests as test content as well.
 
 ## Commit & Pull Request Guidelines
 
@@ -54,6 +54,6 @@ Recent commits use concise conventional-style messages such as `feat(ReaderCGNS)
 
 Before every commit, classify changes by function at hunk level and commit the smallest coherent behavior. Do not combine unrelated production changes, repository guidance, dependency updates, formatting, or tests in one commit.
 
-When a worktree contains both production and test changes, commit the production changes to `dev-ai` first. Then bring those production commits into the local `test` branch and commit test sources, CTest wiring, fixtures, scripts, and test-only documentation there. After `test` is complete, return to `dev-ai` and stop unless the user explicitly requests main integration in the current request. Never merge or cherry-pick test-only commits back into `dev-ai`; production flows from `dev-ai` to `test`, while the combined result flows from `test` to `main` only under user control.
+When a worktree contains both production and test changes, commit the production changes to `dev` first. Then bring those production commits into the local `test` branch and commit test sources, CTest wiring, fixtures, scripts, and test-only documentation there. After `test` is complete, return to `dev` and stop unless the user explicitly requests main integration in the current request. Never merge or cherry-pick test-only commits back into `dev`; production flows from `dev` to `test`, while the combined result flows from `test` to `main` only under user control.
 
 Pull requests should describe the change, list build/test commands run, link related issues, and include screenshots or sample output when behavior visible to users changes.
