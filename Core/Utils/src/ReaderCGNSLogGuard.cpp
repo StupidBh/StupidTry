@@ -3,27 +3,10 @@
 #include "ReaderCGNS/ReaderCGNS.h"
 #include "spdlog/spdlog.h"
 
-#include <new>
 #include <string_view>
-#include <utility>
 
-std::unique_ptr<ReaderCGNSLogGuard> ReaderCGNSLogGuard::Create(std::shared_ptr<spdlog::logger> logger) noexcept
-{
-    if (logger == nullptr) {
-        return nullptr;
-    }
-
-    auto guard = std::unique_ptr<ReaderCGNSLogGuard>(new (std::nothrow) ReaderCGNSLogGuard(std::move(logger)));
-    if (guard == nullptr || !ReaderCGNS::Logger::SetLogCallback(LogCallback, guard->m_logger.get())) {
-        return nullptr;
-    }
-
-    guard->m_active = true;
-    return guard;
-}
-
-ReaderCGNSLogGuard::ReaderCGNSLogGuard(std::shared_ptr<spdlog::logger> logger) noexcept :
-    m_logger(std::move(logger))
+ReaderCGNSLogGuard::ReaderCGNSLogGuard(spdlog::logger* logger) noexcept :
+    m_active(logger != nullptr && ReaderCGNS::Logger::SetLogCallback(LogCallback, logger))
 {
 }
 
