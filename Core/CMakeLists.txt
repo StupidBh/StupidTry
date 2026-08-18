@@ -39,6 +39,18 @@ if (BUILD_TESTING)
             Common
     )
     add_test(NAME Core.Functions COMMAND CoreFunctionsTests)
+
+    add_executable(CoreReaderCGNSLogGuardTests)
+    target_sources(CoreReaderCGNSLogGuardTests PRIVATE
+            tests/ReaderCGNSLogGuardTests.cpp
+            Utils/src/ReaderCGNSLogGuard.cpp
+    )
+    target_include_directories(CoreReaderCGNSLogGuardTests PRIVATE
+            ${3RD_ROOT}
+            Utils
+    )
+    target_link_libraries(CoreReaderCGNSLogGuardTests PRIVATE ReaderCGNS)
+    add_test(NAME Core.ReaderCGNSLogGuard COMMAND CoreReaderCGNSLogGuardTests)
 endif ()
 
 find_package(TBB CONFIG QUIET)
