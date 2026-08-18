@@ -2,6 +2,8 @@
 #include "Logger/logger.hpp"
 #include "Utils/ScopedTimer.hpp"
 
+#include <string_view>
+
 #define UTILS_DETAIL_CONCAT_IMPL(x, y) x##y
 #define UTILS_DETAIL_CONCAT(x, y)      UTILS_DETAIL_CONCAT_IMPL(x, y)
 
