@@ -5,38 +5,6 @@
 #include "HighFiveUtils.hpp"
 #include "ReaderCGNSLogGuard.h"
 
-#include <string_view>
-
-static void
-    ReaderCGNSLogCallback(void* context, const ReaderCGNS::Logger::ReaderCGNS_LogLevel level, const char* file, const int line, const char* message)
-{
-    auto* logger = static_cast<spdlog::logger*>(context);
-    if (logger == nullptr) {
-        return;
-    }
-
-    spdlog::level::level_enum spd_level;
-    switch (level) {
-    case ReaderCGNS::Logger::READER_CGNS_LOG_TRACE   : spd_level = spdlog::level::trace; break;
-    case ReaderCGNS::Logger::READER_CGNS_LOG_DEBUG   : spd_level = spdlog::level::debug; break;
-    case ReaderCGNS::Logger::READER_CGNS_LOG_INFO    : spd_level = spdlog::level::info; break;
-    case ReaderCGNS::Logger::READER_CGNS_LOG_WARN    : spd_level = spdlog::level::warn; break;
-    case ReaderCGNS::Logger::READER_CGNS_LOG_ERROR   : spd_level = spdlog::level::err; break;
-    case ReaderCGNS::Logger::READER_CGNS_LOG_CRITICAL: spd_level = spdlog::level::critical; break;
-    default                                          : spd_level = spdlog::level::info; break;
-    }
-
-#ifndef NDEBUG
-    std::string_view source = file != nullptr ? std::string_view(file) : std::string_view("unknown");
-    if (const auto separator = source.find_last_of("/\\"); separator != std::string_view::npos) {
-        source.remove_prefix(separator + 1);
-    }
-    logger->log(spd_level, "[ReaderCGNS] [{}:{}] {}", source, line, message != nullptr ? message : "EmptyMsg");
-#else
-    logger->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "EmptyMsg");
-#endif
-}
-
 int main(int argc, char* argv[])
 {
     if (!SINGLE_DATA.ProcessArguments(argc, argv)) {
@@ -49,12 +17,11 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    const auto reader_cgns_logger = LOG;
-    if (!ReaderCGNS::Logger::SetLogCallback(ReaderCGNSLogCallback, reader_cgns_logger.get())) {
+    const auto reader_cgns_log_guard = ReaderCGNSLogGuard::Create(LOG);
+    if (reader_cgns_log_guard == nullptr) {
         LOG_ERROR("Failed to install the ReaderCGNS log callback.");
         return EXIT_FAILURE;
     }
-    const ReaderCGNSLogGuard reader_cgns_log_guard;
     std::jthread test_thread([&] { ReaderCGNS::info(INPUT_PATH); });
 
     const auto HF_FILE = WORK_DIR_PATH / "Try1.h5";
