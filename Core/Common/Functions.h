@@ -16,9 +16,19 @@
 /// Preserves valid UTF-8 and converts input that is valid GBK but invalid UTF-8.
 [[nodiscard]] std::string NormalizeToUTF8(std::string_view str);
 
-/// Runs a command through cmd.exe and forwards each non-empty, trimmed UTF-8 output line.
-/// Returning true from the callback requests early process termination.
-void CallCmd(const std::string& command, std::function<bool(const std::string&)> callback = { });
+/// Controls how CallCmd proceeds after delivering an output line to its callback.
+enum class CallCmdAction
+{
+    /// Continue reading and delivering command output.
+    Continue,
+    /// Stop reading, allow a bounded natural-exit window, then terminate the process tree if needed.
+    StopReadingAndWait,
+    /// Terminate the process tree immediately, then wait for termination to complete.
+    TerminateImmediately,
+};
+
+/// Runs a UTF-8 command through cmd.exe and forwards each non-empty, trimmed UTF-8 output line.
+void CallCmd(const std::string& command, std::function<CallCmdAction(const std::string&)> callback = { });
 
 /// Returns an environment variable, or an empty string when it cannot be read.
 [[nodiscard]] std::string GetEnv(const std::string& env);
