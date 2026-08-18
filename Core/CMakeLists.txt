@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/Main.cpp
         Common/src/Functions.cpp
         Common/src/SingletonData.cpp
+        Common/src/WindowsFunctions.cpp
         Utils/src/MioReader.cpp
         Utils/src/ReaderCGNSLogGuard.cpp
 )

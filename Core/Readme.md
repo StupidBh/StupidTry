@@ -68,8 +68,9 @@ Core/
 │   └── Main.cpp                    # 命令行入口与集成流程
 ├── Common/
 │   ├── SingletonData.h             # 参数和应用级状态
-│   ├── Functions.h                 # 编码、路径和进程工具
-│   ├── TimerMacros.h               # 作用域计时宏
+│   ├── Functions.h                 # 仅依赖标准库的字符串工具
+│   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
+│   ├── WindowsFunctions.h          # Win32 编码、进程、环境和路径工具
 │   └── src/
 ├── Utils/
 │   ├── HighFiveUtils.hpp           # HDF5 数据集读写辅助函数
