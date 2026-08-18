@@ -4,7 +4,6 @@
 #include <cmath>
 #include <concepts>
 #include <cstddef>
-#include <iterator>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
@@ -41,6 +40,27 @@ namespace utils::detail {
 
     template<class Ty>
     concept Clearable = std::default_initializable<Ty> && std::movable<Ty>;
+
+    template<class Ty>
+    concept Shrinkable = requires(Ty& value) { value.shrink_to_fit(); };
+
+    template<class ValueType>
+    constexpr void ReserveAdditional(std::vector<ValueType>& target, const std::size_t count)
+    {
+        if (count > target.max_size() - target.size()) {
+            throw std::length_error("AppendVector exceeds vector max_size");
+        }
+        target.reserve(target.size() + count);
+    }
+
+    template<std::move_constructible ValueType>
+    constexpr void AppendBuffered(std::vector<ValueType>& target, std::vector<ValueType>& buffered)
+    {
+        ReserveAdditional(target, buffered.size());
+        for (auto& value : buffered) {
+            target.emplace_back(std::move(value));
+        }
+    }
 } // namespace utils::detail
 
 namespace utils {
@@ -106,33 +126,37 @@ namespace utils {
         for (auto&& value : source) {
             buffered.emplace_back(std::forward<decltype(value)>(value));
         }
-        target.insert(target.end(), std::make_move_iterator(buffered.begin()), std::make_move_iterator(buffered.end()));
+        detail::AppendBuffered(target, buffered);
     }
 
-    template<class ValueType, class Allocator>
-    requires std::copy_constructible<ValueType>
-    constexpr void AppendVector(std::vector<ValueType>& target, const std::vector<ValueType, Allocator>& source)
+    template<class ValueType, class SourceType, class Allocator>
+    requires std::constructible_from<ValueType, const SourceType&> && std::move_constructible<ValueType>
+    constexpr void AppendVector(std::vector<ValueType>& target, const std::vector<SourceType, Allocator>& source)
     {
-        if constexpr (std::same_as<Allocator, std::allocator<ValueType>>) {
-            if (std::addressof(target) == std::addressof(source)) {
-                const std::vector<ValueType> copy(source);
-                target.insert(target.end(), copy.begin(), copy.end());
-                return;
-            }
+        std::vector<ValueType> buffered;
+        buffered.reserve(source.size());
+        for (const auto& value : source) {
+            buffered.emplace_back(value);
         }
-        target.insert(target.end(), source.begin(), source.end());
+        detail::AppendBuffered(target, buffered);
     }
 
-    template<class ValueType, class Allocator>
-    requires std::move_constructible<ValueType>
-    constexpr void AppendVector(std::vector<ValueType>& target, std::vector<ValueType, Allocator>&& source)
+    template<class ValueType, class SourceType, class Allocator>
+    requires std::constructible_from<ValueType, SourceType&&> && std::move_constructible<ValueType>
+    constexpr void AppendVector(std::vector<ValueType>& target, std::vector<SourceType, Allocator>&& source)
     {
-        if constexpr (std::same_as<Allocator, std::allocator<ValueType>>) {
+        if constexpr (std::same_as<std::vector<ValueType>, std::vector<SourceType, Allocator>>) {
             if (std::addressof(target) == std::addressof(source)) {
                 throw std::invalid_argument("AppendVector cannot move a vector into itself");
             }
         }
-        target.insert(target.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
+
+        std::vector<ValueType> buffered;
+        buffered.reserve(source.size());
+        for (auto& value : source) {
+            buffered.emplace_back(std::move(value));
+        }
+        detail::AppendBuffered(target, buffered);
     }
 
     template<class ValueType, class SourceType>
@@ -143,7 +167,10 @@ namespace utils {
             return;
         }
         const ValueType stable_value(std::forward<SourceType>(value));
-        target.insert(target.end(), count, stable_value);
+        detail::ReserveAdditional(target, count);
+        for (std::size_t index = 0; index < count; ++index) {
+            target.emplace_back(stable_value);
+        }
     }
 
     template<class ValueType = int>
@@ -167,14 +194,10 @@ namespace utils {
         ((vecs = Args()), ...);
     }
 
-    template<class... Args>
+    template<detail::Shrinkable... Args>
+    requires(sizeof...(Args) > 0)
     constexpr void VectorShrink(Args&... vecs)
     {
-        auto lambda = [](auto& v) {
-            if constexpr (requires { v.shrink_to_fit(); }) {
-                v.shrink_to_fit();
-            }
-        };
-        (lambda(vecs), ...);
+        (vecs.shrink_to_fit(), ...);
     }
 } // namespace utils
