@@ -6,13 +6,20 @@
 #include "Utils/ThreadPool.hpp"
 #include "Utils/Utils.hpp"
 
+#include <algorithm>
+#include <array>
+#include <atomic>
 #include <chrono>
 #include <concepts>
 #include <functional>
+#include <future>
 #include <iostream>
+#include <latch>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <span>
+#include <stop_token>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -99,6 +106,14 @@ namespace {
         timer.stop();
         Check(output.starts_with("[milliseconds] Execution time: "), "timer callback receives a named message");
         Check(output.ends_with('s'), "timer output uses seconds");
+
+        std::string move_only_output;
+        MillisecondTimer move_only_timer("move-only", [state = std::make_unique<int>(0), &move_only_output](const std::string_view message) mutable {
+            ++*state;
+            move_only_output = message;
+        });
+        move_only_timer.stop();
+        Check(move_only_output.starts_with("[move-only] Execution time: "), "timer accepts a move-only callback");
     }
 
     void TestSmartPrefixSum()
@@ -112,27 +127,82 @@ namespace {
         values.front() = 2;
         prefix_sum.invalidate();
         Check(prefix_sum.query(1200) == 1202, "invalidation observes source changes");
+
+        values.push_back(1);
+        Check(prefix_sum.query(2000) == 2002, "vector-backed prefix sum observes appended values");
+        Check(!prefix_sum.try_query(values.size()).has_value(), "try_query distinguishes an out-of-range index");
+        Check(prefix_sum.query(values.size()) == 0, "query preserves the zero result for an out-of-range index");
+
+        values.resize(1000);
+        Check(prefix_sum.query(999) == 1001, "shrinking the source invalidates an out-of-range cache");
+
+        const std::array fixed_values { 1, 2, 3, 4 };
+        utils::PrefixSumPolicy sequenced_policy;
+        sequenced_policy.execution = utils::PrefixSumExecution::sequenced;
+        utils::SmartPrefixSum<int> fixed_prefix_sum(fixed_values, sequenced_policy);
+        Check(fixed_prefix_sum.try_query(3) == std::optional<std::int64_t>(10), "prefix sum accepts a borrowed contiguous range");
     }
 
-    void TestSyncAndQueue()
+    void TestSyncController()
     {
         utils::SyncController controller;
-        Check(controller.wait_for(false), "producer state is initially ready");
-        controller.toggle_ready_and_notify_all();
-        Check(controller.wait_for(true), "consumer state is ready after a toggle");
+        Check(controller.wait_for(utils::SyncController::Side::producer), "producer state is initially ready");
+        controller.mark_ready();
+        Check(controller.wait_for(utils::SyncController::Side::consumer), "consumer state is ready after data is marked ready");
+        controller.mark_consumed();
+        Check(controller.wait_for(utils::SyncController::Side::producer), "producer state resumes after data is consumed");
+
+        const std::stop_token stop_token = controller.get_stop_token();
         controller.stop();
         Check(controller.is_stopped(), "stop state is observable");
+        Check(stop_token.stop_requested(), "external stop token observes controller shutdown");
         Check(!controller.wait_for([] { return false; }), "predicate wait reports interruption");
         controller.init();
         Check(controller.wait_for([] { return true; }), "predicate wait reports success");
 
+        utils::SyncController blocked_controller;
+        std::atomic_bool wait_result = true;
+        std::jthread waiter([&] { wait_result.store(blocked_controller.wait_for(utils::SyncController::Side::consumer)); });
+        blocked_controller.stop();
+        waiter.join();
+        Check(!wait_result.load(), "stop interrupts a blocked side wait");
+    }
+
+    void TestBlockingQueue()
+    {
         utils::BlockingQueue<std::unique_ptr<int>> queue(1);
         Check(queue.Push(std::make_unique<int>(42)), "queue accepts move-only values");
         queue.Close();
         auto value = queue.Pop();
         Check(value && **value == 42, "closed queue drains existing values");
         Check(!queue.Pop().has_value(), "drained queue returns nullopt");
-        Check(!queue.Push(std::make_unique<int>(7)), "closed queue rejects new values");
+        auto rejected_value = std::make_unique<int>(7);
+        Check(!queue.Push(std::move(rejected_value)), "closed queue rejects new values");
+        Check(rejected_value != nullptr, "a rejected push does not consume its rvalue");
+
+        utils::BlockingQueue<std::string> emplace_queue(1);
+        Check(emplace_queue.Emplace(3, 'x'), "queue constructs values in place");
+        Check(emplace_queue.Pop() == std::optional<std::string>("xxx"), "in-place value can be popped");
+
+        utils::BlockingQueue<int> cancelled_pop_queue;
+        std::stop_source pop_stop_source;
+        std::optional<int> cancelled_pop_result = 1;
+        std::jthread pop_waiter([&] { cancelled_pop_result = cancelled_pop_queue.Pop(pop_stop_source.get_token()); });
+        pop_stop_source.request_stop();
+        pop_waiter.join();
+        Check(!cancelled_pop_result.has_value(), "stop token cancels a blocked pop");
+
+        utils::BlockingQueue<std::unique_ptr<int>> cancelled_push_queue(1);
+        Check(cancelled_push_queue.Push(std::make_unique<int>(1)), "bounded queue accepts its first value");
+        std::stop_source push_stop_source;
+        auto cancelled_push_value = std::make_unique<int>(2);
+        bool cancelled_push_result = true;
+        std::jthread push_waiter(
+            [&] { cancelled_push_result = cancelled_push_queue.Push(push_stop_source.get_token(), std::move(cancelled_push_value)); });
+        push_stop_source.request_stop();
+        push_waiter.join();
+        Check(!cancelled_push_result, "stop token cancels a blocked push");
+        Check(cancelled_push_value != nullptr, "a cancelled push does not consume its rvalue");
     }
 
     void TestThreadPool()
@@ -150,6 +220,19 @@ namespace {
 
         auto move_only_result = pool.enqueue([](std::unique_ptr<int> value) { return *value; }, std::make_unique<int>(9));
         Check(move_only_result.get() == 9, "thread pool accepts move-only arguments");
+
+        auto move_only_callable = pool.enqueue([value = std::make_unique<int>(11)] { return *value; });
+        Check(move_only_callable.get() == 11, "thread pool accepts a move-only callable");
+
+        auto throwing_task = pool.enqueue([]() -> int { throw std::runtime_error("task failure"); });
+        bool task_exception_observed = false;
+        try {
+            static_cast<void>(throwing_task.get());
+        }
+        catch (const std::runtime_error&) {
+            task_exception_observed = true;
+        }
+        Check(task_exception_observed, "task exceptions are delivered through the future");
 
         auto guarded_wait = pool.enqueue([&pool] {
             try {
@@ -176,6 +259,64 @@ namespace {
         const auto caller = std::this_thread::get_id();
         utils::ThreadPool inline_pool(0);
         Check(inline_pool.enqueue([] { return std::this_thread::get_id(); }).get() == caller, "zero-thread pool runs inline");
+
+        utils::ThreadPool concurrent_shutdown_pool(1);
+        std::latch shutdown_task_started(1);
+        std::latch release_shutdown_task(1);
+        auto shutdown_task = concurrent_shutdown_pool.enqueue([&] {
+            shutdown_task_started.count_down();
+            release_shutdown_task.wait();
+        });
+        shutdown_task_started.wait();
+
+        std::jthread first_shutdown([&] { concurrent_shutdown_pool.shutdown(); });
+        while (true) {
+            try {
+                static_cast<void>(concurrent_shutdown_pool.enqueue([] { }));
+                std::this_thread::yield();
+            }
+            catch (const std::runtime_error&) {
+                break;
+            }
+        }
+
+        std::promise<void> second_shutdown_finished;
+        auto second_shutdown_result = second_shutdown_finished.get_future();
+        std::jthread second_shutdown([&] {
+            concurrent_shutdown_pool.shutdown();
+            second_shutdown_finished.set_value();
+        });
+        Check(second_shutdown_result.wait_for(std::chrono::milliseconds(20)) == std::future_status::timeout,
+              "concurrent shutdown waits for the active shutdown");
+        release_shutdown_task.count_down();
+        first_shutdown.join();
+        second_shutdown.join();
+        shutdown_task.get();
+        Check(second_shutdown_result.wait_for(std::chrono::seconds(0)) == std::future_status::ready, "all shutdown callers complete together");
+
+        utils::ThreadPool cancelling_pool(1);
+        std::latch active_task_started(1);
+        std::latch release_active_task(1);
+        auto active_task = cancelling_pool.enqueue([&] {
+            active_task_started.count_down();
+            release_active_task.wait();
+            return 1;
+        });
+        active_task_started.wait();
+        auto discarded_task = cancelling_pool.enqueue([] { return 2; });
+        std::jthread cancelling_thread([&] { cancelling_pool.shutdown_now(); });
+        Check(discarded_task.wait_for(std::chrono::seconds(1)) == std::future_status::ready, "immediate shutdown discards queued tasks promptly");
+        bool broken_promise_observed = false;
+        try {
+            static_cast<void>(discarded_task.get());
+        }
+        catch (const std::future_error& error) {
+            broken_promise_observed = error.code() == std::make_error_code(std::future_errc::broken_promise);
+        }
+        Check(broken_promise_observed, "discarded task reports a broken promise");
+        release_active_task.count_down();
+        cancelling_thread.join();
+        Check(active_task.get() == 1, "immediate shutdown lets an active task finish");
     }
 
     void TestSingletonHolder()
@@ -185,6 +326,17 @@ namespace {
         first.value = 17;
         Check(std::addressof(first) == std::addressof(second), "SingletonHolder returns one instance");
         Check(second.value == 17, "SingletonHolder preserves state");
+
+        std::array<TestSingleton*, 4> instances { };
+        std::array<std::jthread, 4> threads;
+        for (std::size_t index = 0; index < threads.size(); ++index) {
+            threads[index] = std::jthread([&, index] { instances[index] = std::addressof(TestSingleton::get_instance()); });
+        }
+        for (auto& thread : threads) {
+            thread.join();
+        }
+        Check(std::ranges::all_of(instances, [&first](const TestSingleton* instance) { return instance == std::addressof(first); }),
+              "SingletonHolder initialization is stable across threads");
     }
 } // namespace
 
@@ -193,7 +345,8 @@ int main()
     TestContainerUtilities();
     TestScopedTimer();
     TestSmartPrefixSum();
-    TestSyncAndQueue();
+    TestSyncController();
+    TestBlockingQueue();
     TestThreadPool();
     TestSingletonHolder();
 
