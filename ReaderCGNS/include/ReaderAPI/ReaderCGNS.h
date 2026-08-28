@@ -26,7 +26,7 @@ namespace ReaderAPI {
         virtual void Close() = 0;
         virtual bool IsOpen() const = 0;
 
-        virtual bool info() = 0;
+        virtual void info() = 0;
 
         virtual void* QueryInterface() = 0;
     };
