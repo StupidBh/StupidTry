@@ -1,7 +1,7 @@
 #include "SingletonData.h"
 #include "Macros.hpp"
 
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
 #include "HighFiveUtils.hpp"
 #include "ReaderCGNSLogGuard.h"
 

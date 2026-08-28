@@ -3,6 +3,6 @@
 
 class CgnsCore : virtual public FileManager {
 public:
-    bool info() override;
+    void info() override;
     void* QueryInterface() override;
 };

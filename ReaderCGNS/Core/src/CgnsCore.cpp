@@ -8,7 +8,7 @@
 
 #include "cgnslib.h"
 
-bool CgnsCore::info()
+void CgnsCore::info()
 {
     // Base Information
     int nbases = 0;
@@ -559,8 +559,6 @@ bool CgnsCore::info()
             }
         }
     }
-
-    return true;
 }
 
 void* CgnsCore::QueryInterface()

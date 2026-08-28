@@ -49,7 +49,7 @@ StupidTry/
 │   ├── CMakeLists.txt
 │   ├── Readme.md                    # ReaderCGNS 接口、并发与构建说明
 │   ├── CGNS.md                      # CGNS 数据结构与 C API 指南
-│   ├── include/ReaderCGNS/         # ReaderCGNS 对外公开头文件
+│   ├── include/ReaderAPI/          # ReaderCGNS 对外公开头文件
 │   ├── src/                        # DLL reader 工厂导出
 │   ├── Core/                       # 文件生命周期与 CGNS 层次遍历
 │   ├── Utils/                      # ReaderCGNS 内部日志工具

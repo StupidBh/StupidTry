@@ -1,6 +1,6 @@
 # ReaderCGNS
 
-`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 共享库。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
+`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
 当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
@@ -21,11 +21,11 @@
 
 ## 公开接口
 
-公开头文件位于 `include/ReaderCGNS/`：
+公开头文件位于 `include/ReaderAPI/`：
 
 ```cpp
-#include "ReaderCGNS/ReaderCGNS.h"
-#include "ReaderCGNS/ReaderCGNSTypes.hpp" // 使用日志接口时需要
+#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNSTypes.hpp" // 使用日志接口时需要
 ```
 
 | API | 作用 |
@@ -40,7 +40,7 @@
 
 ## 动态加载约定
 
-ReaderCGNS 的交付物是 `include/ReaderCGNS/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
+ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
 
 - reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
 - 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
@@ -75,7 +75,7 @@ ReaderCGNS/
 ├── CMakeLists.txt
 ├── Readme.md
 ├── CGNS.md                         # CGNS 数据结构与 C API 参考
-├── include/ReaderCGNS/
+├── include/ReaderAPI/
 │   ├── ReaderCGNS.h                # 导出 API
 │   └── ReaderCGNSTypes.hpp         # 日志级别与回调类型
 ├── src/
@@ -120,11 +120,11 @@ target_include_directories(YourTarget PRIVATE
 add_dependencies(YourTarget ReaderCGNS)
 ```
 
-`ReaderCGNS` 以共享库形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。Visual Studio 构建可能同时生成 `ReaderCGNS.lib`，但该 import library 不属于公开交付约定。调用方只应分发公开头和 DLL，并且不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
+`ReaderCGNS` 以运行时加载模块形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。该目标不提供 import library；调用方只应分发公开头和 DLL，并且不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
 
 ## 开发约定
 
-- 对外兼容面仅包含 `include/ReaderCGNS/` 下的头文件和导出符号；
+- 对外兼容面仅包含 `include/ReaderAPI/` 下的头文件和导出符号；
 - 新增公开 API 时，同时说明所有权、线程安全、错误与生命周期语义；
 - 保持 CGNS 文件只读，除非通过独立设计明确引入写入接口；
 - 新增遍历节点时，使用统一日志层级并保留 CGNS 错误上下文；

@@ -1,5 +1,5 @@
 #pragma once
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
 
 class FileManager : public ReaderAPI::ReaderCGNS {
 public:
