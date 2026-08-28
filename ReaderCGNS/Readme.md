@@ -1,6 +1,6 @@
 # ReaderCGNS
 
-`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 共享库。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
+`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
 当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
@@ -120,7 +120,7 @@ target_include_directories(YourTarget PRIVATE
 add_dependencies(YourTarget ReaderCGNS)
 ```
 
-`ReaderCGNS` 以共享库形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。Visual Studio 构建可能同时生成 `ReaderCGNS.lib`，但该 import library 不属于公开交付约定。调用方只应分发公开头和 DLL，并且不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
+`ReaderCGNS` 以运行时加载模块形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。该目标不提供 import library；调用方只应分发公开头和 DLL，并且不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
 
 ## 开发约定
 

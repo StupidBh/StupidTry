@@ -5,7 +5,11 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(${PROJECT_NAME} SHARED)
+add_library(${PROJECT_NAME} MODULE)
+if (MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE /NOIMPLIB)
+endif ()
+
 target_sources(${PROJECT_NAME} PRIVATE
         src/ReaderCGNS.cpp
         Utils/src/Logger.cpp

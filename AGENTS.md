@@ -5,7 +5,7 @@
 This is a CMake-based C++ project. The root `CMakeLists.txt` configures the MSVC options and shared output directories, then adds two subprojects. `Core/CMakeLists.txt` and `ReaderCGNS/CMakeLists.txt` each select C17 and C++23:
 
 - `Core/`: main executable target. Entry point is `Core/src/Main.cpp`; target-local implementation lives under `Core/Common` and `Core/Utils`. It includes the ReaderCGNS public headers and loads `ReaderCGNS.dll` at runtime without linking its import library.
-- `ReaderCGNS/`: shared library target for CGNS inspection. Public headers are in `ReaderCGNS/include/ReaderCGNS`, DLL factory exports are implemented in `ReaderCGNS/src`, traversal and file-lifecycle code lives in `ReaderCGNS/Core`, and local logging helpers are in `ReaderCGNS/Utils`.
+- `ReaderCGNS/`: loadable module target for CGNS inspection. Public headers are in `ReaderCGNS/include/ReaderAPI`, DLL factory exports are implemented in `ReaderCGNS/src`, traversal and file-lifecycle code lives in `ReaderCGNS/Core`, and local logging helpers are in `ReaderCGNS/Utils`.
 - `Utils/` and `Logger/`: header-only utility and logging helpers used across targets.
 - `3rdparty/`, `Core/3rdparty/`, `ReaderCGNS/3rdparty/`: vendored dependencies. Avoid editing these unless updating a dependency intentionally.
 
