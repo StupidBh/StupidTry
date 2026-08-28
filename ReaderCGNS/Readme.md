@@ -1,8 +1,8 @@
 # ReaderCGNS
 
-`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 共享库。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
+`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
-当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
+当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
 ## 能力范围
 
@@ -21,56 +21,31 @@
 
 ## 公开接口
 
-公开头文件位于 `include/ReaderCGNS/`：
+公开头文件位于 `include/ReaderAPI/`：
 
 ```cpp
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNSTypes.hpp" // 使用日志接口时需要
 ```
 
 | API | 作用 |
 |---|---|
-| `bool ReaderCGNS::info(const std::string& path)` | 只读打开文件并输出结构检查信息。 |
-| `bool Logger::SetLogCallback(callback, context)` | 安装进程级日志回调，并等待旧回调执行完毕。 |
-| `bool Logger::ClearLogCallback()` | 移除回调，并等待其他线程中的活动回调结束。 |
-| `bool Logger::SetMinimumLogLevel(level)` | 设置最小分发级别，默认值为 `trace`。 |
-| `Logger::ReaderCGNS_LogLevel Logger::GetMinimumLogLevel()` | 获取当前最小日志级别。 |
+| `ReaderAPI::ReaderCGNS::Open(path)` | 以只读方式打开 CGNS 文件。 |
+| `ReaderAPI::ReaderCGNS::Close()` | 关闭当前文件。 |
+| `ReaderAPI::ReaderCGNS::IsOpen()` | 查询文件是否已打开。 |
+| `ReaderAPI::ReaderCGNS::info()` | 遍历当前已打开文件并输出结构检查信息。 |
+| `ReaderAPI::ReaderCGNS::QueryInterface()` | 返回实现扩展入口；当前没有公开的扩展类型协议。 |
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
-## 最小使用示例
+## 动态加载约定
 
-```cpp
-#include "ReaderCGNS/ReaderCGNS.h"
+ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
 
-#include <cstdio>
+- reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
+- 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
 
-namespace {
-    void PrintLog(void*,
-                  ReaderCGNS::Logger::ReaderCGNS_LogLevel,
-                  const char* file,
-                  int line,
-                  const char* message)
-    {
-        std::fprintf(stderr, "[%s:%d] %s\n", file, line, message);
-    }
-}
-
-int main()
-{
-    using namespace ReaderCGNS::Logger;
-
-    if (!SetLogCallback(PrintLog)) {
-        return 1;
-    }
-
-    SetMinimumLogLevel(READER_CGNS_LOG_INFO);
-    const bool inspected = ReaderCGNS::info("case.cgns");
-    const bool cleared = ClearLogCallback();
-    return inspected && cleared ? 0 : 1;
-}
-```
-
-生产程序建议用 RAII 封装 `SetLogCallback()`/`ClearLogCallback()`。`Core/Utils/ReaderCGNSLogGuard` 展示了将回调接入 spdlog 的应用侧实现。
+`ReaderCGNS.h` 提供 `ReaderAPI::ReaderCGNS` 和 reader 工厂函数指针类型，`ReaderCGNSTypes.hpp` 提供日志级别与回调类型。公开头不声明需要 import library 的日志控制函数；调用方应按上述稳定名称声明本地函数指针并动态解析。完整流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
 
 ## 日志并发约定
 
@@ -87,13 +62,9 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 
 ## 返回值与错误处理
 
-`ReaderCGNS::info()` 在以下关键阶段失败时返回 `false`：
+`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件；文件无效或 `cg_open()` 失败时返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `info()`，并在结束后显式调用 `Close()`。当前实现不支持在未关闭旧文件时复用同一实例打开另一个文件。
 
-- 输入无法识别为有效 CGNS 文件；
-- 文件无法以只读模式打开；
-- 遍历结束后文件关闭失败。
-
-节点级 CGNS API 错误会记录对应状态与 `cg_get_error()` 信息；检查流程会在可行时继续遍历后续节点。因此调用方应同时检查返回值和日志内容。
+`info()` 当前完成遍历后返回 `true`，节点级 CGNS API 错误不会汇总到返回值，而是记录对应状态与 `cg_get_error()` 后在可行时继续。因此日志内容是判断局部读取问题的主要依据。`Close()` 没有返回值，关闭失败同样通过日志报告。
 
 未安装日志回调时，检查仍可执行，但不会向应用输出结构信息。
 
@@ -104,14 +75,15 @@ ReaderCGNS/
 ├── CMakeLists.txt
 ├── Readme.md
 ├── CGNS.md                         # CGNS 数据结构与 C API 参考
-├── include/ReaderCGNS/
+├── include/ReaderAPI/
 │   ├── ReaderCGNS.h                # 导出 API
 │   └── ReaderCGNSTypes.hpp         # 日志级别与回调类型
 ├── src/
-│   └── ReaderCGNS.cpp              # 文件检查与层次遍历
+│   └── ReaderCGNS.cpp              # Create/Destroy reader 导出
 ├── Core/
-│   ├── CgnsCore.h                  # 内部文件句柄封装
+│   ├── CgnsCore.h                  # CGNS 层次遍历实现
 │   ├── CgnsTypes.hpp
+│   ├── FileManager.h               # 文件打开、关闭与句柄状态
 │   └── src/
 ├── Utils/
 │   ├── Logger.h                    # 内部格式化与错误适配
@@ -139,17 +111,20 @@ bin/Debug/ReaderCGNS.dll
 bin/Release/ReaderCGNS.dll
 ```
 
-仓库内其他 CMake 目标可直接链接：
+同一源码树中的调用目标应显式使用公开 include 路径；如需保证构建顺序，可添加 target 依赖，但不要链接 ReaderCGNS import library：
 
 ```cmake
-target_link_libraries(YourTarget PRIVATE ReaderCGNS)
+target_include_directories(YourTarget PRIVATE
+        ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
+)
+add_dependencies(YourTarget ReaderCGNS)
 ```
 
-`ReaderCGNS` 以共享库形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。公开 include 目录通过目标使用要求自动传递；调用方不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
+`ReaderCGNS` 以运行时加载模块形式构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接。该目标不提供 import library；调用方只应分发公开头和 DLL，并且不应直接包含 `Core/` 或 `Utils/` 下的内部头文件。
 
 ## 开发约定
 
-- 对外兼容面仅包含 `include/ReaderCGNS/` 下的头文件和导出符号；
+- 对外兼容面仅包含 `include/ReaderAPI/` 下的头文件和导出符号；
 - 新增公开 API 时，同时说明所有权、线程安全、错误与生命周期语义；
 - 保持 CGNS 文件只读，除非通过独立设计明确引入写入接口；
 - 新增遍历节点时，使用统一日志层级并保留 CGNS 错误上下文；

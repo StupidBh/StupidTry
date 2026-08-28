@@ -6,10 +6,13 @@
 #include <windows.h>
 
 #include <array>
+#include <cstddef>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <type_traits>
+#include <vector>
 
 namespace {
     constexpr UINT GBK_CODE_PAGE = 936;
@@ -26,6 +29,18 @@ namespace {
     };
 
     using UniqueHandle = std::unique_ptr<void, WinHandleCloser>;
+
+    struct ProcThreadAttributeListCloser
+    {
+        void operator()(LPPROC_THREAD_ATTRIBUTE_LIST attribute_list) const noexcept
+        {
+            if (attribute_list != nullptr) {
+                DeleteProcThreadAttributeList(attribute_list);
+            }
+        }
+    };
+
+    using UniqueProcThreadAttributeList = std::unique_ptr<std::remove_pointer_t<LPPROC_THREAD_ATTRIBUTE_LIST>, ProcThreadAttributeListCloser>;
 
     std::optional<std::wstring> MultiByteToWide(UINT code_page, DWORD flags, std::string_view str)
     {
@@ -203,9 +218,49 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
         return;
     }
 
-    // 设置启动信息，重定向输出
+    HANDLE nullInputRaw = CreateFileW(L"NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (nullInputRaw == INVALID_HANDLE_VALUE) {
+        LOG_ERROR("CreateFileW(NUL) failed: {}", GetLastError());
+        return;
+    }
+    UniqueHandle hNullInput(nullInputRaw);
+
+    SIZE_T attributeListSize = 0;
+    InitializeProcThreadAttributeList(nullptr, 1, 0, &attributeListSize);
+    if (attributeListSize == 0) {
+        LOG_ERROR("InitializeProcThreadAttributeList size query failed: {}", GetLastError());
+        return;
+    }
+
+    std::vector<std::byte> attributeListStorage(attributeListSize);
+    auto* attributeListRaw = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(attributeListStorage.data());
+    if (!InitializeProcThreadAttributeList(attributeListRaw, 1, 0, &attributeListSize)) {
+        LOG_ERROR("InitializeProcThreadAttributeList failed: {}", GetLastError());
+        return;
+    }
+    UniqueProcThreadAttributeList attributeList(attributeListRaw);
+
+    std::array<HANDLE, 2> inheritedHandles { hWritePipe.get(), hNullInput.get() };
+    if (!UpdateProcThreadAttribute(attributeList.get(),
+                                   0,
+                                   PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                                   inheritedHandles.data(),
+                                   inheritedHandles.size() * sizeof(HANDLE),
+                                   nullptr,
+                                   nullptr)) {
+        LOG_ERROR("UpdateProcThreadAttribute failed: {}", GetLastError());
+        return;
+    }
+
+    // 设置扩展启动信息，只继承本次调用的标准输入和输出句柄。
     PROCESS_INFORMATION pi = { };
-    STARTUPINFOW si { .cb = sizeof(STARTUPINFOW), .dwFlags = STARTF_USESTDHANDLES, .hStdOutput = hWritePipe.get(), .hStdError = hWritePipe.get() };
+    STARTUPINFOEXW si = { };
+    si.StartupInfo.cb = sizeof(STARTUPINFOEXW);
+    si.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+    si.StartupInfo.hStdInput = hNullInput.get();
+    si.StartupInfo.hStdOutput = hWritePipe.get();
+    si.StartupInfo.hStdError = hWritePipe.get();
+    si.lpAttributeList = attributeList.get();
 
     // 编码转换：UTF-8 -> UTF-16，正确处理非 ASCII 路径
     auto wide_command = MultiByteToWide(CP_UTF8, MB_ERR_INVALID_CHARS, command);
@@ -229,16 +284,16 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
     cmd_line.append(*wide_command);
     cmd_line.push_back(L'"');
 
-    if (!CreateProcessW(command_interpreter->c_str(),        // 使用系统目录中的 cmd.exe，避免搜索路径歧义
-                        cmd_line.data(),                     // 命令行参数（必须可修改）
+    if (!CreateProcessW(command_interpreter->c_str(),                                       // 使用系统目录中的 cmd.exe，避免搜索路径歧义
+                        cmd_line.data(),                                                    // 命令行参数（必须可修改）
                         nullptr,
-                        nullptr,                             // 安全属性
-                        TRUE,                                // 继承句柄
-                        CREATE_NO_WINDOW | CREATE_SUSPENDED, // 先挂起，确保加入 Job 后再运行
-                        nullptr,                             // 使用父进程的环境变量
-                        nullptr,                             // 使用父进程的工作目录
-                        &si,                                 // 指向 STARTUPINFO 结构体的指针
-                        &pi                                  // 指向 PROCESS_INFORMATION 结构体的指针
+                        nullptr,                                                            // 安全属性
+                        TRUE,                                                               // 继承句柄
+                        CREATE_NO_WINDOW | CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, // 先挂起，确保加入 Job 后再运行
+                        nullptr,                                                            // 使用父进程的环境变量
+                        nullptr,                                                            // 使用父进程的工作目录
+                        &si.StartupInfo,                                                    // 指向 STARTUPINFOEX 的基础结构
+                        &pi                                                                 // 指向 PROCESS_INFORMATION 结构体的指针
                         )) {
         const DWORD err = GetLastError();
         LOG_ERROR("CreateProcess failed: {}", err);

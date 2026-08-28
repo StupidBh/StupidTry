@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CTest)
 
 if (MSVC)
-    add_compile_options(/utf-8)
+    add_compile_options(/utf-8 /EHsc)
 endif ()
 
 # ---- Output directories: bin/<Debug|Release>/ at project root ----

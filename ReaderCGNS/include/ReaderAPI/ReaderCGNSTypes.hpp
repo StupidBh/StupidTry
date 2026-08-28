@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ReaderCGNS::Logger {
+namespace ReaderAPI::Logger {
     enum ReaderCGNS_LogLevel : int
     {
         READER_CGNS_LOG_TRACE = 0,
@@ -12,4 +12,4 @@ namespace ReaderCGNS::Logger {
     };
 
     using ReaderCGNS_LogCallback = void (*)(void* context, ReaderCGNS_LogLevel level, const char* file, int line, const char* message);
-} // namespace ReaderCGNS::Logger
+} // namespace ReaderAPI::Logger

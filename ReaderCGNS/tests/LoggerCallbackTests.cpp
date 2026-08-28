@@ -1,23 +1,51 @@
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNSTypes.hpp"
 
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <future>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <vector>
+#include <windows.h>
 
 namespace {
     using namespace std::chrono_literals;
-    using ReaderCGNS::Logger::ReaderCGNS_LogLevel;
+    using ReaderAPI::Logger::ReaderCGNS_LogCallback;
+    using ReaderAPI::Logger::ReaderCGNS_LogLevel;
+
+    using SetLogCallbackFunc = bool (*)(ReaderCGNS_LogCallback, void*) noexcept;
+    using ClearLogCallbackFunc = bool (*)() noexcept;
+    using SetMinimumLogLevelFunc = bool (*)(ReaderCGNS_LogLevel) noexcept;
+    using GetMinimumLogLevelFunc = ReaderCGNS_LogLevel (*)() noexcept;
 
     constexpr std::string_view MissingCgnsPath = "ReaderCGNS-logger-callback-test-missing.cgns";
     int failures = 0;
+
+    SetLogCallbackFunc SetLogCallback = nullptr;
+    ClearLogCallbackFunc ClearLogCallback = nullptr;
+    SetMinimumLogLevelFunc SetMinimumLogLevel = nullptr;
+    GetMinimumLogLevelFunc GetMinimumLogLevel = nullptr;
+    ReaderAPI::CreateReaderCGNSFunc CreateReaderCGNS = nullptr;
+    ReaderAPI::DestroyReaderCGNSFunc DestroyReaderCGNS = nullptr;
+
+    struct ModuleGuard
+    {
+        HMODULE module = LoadLibraryW(L"ReaderCGNS.dll");
+
+        ~ModuleGuard()
+        {
+            if (module != nullptr) {
+                FreeLibrary(module);
+            }
+        }
+    };
 
     void Check(const bool condition, const std::string_view message)
     {
@@ -25,6 +53,12 @@ namespace {
             std::cerr << "FAILED: " << message << '\n';
             ++failures;
         }
+    }
+
+    template<class Function>
+    Function LoadExport(const HMODULE module, const char* name)
+    {
+        return reinterpret_cast<Function>(GetProcAddress(module, name));
     }
 
     struct LogRecord
@@ -84,18 +118,44 @@ namespace {
     {
         auto& state = *static_cast<SelfClearContext*>(context);
         state.called.store(true, std::memory_order_release);
-        state.clear_result.store(ReaderCGNS::Logger::ClearLogCallback(), std::memory_order_release);
+        state.clear_result.store(ClearLogCallback(), std::memory_order_release);
     }
 
     void InspectMissingFile()
     {
-        ReaderCGNS::info(std::string(MissingCgnsPath));
+        std::unique_ptr<ReaderAPI::ReaderCGNS, ReaderAPI::DestroyReaderCGNSFunc> reader(CreateReaderCGNS(), DestroyReaderCGNS);
+        if (reader != nullptr) {
+            reader->Open(std::string(MissingCgnsPath));
+        }
     }
 } // namespace
 
 int main()
 {
-    using namespace ReaderCGNS::Logger;
+    using namespace ReaderAPI::Logger;
+
+    const ModuleGuard module;
+    Check(module.module != nullptr, "ReaderCGNS.dll can be loaded");
+    if (module.module == nullptr) {
+        return 1;
+    }
+
+    SetLogCallback = LoadExport<SetLogCallbackFunc>(module.module, "SetLogCallback");
+    ClearLogCallback = LoadExport<ClearLogCallbackFunc>(module.module, "ClearLogCallback");
+    SetMinimumLogLevel = LoadExport<SetMinimumLogLevelFunc>(module.module, "SetMinimumLogLevel");
+    GetMinimumLogLevel = LoadExport<GetMinimumLogLevelFunc>(module.module, "GetMinimumLogLevel");
+    CreateReaderCGNS = LoadExport<ReaderAPI::CreateReaderCGNSFunc>(module.module, "CreateReaderCGNS");
+    DestroyReaderCGNS = LoadExport<ReaderAPI::DestroyReaderCGNSFunc>(module.module, "DestroyReaderCGNS");
+    Check(SetLogCallback != nullptr, "the set-log export can be resolved");
+    Check(ClearLogCallback != nullptr, "the clear-log export can be resolved");
+    Check(SetMinimumLogLevel != nullptr, "the minimum-level setter export can be resolved");
+    Check(GetMinimumLogLevel != nullptr, "the minimum-level getter export can be resolved");
+    Check(CreateReaderCGNS != nullptr, "the reader factory export can be resolved");
+    Check(DestroyReaderCGNS != nullptr, "the reader destroy export can be resolved");
+    if (SetLogCallback == nullptr || ClearLogCallback == nullptr || SetMinimumLogLevel == nullptr || GetMinimumLogLevel == nullptr ||
+        CreateReaderCGNS == nullptr || DestroyReaderCGNS == nullptr) {
+        return 1;
+    }
 
     Check(ClearLogCallback(), "initial callback state can be cleared");
     Check(SetMinimumLogLevel(READER_CGNS_LOG_TRACE), "trace minimum level is accepted");
@@ -158,7 +218,7 @@ int main()
     auto clear_finished_future = clear_finished.get_future();
     std::jthread clearer([&clear_started, &clear_finished] {
         clear_started.set_value();
-        clear_finished.set_value(ReaderCGNS::Logger::ClearLogCallback());
+        clear_finished.set_value(ClearLogCallback());
     });
     clear_started_future.wait();
     Check(clear_finished_future.wait_for(100ms) == std::future_status::timeout, "clear waits for an active callback");

@@ -1,17 +1,25 @@
 cmake_minimum_required(VERSION 4.0)
 project(ReaderCGNS)
 
-add_library(${PROJECT_NAME} SHARED)
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(${PROJECT_NAME} MODULE)
+if (MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE /NOIMPLIB)
+endif ()
+
 target_sources(${PROJECT_NAME} PRIVATE
         src/ReaderCGNS.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
+        Core/src/FileManager.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}
         ${3RD_ROOT}
         Utils
@@ -19,7 +27,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        READERCGNS_BUILD
+        READER_CGNS_EXPORTS
 )
 
 if (WIN32)
@@ -40,6 +48,9 @@ if (BUILD_TESTING)
             tests/LoggerCallbackTests.cpp
     )
     target_compile_features(ReaderCGNSLoggerTests PRIVATE cxx_std_23)
-    target_link_libraries(ReaderCGNSLoggerTests PRIVATE ReaderCGNS)
+    target_include_directories(ReaderCGNSLoggerTests PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    add_dependencies(ReaderCGNSLoggerTests ReaderCGNS)
     add_test(NAME ReaderCGNS.LoggerCallback COMMAND ReaderCGNSLoggerTests)
 endif ()
