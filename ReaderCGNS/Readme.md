@@ -45,6 +45,8 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 - reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
 - 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
 
+上述导出名称是 ReaderCGNS 与调用方之间的工程接口契约，不是实现细节。除非明确实施破坏性接口变更，否则不得改名、删除或复用于其他语义。确需调整时，必须在同一变更中同步更新 DLL 导出、调用方的 `GetProcAddress` 名称、相关测试和本文档，并保证配套产物一同交付。
+
 `ReaderCGNS.h` 提供 `ReaderAPI::ReaderCGNS` 和 reader 工厂函数指针类型，`ReaderCGNSTypes.hpp` 提供日志级别与回调类型。公开头不声明需要 import library 的日志控制函数；调用方应按上述稳定名称声明本地函数指针并动态解析。完整流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
 
 ## 日志并发约定
@@ -64,7 +66,7 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 
 `Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件；文件无效或 `cg_open()` 失败时返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `info()`，并在结束后显式调用 `Close()`。当前实现不支持在未关闭旧文件时复用同一实例打开另一个文件。
 
-`info()` 当前完成遍历后返回 `true`，节点级 CGNS API 错误不会汇总到返回值，而是记录对应状态与 `cg_get_error()` 后在可行时继续。因此日志内容是判断局部读取问题的主要依据。`Close()` 没有返回值，关闭失败同样通过日志报告。
+`info()` 没有返回值。节点级 CGNS API 错误不会汇总为调用结果，而是记录对应状态与 `cg_get_error()` 后在可行时继续。因此日志内容是判断局部读取问题的主要依据。`Close()` 同样没有返回值，关闭失败通过日志报告。
 
 未安装日志回调时，检查仍可执行，但不会向应用输出结构信息。
 
