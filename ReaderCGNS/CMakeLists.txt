@@ -24,7 +24,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        READERCGNS_BUILD
+        READER_CGNS_EXPORTS
 )
 
 if (WIN32)

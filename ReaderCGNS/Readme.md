@@ -21,11 +21,11 @@
 
 ## 公开接口
 
-公开头文件位于 `include/ReaderCGNS/`：
+公开头文件位于 `include/ReaderAPI/`：
 
 ```cpp
-#include "ReaderCGNS/ReaderCGNS.h"
-#include "ReaderCGNS/ReaderCGNSTypes.hpp" // 使用日志接口时需要
+#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNSTypes.hpp" // 使用日志接口时需要
 ```
 
 | API | 作用 |
@@ -40,7 +40,7 @@
 
 ## 动态加载约定
 
-ReaderCGNS 的交付物是 `include/ReaderCGNS/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
+ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
 
 - reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
 - 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
@@ -75,7 +75,7 @@ ReaderCGNS/
 ├── CMakeLists.txt
 ├── Readme.md
 ├── CGNS.md                         # CGNS 数据结构与 C API 参考
-├── include/ReaderCGNS/
+├── include/ReaderAPI/
 │   ├── ReaderCGNS.h                # 导出 API
 │   └── ReaderCGNSTypes.hpp         # 日志级别与回调类型
 ├── src/
@@ -124,7 +124,7 @@ add_dependencies(YourTarget ReaderCGNS)
 
 ## 开发约定
 
-- 对外兼容面仅包含 `include/ReaderCGNS/` 下的头文件和导出符号；
+- 对外兼容面仅包含 `include/ReaderAPI/` 下的头文件和导出符号；
 - 新增公开 API 时，同时说明所有权、线程安全、错误与生命周期语义；
 - 保持 CGNS 文件只读，除非通过独立设计明确引入写入接口；
 - 新增遍历节点时，使用统一日志层级并保留 CGNS 错误上下文；

@@ -1,5 +1,5 @@
 #pragma once
-#include "ReaderCGNS/ReaderCGNSTypes.hpp"
+#include "ReaderAPI/ReaderCGNSTypes.hpp"
 
 #include <filesystem>
 #include <format>

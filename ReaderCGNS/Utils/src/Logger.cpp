@@ -1,5 +1,5 @@
 #include "Logger.h"
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
 
 #include <atomic>
 #include <cstdio>
@@ -164,22 +164,22 @@ namespace ReaderAPI::Logger::detail {
 } // namespace ReaderAPI::Logger::detail
 
 // Stable entry points for clients that load ReaderCGNS.dll without an import library.
-extern "C" READER_CGNS_DLL bool SetLogCallback(const ReaderAPI::Logger::ReaderCGNS_LogCallback callback, void* context) noexcept
+extern "C" READER_API bool SetLogCallback(const ReaderAPI::Logger::ReaderCGNS_LogCallback callback, void* context) noexcept
 {
     return ReplaceLogCallback(callback, context);
 }
 
-extern "C" READER_CGNS_DLL bool ClearLogCallback() noexcept
+extern "C" READER_API bool ClearLogCallback() noexcept
 {
     return ReplaceLogCallback(nullptr, nullptr);
 }
 
-extern "C" READER_CGNS_DLL bool SetMinimumLogLevel(const ReaderAPI::Logger::ReaderCGNS_LogLevel level) noexcept
+extern "C" READER_API bool SetMinimumLogLevel(const ReaderAPI::Logger::ReaderCGNS_LogLevel level) noexcept
 {
     return StoreMinimumLogLevel(level);
 }
 
-extern "C" READER_CGNS_DLL ReaderAPI::Logger::ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept
+extern "C" READER_API ReaderAPI::Logger::ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept
 {
     return LoadMinimumLogLevel();
 }

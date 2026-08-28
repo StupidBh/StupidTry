@@ -2,13 +2,13 @@
 #include <string>
 
 #ifdef _WIN32
-    #ifdef READERCGNS_BUILD
-        #define READER_CGNS_DLL __declspec(dllexport)
+    #ifdef READER_CGNS_EXPORTS
+        #define READER_API __declspec(dllexport)
     #else
-        #define READER_CGNS_DLL __declspec(dllimport)
+        #define READER_API __declspec(dllimport)
     #endif
 #else
-    #define READER_CGNS_DLL
+    #define READER_API __attribute__((visibility("default")))
 #endif
 
 namespace ReaderAPI {
