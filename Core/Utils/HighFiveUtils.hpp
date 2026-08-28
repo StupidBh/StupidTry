@@ -73,7 +73,7 @@ namespace HFUtils {
             props.add(HighFive::Chunking(std::vector<hsize_t> { chunk_size }));
 
             using ElementType = typename std::remove_cvref_t<ValueType>::value_type;
-            ElementType fill_value {};
+            ElementType fill_value { };
             if (H5Pset_fill_value(props.getId(), comp_type.getId(), &fill_value) < 0) {
                 throw HighFive::PropertyException("Failed to set the compound dataset fill value");
             }

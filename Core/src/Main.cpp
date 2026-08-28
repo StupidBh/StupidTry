@@ -58,9 +58,10 @@ int main(int argc, char* argv[])
         }
 
         std::unique_ptr<ReaderAPI::ReaderCGNS, ReaderAPI::DestroyReaderCGNSFunc> reader(create(), destroy);
-        reader->Open(INPUT_PATH);
-        reader->info();
-        reader->Close();
+        if (reader->Open(INPUT_PATH)) {
+            reader->info();
+            reader->Close();
+        }
     }
     catch (const std::exception& e) {
         LOG_ERROR("ReaderCGNS failed: {}", e.what());
