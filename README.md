@@ -5,6 +5,7 @@
 - **C++23**（`CMAKE_CXX_STANDARD 23`，`CMAKE_CXX_STANDARD_REQUIRED ON`）
 - **CMake 4.0+**
 - **首选生成器：Visual Studio 18 2026（x64）**
+- **MSVC 使用 `/EHsc` 启用标准 C++ 异常展开语义**
 
 ## 构建
 
