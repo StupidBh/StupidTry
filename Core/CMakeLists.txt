@@ -55,8 +55,9 @@ if (BUILD_TESTING)
             ${CMAKE_SOURCE_DIR}
             ${3RD_ROOT}
             Utils
+            ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
     )
-    target_link_libraries(CoreReaderCGNSLogGuardTests PRIVATE ReaderCGNS)
+    add_dependencies(CoreReaderCGNSLogGuardTests ReaderCGNS)
     add_test(NAME Core.ReaderCGNSLogGuard COMMAND CoreReaderCGNSLogGuardTests)
 endif ()
 

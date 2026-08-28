@@ -45,6 +45,9 @@ if (BUILD_TESTING)
             tests/LoggerCallbackTests.cpp
     )
     target_compile_features(ReaderCGNSLoggerTests PRIVATE cxx_std_23)
-    target_link_libraries(ReaderCGNSLoggerTests PRIVATE ReaderCGNS)
+    target_include_directories(ReaderCGNSLoggerTests PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    add_dependencies(ReaderCGNSLoggerTests ReaderCGNS)
     add_test(NAME ReaderCGNS.LoggerCallback COMMAND ReaderCGNSLoggerTests)
 endif ()
