@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         src/ReaderCGNS.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
+        Core/src/FileManager.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

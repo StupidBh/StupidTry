@@ -20,6 +20,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${3RD_ROOT}
         Common
         Utils
+        ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
 )
 
 set(BOOST_ROOT "${3RD_ROOT}/boost")
@@ -30,7 +31,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         Boost::container
         Boost::program_options
         hdf5::hdf5-shared
-        ReaderCGNS
 )
 
 find_package(TBB CONFIG QUIET)
