@@ -12,7 +12,7 @@ target_sources(${PROJECT_NAME} PRIVATE
         Common/src/SingletonData.cpp
         Common/src/WindowsFunctions.cpp
         Utils/src/MioReader.cpp
-        Utils/src/ReaderCGNSLogGuard.cpp
+        ReaderCGNS/src/ReaderCGNSLogGuard.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -20,6 +20,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         ${3RD_ROOT}
         Common
         Utils
+        ReaderCGNS
         ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
 )
 

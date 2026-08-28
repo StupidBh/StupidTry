@@ -45,7 +45,7 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 - reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
 - 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
 
-`ReaderCGNS.h` 提供 `ReaderAPI::ReaderCGNS` 和 reader 工厂函数指针类型，`ReaderCGNSTypes.hpp` 提供日志级别与回调类型。公开头不声明需要 import library 的日志控制函数；调用方应按上述稳定名称声明本地函数指针并动态解析。完整流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/Utils/ReaderCGNSLogGuard`。
+`ReaderCGNS.h` 提供 `ReaderAPI::ReaderCGNS` 和 reader 工厂函数指针类型，`ReaderCGNSTypes.hpp` 提供日志级别与回调类型。公开头不声明需要 import library 的日志控制函数；调用方应按上述稳定名称声明本地函数指针并动态解析。完整流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
 
 ## 日志并发约定
 

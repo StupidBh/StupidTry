@@ -18,9 +18,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME}
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}
         ${3RD_ROOT}
         Utils

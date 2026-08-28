@@ -14,7 +14,7 @@ void CgnsCore::info()
     int nbases = 0;
     CG_INFO(cg_nbases(this->GetFileID(), &nbases));
     for (int base = 1; base <= nbases; ++base) {
-        char base_name[CGNS_NAME_MAX_LEN], base_biter_name[CGNS_NAME_MAX_LEN];
+        char base_name[CGNS_NAME_MAX_LEN] = { }, base_biter_name[CGNS_NAME_MAX_LEN] = { };
         int base_cell_dim = 0, base_phys_dim = 0, base_iter_nsteps = 0, n1to1s_global = 0;
         CG_SimulationType_t base_simulation_type = CG_SimulationType_t::CG_SimulationTypeNull;
         CG_INFO(cg_base_read(this->GetFileID(), base, base_name, &base_cell_dim, &base_phys_dim));
@@ -40,7 +40,7 @@ void CgnsCore::info()
         int nzones = 0;
         CG_INFO(cg_nzones(this->GetFileID(), base, &nzones));
         for (int zone = 1; zone <= nzones; ++zone) {
-            char zone_name[CGNS_NAME_MAX_LEN], zone_iter_name[CGNS_NAME_MAX_LEN];
+            char zone_name[CGNS_NAME_MAX_LEN] = { }, zone_iter_name[CGNS_NAME_MAX_LEN] = { };
             int zone_dim = 0;
             CG_ZoneType_t zone_type = CG_ZoneType_t::CG_ZoneTypeNull;
             std::array<cgsize_t, 9> zone_size { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -121,7 +121,7 @@ void CgnsCore::info()
             int nsols = 0;
             CG_INFO(cg_nsols(this->GetFileID(), base, zone, &nsols));
             for (int sol = 1; sol <= nsols; ++sol) {
-                char sol_name[CGNS_NAME_MAX_LEN];
+                char sol_name[CGNS_NAME_MAX_LEN] = { };
                 int sol_data_dim = 0, sol_nfields = 0;
                 std::vector<cgsize_t> sol_npnts(1, 0);
                 std::vector<cgsize_t> sol_dim_vals(zone_dim, 0);
@@ -152,7 +152,7 @@ void CgnsCore::info()
             int ndiscrete = 0;
             CG_INFO(cg_ndiscrete(this->GetFileID(), base, zone, &ndiscrete));
             for (int discrete = 1; discrete <= ndiscrete; ++discrete) {
-                char discrete_name[CGNS_NAME_MAX_LEN];
+                char discrete_name[CGNS_NAME_MAX_LEN] = { };
                 int discrete_data_dim = 0;
                 std::vector<cgsize_t> discrete_dim_vals(zone_dim, 0), discrete_npnts(1, 0);
                 CG_PointSetType_t discrete_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
@@ -179,7 +179,7 @@ void CgnsCore::info()
             int nsubregs = 0;
             CG_INFO(cg_nsubregs(this->GetFileID(), base, zone, &nsubregs));
             for (int subreg = 1; subreg <= nsubregs; ++subreg) {
-                char subreg_name[CGNS_NAME_MAX_LEN];
+                char subreg_name[CGNS_NAME_MAX_LEN] = { };
                 int subreg_dim = 0, subreg_bcname_len = 0, subreg_gcname_len = 0;
                 std::vector<cgsize_t> subreg_npnts(1, 0);
                 CG_GridLocation_t subreg_location = CG_GridLocation_t::CG_GridLocationNull;
@@ -224,7 +224,7 @@ void CgnsCore::info()
             int ngrids = 0;
             CG_INFO(cg_ngrids(this->GetFileID(), base, zone, &ngrids));
             for (int grid = 1; grid <= ngrids; ++grid) {
-                char grid_name[CGNS_NAME_MAX_LEN];
+                char grid_name[CGNS_NAME_MAX_LEN] = { };
                 // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
                 // std::vector<cgsize_t> grid_bounding_box(1, 0);
 
@@ -237,7 +237,7 @@ void CgnsCore::info()
             std::string coord_info_msg;
             CG_INFO(cg_ncoords(this->GetFileID(), base, zone, &ncoords));
             for (int coord = 1; coord <= ncoords; ++coord) {
-                char coord_name[CGNS_NAME_MAX_LEN];
+                char coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t coord_data_type = CG_DataType_t::CG_DataTypeNull;
                 CG_INFO(cg_coord_info(this->GetFileID(), base, zone, coord, &coord_data_type, coord_name));
 
@@ -252,7 +252,7 @@ void CgnsCore::info()
             int nsections = 0;
             CG_INFO(cg_nsections(this->GetFileID(), base, zone, &nsections));
             for (int section = 1; section <= nsections; ++section) {
-                char section_name[CGNS_NAME_MAX_LEN];
+                char section_name[CGNS_NAME_MAX_LEN] = { };
                 CG_ElementType_t section_element_type = CG_ElementType_t::CG_ElementTypeNull;
                 cgsize_t section_start = 0, section_end = 0;
                 int section_nbndry = 0, section_parent_flag = 0;
@@ -308,8 +308,8 @@ void CgnsCore::info()
             int n1to1s = 0;
             CG_INFO(cg_n1to1(this->GetFileID(), base, zone, &n1to1s));
             for (int n1to1 = 1; n1to1 <= n1to1s; ++n1to1) {
-                char n1to1_connectname[CGNS_NAME_MAX_LEN];
-                char n1to1_donorname[CGNS_NAME_MAX_LEN];
+                char n1to1_connectname[CGNS_NAME_MAX_LEN] = { };
+                char n1to1_donorname[CGNS_NAME_MAX_LEN] = { };
                 std::vector<cgsize_t> n1to1_range(zone_dim * 2, 0), donor_range(zone_dim * 2, 0);
                 std::vector<int> n1to1_transform(zone_dim, 0);
 
@@ -336,7 +336,7 @@ void CgnsCore::info()
             CG_INFO(cg_nconns(this->GetFileID(), base, zone, &nconns));
             for (int ncoon = 1; ncoon <= nconns; ++ncoon) {
                 cgsize_t npnts = 0, ndata_donor = 0;
-                char ncoon_name[CGNS_NAME_MAX_LEN], ncoon_donor_name[CGNS_NAME_MAX_LEN];
+                char ncoon_name[CGNS_NAME_MAX_LEN] = { }, ncoon_donor_name[CGNS_NAME_MAX_LEN] = { };
                 CG_GridLocation_t ncoon_loc = CG_GridLocation_t::CG_GridLocationNull;
                 CG_GridConnectivityType_t connect_type = CG_GridConnectivityType_t::CG_GridConnectivityTypeNull;
                 CG_PointSetType_t ptset_type = CG_PointSetType_t::CG_PointSetTypeNull, donor_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
@@ -374,7 +374,7 @@ void CgnsCore::info()
             int nholes = 0;
             CG_INFO(cg_nholes(this->GetFileID(), base, zone, &nholes));
             for (int hole = 1; hole <= nholes; ++hole) {
-                char hole_name[CGNS_NAME_MAX_LEN];
+                char hole_name[CGNS_NAME_MAX_LEN] = { };
                 CG_GridLocation_t hole_location = CG_GridLocation_t::CG_GridLocationNull;
                 CG_PointSetType_t hole_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
                 int hole_nptsets = 0;
@@ -395,7 +395,7 @@ void CgnsCore::info()
             int nbocos = 0;
             CG_INFO(cg_nbocos(this->GetFileID(), base, zone, &nbocos));
             for (int boco = 1; boco <= nbocos; ++boco) {
-                char boco_name[CGNS_NAME_MAX_LEN];
+                char boco_name[CGNS_NAME_MAX_LEN] = { };
                 CG_BCType_t boco_type = CG_BCType_t::CG_BCTypeNull;
                 CG_PointSetType_t boco_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
                 CG_DataType_t boco_normal_datatype = CG_DataType_t::CG_DataTypeNull;
@@ -431,7 +431,7 @@ void CgnsCore::info()
                          boco_ndataset);
 
                 for (int boco_dataset = 1; boco_dataset <= boco_ndataset; ++boco_dataset) {
-                    char boco_dataset_name[CGNS_NAME_MAX_LEN];
+                    char boco_dataset_name[CGNS_NAME_MAX_LEN] = { };
                     CG_BCType_t boco_dataset_type = CG_BCType_t::CG_BCTypeNull;
                     int boco_dataset_dirichlet_flag = 0, boco_dataset_neumann_flag = 0;
 
@@ -459,7 +459,7 @@ void CgnsCore::info()
             int n_rigid_motions = 0;
             CG_INFO(cg_n_rigid_motions(this->GetFileID(), base, zone, &n_rigid_motions));
             for (int rigid_motion = 1; rigid_motion <= n_rigid_motions; ++rigid_motion) {
-                char rigid_motion_name[CGNS_NAME_MAX_LEN];
+                char rigid_motion_name[CGNS_NAME_MAX_LEN] = { };
                 CG_RigidGridMotionType_t rigid_motion_type = CG_RigidGridMotionType_t::CG_RigidGridMotionTypeNull;
                 CG_INFO(cg_rigid_motion_read(this->GetFileID(), base, zone, rigid_motion, rigid_motion_name, &rigid_motion_type));
 
@@ -470,7 +470,7 @@ void CgnsCore::info()
             int n_arbitrary_motions = 0;
             CG_INFO(cg_n_arbitrary_motions(this->GetFileID(), base, zone, &n_arbitrary_motions));
             for (int arbitrary_motion = 1; arbitrary_motion <= n_arbitrary_motions; ++arbitrary_motion) {
-                char arbitrary_motion_name[CGNS_NAME_MAX_LEN];
+                char arbitrary_motion_name[CGNS_NAME_MAX_LEN] = { };
                 CG_ArbitraryGridMotionType_t arbitrary_motion_type = CG_ArbitraryGridMotionType_t::CG_ArbitraryGridMotionTypeNull;
                 CG_INFO(cg_arbitrary_motion_read(this->GetFileID(), base, zone, arbitrary_motion, arbitrary_motion_name, &arbitrary_motion_type));
 
@@ -484,7 +484,7 @@ void CgnsCore::info()
             int nzconns = 0;
             CG_INFO(cg_nzconns(this->GetFileID(), base, zone, &nzconns));
             for (int zconn = 1; zconn <= nzconns; ++zconn) {
-                char zconn_name[CGNS_NAME_MAX_LEN];
+                char zconn_name[CGNS_NAME_MAX_LEN] = { };
                 CG_INFO(cg_zconn_read(this->GetFileID(), base, zone, zconn, zconn_name));
 
                 LOG_INFO("    [ZoneGridConnectivity]{:>2}:[NULL] {}", zconn, zconn_name);
@@ -496,7 +496,7 @@ void CgnsCore::info()
         CG_INFO(cg_nparticle_zones(this->GetFileID(), base, &nparticlezones));
         for (int particle_zone = 1; particle_zone <= nparticlezones; ++particle_zone) {
             double particle_zone_id = 0;
-            char particle_zone_name[CGNS_NAME_MAX_LEN];
+            char particle_zone_name[CGNS_NAME_MAX_LEN] = { };
             cgsize_t particle_zone_size = 0;
 
             CG_INFO(cg_particle_id(this->GetFileID(), base, particle_zone, &particle_zone_id));
@@ -508,7 +508,7 @@ void CgnsCore::info()
             int particle_ncoord_nodes = 0;
             CG_INFO(cg_particle_ncoord_nodes(this->GetFileID(), base, particle_zone, &particle_ncoord_nodes));
             for (int particle_zone_coord = 1; particle_zone_coord <= particle_ncoord_nodes; ++particle_zone_coord) {
-                char particle_zone_coord_name[CGNS_NAME_MAX_LEN];
+                char particle_zone_coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t particle_zone_coord_type = CG_DataType_t::CG_DataTypeNull;
 
                 CG_INFO(cg_particle_coord_info(this->GetFileID(),
@@ -528,7 +528,7 @@ void CgnsCore::info()
             int particle_nsols = 0;
             CG_INFO(cg_particle_nsols(this->GetFileID(), base, particle_zone, &particle_nsols));
             for (int particle_sol = 1; particle_sol <= particle_nsols; ++particle_sol) {
-                char particle_sol_name[CGNS_NAME_MAX_LEN];
+                char particle_sol_name[CGNS_NAME_MAX_LEN] = { };
                 double particle_sol_id = 0.0;
                 cgsize_t particle_sol_size = 0, particle_sol_npnts = 0;
                 std::vector<cgsize_t> particle_sol_pnts;
