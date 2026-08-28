@@ -47,12 +47,12 @@ if (BUILD_TESTING)
     add_executable(CoreReaderCGNSLogGuardTests)
     target_sources(CoreReaderCGNSLogGuardTests PRIVATE
             tests/ReaderCGNSLogGuardTests.cpp
-            Utils/src/ReaderCGNSLogGuard.cpp
+            ReaderCGNS/src/ReaderCGNSLogGuard.cpp
     )
     target_include_directories(CoreReaderCGNSLogGuardTests PRIVATE
             ${CMAKE_SOURCE_DIR}
             ${3RD_ROOT}
-            Utils
+            ReaderCGNS
             ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
     )
     add_dependencies(CoreReaderCGNSLogGuardTests ReaderCGNS)
