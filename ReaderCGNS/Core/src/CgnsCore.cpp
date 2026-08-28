@@ -266,9 +266,17 @@ void CgnsCore::info()
                                         &section_end,
                                         &section_nbndry,
                                         &section_parent_flag));
+                if (section_end == 0 || section_end - section_start < 0) {
+                    LOG_INFO("    [ZoneSection] {} element range [start, end] is empty.", section_name);
+                    continue;
+                }
 
                 cgsize_t element_data_size = 0;
                 CG_INFO(cg_ElementDataSize(this->GetFileID(), base, zone, section, &element_data_size));
+                if (element_data_size <= 0) {
+                    LOG_INFO("    [ZoneSection] {} element data is empty.", section_name);
+                    continue;
+                }
 
                 std::vector<cgsize_t> elements(element_data_size, 0);
                 cgsize_t section_element_sum = section_end - section_start + 1;
