@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 4.0)
-project(StupidBhh)
+cmake_minimum_required(VERSION 4.3)
+project(StupidBhh LANGUAGES CXX)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CTest)
 
 if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY
+            "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+    )
     add_compile_options(/utf-8 /EHsc)
 endif ()
 

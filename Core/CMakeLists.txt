@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 4.0)
-project(Core)
-
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(Core LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+
 target_sources(${PROJECT_NAME} PRIVATE
         src/Main.cpp
         Common/src/Functions.cpp
@@ -67,7 +64,7 @@ if (TBB_FOUND)
     target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb)
     message(STATUS "TBB found (${TBB_DIR}) — std::execution::par enabled")
 else ()
-    message(WARNING "TBB not found under ${TBB_ROOT} — std::execution::par will silently run serially")
+    message(STATUS "TBB not found; TBB::tbb will not be linked")
 endif ()
 
 set(HDF5_RUNTIME_DLL_DIR "$<IF:$<CONFIG:Debug>,${HDF5_ROOT}/debug/bin,${HDF5_ROOT}/bin>")

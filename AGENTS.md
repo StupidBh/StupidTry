@@ -39,9 +39,9 @@ Format touched C and C++ files with the checked-in `.clang-format` before commit
 
 Follow existing C++ naming: classes use `PascalCase`, private data members use `m_` prefixes, namespaces are lowercase or API-named (`utils`, `ReaderAPI`), and macros/constants use uppercase where already established.
 
-The project language standards are C++23 and C17. When modifying project code, prefer modern, standard-library-based implementations available within those language versions; do not introduce C++26 or later language/library requirements without intentionally updating the project standard and documentation.
+The project language standard is C++23. When modifying project code, prefer modern, standard-library-based implementations available within that language version; do not introduce C++26 or later language/library requirements without intentionally updating the project standard and documentation.
 
-The project requires CMake 4.0 or newer. When modifying `CMakeLists.txt` files, prefer modern CMake 4.0+ target-based commands and generator expressions over directory-wide or legacy patterns.
+The project requires CMake 4.3 or newer. When modifying `CMakeLists.txt` files, prefer modern CMake 4.3+ target-based commands and generator expressions over directory-wide or legacy patterns.
 
 ## Testing Guidelines
 
