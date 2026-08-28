@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 4.0)
 project(ReaderCGNS)
 
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 add_library(${PROJECT_NAME} SHARED)
 target_sources(${PROJECT_NAME} PRIVATE
         src/ReaderCGNS.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
+        Core/src/FileManager.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

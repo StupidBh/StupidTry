@@ -2,7 +2,7 @@
 
 `ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 共享库。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
-当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
+当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderCGNSBase::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
 ## 能力范围
 
@@ -29,48 +29,22 @@
 
 | API | 作用 |
 |---|---|
-| `bool ReaderCGNS::info(const std::string& path)` | 只读打开文件并输出结构检查信息。 |
-| `bool Logger::SetLogCallback(callback, context)` | 安装进程级日志回调，并等待旧回调执行完毕。 |
-| `bool Logger::ClearLogCallback()` | 移除回调，并等待其他线程中的活动回调结束。 |
-| `bool Logger::SetMinimumLogLevel(level)` | 设置最小分发级别，默认值为 `trace`。 |
-| `Logger::ReaderCGNS_LogLevel Logger::GetMinimumLogLevel()` | 获取当前最小日志级别。 |
+| `ReaderCGNSBase::Open(path)` | 以只读方式打开 CGNS 文件。 |
+| `ReaderCGNSBase::Close()` | 关闭当前文件。 |
+| `ReaderCGNSBase::IsOpen()` | 查询文件是否已打开。 |
+| `ReaderCGNSBase::info()` | 输出当前文件的结构检查信息。 |
+| `ReaderCGNSBase::QueryInterface()` | 查询实现提供的扩展接口。 |
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
-## 最小使用示例
+## 动态加载约定
 
-```cpp
-#include "ReaderCGNS/ReaderCGNS.h"
+ReaderCGNS 的交付物是 `include/ReaderCGNS/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
 
-#include <cstdio>
+- reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
+- 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
 
-namespace {
-    void PrintLog(void*,
-                  ReaderCGNS::Logger::ReaderCGNS_LogLevel,
-                  const char* file,
-                  int line,
-                  const char* message)
-    {
-        std::fprintf(stderr, "[%s:%d] %s\n", file, line, message);
-    }
-}
-
-int main()
-{
-    using namespace ReaderCGNS::Logger;
-
-    if (!SetLogCallback(PrintLog)) {
-        return 1;
-    }
-
-    SetMinimumLogLevel(READER_CGNS_LOG_INFO);
-    const bool inspected = ReaderCGNS::info("case.cgns");
-    const bool cleared = ClearLogCallback();
-    return inspected && cleared ? 0 : 1;
-}
-```
-
-生产程序建议用 RAII 封装 `SetLogCallback()`/`ClearLogCallback()`。`Core/Utils/ReaderCGNSLogGuard` 展示了将回调接入 spdlog 的应用侧实现。
+公开头只提供 `ReaderCGNSBase`、reader 工厂函数指针类型以及日志级别和回调类型，不声明需要 import library 的 C++ Logger 函数。完整的动态加载流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/Utils/ReaderCGNSLogGuard`。
 
 ## 日志并发约定
 
@@ -87,7 +61,7 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 
 ## 返回值与错误处理
 
-`ReaderCGNS::info()` 在以下关键阶段失败时返回 `false`：
+`ReaderCGNSBase::info()` 在以下关键阶段失败时返回 `false`：
 
 - 输入无法识别为有效 CGNS 文件；
 - 文件无法以只读模式打开；

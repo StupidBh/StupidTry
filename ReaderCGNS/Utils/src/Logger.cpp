@@ -1,20 +1,24 @@
 #include "Logger.h"
-
-#include "cgnslib.h"
+#include "ReaderCGNS/ReaderCGNS.h"
 
 #include <atomic>
 #include <cstdio>
 #include <mutex>
 
+#include "cgnslib.h"
+
 namespace {
+    using LogCallback = ReaderAPI::Logger::ReaderCGNS_LogCallback;
+    using LogLevel = ReaderAPI::Logger::ReaderCGNS_LogLevel;
+
     struct LogCallbackRegistry
     {
         std::mutex state_mutex;
         std::mutex update_mutex;
         std::atomic_size_t active_callbacks { 0 };
         std::atomic_bool enabled { false };
-        std::atomic<ReaderCGNS::Logger::ReaderCGNS_LogLevel> minimum_level { ReaderCGNS::Logger::READER_CGNS_LOG_TRACE };
-        ReaderCGNS::Logger::ReaderCGNS_LogCallback callback = nullptr;
+        std::atomic<LogLevel> minimum_level { LogLevel::READER_CGNS_LOG_TRACE };
+        LogCallback callback = nullptr;
         void* context = nullptr;
     };
 
@@ -26,12 +30,12 @@ namespace {
 
     thread_local std::size_t callback_depth = 0;
 
-    constexpr bool IsValidLogLevel(const ReaderCGNS::Logger::ReaderCGNS_LogLevel level) noexcept
+    constexpr bool IsValidLogLevel(const LogLevel level) noexcept
     {
-        return level >= ReaderCGNS::Logger::READER_CGNS_LOG_TRACE && level <= ReaderCGNS::Logger::READER_CGNS_LOG_CRITICAL;
+        return level >= LogLevel::READER_CGNS_LOG_TRACE && level <= LogLevel::READER_CGNS_LOG_CRITICAL;
     }
 
-    bool ReplaceLogCallback(const ReaderCGNS::Logger::ReaderCGNS_LogCallback callback, void* context) noexcept
+    bool ReplaceLogCallback(const LogCallback callback, void* context) noexcept
     {
         if (callback_depth != 0) {
             return false;
@@ -63,20 +67,8 @@ namespace {
             return false;
         }
     }
-} // namespace
 
-namespace ReaderCGNS::Logger {
-    bool SetLogCallback(const ReaderCGNS_LogCallback callback, void* context) noexcept
-    {
-        return ReplaceLogCallback(callback, context);
-    }
-
-    bool ClearLogCallback() noexcept
-    {
-        return ReplaceLogCallback(nullptr, nullptr);
-    }
-
-    bool SetMinimumLogLevel(const ReaderCGNS_LogLevel level) noexcept
+    bool StoreMinimumLogLevel(const LogLevel level) noexcept
     {
         if (!IsValidLogLevel(level)) {
             return false;
@@ -86,22 +78,25 @@ namespace ReaderCGNS::Logger {
         return true;
     }
 
-    ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept
+    LogLevel LoadMinimumLogLevel() noexcept
     {
         return GetRegistry().minimum_level.load(std::memory_order_acquire);
     }
+} // namespace
 
-    bool ShouldLog(const ReaderCGNS_LogLevel level) noexcept
+namespace ReaderAPI::Logger::detail {
+    bool IsDispatchEnabled(const ReaderCGNS_LogLevel level) noexcept
     {
         const auto& registry = GetRegistry();
         return IsValidLogLevel(level) && registry.enabled.load(std::memory_order_acquire) &&
                level >= registry.minimum_level.load(std::memory_order_acquire);
     }
 
-    void LogMessage(const ReaderCGNS_LogLevel level, const char* file, const int line, const char* message) noexcept
+    void Dispatch(const ReaderCGNS_LogLevel level, const char* file, const int line, const char* message) noexcept
     {
         auto& registry = GetRegistry();
-        if (!ShouldLog(level)) {
+        // Formatting occurs before this call, so callback state and level must be checked again.
+        if (!IsDispatchEnabled(level)) {
             return;
         }
 
@@ -135,32 +130,56 @@ namespace ReaderCGNS::Logger {
         }
     }
 
-    int cgns_catch_msg(int status, const std::filesystem::path& file, int line)
+    int HandleCgnsStatus(int status, const std::filesystem::path& file, int line)
     {
+        if (status == CG_OK) {
+            return CG_OK;
+        }
+
         const auto& filename = file.filename().string();
         switch (status) {
-        case CG_OK   : return CG_OK;
         case CG_ERROR: {
-            LogFormat(READER_CGNS_LOG_ERROR, filename.c_str(), line, "[CG_ERROR]: {}", cg_get_error());
+            FormatAndDispatch(READER_CGNS_LOG_ERROR, filename.c_str(), line, "[CG_ERROR]: {}", cg_get_error());
             return CG_ERROR;
         }
         case CG_NODE_NOT_FOUND: {
-            LogFormat(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NODE_NOT_FOUND]: {}", cg_get_error());
+            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NODE_NOT_FOUND]: {}", cg_get_error());
             return CG_NODE_NOT_FOUND;
         }
         case CG_INCORRECT_PATH: {
-            LogFormat(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_INCORRECT_PATH]: {}", cg_get_error());
+            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_INCORRECT_PATH]: {}", cg_get_error());
             return CG_INCORRECT_PATH;
         }
         case CG_NO_INDEX_DIM: {
-            LogFormat(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NO_INDEX_DIM]: {}", cg_get_error());
+            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NO_INDEX_DIM]: {}", cg_get_error());
             return CG_NO_INDEX_DIM;
         }
 
         default: {
-            LogFormat(READER_CGNS_LOG_WARN, filename.c_str(), line, "Unknown status.");
+            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "Unknown status.");
             return status;
         }
         }
     }
-} // namespace ReaderCGNS::Logger
+} // namespace ReaderAPI::Logger::detail
+
+// Stable entry points for clients that load ReaderCGNS.dll without an import library.
+extern "C" READER_CGNS_DLL bool SetLogCallback(const ReaderAPI::Logger::ReaderCGNS_LogCallback callback, void* context) noexcept
+{
+    return ReplaceLogCallback(callback, context);
+}
+
+extern "C" READER_CGNS_DLL bool ClearLogCallback() noexcept
+{
+    return ReplaceLogCallback(nullptr, nullptr);
+}
+
+extern "C" READER_CGNS_DLL bool SetMinimumLogLevel(const ReaderAPI::Logger::ReaderCGNS_LogLevel level) noexcept
+{
+    return StoreMinimumLogLevel(level);
+}
+
+extern "C" READER_CGNS_DLL ReaderAPI::Logger::ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept
+{
+    return LoadMinimumLogLevel();
+}

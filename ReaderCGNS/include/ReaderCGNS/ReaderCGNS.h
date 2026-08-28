@@ -1,5 +1,4 @@
 #pragma once
-#include "ReaderCGNS/ReaderCGNSTypes.hpp"
 #include <string>
 
 #ifdef _WIN32
@@ -12,22 +11,26 @@
     #define READER_CGNS_DLL
 #endif
 
-namespace ReaderCGNS {
-    namespace Logger {
-        /// Installs the process-wide log callback and waits for the previous callback to finish.
-        /// The callback runs synchronously on the calling ReaderCGNS thread and may run concurrently
-        /// on multiple threads. The context and string pointers are borrowed for the callback duration.
-        /// Callback exceptions are caught by ReaderCGNS. Calling SetLogCallback or ClearLogCallback
-        /// from inside the callback is rejected to avoid a self-wait.
-        READER_CGNS_DLL bool SetLogCallback(ReaderCGNS_LogCallback callback, void* context = nullptr) noexcept;
+namespace ReaderAPI {
+    class ReaderCGNS {
+    public:
+        ReaderCGNS() = default;
+        virtual ~ReaderCGNS() = default;
 
-        /// Removes the callback and waits for all callback invocations on other threads to finish.
-        READER_CGNS_DLL bool ClearLogCallback() noexcept;
+        ReaderCGNS(const ReaderCGNS&) = delete;
+        ReaderCGNS& operator=(const ReaderCGNS&) = delete;
+        ReaderCGNS(ReaderCGNS&&) = delete;
+        ReaderCGNS& operator=(ReaderCGNS&&) = delete;
 
-        /// Sets the lowest severity dispatched to the callback. Defaults to trace.
-        READER_CGNS_DLL bool SetMinimumLogLevel(ReaderCGNS_LogLevel level) noexcept;
-        READER_CGNS_DLL ReaderCGNS_LogLevel GetMinimumLogLevel() noexcept;
-    }
+        virtual bool Open(const std::string& cgns_file_path) = 0;
+        virtual void Close() = 0;
+        virtual bool IsOpen() const = 0;
 
-    READER_CGNS_DLL bool info(const std::string& cgns_file_path);
-}
+        virtual bool info() = 0;
+
+        virtual void* QueryInterface() = 0;
+    };
+
+    using CreateReaderCGNSFunc = ReaderCGNS* (*)();
+    using DestroyReaderCGNSFunc = void (*)(ReaderCGNS*) noexcept;
+} // namespace ReaderAPI
