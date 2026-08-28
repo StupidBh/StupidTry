@@ -1,6 +1,6 @@
 #include "ReaderCGNSLogGuard.h"
 
-#include "ReaderCGNS/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNS.h"
 #include "spdlog/sinks/ostream_sink.h"
 #include "spdlog/spdlog.h"
 

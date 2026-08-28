@@ -1,5 +1,5 @@
-#include "ReaderCGNS/ReaderCGNS.h"
-#include "ReaderCGNS/ReaderCGNSTypes.hpp"
+#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderCGNSTypes.hpp"
 
 #include <atomic>
 #include <chrono>
