@@ -74,10 +74,12 @@ Core/
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
 │   ├── WindowsFunctions.h          # Win32 编码、进程、环境和路径工具
 │   └── src/
+├── ReaderCGNS/
+│   ├── ReaderCGNSLogGuard.h        # ReaderCGNS 日志的 RAII 适配器
+│   └── src/
 ├── Utils/
 │   ├── HighFiveUtils.hpp           # HDF5 数据集读写辅助函数
 │   ├── MioReader.h                 # 内存映射文本读取器
-│   ├── ReaderCGNSLogGuard.h        # ReaderCGNS 日志的 RAII 适配器
 │   └── src/
 └── 3rdparty/
     └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置

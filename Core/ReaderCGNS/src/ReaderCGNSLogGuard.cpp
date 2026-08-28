@@ -1,4 +1,4 @@
-#include "ReaderCGNSLogGuard.h"
+#include "../ReaderCGNSLogGuard.h"
 
 #include "Logger/logger.hpp"
 

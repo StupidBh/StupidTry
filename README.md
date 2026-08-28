@@ -36,10 +36,12 @@ StupidTry/
 │   │   ├── SingletonData.h
 │   │   ├── WindowsFunctions.h      # Win32 编码、进程、环境和路径工具
 │   │   └── src/
-│   ├── Utils/                      # Core 专用的 HDF5、文件 I/O 和集成工具
+│   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
+│   │   ├── ReaderCGNSLogGuard.h    # ReaderCGNS 到 spdlog 的作用域适配
+│   │   └── src/
+│   ├── Utils/                      # Core 专用的 HDF5 和文件 I/O 工具
 │   │   ├── HighFiveUtils.hpp
 │   │   ├── MioReader.h
-│   │   ├── ReaderCGNSLogGuard.h    # ReaderCGNS 到 spdlog 的作用域适配
 │   │   └── src/
 │   └── 3rdparty/
 │       └── hdf5/                  # Core 使用的 HDF5 依赖
