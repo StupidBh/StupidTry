@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 4.0)
-project(ReaderCGNS)
-
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(ReaderCGNS LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} MODULE)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+
 if (MSVC)
     target_link_options(${PROJECT_NAME} PRIVATE /NOIMPLIB)
 endif ()
@@ -19,22 +16,17 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}
-        ${3RD_ROOT}
-        Utils
-        Core
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Utils"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Core"
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         READER_CGNS_EXPORTS
 )
 
-if (WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
-endif ()
-
 set(CGNS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cgns")
+# HDF5's package config uses FindZLIB; specify the vendored multi-config libraries explicitly.
 set(ZLIB_LIBRARY_DEBUG "${CGNS_ROOT}/debug/lib/zsd.lib")
 set(ZLIB_LIBRARY_RELEASE "${CGNS_ROOT}/lib/zs.lib")
 find_package(cgns CONFIG REQUIRED)
