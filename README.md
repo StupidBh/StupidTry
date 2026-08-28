@@ -1,11 +1,13 @@
 # StupidBhh
 
-## 语言标准
+## 工具链与语言标准
 
-- **C++23**（`CMAKE_CXX_STANDARD 23`，`CMAKE_CXX_STANDARD_REQUIRED ON`）
+- **C++23**（由 `Core` 和 `ReaderCGNS` 子项目设置，且要求严格满足）
+- **C17**（由两个子项目为 C 源设置）
 - **CMake 4.0+**
 - **首选生成器：Visual Studio 18 2026（x64）**
 - **MSVC 使用 `/EHsc` 启用标准 C++ 异常展开语义**
+- **当前第一方目标使用 Win32 API，支持平台为 Windows x64**
 
 ## 构建与测试
 
@@ -19,11 +21,13 @@ cmake --build build/Debug --config Release
 ctest --test-dir build/Debug -C Release
 ```
 
+默认构建会同时生成 `Core.exe` 和 `ReaderCGNS.dll`。`Core` 不链接 ReaderCGNS import library，而是在运行时从可执行文件目录加载 DLL；因此只构建 `Core` target 不会得到完整的可运行布局。
+
 ## 工程目录
 
 ```text
 StupidTry/
-├── CMakeLists.txt                  # 根 CMake 入口，配置语言标准、输出目录和子工程
+├── CMakeLists.txt                  # 根 CMake 入口，配置 MSVC 选项、输出目录和子工程
 ├── Core/                           # 主程序 Core 可执行文件
 │   ├── CMakeLists.txt
 │   ├── Readme.md                    # Core 架构、运行与开发说明
@@ -46,8 +50,8 @@ StupidTry/
 │   ├── Readme.md                    # ReaderCGNS 接口、并发与构建说明
 │   ├── CGNS.md                      # CGNS 数据结构与 C API 指南
 │   ├── include/ReaderCGNS/         # ReaderCGNS 对外公开头文件
-│   ├── src/                        # 公开 API 实现
-│   ├── Core/                       # CGNS 核心解析逻辑
+│   ├── src/                        # DLL reader 工厂导出
+│   ├── Core/                       # 文件生命周期与 CGNS 层次遍历
 │   ├── Utils/                      # ReaderCGNS 内部日志工具
 │   ├── tests/                      # ReaderCGNS 模块级 CTest 测试
 │   └── 3rdparty/
@@ -68,7 +72,7 @@ StupidTry/
 └── bin/<Debug|Release>/            # 可执行文件和动态库输出（生成）
 ```
 
-`Core` 依赖 `ReaderCGNS` 共享库；根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
+`Core` 通过公开头获得 ABI 类型，并使用 `LoadLibraryW`/`GetProcAddress` 调用 `ReaderCGNS.dll`，两者之间没有链接时依赖。根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
 
 ## 模块文档
 
@@ -78,14 +82,15 @@ StupidTry/
 
 ## 第三方依赖
 
-所有依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。
+必需依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。TBB 不随仓库交付，仅作为可选的环境依赖；找不到时相关标准并行算法会退化为串行执行。
 
 | 库        | 版本     | 链接方式                     | 用途                                    |
 |----------|--------|--------------------------|---------------------------------------|
-| Boost    | 1.91   | 静态库（`.a`）                | `program_options`（CLI 解析）、`container` |
+| Boost    | 1.91   | 静态库（`.lib`）              | `program_options`（CLI 解析）、`container` |
 | CGNS     | 4.5.1  | 静态库（`CGNS::cgns_static`） | CGNS 网格/解文件读取                         |
-| HDF5     | 2.1.1  | 动态库（`hdf5::hdf5-shared`） | CGNS 的 HDF5 存储后端                      |
+| HDF5     | 2.1.1  | Core 动态链接；ReaderCGNS 私有静态依赖 | HighFive 数据后端与 CGNS 的 HDF5 存储后端 |
 | HighFive | 3.3.0  | 头文件库                     | HDF5 C++ 封装                           |
 | meojson  | vendored snapshot | 头文件库             | JSON/JSON5 解析与序列化                  |
 | mio      | —      | 头文件库                     | 内存映射文件 I/O                            |
 | spdlog   | 1.17.0 | 头文件库                     | 异步日志                                  |
+| TBB      | 环境提供 | 可选动态/静态库               | `std::execution::par` 并行后端              |

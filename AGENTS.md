@@ -2,10 +2,10 @@
 
 ## Project Structure & Module Organization
 
-This is a CMake-based C++ project. The root `CMakeLists.txt` configures C++23, C17, shared output directories, and adds two subprojects:
+This is a CMake-based C++ project. The root `CMakeLists.txt` configures the MSVC options and shared output directories, then adds two subprojects. `Core/CMakeLists.txt` and `ReaderCGNS/CMakeLists.txt` each select C17 and C++23:
 
-- `Core/`: main executable target. Entry point is `Core/src/Main.cpp`; shared implementation lives under `Core/Common` and `Core/Utils`.
-- `ReaderCGNS/`: shared library target for CGNS inspection. Public headers are in `ReaderCGNS/include/ReaderCGNS`, implementation is in `ReaderCGNS/src`, and local helpers are in `ReaderCGNS/Utils`.
+- `Core/`: main executable target. Entry point is `Core/src/Main.cpp`; target-local implementation lives under `Core/Common` and `Core/Utils`. It includes the ReaderCGNS public headers and loads `ReaderCGNS.dll` at runtime without linking its import library.
+- `ReaderCGNS/`: shared library target for CGNS inspection. Public headers are in `ReaderCGNS/include/ReaderCGNS`, DLL factory exports are implemented in `ReaderCGNS/src`, traversal and file-lifecycle code lives in `ReaderCGNS/Core`, and local logging helpers are in `ReaderCGNS/Utils`.
 - `Utils/` and `Logger/`: header-only utility and logging helpers used across targets.
 - `3rdparty/`, `Core/3rdparty/`, `ReaderCGNS/3rdparty/`: vendored dependencies. Avoid editing these unless updating a dependency intentionally.
 
@@ -25,10 +25,11 @@ Route each change to its owning branch before committing. The normal agent-contr
 - `cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64`: configure the Visual Studio 18 build tree.
 - `cmake --build build/Debug --config Debug`: compile `Core` and `ReaderCGNS`.
 - `cmake --build build/Debug --config Release`: compile Release artifacts from the same multi-config build tree.
+- A target-only `Core` build does not build `ReaderCGNS.dll`; build the default all target, or explicitly build both `ReaderCGNS` and `Core`, before running the executable.
 - On the `test` or `main` branch, `ctest --test-dir build/Debug -C Debug`: run the Debug test suite.
 - On the `test` or `main` branch, `ctest --test-dir build/Debug -C Release`: run the Release test suite.
 
-Dependencies are vendored, so do not add package-manager downloads to normal build steps without documenting the change.
+Required dependencies are vendored. TBB is an optional environment-provided backend; when it is unavailable, the affected standard parallel algorithms run serially. Do not add package-manager downloads to normal build steps without documenting the change.
 
 Keep `README.md` synchronized with project-level changes. Updates to dependencies, toolchain requirements, CMake configuration, build options, or build/test commands must include the corresponding README changes in the same change set.
 
@@ -36,7 +37,7 @@ Keep `README.md` synchronized with project-level changes. Updates to dependencie
 
 Use the checked-in `.clang-format` for C++ formatting: 4-space indentation, no tabs, LF line endings, and a 150-column limit. Format touched files before committing, for example `clang-format -i Core/src/Main.cpp ReaderCGNS/src/ReaderCGNS.cpp`.
 
-Follow existing C++ naming: classes use `PascalCase`, private data members use `m_` prefixes, namespaces are lowercase or project-named (`utils`, `ReaderCGNS`), and macros/constants use uppercase where already established.
+Follow existing C++ naming: classes use `PascalCase`, private data members use `m_` prefixes, namespaces are lowercase or API-named (`utils`, `ReaderAPI`), and macros/constants use uppercase where already established.
 
 The project language standards are C++23 and C17. When modifying project code, prefer modern, standard-library-based implementations available within those language versions; do not introduce C++26 or later language/library requirements without intentionally updating the project standard and documentation.
 
@@ -44,7 +45,7 @@ The project requires CMake 4.0 or newer. When modifying `CMakeLists.txt` files, 
 
 ## Testing Guidelines
 
-Author and directly commit first-party tests on the local `test` branch, then integrate them into `main`. Keep test sources in module-local `tests/` directories and register them with CTest from CMake. Name test files after the behavior under test, such as `ReaderCGNS/tests/CgnsCoreTests.cpp`.
+Author and directly commit first-party tests on the local `test` branch. Keep test sources in module-local `tests/` directories and register them with CTest from CMake. Name test files after the behavior under test, such as `ReaderCGNS/tests/CgnsCoreTests.cpp`. Leave integration from `test` into `main` to the user unless the current request explicitly authorizes it.
 
 The `dev` branch contains production code and must not contain first-party test sources, test-only fixtures or scripts, or CTest registration. Treat documentation and build logic used exclusively to run tests as test content as well.
 
