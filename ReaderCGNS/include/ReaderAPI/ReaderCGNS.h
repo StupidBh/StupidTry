@@ -24,8 +24,6 @@ namespace ReaderAPI {
         };
 
         using LogCallback = void (*)(void* context, LogLevel level, const char* file, int line, const char* message);
-        using SetLogCallbackFunc = bool (*)(LogCallback, void*) noexcept;
-        using ClearLogCallbackFunc = bool (*)() noexcept;
     } // namespace Logger
 
     class ReaderCGNS {
@@ -37,6 +35,9 @@ namespace ReaderAPI {
         ReaderCGNS& operator=(const ReaderCGNS&) = delete;
         ReaderCGNS(ReaderCGNS&&) = delete;
         ReaderCGNS& operator=(ReaderCGNS&&) = delete;
+
+        virtual bool SetLogCallback(Logger::LogCallback callback, void* context) noexcept = 0;
+        virtual bool ClearLogCallback() noexcept = 0;
 
         virtual bool Open(const std::string& cgns_file_path) = 0;
         virtual void Close() = 0;

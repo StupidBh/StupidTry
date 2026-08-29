@@ -1,5 +1,4 @@
 #include "AnalysisCGNS.h"
-#include "ReaderCGNSLogGuard.h"
 #include "WindowsFunctions.h"
 
 #include "Logger/logger.hpp"
@@ -35,12 +34,6 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
     }
 
     const HMODULE module = this->m_module_guard->GetModule();
-    this->m_log_guard = std::make_unique<ReaderCGNSLogGuard>(module);
-    if (!*this->m_log_guard) {
-        LOG_ERROR("Failed to install the ReaderCGNS log callback.");
-        return;
-    }
-
     const auto create = ResolveExport<ReaderAPI::CreateReaderCGNSFunc>(module, "CreateReaderCGNS");
     const auto destroy = ResolveExport<ReaderAPI::DestroyReaderCGNSFunc>(module, "DestroyReaderCGNS");
     if (create == nullptr || destroy == nullptr) {
@@ -53,18 +46,27 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
         return;
     }
     this->m_reader = ReaderPtr(reader, ReaderDeleter { destroy });
+    if (!this->m_reader->SetLogCallback(LogCallback, nullptr)) {
+        LOG_WARN("Failed to install the ReaderCGNS log callback.");
+    }
 }
 
 AnalysisCGNS::~AnalysisCGNS() noexcept
 {
-    if (this->m_reader != nullptr && this->m_reader->IsOpen()) {
-        this->m_reader->Close();
+    if (this->m_reader != nullptr) {
+        if (this->m_reader->IsOpen()) {
+            this->m_reader->Close();
+        }
+        if (!this->m_reader->ClearLogCallback()) {
+            LOG_WARN("Failed to clear the ReaderCGNS log callback.");
+        }
+        this->m_reader.reset();
     }
 }
 
 AnalysisCGNS::operator bool() const noexcept
 {
-    return this->m_module_guard != nullptr && this->m_log_guard != nullptr && static_cast<bool>(*this->m_log_guard) && this->m_reader != nullptr;
+    return this->m_module_guard != nullptr && this->m_reader != nullptr;
 }
 
 bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
@@ -87,4 +89,30 @@ void AnalysisCGNS::ReaderDeleter::operator()(ReaderAPI::ReaderCGNS* reader) cons
     if (reader != nullptr && this->destroy != nullptr) {
         this->destroy(reader);
     }
+}
+
+void AnalysisCGNS::LogCallback(void* context, const ReaderAPI::Logger::LogLevel level, const char* file, const int line, const char* message)
+{
+    static_cast<void>(context);
+    const auto logger = spdlog::default_logger();
+    if (logger == nullptr) {
+        return;
+    }
+
+    spdlog::level::level_enum spd_level;
+    switch (level) {
+    case ReaderAPI::Logger::READER_CGNS_LOG_TRACE   : spd_level = spdlog::level::trace; break;
+    case ReaderAPI::Logger::READER_CGNS_LOG_DEBUG   : spd_level = spdlog::level::debug; break;
+    case ReaderAPI::Logger::READER_CGNS_LOG_INFO    : spd_level = spdlog::level::info; break;
+    case ReaderAPI::Logger::READER_CGNS_LOG_WARN    : spd_level = spdlog::level::warn; break;
+    case ReaderAPI::Logger::READER_CGNS_LOG_ERROR   : spd_level = spdlog::level::err; break;
+    case ReaderAPI::Logger::READER_CGNS_LOG_CRITICAL: spd_level = spdlog::level::critical; break;
+    default                                         : spd_level = spdlog::level::info; break;
+    }
+
+#ifndef NDEBUG
+    logger->log(spdlog::source_loc { file, line, "ReaderCGNS" }, spd_level, "[ReaderCGNS] {}", message);
+#else
+    logger->log(spd_level, "[ReaderCGNS] {}", message);
+#endif
 }

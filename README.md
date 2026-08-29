@@ -37,7 +37,7 @@ StupidTry/
 │   │   ├── WindowsFunctions.h      # Win32 编码、进程、环境和路径工具
 │   │   └── src/
 │   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
-│   │   ├── ReaderCGNSLogGuard.h    # ReaderCGNS 到 spdlog 的作用域适配
+│   │   ├── AnalysisCGNS.h          # DLL 加载、reader 生命周期和日志适配
 │   │   └── src/
 │   ├── Utils/                      # Core 专用的 HDF5 和文件 I/O 工具
 │   │   ├── HighFiveUtils.hpp
@@ -72,7 +72,7 @@ StupidTry/
 └── bin/<Debug|Release>/            # 可执行文件和动态库输出（生成）
 ```
 
-`Core` 通过公开头获得 ABI 类型，并使用 `LoadLibraryW`/`GetProcAddress` 调用 `ReaderCGNS.dll`，两者之间没有链接时依赖。根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
+`Core` 通过公开头获得 ABI 类型，使用 `LoadLibraryW`/`GetProcAddress` 解析 `ReaderCGNS.dll` 的 Create/Destroy 工厂，并通过 reader 虚接口完成文件检查和实例级日志配置；两者之间没有链接时依赖。根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
 
 ## 模块文档
 

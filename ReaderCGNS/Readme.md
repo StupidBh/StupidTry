@@ -28,11 +28,12 @@
 ```
 
 该头文件同时提供 `ReaderAPI::ReaderCGNS`、reader 工厂函数指针类型，以及
-`ReaderAPI::Logger::LogLevel`、`LogCallback`、`SetLogCallbackFunc` 和
-`ClearLogCallbackFunc` 等日志动态加载类型。
+`ReaderAPI::Logger::LogLevel` 和 `LogCallback` 日志协议类型。
 
 | API | 作用 |
 |---|---|
+| `ReaderAPI::ReaderCGNS::SetLogCallback(callback, context)` | 为当前 reader 注册日志回调和可选上下文。 |
+| `ReaderAPI::ReaderCGNS::ClearLogCallback()` | 清除当前 reader 的日志回调。 |
 | `ReaderAPI::ReaderCGNS::Open(path)` | 以只读方式打开 CGNS 文件。 |
 | `ReaderAPI::ReaderCGNS::Close()` | 关闭当前文件。 |
 | `ReaderAPI::ReaderCGNS::IsOpen()` | 查询文件是否已打开。 |
@@ -44,28 +45,37 @@
 
 ## 动态加载约定
 
-ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
+ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 只提供以下两个稳定名称，由调用方通过 `GetProcAddress` 解析：
 
-- reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
-- 日志控制：`SetLogCallback`、`ClearLogCallback`。
+- `CreateReaderCGNS`；
+- `DestroyReaderCGNS`。
 
 上述导出名称是 ReaderCGNS 与调用方之间的工程接口契约，不是实现细节。除非明确实施破坏性接口变更，否则不得改名、删除或复用于其他语义。确需调整时，必须在同一变更中同步更新 DLL 导出、调用方的 `GetProcAddress` 名称、相关测试和本文档，并保证配套产物一同交付。
 
-`ReaderCGNS.h` 不声明需要 import library 的导出函数，而是提供对应的函数指针类型。调用方应使用这些类型按上述稳定名称动态解析。`SetLogCallback` 注册回调和上下文，`ClearLogCallback` 清除当前注册；两者成功时返回 `true`。当前没有对外提供最低日志级别调节接口，六个日志级别均可交给调用方回调处理。仓库内的动态加载与日志生命周期封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
+`ReaderCGNS.h` 不声明需要 import library 的导出函数，而是提供两个工厂函数的指针类型。调用方使用这些类型解析导出、创建 reader，并通过 reader 虚接口完成文件操作和日志配置。头文件与 DLL 必须配套交付；这是工程交付约定，本项目不额外提供 ABI 版本导出或运行时版本校验。
 
 ## 日志并发约定
 
-ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一个回调和一个上下文指针：
+每个 `ReaderAPI::ReaderCGNS` 实例独立维护一个回调和一个上下文指针。日志回调是可选能力；未注册时文件检查仍会执行，但不会向应用输出结构信息。注册状态遵循以下规则：
+
+- 未绑定时，传入非空 callback 的 `SetLogCallback()` 完成绑定并返回 `true`；context 可以为 `nullptr`；
+- `SetLogCallback(nullptr, context)` 返回 `false` 且不改变当前状态；
+- 已绑定时再次调用 `SetLogCallback()` 返回 `false`，原 callback/context 保持不变；
+- `ClearLogCallback()` 停止新的分发，等待已经进入的当前实例回调结束，然后清除绑定并返回 `true`；
+- 未绑定时调用 `ClearLogCallback()` 是幂等操作并返回 `true`；
+- 成功清理后可以再次注册；两个线程同时对同一 reader 注册时只有一个调用成功；
+- 注册失败只通过返回值通知，DLL 不通过日志回调报告该错误，调用方可以使用自己的日志系统记录警告。
+
+回调执行和数据生命周期遵循以下约定：
 
 - 回调在触发日志的 ReaderCGNS 线程上同步执行；
-- 多个 ReaderCGNS 调用可能并发进入同一个回调，调用方必须保证回调线程安全；
+- 同一个 callback 可能被多个 reader 或线程并发进入，调用方必须保证回调线程安全；
 - `file` 保留编译器提供的原始源码路径，ReaderCGNS 不提取文件名，最终展示形式由调用方决定；
 - `context`、`file` 和 `message` 都是借用数据，仅在本次回调期间有效；
-- 更换或清除回调时，库会等待其他线程中已经开始的回调结束；
-- 不允许在回调内部调用 `SetLogCallback()` 或 `ClearLogCallback()`，此类调用会返回 `false`；
+- 在任意 ReaderCGNS 回调执行期间，从当前线程对任意 reader 调用 Set/Clear 都返回 `false` 且不改变目标实例状态；该规则优先于未绑定 reader 的幂等 Clear；
 - 回调抛出的异常会被库捕获，异常不会越过动态库边界传播。
 
-上下文对象的生命周期由调用方负责，并且必须长于回调注册期。日志注册表的并发保护不代表底层 CGNS/HDF5 构建支持任意并发文件访问；并发读取策略仍应遵循所使用 CGNS 与 HDF5 库的线程安全配置。
+上下文对象由调用方拥有，必须存活到成功的 `ClearLogCallback()` 或 `DestroyReaderCGNS()` 返回。销毁 reader 前，调用方必须停止该对象的所有 API 调用；dispatcher 的析构清理不提供与并发成员调用安全销毁的保证。日志 dispatcher 的并发保护也不代表底层 CGNS/HDF5 构建支持任意并发文件访问；并发读取策略仍应遵循所使用 CGNS 与 HDF5 库的线程安全配置。
 
 ## 返回值与错误处理
 
@@ -77,8 +87,6 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 
 内部 `CG_INFO(expression)` 适配器只求值一次 CGNS API 表达式。状态为 `CG_OK` 时不输出；其他状态会连同状态名称或数值、调用表达式、`cg_get_error()` 文本及调用位置交给日志回调，并原样返回状态码。它不会抛出异常、提前返回或改变调用方控制流；允许调用点忽略返回值，需要根据失败结果分支时也可以显式检查该返回值。
 
-未安装日志回调时，检查仍可执行，但不会向应用输出结构信息。
-
 ## 目录结构
 
 ```text
@@ -88,7 +96,7 @@ ReaderCGNS/
 ├── CGNS.md                         # CGNS 文件格式与数据结构
 ├── CGNS_API.md                     # CGNS 4.5.1 C API 开发参考
 ├── include/ReaderAPI/
-│   └── ReaderCGNS.h                # reader 接口、工厂及日志动态加载类型
+│   └── ReaderCGNS.h                # reader 接口、工厂及日志协议类型
 ├── src/
 │   └── ReaderCGNS.cpp              # Create/Destroy reader 导出
 ├── Common/
@@ -98,8 +106,8 @@ ReaderCGNS/
 │   ├── FileManager.h               # 文件生命周期、版本与 Base 级方程类型
 │   └── src/
 ├── Utils/
-│   ├── Logger.h                    # 内部格式化与错误适配
-│   └── src/Logger.cpp              # 并发安全的回调注册表
+│   ├── Logger.h                    # 实例 dispatcher、格式化与错误适配
+│   └── src/Logger.cpp              # dispatcher 并发与生命周期实现
 └── 3rdparty/
     └── cgns/                       # CGNS 静态库及其 CMake 配置
 ```
