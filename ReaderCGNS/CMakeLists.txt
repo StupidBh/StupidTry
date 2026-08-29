@@ -1,18 +1,16 @@
 project(ReaderCGNS LANGUAGES CXX)
 
-add_library(${PROJECT_NAME} MODULE)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
-
-if (MSVC)
-    target_link_options(${PROJECT_NAME} PRIVATE /NOIMPLIB)
-endif ()
-
-target_sources(${PROJECT_NAME} PRIVATE
+add_library(${PROJECT_NAME} MODULE
         src/ReaderCGNS.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
         Core/src/FileManager.cpp
 )
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+
+if (MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE /NOIMPLIB)
+endif ()
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE

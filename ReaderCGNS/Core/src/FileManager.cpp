@@ -36,7 +36,7 @@ bool FileManager::Open(const std::string& cgns_file_path)
     int cg_file_precision = 0;
     CG_INFO(cg_version(this->m_file_id, &cg_file_version));
     CG_INFO(cg_precision(this->m_file_id, &cg_file_precision));
-    LOG_INFO("[{}] v{:.2f}, precision={}, file_id={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision, this->m_file_id);
+    LOG_INFO("[{}] v{:.2f}, Precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
 
     this->m_cgns_file_path = cgns_file_path;
     return true;
@@ -55,6 +55,24 @@ void FileManager::Close()
 bool FileManager::IsOpen() const
 {
     return this->m_file_id != 0;
+}
+
+float FileManager::GetVersion() const
+{
+    float cg_file_version = 0.F;
+    CG_INFO(cg_version(this->m_file_id, &cg_file_version));
+    return cg_file_version;
+}
+
+std::string FileManager::GetSolverType() const
+{
+    CG_GoverningEquationsType_t solver_type = CG_GoverningEquationsType_t::CG_GoverningEquationsNull;
+    if (CG_INFO(cg_goto(this->m_file_id, 1, "FlowEquationSet_t", 1, "end")) != CG_OK || CG_INFO(cg_governing_read(&solver_type)) != CG_OK) {
+        return "Unknown";
+    }
+
+    const char* solver_type_name = cg_GoverningEquationsTypeName(solver_type);
+    return solver_type_name != nullptr ? solver_type_name : "Unknown";
 }
 
 int FileManager::GetFileID() const noexcept

@@ -4,5 +4,4 @@
 class CgnsCore : virtual public FileManager {
 public:
     void info() override;
-    void* QueryInterface() override;
 };
