@@ -1,10 +1,6 @@
-#include "../ReaderCGNSLogGuard.h"
+#include "ReaderCGNSLogGuard.h"
 
 #include "Logger/logger.hpp"
-
-namespace {
-    using SetLogCallback = bool (*)(ReaderAPI::Logger::ReaderCGNS_LogCallback, void*) noexcept;
-}
 
 ReaderCGNSLogGuard::ReaderCGNSLogGuard(const HMODULE module) noexcept
 {
@@ -12,8 +8,8 @@ ReaderCGNSLogGuard::ReaderCGNSLogGuard(const HMODULE module) noexcept
         return;
     }
 
-    const auto set_log_callback = reinterpret_cast<SetLogCallback>(GetProcAddress(module, "SetLogCallback"));
-    this->m_clear_log_callback = reinterpret_cast<decltype(this->m_clear_log_callback)>(GetProcAddress(module, "ClearLogCallback"));
+    const auto set_log_callback = reinterpret_cast<ReaderAPI::Logger::SetLogCallbackFunc>(GetProcAddress(module, "SetLogCallback"));
+    this->m_clear_log_callback = reinterpret_cast<ReaderAPI::Logger::ClearLogCallbackFunc>(GetProcAddress(module, "ClearLogCallback"));
     if (set_log_callback == nullptr || this->m_clear_log_callback == nullptr) {
         this->m_clear_log_callback = nullptr;
         return;
@@ -25,15 +21,11 @@ ReaderCGNSLogGuard::ReaderCGNSLogGuard(const HMODULE module) noexcept
 ReaderCGNSLogGuard::~ReaderCGNSLogGuard() noexcept
 {
     if (this->m_active && this->m_clear_log_callback != nullptr) {
-        this->m_clear_log_callback();
+        this->m_clear_log_callback() ? LOG_DEBUG("clear log call back ") : LOG_DEBUG("clear log call back sucess");
     }
 }
 
-void ReaderCGNSLogGuard::LogCallback(void* context,
-                                     const ReaderAPI::Logger::ReaderCGNS_LogLevel level,
-                                     const char* file,
-                                     const int line,
-                                     const char* message)
+void ReaderCGNSLogGuard::LogCallback(void* context, const ReaderAPI::Logger::LogLevel level, const char* file, const int line, const char* message)
 {
     auto* logger = static_cast<spdlog::logger*>(context);
     if (logger == nullptr) {

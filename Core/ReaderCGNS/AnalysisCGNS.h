@@ -3,7 +3,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <string>
 
 class ModuleGuard;
 class ReaderCGNSLogGuard;

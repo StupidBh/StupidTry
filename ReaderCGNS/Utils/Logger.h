@@ -1,5 +1,5 @@
 #pragma once
-#include "ReaderAPI/ReaderCGNSTypes.hpp"
+#include "ReaderAPI/ReaderCGNS.h"
 
 #include <format>
 #include <source_location>
@@ -7,13 +7,13 @@
 #include <string_view>
 #include <utility>
 
-namespace ReaderAPI::Logger::detail {
+namespace ReaderAPI::Logger {
     // Snapshot check used before formatting; Dispatch performs the definitive concurrent recheck.
-    bool IsDispatchEnabled(ReaderCGNS_LogLevel level) noexcept;
-    void Dispatch(ReaderCGNS_LogLevel level, const char* file, int line, const char* message) noexcept;
+    bool IsDispatchEnabled(LogLevel level) noexcept;
+    void Dispatch(LogLevel level, const char* file, int line, const char* message) noexcept;
 
     template<class... Args>
-    void FormatAndDispatch(ReaderCGNS_LogLevel level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args) noexcept
+    void FormatAndDispatch(LogLevel level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args) noexcept
     {
         if (!IsDispatchEnabled(level)) {
             return;
@@ -28,7 +28,7 @@ namespace ReaderAPI::Logger::detail {
         }
     }
 
-    inline void FormatAndDispatch(ReaderCGNS_LogLevel level, const char* file, int line, std::string_view message) noexcept
+    inline void FormatAndDispatch(LogLevel level, const char* file, int line, std::string_view message) noexcept
     {
         if (!IsDispatchEnabled(level)) {
             return;
@@ -44,11 +44,11 @@ namespace ReaderAPI::Logger::detail {
     }
 
     int HandleCgnsStatus(int status, std::string_view call, std::source_location location) noexcept;
-} // namespace ReaderAPI::Logger::detail
+} // namespace ReaderAPI::Logger
 
-#define LOG_DEBUG(...) ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_INFO(...)  ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARN(...)  ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_ERROR(...) ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...) ReaderAPI::Logger::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)  ReaderAPI::Logger::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...)  ReaderAPI::Logger::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) ReaderAPI::Logger::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
-#define CG_INFO(STATUS) ReaderAPI::Logger::detail::HandleCgnsStatus((STATUS), #STATUS, std::source_location::current())
+#define CG_INFO(STATUS) ReaderAPI::Logger::HandleCgnsStatus((STATUS), #STATUS, std::source_location::current())

@@ -77,6 +77,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         return false;
     }
 
+    LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
     this->m_reader->info();
     return true;
 }

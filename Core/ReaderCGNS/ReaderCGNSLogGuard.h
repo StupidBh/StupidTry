@@ -1,7 +1,8 @@
 #pragma once
-#include "ReaderAPI/ReaderCGNSTypes.hpp"
+#include "ReaderAPI/ReaderCGNS.h"
 
 #include <windows.h>
+#include <functional>
 
 class ReaderCGNSLogGuard final {
 public:
@@ -14,8 +15,8 @@ public:
     [[nodiscard]] explicit operator bool() const noexcept { return this->m_active; }
 
 private:
-    static void LogCallback(void* context, ReaderAPI::Logger::ReaderCGNS_LogLevel level, const char* file, int line, const char* message);
+    static void LogCallback(void* context, ReaderAPI::Logger::LogLevel level, const char* file, int line, const char* message);
 
-    bool (*m_clear_log_callback)() noexcept = nullptr;
+    std::function<bool()> m_clear_log_callback;
     bool m_active = false;
 };
