@@ -8,6 +8,16 @@ FileManager::~FileManager()
     this->Close();
 }
 
+bool FileManager::SetLogCallback(const ReaderAPI::Logger::LogCallback callback, void* context) noexcept
+{
+    return this->m_log_dispatcher.SetCallback(callback, context);
+}
+
+bool FileManager::ClearLogCallback() noexcept
+{
+    return this->m_log_dispatcher.ClearCallback();
+}
+
 bool FileManager::Open(const std::string& cgns_file_path)
 {
     LOG_INFO("Open in read only: [{}]", cgns_file_path);
@@ -83,4 +93,9 @@ int FileManager::GetFileID() const noexcept
 const std::string& FileManager::GetFileName() const noexcept
 {
     return this->m_cgns_file_path;
+}
+
+ReaderAPI::Logger::LogDispatcher& FileManager::GetLogDispatcher() const noexcept
+{
+    return this->m_log_dispatcher;
 }

@@ -6,7 +6,6 @@ add_executable(${PROJECT_NAME}
         Common/src/SingletonData.cpp
         Common/src/WindowsFunctions.cpp
         Utils/src/MioReader.cpp
-        ReaderCGNS/src/ReaderCGNSLogGuard.cpp
         ReaderCGNS/src/AnalysisCGNS.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
