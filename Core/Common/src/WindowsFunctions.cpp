@@ -3,8 +3,6 @@
 #include "Functions.h"
 #include "Logger/logger.hpp"
 
-#include <windows.h>
-
 #include <array>
 #include <cstddef>
 #include <iostream>
@@ -12,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -475,4 +474,45 @@ std::filesystem::path GetExecutablePath()
 std::filesystem::path GetExecutableDirectory()
 {
     return GetExecutablePath().parent_path();
+}
+
+ModuleGuard::ModuleGuard(const std::filesystem::path& library_path) noexcept :
+    m_module(LoadLibraryW(library_path.c_str()))
+{
+}
+
+ModuleGuard::~ModuleGuard() noexcept
+{
+    if (this->m_module != nullptr) {
+        FreeLibrary(this->m_module);
+    }
+}
+
+ModuleGuard::ModuleGuard(ModuleGuard&& other) noexcept :
+    m_module(std::exchange(other.m_module, nullptr))
+{
+}
+
+ModuleGuard& ModuleGuard::operator=(ModuleGuard&& other) noexcept
+{
+    if (this != &other) {
+        if (this->m_module != nullptr) {
+            FreeLibrary(this->m_module);
+        }
+        this->m_module = std::exchange(other.m_module, nullptr);
+    }
+    return *this;
+}
+
+std::unique_ptr<ModuleGuard> LoadModuleGuard(const std::filesystem::path& library_path)
+{
+    auto module_guard = std::make_unique<ModuleGuard>(library_path);
+    if (*module_guard) {
+        return module_guard;
+    }
+
+    const DWORD error = GetLastError();
+    const auto display_path = WideToUTF8(library_path.native()).value_or("<invalid path>");
+    LOG_ERROR("LoadLibraryW [{}] failed: {}", display_path, error);
+    return { };
 }

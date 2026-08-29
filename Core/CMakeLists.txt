@@ -1,16 +1,15 @@
 project(Core LANGUAGES CXX)
 
-add_executable(${PROJECT_NAME})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
-
-target_sources(${PROJECT_NAME} PRIVATE
+add_executable(${PROJECT_NAME}
         src/Main.cpp
         Common/src/Functions.cpp
         Common/src/SingletonData.cpp
         Common/src/WindowsFunctions.cpp
         Utils/src/MioReader.cpp
         ReaderCGNS/src/ReaderCGNSLogGuard.cpp
+        ReaderCGNS/src/AnalysisCGNS.cpp
 )
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}
