@@ -44,7 +44,7 @@ bool FileManager::Open(const std::string& cgns_file_path)
 
 void FileManager::Close()
 {
-    if (this->m_file_id != 0) {
+    if (this->IsOpen()) {
         LOG_INFO("Close CGNS file: [{}].", this->m_cgns_file_path);
         CG_INFO(cg_close(this->m_file_id));
         this->m_file_id = 0;
@@ -54,7 +54,7 @@ void FileManager::Close()
 
 bool FileManager::IsOpen() const
 {
-    return this->m_file_id != 0;
+    return this->m_file_id != 0 && !this->m_cgns_file_path.empty();
 }
 
 float FileManager::GetVersion() const

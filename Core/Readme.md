@@ -132,6 +132,8 @@ CMake 的构建后步骤会将 `Core` 链接依赖的 DLL 以及 HDF5 的压缩�
 - guard 存活期间，不替换或关闭默认 logger；
 - 所有可能触发 ReaderCGNS 日志的线程在 guard 析构前结束。
 
+Debug 构建中，日志回调将 ReaderCGNS 提供的源码路径和行号作为 spdlog 的 `source_loc`，因此日志格式中的源码位置指向 DLL 内部调用点，而不是 Core 的回调函数。ReaderCGNS 不预先截取文件名；当前 spdlog `%s` 格式负责显示短文件名。Release 构建的日志格式不输出源码位置。
+
 析构函数会调用从 DLL 解析出的 `ClearLogCallback`，并等待其他线程中正在执行的回调退出。guard 必须先于 DLL 模块句柄析构；新增异步任务时，也必须确保所有 ReaderCGNS 调用在 guard 和模块卸载前结束。
 
 ## 开发约定

@@ -2,8 +2,6 @@
 
 #include "Logger/logger.hpp"
 
-#include <string_view>
-
 namespace {
     using SetLogCallback = bool (*)(ReaderAPI::Logger::ReaderCGNS_LogCallback, void*) noexcept;
 }
@@ -54,12 +52,8 @@ void ReaderCGNSLogGuard::LogCallback(void* context,
     }
 
 #ifndef NDEBUG
-    std::string_view source = file != nullptr ? std::string_view(file) : std::string_view("unknown");
-    if (const auto separator = source.find_last_of("/\\"); separator != std::string_view::npos) {
-        source.remove_prefix(separator + 1);
-    }
-    logger->log(spd_level, "[ReaderCGNS] [{}:{}] {}", source, line, message != nullptr ? message : "EmptyMsg");
+    logger->log(spdlog::source_loc { file, line, "ReaderCGNS" }, spd_level, "[ReaderCGNS] {}", message);
 #else
-    logger->log(spd_level, "[ReaderCGNS] {}", message != nullptr ? message : "EmptyMsg");
+    logger->log(spd_level, "[ReaderCGNS] {}", message);
 #endif
 }

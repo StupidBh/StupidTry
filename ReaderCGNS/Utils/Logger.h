@@ -1,8 +1,8 @@
 #pragma once
 #include "ReaderAPI/ReaderCGNSTypes.hpp"
 
-#include <filesystem>
 #include <format>
+#include <source_location>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -43,7 +43,7 @@ namespace ReaderAPI::Logger::detail {
         }
     }
 
-    int HandleCgnsStatus(int status, const std::filesystem::path& file, int line);
+    int HandleCgnsStatus(int status, std::string_view call, std::source_location location) noexcept;
 } // namespace ReaderAPI::Logger::detail
 
 #define LOG_DEBUG(...) ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
@@ -51,4 +51,4 @@ namespace ReaderAPI::Logger::detail {
 #define LOG_WARN(...)  ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_ERROR(...) ReaderAPI::Logger::detail::FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
-#define CG_INFO(STATUS) ReaderAPI::Logger::detail::HandleCgnsStatus(STATUS, __FILE__, __LINE__)
+#define CG_INFO(STATUS) ReaderAPI::Logger::detail::HandleCgnsStatus((STATUS), #STATUS, std::source_location::current())
