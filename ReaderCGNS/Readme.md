@@ -25,8 +25,11 @@
 
 ```cpp
 #include "ReaderAPI/ReaderCGNS.h"
-#include "ReaderAPI/ReaderCGNSTypes.hpp" // 使用日志接口时需要
 ```
+
+该头文件同时提供 `ReaderAPI::ReaderCGNS`、reader 工厂函数指针类型，以及
+`ReaderAPI::Logger::LogLevel`、`LogCallback`、`SetLogCallbackFunc` 和
+`ClearLogCallbackFunc` 等日志动态加载类型。
 
 | API | 作用 |
 |---|---|
@@ -44,11 +47,11 @@
 ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 提供以下稳定名称，由调用方通过 `GetProcAddress` 解析：
 
 - reader 生命周期：`CreateReaderCGNS`、`DestroyReaderCGNS`；
-- 日志控制：`SetLogCallback`、`ClearLogCallback`、`SetMinimumLogLevel`、`GetMinimumLogLevel`。
+- 日志控制：`SetLogCallback`、`ClearLogCallback`。
 
 上述导出名称是 ReaderCGNS 与调用方之间的工程接口契约，不是实现细节。除非明确实施破坏性接口变更，否则不得改名、删除或复用于其他语义。确需调整时，必须在同一变更中同步更新 DLL 导出、调用方的 `GetProcAddress` 名称、相关测试和本文档，并保证配套产物一同交付。
 
-`ReaderCGNS.h` 提供 `ReaderAPI::ReaderCGNS` 和 reader 工厂函数指针类型，`ReaderCGNSTypes.hpp` 提供日志级别与回调类型。公开头不声明需要 import library 的日志控制函数；调用方应按上述稳定名称声明本地函数指针并动态解析。完整流程见 `Core/src/Main.cpp`，日志回调的 RAII 封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
+`ReaderCGNS.h` 不声明需要 import library 的导出函数，而是提供对应的函数指针类型。调用方应使用这些类型按上述稳定名称动态解析。`SetLogCallback` 注册回调和上下文，`ClearLogCallback` 清除当前注册；两者成功时返回 `true`。当前没有对外提供最低日志级别调节接口，六个日志级别均可交给调用方回调处理。仓库内的动态加载与日志生命周期封装见 `Core/ReaderCGNS/ReaderCGNSLogGuard`。
 
 ## 日志并发约定
 
@@ -82,15 +85,16 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 ReaderCGNS/
 ├── CMakeLists.txt
 ├── Readme.md
-├── CGNS.md                         # CGNS 数据结构与 C API 参考
+├── CGNS.md                         # CGNS 文件格式与数据结构
+├── CGNS_API.md                     # CGNS 4.5.1 C API 开发参考
 ├── include/ReaderAPI/
-│   ├── ReaderCGNS.h                # 导出 API
-│   └── ReaderCGNSTypes.hpp         # 日志级别与回调类型
+│   └── ReaderCGNS.h                # reader 接口、工厂及日志动态加载类型
 ├── src/
 │   └── ReaderCGNS.cpp              # Create/Destroy reader 导出
+├── Common/
+│   └── CgnsTypes.hpp               # 内部 CGNS 公共常量
 ├── Core/
 │   ├── CgnsCore.h                  # CGNS 层次遍历实现
-│   ├── CgnsTypes.hpp
 │   ├── FileManager.h               # 文件生命周期、版本与 Base 级方程类型
 │   └── src/
 ├── Utils/
@@ -100,7 +104,7 @@ ReaderCGNS/
     └── cgns/                       # CGNS 静态库及其 CMake 配置
 ```
 
-CGNS 层次、元素类型、边界条件及常用 Mid-Level Library API 的详细说明见 [`CGNS.md`](./CGNS.md)。
+CGNS 层次、节点语义、元素类型和边界条件见 [`CGNS.md`](./CGNS.md)；仓库版本的完整 Mid-Level Library C API 见 [`CGNS_API.md`](./CGNS_API.md)。
 
 ## 构建与链接
 

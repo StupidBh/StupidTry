@@ -48,7 +48,8 @@ StupidTry/
 ├── ReaderCGNS/                     # CGNS 文件读取与检查共享库
 │   ├── CMakeLists.txt
 │   ├── Readme.md                    # ReaderCGNS 接口、并发与构建说明
-│   ├── CGNS.md                      # CGNS 数据结构与 C API 指南
+│   ├── CGNS.md                      # CGNS 文件格式与数据结构
+│   ├── CGNS_API.md                  # CGNS 4.5.1 C API 开发参考
 │   ├── include/ReaderAPI/          # ReaderCGNS 对外公开头文件
 │   ├── src/                        # DLL reader 工厂导出
 │   ├── Core/                       # 文件生命周期与 CGNS 层次遍历
@@ -77,7 +78,8 @@ StupidTry/
 
 - [`Core/Readme.md`](Core/Readme.md)：命令行接口、运行流程、输出、依赖和日志生命周期。
 - [`ReaderCGNS/Readme.md`](ReaderCGNS/Readme.md)：共享库能力、公开 API、回调并发约定和集成方式。
-- [`ReaderCGNS/CGNS.md`](ReaderCGNS/CGNS.md)：CGNS 数据结构、元素类型与 Mid-Level Library C API 指南。
+- [`ReaderCGNS/CGNS.md`](ReaderCGNS/CGNS.md)：CGNS 文件树、节点语义、元素类型与数据布局。
+- [`ReaderCGNS/CGNS_API.md`](ReaderCGNS/CGNS_API.md)：仓库 CGNS 4.5.1 的完整 Mid-Level Library C API 开发参考。
 
 ## 第三方依赖
 
