@@ -130,36 +130,44 @@ namespace ReaderAPI::Logger::detail {
         }
     }
 
-    int HandleCgnsStatus(int status, const std::filesystem::path& file, int line)
+    int HandleCgnsStatus(const int status, const std::string_view call, const std::source_location location) noexcept
     {
         if (status == CG_OK) {
             return CG_OK;
         }
 
-        const auto& filename = file.filename().string();
+        ReaderCGNS_LogLevel level = READER_CGNS_LOG_ERROR;
+        const char* status_name = nullptr;
         switch (status) {
-        case CG_ERROR: {
-            FormatAndDispatch(READER_CGNS_LOG_ERROR, filename.c_str(), line, "[CG_ERROR]: {}", cg_get_error());
-            return CG_ERROR;
-        }
+        case CG_ERROR         : status_name = "CG_ERROR"; break;
         case CG_NODE_NOT_FOUND: {
-            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NODE_NOT_FOUND]: {}", cg_get_error());
-            return CG_NODE_NOT_FOUND;
-        }
+            level = READER_CGNS_LOG_WARN;
+            status_name = "CG_NODE_NOT_FOUND";
+        } break;
         case CG_INCORRECT_PATH: {
-            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_INCORRECT_PATH]: {}", cg_get_error());
-            return CG_INCORRECT_PATH;
-        }
+            level = READER_CGNS_LOG_WARN;
+            status_name = "CG_INCORRECT_PATH";
+        } break;
         case CG_NO_INDEX_DIM: {
-            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "[CG_NO_INDEX_DIM]: {}", cg_get_error());
-            return CG_NO_INDEX_DIM;
+            level = READER_CGNS_LOG_WARN;
+            status_name = "CG_NO_INDEX_DIM";
+        } break;
+        default: break;
         }
 
-        default: {
-            FormatAndDispatch(READER_CGNS_LOG_WARN, filename.c_str(), line, "Unknown status.");
-            return status;
+        const char* error_message = cg_get_error();
+        if (error_message == nullptr) {
+            error_message = "No CGNS error message.";
         }
+
+        const int line = static_cast<int>(location.line());
+        if (status_name != nullptr) {
+            FormatAndDispatch(level, location.file_name(), line, "[{}] {}: {}", status_name, call, error_message);
         }
+        else {
+            FormatAndDispatch(level, location.file_name(), line, "[CGNS_STATUS={}] {}: {}", status, call, error_message);
+        }
+        return status;
     }
 } // namespace ReaderAPI::Logger::detail
 
