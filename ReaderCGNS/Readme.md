@@ -2,7 +2,7 @@
 
 `ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
-当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
+当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：接口可读取文件版本和 Base 级方程类型，`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
 ## 能力范围
 
@@ -33,8 +33,9 @@
 | `ReaderAPI::ReaderCGNS::Open(path)` | 以只读方式打开 CGNS 文件。 |
 | `ReaderAPI::ReaderCGNS::Close()` | 关闭当前文件。 |
 | `ReaderAPI::ReaderCGNS::IsOpen()` | 查询文件是否已打开。 |
+| `ReaderAPI::ReaderCGNS::GetVersion()` | 返回当前文件记录的 CGNS 版本。 |
+| `ReaderAPI::ReaderCGNS::GetSolverType()` | 返回第一个 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
 | `ReaderAPI::ReaderCGNS::info()` | 遍历当前已打开文件并输出结构检查信息。 |
-| `ReaderAPI::ReaderCGNS::QueryInterface()` | 返回实现扩展入口；当前没有公开的扩展类型协议。 |
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
@@ -64,7 +65,9 @@ ReaderCGNS 的日志注册表是进程级共享状态，同一时刻只维护一
 
 ## 返回值与错误处理
 
-`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件；文件无效或 `cg_open()` 失败时返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `info()`，并在结束后显式调用 `Close()`。当前实现不支持在未关闭旧文件时复用同一实例打开另一个文件。
+`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件；文件无效或 `cg_open()` 失败时返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `GetVersion()`、`GetSolverType()` 和 `info()`，并在结束后显式调用 `Close()`。当前实现不支持在未关闭旧文件时复用同一实例打开另一个文件。
+
+`GetSolverType()` 只读取第一个 `CGNSBase_t` 下直接声明的 `FlowEquationSet_t`，不遍历 Zone，也不根据 `SimulationType_t` 或其他节点推断方程类型。节点不存在或读取失败时，接口保留对应 CGNS 日志并返回 `"Unknown"`。
 
 `info()` 没有返回值。节点级 CGNS API 错误不会汇总为调用结果，而是记录对应状态与 `cg_get_error()` 后在可行时继续。因此日志内容是判断局部读取问题的主要依据。`Close()` 同样没有返回值，关闭失败通过日志报告。
 
@@ -85,7 +88,7 @@ ReaderCGNS/
 ├── Core/
 │   ├── CgnsCore.h                  # CGNS 层次遍历实现
 │   ├── CgnsTypes.hpp
-│   ├── FileManager.h               # 文件打开、关闭与句柄状态
+│   ├── FileManager.h               # 文件生命周期、版本与 Base 级方程类型
 │   └── src/
 ├── Utils/
 │   ├── Logger.h                    # 内部格式化与错误适配

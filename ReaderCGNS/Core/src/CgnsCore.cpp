@@ -2,9 +2,14 @@
 #include "CgnsTypes.hpp"
 #include "Logger.h"
 
-#include <vector>
+#include <algorithm>
 #include <array>
+#include <cmath>
+#include <format>
+#include <functional>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "cgnslib.h"
 
@@ -567,9 +572,4 @@ void CgnsCore::info()
             }
         }
     }
-}
-
-void* CgnsCore::QueryInterface()
-{
-    return this;
 }

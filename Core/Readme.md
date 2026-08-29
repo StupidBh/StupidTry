@@ -10,7 +10,7 @@
 
 - 管理命令行参数及工作目录；
 - 初始化基于 spdlog 的异步日志系统；
-- 通过 `LoadLibraryW`/`GetProcAddress` 加载 `ReaderCGNS.dll` 的稳定导出；
+- 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
 - 通过 `ReaderAPI::ReaderCGNS` 实例输出 CGNS 文件结构信息；
 - 演示 HighFive 对普通数组、复合类型和可扩展数据集的写入与读取；
@@ -25,9 +25,9 @@
 1. `SingletonData::ProcessArguments()` 解析并规范化参数；
 2. 在工作目录下初始化控制台与文件日志；
 3. 验证输入路径存在；
-4. 从可执行文件搜索路径加载 `ReaderCGNS.dll`；
-5. 构造 `ReaderCGNSLogGuard`，由 guard 解析日志导出并接入默认 spdlog logger；
-6. 解析 `CreateReaderCGNS`/`DestroyReaderCGNS`，同步执行 `Open()`、`info()` 和 `Close()`；
+4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
+5. `AnalysisCGNS` 构造 `ReaderCGNSLogGuard`，由 guard 解析日志导出并接入默认 spdlog logger；
+6. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS`，同步读取版本、求解器类型和文件结构信息；
 7. 销毁 reader、清除日志回调并卸载 DLL；
 8. 在工作目录创建 `Try1.h5`，并行写入普通、复合及可扩展数据集；
 9. 回读复合数据集。
@@ -72,9 +72,10 @@ Core/
 │   ├── SingletonData.h             # 参数和应用级状态
 │   ├── Functions.h                 # 仅依赖标准库的字符串工具
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
-│   ├── WindowsFunctions.h          # Win32 编码、进程、环境和路径工具
+│   ├── WindowsFunctions.h          # Win32 编码、进程、环境、路径和 DLL 句柄工具
 │   └── src/
 ├── ReaderCGNS/
+│   ├── AnalysisCGNS.h              # ReaderCGNS DLL 加载、实例与分析流程
 │   ├── ReaderCGNSLogGuard.h        # ReaderCGNS 日志的 RAII 适配器
 │   └── src/
 ├── Utils/
@@ -120,6 +121,8 @@ bin/Release/ReaderCGNS.dll
 ```
 
 CMake 的构建后步骤会将 `Core` 链接依赖的 DLL 以及 HDF5 的压缩运行库复制到可执行文件目录。`ReaderCGNS.dll` 不是链接依赖，它依靠根工程的统一输出目录与 `Core.exe` 放在一起；仅执行 `--target Core` 不会构建该 DLL。
+
+`LoadModuleGuard()` 是通用的 DLL 加载入口：它接收 `std::filesystem::path`，使用 `LoadLibraryW` 加载模块，并由 `ModuleGuard` 在析构时调用 `FreeLibrary`。该工具不解析任何具体导出；`ReaderCGNS.dll` 的导出解析和 reader 生命周期由 `AnalysisCGNS` 负责。
 
 ## 日志生命周期
 

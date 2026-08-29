@@ -1,6 +1,9 @@
 #pragma once
+#include <windows.h>
+
 #include <filesystem>
 #include <functional>
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -35,3 +38,23 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
 
 [[nodiscard]] std::filesystem::path GetExecutablePath();
 [[nodiscard]] std::filesystem::path GetExecutableDirectory();
+
+class ModuleGuard final {
+public:
+    explicit ModuleGuard(const std::filesystem::path& library_path) noexcept;
+    ~ModuleGuard() noexcept;
+
+    ModuleGuard(const ModuleGuard&) = delete;
+    ModuleGuard& operator=(const ModuleGuard&) = delete;
+    ModuleGuard(ModuleGuard&& other) noexcept;
+    ModuleGuard& operator=(ModuleGuard&& other) noexcept;
+
+    [[nodiscard]] explicit operator bool() const noexcept { return this->m_module != nullptr; }
+
+    [[nodiscard]] HMODULE GetModule() const noexcept { return this->m_module; }
+
+private:
+    HMODULE m_module = nullptr;
+};
+
+[[nodiscard]] std::unique_ptr<ModuleGuard> LoadModuleGuard(const std::filesystem::path& library_path);

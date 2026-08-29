@@ -26,9 +26,11 @@ namespace ReaderAPI {
         virtual void Close() = 0;
         virtual bool IsOpen() const = 0;
 
+        // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() = 0;
 
-        virtual void* QueryInterface() = 0;
+        virtual float GetVersion() const = 0;
+        virtual std::string GetSolverType() const = 0;
     };
 
     using CreateReaderCGNSFunc = ReaderCGNS* (*)();

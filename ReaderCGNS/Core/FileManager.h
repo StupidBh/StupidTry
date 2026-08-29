@@ -10,6 +10,9 @@ public:
     void Close() final;
     bool IsOpen() const final;
 
+    float GetVersion() const final;
+    std::string GetSolverType() const final;
+
 protected:
     int GetFileID() const noexcept;
     const std::string& GetFileName() const noexcept;
