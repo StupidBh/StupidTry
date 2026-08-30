@@ -1,6 +1,7 @@
 #pragma once
-#include <string_view>
+#include <cstddef>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <cmath>

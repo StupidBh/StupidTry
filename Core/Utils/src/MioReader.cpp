@@ -1,5 +1,8 @@
 #include "MioReader.h"
 
+#include <cstring>
+#include <stdexcept>
+
 MioReader::MioReader(const std::string& filename) :
     m_mmap(filename),
     m_pos(0)
