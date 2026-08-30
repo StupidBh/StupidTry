@@ -2,6 +2,14 @@
 #include "Utils/Utils.hpp"
 #include "highfive/highfive.hpp"
 
+#include <algorithm>
+#include <concepts>
+#include <cstddef>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
 namespace HFUtils {
     // HDF5Node: HighFive 节点类型约束
     template<class T>
@@ -53,7 +61,7 @@ namespace HFUtils {
             old_size = current_dims[0];
         }
 
-        size_t new_size = input.size();
+        std::size_t new_size = input.size();
         data_set.resize({ old_size + new_size });
         data_set.select({ old_size }, { new_size }).write(std::forward<ValueType>(input));
         return data_set;
@@ -92,7 +100,7 @@ namespace HFUtils {
             old_size = current_dims[0];
         }
 
-        size_t new_size = input.size();
+        std::size_t new_size = input.size();
         data_set.resize({ old_size + new_size });
         data_set.select({ old_size }, { new_size }).write_raw(std::forward<ValueType>(input).data(), comp_type);
         return data_set;

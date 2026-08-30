@@ -1,7 +1,10 @@
 #pragma once
 #include "Logger.h"
+#include "ReaderAPI/ReaderApiBase.h"
 
-class FileManager : public ReaderAPI::ReaderCGNS {
+#include <string>
+
+class FileManager : public ReaderAPI::ReaderApiBase {
 public:
     explicit FileManager() = default;
     ~FileManager() override;
@@ -19,10 +22,10 @@ public:
 protected:
     int GetFileID() const noexcept;
     const std::string& GetFileName() const noexcept;
-    ReaderAPI::Logger::LogDispatcher& GetLogDispatcher() const noexcept;
+    LogDispatcher& GetLogDispatcher() const noexcept;
 
 private:
-    mutable ReaderAPI::Logger::LogDispatcher m_log_dispatcher;
+    mutable LogDispatcher m_log_dispatcher;
     int m_file_id = 0;
     std::string m_cgns_file_path;
 };

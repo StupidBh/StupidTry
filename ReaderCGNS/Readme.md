@@ -2,7 +2,7 @@
 
 `ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
 
-当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：接口可读取文件版本和 Base 级方程类型，`ReaderAPI::ReaderCGNS::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
+当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：接口可读取文件版本和 Base 级方程类型，`ReaderAPI::ReaderApiBase::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
 
 ## 能力范围
 
@@ -24,22 +24,22 @@
 公开头文件位于 `include/ReaderAPI/`：
 
 ```cpp
-#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderApiBase.h"
 ```
 
-该头文件同时提供 `ReaderAPI::ReaderCGNS`、reader 工厂函数指针类型，以及
+该头文件同时提供 `ReaderAPI::ReaderApiBase`、reader 工厂函数指针类型，以及
 `ReaderAPI::Logger::LogLevel` 和 `LogCallback` 日志协议类型。
 
 | API | 作用 |
 |---|---|
-| `ReaderAPI::ReaderCGNS::SetLogCallback(callback, context)` | 为当前 reader 注册日志回调和可选上下文。 |
-| `ReaderAPI::ReaderCGNS::ClearLogCallback()` | 清除当前 reader 的日志回调。 |
-| `ReaderAPI::ReaderCGNS::Open(path)` | 以只读方式打开 CGNS 文件。 |
-| `ReaderAPI::ReaderCGNS::Close()` | 关闭当前文件。 |
-| `ReaderAPI::ReaderCGNS::IsOpen()` | 查询文件是否已打开。 |
-| `ReaderAPI::ReaderCGNS::GetVersion()` | 返回当前文件记录的 CGNS 版本。 |
-| `ReaderAPI::ReaderCGNS::GetSolverType()` | 返回第一个 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
-| `ReaderAPI::ReaderCGNS::info()` | 遍历当前已打开文件并输出结构检查信息。 |
+| `ReaderAPI::ReaderApiBase::SetLogCallback(callback, context)` | 为当前 reader 注册日志回调和可选上下文。 |
+| `ReaderAPI::ReaderApiBase::ClearLogCallback()` | 清除当前 reader 的日志回调。 |
+| `ReaderAPI::ReaderApiBase::Open(path)` | 以只读方式打开 CGNS 文件。 |
+| `ReaderAPI::ReaderApiBase::Close()` | 关闭当前文件。 |
+| `ReaderAPI::ReaderApiBase::IsOpen()` | 查询文件是否已打开。 |
+| `ReaderAPI::ReaderApiBase::GetVersion()` | 返回当前文件记录的 CGNS 版本。 |
+| `ReaderAPI::ReaderApiBase::GetSolverType()` | 返回第一个 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
+| `ReaderAPI::ReaderApiBase::info()` | 遍历当前已打开文件并输出结构检查信息。 |
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
@@ -52,11 +52,11 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 
 上述导出名称是 ReaderCGNS 与调用方之间的工程接口契约，不是实现细节。除非明确实施破坏性接口变更，否则不得改名、删除或复用于其他语义。确需调整时，必须在同一变更中同步更新 DLL 导出、调用方的 `GetProcAddress` 名称、相关测试和本文档，并保证配套产物一同交付。
 
-`ReaderCGNS.h` 不声明需要 import library 的导出函数，而是提供两个工厂函数的指针类型。调用方使用这些类型解析导出、创建 reader，并通过 reader 虚接口完成文件操作和日志配置。头文件与 DLL 必须配套交付；这是工程交付约定，本项目不额外提供 ABI 版本导出或运行时版本校验。
+`ReaderApiBase.h` 不声明需要 import library 的导出函数，而是提供两个工厂函数的指针类型。调用方使用这些类型解析导出、创建 reader，并通过 reader 虚接口完成文件操作和日志配置。头文件与 DLL 必须配套交付；这是工程交付约定，本项目不额外提供 ABI 版本导出或运行时版本校验。
 
 ## 日志并发约定
 
-每个 `ReaderAPI::ReaderCGNS` 实例独立维护一个回调和一个上下文指针。日志回调是可选能力；未注册时文件检查仍会执行，但不会向应用输出结构信息。注册状态遵循以下规则：
+每个 `ReaderAPI::ReaderApiBase` 实例独立维护一个回调和一个上下文指针。日志回调是可选能力；未注册时文件检查仍会执行，但不会向应用输出结构信息。注册状态遵循以下规则：
 
 - 未绑定时，传入非空 callback 的 `SetLogCallback()` 完成绑定并返回 `true`；context 可以为 `nullptr`；
 - `SetLogCallback(nullptr, context)` 返回 `false` 且不改变当前状态；
@@ -96,7 +96,7 @@ ReaderCGNS/
 ├── CGNS.md                         # CGNS 文件格式与数据结构
 ├── CGNS_API.md                     # CGNS 4.5.1 C API 开发参考
 ├── include/ReaderAPI/
-│   └── ReaderCGNS.h                # reader 接口、工厂及日志协议类型
+│   └── ReaderApiBase.h             # reader 接口、工厂及日志协议类型
 ├── src/
 │   └── ReaderCGNS.cpp              # Create/Destroy reader 导出
 ├── Common/

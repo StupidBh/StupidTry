@@ -95,7 +95,7 @@ const std::string& FileManager::GetFileName() const noexcept
     return this->m_cgns_file_path;
 }
 
-ReaderAPI::Logger::LogDispatcher& FileManager::GetLogDispatcher() const noexcept
+LogDispatcher& FileManager::GetLogDispatcher() const noexcept
 {
     return this->m_log_dispatcher;
 }

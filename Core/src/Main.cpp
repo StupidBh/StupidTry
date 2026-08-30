@@ -3,6 +3,10 @@
 
 #include "AnalysisCGNS.h"
 
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+
 int main(int argc, char* argv[])
 {
     if (!SINGLE_DATA.ProcessArguments(argc, argv)) {

@@ -40,7 +40,7 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
         return;
     }
 
-    ReaderAPI::ReaderCGNS* reader = create();
+    ReaderAPI::ReaderApiBase* reader = create();
     if (reader == nullptr) {
         LOG_ERROR("CreateReaderCGNS returned a null reader.");
         return;
@@ -84,7 +84,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
     return true;
 }
 
-void AnalysisCGNS::ReaderDeleter::operator()(ReaderAPI::ReaderCGNS* reader) const noexcept
+void AnalysisCGNS::ReaderDeleter::operator()(ReaderAPI::ReaderApiBase* reader) const noexcept
 {
     if (reader != nullptr && this->destroy != nullptr) {
         this->destroy(reader);

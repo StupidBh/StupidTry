@@ -12,7 +12,7 @@
 - 初始化基于 spdlog 的异步日志系统；
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
-- 通过 `ReaderAPI::ReaderCGNS` 实例输出 CGNS 文件结构信息；
+- 通过 `ReaderAPI::ReaderApiBase` 实例输出 CGNS 文件结构信息；
 - 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
 
 `Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，而不是复用 `Core/src/Main.cpp` 或链接其生成的 import library。
@@ -54,7 +54,7 @@
 |---|---|
 | `logs/stupid-bhh.log` | 应用及 ReaderCGNS 转发日志。 |
 
-日志同时输出到控制台。CGNS 文件以只读方式打开，`ReaderAPI::ReaderCGNS::info()` 不修改输入文件。
+日志同时输出到控制台。CGNS 文件以只读方式打开，`ReaderAPI::ReaderApiBase::info()` 不修改输入文件。
 
 ## 目录结构
 

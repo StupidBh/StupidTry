@@ -2,13 +2,18 @@
 #include "CgnsTypes.hpp"
 #include "Logger.h"
 
+#include <algorithm>
 #include <array>
-#include <vector>
+#include <cmath>
+#include <format>
+#include <functional>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "cgnslib.h"
 
-void CgnsCore::info()
+void CgnsCore::info() const
 {
     // Base Information
     int nbases = 0;
