@@ -6,7 +6,6 @@ add_executable(${PROJECT_NAME}
         Common/src/SingletonData.cpp
         Common/src/WindowsFunctions.cpp
         Utils/src/MioReader.cpp
-        ReaderCGNS/src/ReaderCGNSLogGuard.cpp
         ReaderCGNS/src/AnalysisCGNS.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
@@ -42,20 +41,6 @@ if (BUILD_TESTING)
             Common
     )
     add_test(NAME Core.Functions COMMAND CoreFunctionsTests)
-
-    add_executable(CoreReaderCGNSLogGuardTests)
-    target_sources(CoreReaderCGNSLogGuardTests PRIVATE
-            tests/ReaderCGNSLogGuardTests.cpp
-            ReaderCGNS/src/ReaderCGNSLogGuard.cpp
-    )
-    target_include_directories(CoreReaderCGNSLogGuardTests PRIVATE
-            ${CMAKE_SOURCE_DIR}
-            ${3RD_ROOT}
-            ReaderCGNS
-            ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
-    )
-    add_dependencies(CoreReaderCGNSLogGuardTests ReaderCGNS)
-    add_test(NAME Core.ReaderCGNSLogGuard COMMAND CoreReaderCGNSLogGuardTests)
 endif ()
 
 find_package(TBB CONFIG QUIET)

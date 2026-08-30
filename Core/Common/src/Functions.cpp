@@ -1,6 +1,7 @@
 #include "Functions.h"
 
 #include <algorithm>
+#include <iterator>
 
 namespace {
     constexpr unsigned char ToAsciiLower(unsigned char value) noexcept

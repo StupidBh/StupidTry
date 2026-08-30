@@ -13,7 +13,7 @@
 
 #include "cgnslib.h"
 
-void CgnsCore::info()
+void CgnsCore::info() const
 {
     // Base Information
     int nbases = 0;

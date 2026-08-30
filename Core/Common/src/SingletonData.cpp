@@ -3,6 +3,14 @@
 
 #include "Logger/logger.hpp"
 
+#include <cstdlib>
+#include <filesystem>
+#include <format>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <system_error>
+
 bool SingletonData::ProcessArguments(int argc, char* argv[])
 {
     namespace bpo = boost::program_options;
