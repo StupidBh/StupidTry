@@ -1,8 +1,9 @@
-#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderApiBase.h"
 
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <cstddef>
 #include <future>
 #include <iostream>
 #include <latch>
@@ -39,7 +40,7 @@ namespace {
     {
         ReaderAPI::DestroyReaderCGNSFunc destroy = nullptr;
 
-        void operator()(ReaderAPI::ReaderCGNS* reader) const noexcept
+        void operator()(ReaderAPI::ReaderApiBase* reader) const noexcept
         {
             if (reader != nullptr && this->destroy != nullptr) {
                 this->destroy(reader);
@@ -47,7 +48,7 @@ namespace {
         }
     };
 
-    using ReaderPtr = std::unique_ptr<ReaderAPI::ReaderCGNS, ReaderDeleter>;
+    using ReaderPtr = std::unique_ptr<ReaderAPI::ReaderApiBase, ReaderDeleter>;
 
     void Check(const bool condition, const std::string_view message)
     {
@@ -68,7 +69,7 @@ namespace {
         return ReaderPtr(create(), ReaderDeleter { destroy });
     }
 
-    void InspectMissingFile(ReaderAPI::ReaderCGNS& reader)
+    void InspectMissingFile(ReaderAPI::ReaderApiBase& reader)
     {
         reader.Open(std::string(MissingCgnsPath));
     }
@@ -145,9 +146,9 @@ namespace {
 
     struct ReentrantContext
     {
-        ReaderAPI::ReaderCGNS* current = nullptr;
-        ReaderAPI::ReaderCGNS* bound_other = nullptr;
-        ReaderAPI::ReaderCGNS* unbound_other = nullptr;
+        ReaderAPI::ReaderApiBase* current = nullptr;
+        ReaderAPI::ReaderApiBase* bound_other = nullptr;
+        ReaderAPI::ReaderApiBase* unbound_other = nullptr;
         std::atomic_size_t calls { 0 };
         std::atomic_bool set_current_result { true };
         std::atomic_bool clear_current_result { true };
