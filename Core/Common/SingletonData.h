@@ -1,5 +1,7 @@
 #pragma once
 #include <filesystem>
+#include <stdexcept>
+#include <string>
 
 #include "Utils/SingletonHolder.hpp"
 #include "boost/program_options.hpp"

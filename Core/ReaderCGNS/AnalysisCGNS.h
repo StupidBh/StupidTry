@@ -1,12 +1,11 @@
 #pragma once
-#include "ReaderAPI/ReaderCGNS.h"
+#include "ReaderAPI/ReaderApiBase.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 
 class ModuleGuard;
-class ReaderCGNSLogGuard;
 
 class AnalysisCGNS final {
     explicit AnalysisCGNS(const std::filesystem::path& library_path);
@@ -28,12 +27,13 @@ private:
     {
         ReaderAPI::DestroyReaderCGNSFunc destroy = nullptr;
 
-        void operator()(ReaderAPI::ReaderCGNS* reader) const noexcept;
+        void operator()(ReaderAPI::ReaderApiBase* reader) const noexcept;
     };
 
-    using ReaderPtr = std::unique_ptr<ReaderAPI::ReaderCGNS, ReaderDeleter>;
+    using ReaderPtr = std::unique_ptr<ReaderAPI::ReaderApiBase, ReaderDeleter>;
+
+    static void LogCallback(void* context, ReaderAPI::Logger::LogLevel level, const char* file, int line, const char* message);
 
     std::unique_ptr<ModuleGuard> m_module_guard;
-    std::unique_ptr<ReaderCGNSLogGuard> m_log_guard;
     ReaderPtr m_reader;
 };

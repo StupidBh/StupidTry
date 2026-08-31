@@ -58,9 +58,8 @@ namespace utils {
         [[nodiscard]] bool Emplace(const std::stop_token stop_token, Args&&... args)
         {
             std::unique_lock lock(this->m_mtx);
-            const bool ready = this->m_cv_can_push.wait(lock, stop_token, [this] {
-                return this->m_is_closed || this->m_max_size == 0 || this->m_queue.size() < this->m_max_size;
-            });
+            const bool ready =
+                this->m_cv_can_push.wait(lock, stop_token, [this] { return this->m_is_closed || this->m_max_size == 0 || this->m_queue.size() < this->m_max_size; });
 
             if (!ready || stop_token.stop_requested() || this->m_is_closed) {
                 return false;

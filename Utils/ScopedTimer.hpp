@@ -30,8 +30,8 @@ namespace utils {
         ScopedTimer& operator=(ScopedTimer&&) = delete;
 
         explicit ScopedTimer(std::string_view name = "", OutputCallback callback = nullptr) :
-            m_name(name),
             m_running(true),
+            m_name(name),
             m_start(std::chrono::steady_clock::now()),
             m_callback(std::move(callback))
         {

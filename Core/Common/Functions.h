@@ -1,5 +1,4 @@
 #pragma once
-#include <cstddef>
 #include <string_view>
 
 /// Byte-wise comparisons with ASCII-only case folding.

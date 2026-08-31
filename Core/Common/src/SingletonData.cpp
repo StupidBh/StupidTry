@@ -1,6 +1,9 @@
 #include "SingletonData.h"
 #include "WindowsFunctions.h"
 
+#include <iostream>
+#include <system_error>
+
 #include "Logger/logger.hpp"
 
 bool SingletonData::ProcessArguments(int argc, char* argv[])

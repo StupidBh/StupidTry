@@ -1,6 +1,8 @@
-# CGNS 数据结构与 C API 指南
+# CGNS 文件格式与数据结构
 
-> 本文面向需要读取、写入或检查 CGNS 文件的开发者。内容以 CGNS 4.x 的 SIDS（Standard Interface Data Structures）和 Mid-Level Library（MLL）为基准；不同版本新增的枚举和接口应以实际使用版本的 `cgnslib.h` 为准。
+> 本文描述 CGNS 的逻辑模型、文件树、节点语义和数组布局。工程内依赖为 CGNS 4.5.1
+> (`CGNS_VERSION == 4510`)。C API 的完整索引、调用约定和所有权规则见
+> [CGNS_API.md](CGNS_API.md)。
 
 ## 1. CGNS 是什么
 
@@ -24,6 +26,36 @@ flowchart LR
 ```
 
 实践中应优先使用 MLL。直接使用 HDF5 API 虽然能够看到 group 和 dataset，却会绕过 CGNS 的版本兼容、枚举解释、链接处理和结构校验。
+
+### 1.1 格式特点与适用边界
+
+- **拓扑优先**：数据按 Base 和 Zone 组织；坐标、单元、解、边界与连通关系都归属具体 Zone，而不是按数组种类平铺。
+- **自描述且可扩展**：节点同时携带名称、标签、数据类型和维度；标准节点之外可用 `UserDefinedData_t` 保存扩展数据。
+- **结构化与非结构化统一**：同一模型表达 Structured、多种固定拓扑、`MIXED` 以及 `NGON_n/NFACE_n` 多面体网格。
+- **网格与结果共存**：稳态/非稳态解、运动网格、边界条件、物理模型、单位和参考状态可与网格存于同一数据库。
+- **多 Zone 与链接**：Zone 间可表达 1-to-1、abutting、overset 连通；节点可链接到本文件或外部文件。严格地说，一个 CGNS 数据库可以跨越多个物理文件。
+- **后端透明**：MLL 可处理 HDF5 和旧 ADF 文件。HDF5 的 group/dataset 布局不是 SIDS 语义本身，不应作为应用层契约。
+- **演进标准**：旧库通常不能理解新节点或新枚举。文件的 `CGNSLibraryVersion_t` 是文件所遵循的标准版本，不是运行时库版本。
+
+CGNS 适合交换和归档标准 CFD 数据，但它不会自动保证数值正确，也不会为非标准字段赋予跨软件一致的语义。自定义数组名、单位缺失、错误节点顺序或不一致的 PointSet 都可能形成“可打开但不可正确解释”的文件。
+
+### 1.2 物理编码与节点原生数据类型
+
+FMM/CGIO 节点的 `DataType` 是两字符代码；MLL 中对应 `DataType_t` 枚举：
+
+| 文件代码 | MLL 枚举 | 内容 | 通常大小 | 说明 |
+|---|---|---|---:|---|
+| `MT` | `DataTypeNull` | 无节点数据 | 0 | 纯容器节点常见 |
+| `I4` | `Integer` | 有符号整数 | 32 bit | 枚举节点在文件中通常以 `C1` 字符串而不是枚举整数保存 |
+| `I8` | `LongInteger` | 有符号整数 | 64 bit | 大索引；应用层仍使用构建时定义的 `cgsize_t` |
+| `R4` | `RealSingle` | IEEE 单精度实数 | 32 bit | 坐标、解、元数据数组可用 |
+| `R8` | `RealDouble` | IEEE 双精度实数 | 64 bit | 常见高精度坐标和解 |
+| `X4` | `ComplexSingle` | 单精度复数 | 2 x 32 bit | 两个相邻实数分量组成一个复数 |
+| `X8` | `ComplexDouble` | 双精度复数 | 2 x 64 bit | 两个相邻实数分量组成一个复数 |
+| `C1` | `Character` | 字符 | 8 bit | 不存 C 结尾 `\0`；底层按空格填充，MLL 字符串读取会补终止符 |
+| `LK` | 不作为普通 `DataType_t` 数组 | 链接 | - | CGIO/FMM 的链接节点表示，不是普通数值数据 |
+
+一个节点至多保存一个同质多维数组，维数上限为 12。CGNS 使用 Fortran 顺序：第一维变化最快、逻辑索引从 1 开始。多维数据直接映射到 C 数组时，必须显式处理维度顺序。
 
 ## 2. 节点模型
 
@@ -49,6 +81,37 @@ CGNS 是一棵有类型的树。每个节点都可以抽象为：
 - 大规模网格索引使用 `cgsize_t`，不要用 `int` 代替。
 - 数组的内存布局遵循 CGNS/Fortran 约定；多维范围和 C 数组下标不要混为一谈。
 
+### 2.1 节点身份、顺序与链接
+
+- 同一父节点下 `Name` 必须唯一；`Label` 可以重复。标准通常固定某些节点名（如 `ZoneType`），其余节点名由用户选择。
+- 子节点在文件中没有标准定义的稳定顺序。MLL 的 `B/Z/S/F` 等索引是一次打开期间的遍历索引，不能持久化为业务 ID。
+- `Node ID` 是文件打开后由 CGIO 生成的临时句柄；关闭文件后失效。
+- 链接节点由“目标文件名 + 目标绝对路径”描述。空文件名表示同文件链接；外部链接的相对路径相对主文件或配置的搜索路径解析。
+- 一个节点的语义依赖祖先参数。脱离 `CGNSBase_t/Zone_t` 上下文单独解释 `DataArray_t` 往往是不完整的。
+
+### 2.2 可复用基础节点
+
+这些节点会出现在多个父节点下，其数据意义由父节点上下文决定：
+
+| Label / 固定名 | 自身数据 | 意义 |
+|---|---|---|
+| `DataArray_t` | `I4/I8/R4/R8/X4/X8/C1`，0..12 维 | 通用同质数组；标准名称决定坐标、物理量或指针数组语义 |
+| `Descriptor_t` | `C1` 文本 | 供人阅读的说明，不应承载程序必须解析的结构化协议 |
+| `DataClass_t` / `DataClass` | `C1` 枚举名 | 维量、归一化方式或无量纲常量分类 |
+| `DimensionalUnits_t` / `DimensionalUnits` | `C1` 字符矩阵 | 质量、长度、时间、温度、角度，可扩展电流、物质的量、光强单位 |
+| `AdditionalUnits_t` / `AdditionalUnits` | `C1[32,3]` | 电流、物质的量和光强三个扩展基本单位 |
+| `DimensionalExponents_t` | `R4/R8` | 对基本单位的指数；完整形式为 8 个指数 |
+| `AdditionalExponents_t` | `R4/R8[3]` | 电流、物质的量和光强的扩展指数 |
+| `DataConversion_t` | `R4/R8[2]` | 原值到物理值的线性换算 `physical = scale * raw + offset` |
+| `GridLocation_t` / `GridLocation` | `C1` 枚举名 | `Vertex`、`CellCenter`、`FaceCenter`、`IFaceCenter`、`JFaceCenter`、`KFaceCenter`、`EdgeCenter` |
+| `IndexArray_t` | `I4/I8` 二维数组 | 离散 PointList；第一维是 `IndexDimension` |
+| `IndexRange_t` | `I4/I8` 二维数组 | 闭区间 PointRange；第二维长度为 2 |
+| `Rind_t` / `Rind` | `I4` | 每个索引方向的下侧、上侧幽灵层厚度 |
+| `FamilyName_t` | `C1` | 指向 Base 级 `Family_t`；可使用跨 Base/嵌套 family 绝对路径 |
+| `AdditionalFamilyName_t` | `C1` | 附加 family 归属，节点名用户定义 |
+| `Ordinal_t` / `Ordinal` | `I4` | 历史排序提示，无唯一或连续保证；新代码不应依赖 |
+| `UserDefinedData_t` | 通常 `MT` | 标准扩展容器，可含数组、描述、点集、单位等 |
+
 ## 3. 内部数据结构及父子关系
 
 ### 3.1 主层次结构
@@ -65,11 +128,18 @@ flowchart TB
     ROOT --> BASE
 
     BASE --> ZONE["Zone_t [0..N]<br/>VertexSize, CellSize, BoundaryVertexSize"]
+    BASE --> PZONE["ParticleZone_t [0..N]<br/>粒子数 / 边界粒子数"]
     BASE --> BIT["BaseIterativeData_t [0..1]<br/>时间值 / 迭代值"]
     BASE --> FAMILY["Family_t [0..N]<br/>几何族 / 边界族"]
     BASE --> EQ["FlowEquationSet_t [0..1]"]
     BASE --> REF["ReferenceState_t [0..1]"]
     BASE --> BMeta["DataClass_t / DimensionalUnits_t<br/>SimulationType_t / ConvergenceHistory_t"]
+
+    PZONE --> PCOORD["ParticleCoordinates_t [0..N]"]
+    PZONE --> PSOL["ParticleSolution_t [0..N]"]
+    PZONE --> PIT["ParticleIterativeData_t [0..1]"]
+    PCOORD --> PCOORDA["DataArray_t [0..N]<br/>CoordinateX / Y / Z ..."]
+    PSOL --> PFIELD["DataArray_t [0..N]<br/>粒子解与属性"]
 
     ZONE --> ZTYPE["ZoneType_t [1]<br/>Structured 或 Unstructured"]
     ZONE --> GRID["GridCoordinates_t [0..N]"]
@@ -117,6 +187,10 @@ CGNS tree root
    ├─ BaseIterativeData_t
    ├─ Family_t [0..N]
    ├─ FlowEquationSet_t / ReferenceState_t / units / metadata
+   ├─ ParticleZone_t [0..N]
+   │  ├─ ParticleCoordinates_t [0..N] -> DataArray_t
+   │  ├─ ParticleSolution_t [0..N] -> DataArray_t
+   │  └─ ParticleIterativeData_t
    └─ Zone_t [0..N]
       ├─ ZoneType_t
       ├─ GridCoordinates_t [0..N]
@@ -144,7 +218,63 @@ CGNS tree root
       └─ ZoneIterativeData_t
 ```
 
-### 3.2 数据之间的引用关系
+### 3.2 完整节点族索引
+
+下面按职责列出 SIDS 主要节点族。`自身数据` 只描述该节点直接保存的数据；大量实际数值位于其 `DataArray_t` 子节点。
+
+| 节点族 | 典型父节点 | 自身数据 | 意义和主要子节点 |
+|---|---|---|---|
+| `CGNSLibraryVersion_t` | `/` | `R4[1]` | 文件遵循的 CGNS 标准版本；MLL 自动维护 |
+| `CGNSBase_t` | `/` | `I4[2]` | `CellDimension, PhysicalDimension`；一棵 CGNS 数据库的入口 |
+| `Zone_t` | Base | `I4/I8[IndexDimension,3]` | 顶点、单元、边界顶点尺寸；包含 Zone 全部网格和场数据 |
+| `ZoneType_t` | Zone | `C1` | 必需，`Structured` 或 `Unstructured` |
+| `GridCoordinates_t` | Zone | 通常 `MT` | 一套坐标；子 `DataArray_t` 为 `CoordinateX/Y/Z` 等，可有 `Rind_t` 与包围盒 |
+| `Elements_t` | Zone | `I4/I8[2]` | 一个非结构 element section；子节点保存 connectivity、offset 和 parent data |
+| `FlowSolution_t` | Zone | 通常 `MT` | 同一位置的一组场；含 `GridLocation_t`、可选 PointSet、Rind 和字段数组 |
+| `DiscreteData_t` | Zone | 通常 `MT` | 不属于连续流场解的离散数据，如测量/离散属性；也可带位置和 PointSet |
+| `ZoneSubRegion_t` | Zone | `I4[1]` | Zone 子区域维数；用 PointSet、BC 名或 connectivity 名三选一描述区域 |
+| `ZoneBC_t` | Zone | `MT` | Zone 的边界条件容器 |
+| `BC_t` | ZoneBC | `C1` BC 类型 | 一个边界 patch；PointSet 定义区域，可含数据集、法向、family 和属性 |
+| `BCDataSet_t` | BC | `C1` BC 类型 | 一个 patch 的边界值，可有自身 PointSet/位置及 Dirichlet/Neumann 数据 |
+| `FamilyBCDataSet_t` | FamilyBC | `C1` BC 类型 | family 级边界值模板；数据结构与 BC dataset 相近 |
+| `BCData_t` | BCDataSet | `MT` | `Dirichlet` 或 `Neumann` 数组容器 |
+| `BCProperty_t` | BC | `MT` | 壁面函数和面积属性容器 |
+| `WallFunction_t` / `Area_t` | BCProperty | `C1` | 壁面函数类型；或面积类型、表面积、区域名 |
+| `ZoneGridConnectivity_t` | Zone | `MT` | 一组 Zone 间连通；一个 Zone 可有多组并通过迭代指针选择 |
+| `GridConnectivity1to1_t` | ZoneGridConnectivity | `I4/I8` | 结构网格一对一接口：本区范围、donor 范围和索引变换 |
+| `GridConnectivity_t` | ZoneGridConnectivity | `C1` donor Zone 名 | 一般 overset/abutting 接口；含本区点集、donor 点集和插值数据 |
+| `OversetHoles_t` | ZoneGridConnectivity | `MT` | overset 中被挖去的点/单元集合 |
+| `GridConnectivityProperty_t` | connectivity | `MT` | 周期接口或平均接口的属性容器 |
+| `Periodic_t` / `AverageInterface_t` | connectivity property | `MT` / `C1` | 旋转中心、角度和平移；或接口平均方式 |
+| `Family_t` | Base / Family | `MT` | 几何/材料/边界族，可嵌套；含 family BC、几何引用和用户数据 |
+| `FamilyBC_t` | Family | `C1` BC 类型 | family 默认边界类型，可含 `FamilyBCDataSet_t` |
+| `GeometryReference_t` | Family | `C1` CAD 文件名 | CAD/几何格式及 `GeometryEntity_t` 名称列表 |
+| `GeometryEntity_t` | GeometryReference | `C1` | 外部几何文件内的实体名 |
+| `BaseIterativeData_t` | Base | `I4[1]` | 时间步/迭代步数量；数组保存 `TimeValues`、`IterationValues` 等 |
+| `ZoneIterativeData_t` | Zone | `MT` | 每步选择的坐标、解、运动和 connectivity 节点名指针数组 |
+| `RigidGridMotion_t` | Zone | `C1` | 刚体运动类型；数组描述旋转和平移 |
+| `ArbitraryGridMotion_t` | Zone | `C1` | 变形/非变形网格；数组通常保存各顶点网格速度 |
+| `SimulationType_t` | Base | `C1` | `TimeAccurate` 或 `NonTimeAccurate` |
+| `ConvergenceHistory_t` | Base / Zone | `I4[1]` | 迭代数、范数定义文本和收敛历史数组 |
+| `IntegralData_t` | 多处 | `MT` | 积分量容器，如力、力矩、质量流率；数组名给出量的语义 |
+| `ReferenceState_t` | Base / Zone / BC 层级 | `MT` | 参考状态数组和说明，服从由近到远覆盖规则 |
+| `FlowEquationSet_t` | Base / Zone | `I4[1]` | 方程维数；包含控制方程与气体、粘性、湍流、电磁等模型 |
+| `GoverningEquations_t` | FlowEquationSet | `C1` | Euler、Navier-Stokes、Lattice Boltzmann 等方程类型，可含扩散标志 |
+| `GasModel_t` 等模型节点 | FlowEquationSet | `C1` | 模型枚举；子数组保存模型常数。具体合法枚举依节点 label 而异 |
+| `Axisymmetry_t` | Base | `MT` | 轴对称参考点、轴向量及可选角度定义 |
+| `RotatingCoordinates_t` | Base / Zone 等 | `MT` | 旋转角速度与旋转中心；局部节点覆盖上层设置 |
+| `Gravity_t` | Base | `MT` | `PhysicalDimension` 个重力矢量分量 |
+| `ParticleZone_t` | Base | `I4/I8[2]` | 粒子数量和边界粒子数量；独立于欧拉网格 Zone |
+| `ParticleCoordinates_t` | ParticleZone | 通常 `MT` | 粒子坐标数组和可选包围盒；可按时步保存多套 |
+| `ParticleSolution_t` | ParticleZone | 通常 `MT` | 粒子属性/解数组，可有粒子 PointSet |
+| `ParticleIterativeData_t` | ParticleZone | `MT` | 每步粒子坐标和解节点名指针数组 |
+| `ParticleEquationSet_t` | Base / ParticleZone | `I4[1]` | 粒子方程维数及控制方程、碰撞、破碎、力、壁面、相变模型 |
+| `ParticleGoverningEquations_t` | ParticleEquationSet | `C1` | `DEM`、`DSMC`、`SPH` 等 |
+| `Particle*Model_t` | ParticleEquationSet | `C1` | 粒子碰撞、破碎、力、壁面相互作用和相变模型，数组保存参数 |
+
+`GasModel_t`、`ViscosityModel_t`、`TurbulenceModel_t` 等并不接受 `ModelType_t` 的任意值；合法组合由 SIDS 对具体 label 规定。相同规则适用于 `ParticleModelType_t`。
+
+### 3.3 数据之间的引用关系
 
 父子关系只说明“存放在哪里”，还需要理解数组之间如何通过编号关联。非结构网格的核心关系如下：
 
@@ -170,7 +300,7 @@ flowchart LR
 - **顶点编号**：`ElementConnectivity` 中的普通节点号，指向坐标数组中的位置，从 1 开始。
 - **元素编号**：由各 `Elements_t/ElementRange` 定义，在同一 Zone 内全局唯一；面、边、体单元共享这个编号空间。
 
-### 3.3 Base 与 Zone 的尺寸
+### 3.4 Base 与 Zone 的尺寸
 
 `CGNSBase_t` 保存：
 
@@ -186,7 +316,7 @@ flowchart LR
 
 对三维结构网格，通常有 `CellSize = VertexSize - [1, 1, 1]`。非结构 Zone 的 `NCell` 只统计与 Base 的 `CellDimension` 相同的最高维单元，不等于所有 `Elements_t` 中边、面、体元素数量之和。
 
-### 3.4 坐标、解和位置
+### 3.5 坐标、解和位置
 
 - `GridCoordinates_t` 下每个 `DataArray_t` 保存一个坐标分量，常用标准名为 `CoordinateX`、`CoordinateY`、`CoordinateZ`。
 - 一个 `FlowSolution_t` 中的字段必须处于同一个 `GridLocation_t`。顶点解和单元中心解应放入不同的 `FlowSolution_t`。
@@ -195,7 +325,26 @@ flowchart LR
 - `FaceCenter`、`EdgeCenter` 或稀疏解通常需要 `PointList`/`PointRange` 明确范围，并要求相应维度的元素已在 `Elements_t` 中定义。
 - `Rind_t` 表示幽灵层/外扩点。读取数组大小时必须把 Rind 纳入考虑，不能只按 Zone 核心尺寸分配。
 
-## 4. Mid-Level Library API
+### 3.6 元数据继承与覆盖
+
+`DataClass_t`、`DimensionalUnits_t`、`ReferenceState_t`、`FlowEquationSet_t` 和 `ParticleEquationSet_t` 具有作用域。读取某个数组时，从数组或最近容器向 Base 逐级查找，离数据最近的定义覆盖更高层默认值。不要只读 Base 元数据后无条件套用到所有 Zone 和数组。
+
+`FamilyName_t` 是引用而非复制：BC、Zone 或 SubRegion 关联的 family 可能位于当前 Base、另一 Base，或嵌套 family 中。解析器应保存完整引用路径，不能仅按叶子名称全局匹配。
+
+### 3.7 时间序列与多套网格/解
+
+非稳态数据不是把额外“时间维”直接追加到每个场数组。常见模式是：
+
+1. `BaseIterativeData_t` 用 `NumberOfSteps` 和 `TimeValues`/`IterationValues` 定义步序列。
+2. Zone 下建立多套 `GridCoordinates_t`、`FlowSolution_t`、运动或 connectivity 节点。
+3. `ZoneIterativeData_t` 中的定长字符指针数组按步保存实际节点名，如 `FlowSolutionPointers`。
+4. 粒子数据使用对应的 `ParticleIterativeData_t`。
+
+指针数组是 `C1[32, NumberOfSteps]` 一类定长字符矩阵，不是 HDF5 object reference。读取后必须去除空格填充，同时保留 CGNS 名称的大小写。
+
+## 4. Mid-Level Library API 快速入口
+
+本节仅保留读取 CGNS 文件所需的核心模式。仓库 CGNS 4.5.1 的全部 C API（包括粒子、物理模型、通用元数据、链接和所有 partial/general 变体）见 [CGNS_API.md](CGNS_API.md)。
 
 ### 4.1 接口的一般模式
 
@@ -608,6 +757,7 @@ Zone_t
 - [SIDS：网格、Elements_t 与多面体布局](https://cgns.org/standard/SIDS/grid.html)
 - [SIDS：非结构单元节点编号约定](https://cgns.org/standard/SIDS/convention.html)
 - [MLL：C/Fortran Mid-Level Library API](https://cgns.org/standard/MLL/CGNS_MLL.html)
-- [FMM：文件映射](https://cgns.org/standard/FMM/CGNS_FMM.html)
+- [FMM：文件映射](https://cgns.org/standard/CGNS_FMM.html)
+- [FMM：全部标准节点的属性和语义](https://cgns.org/standard/FMM/nodes.html)
 
 在实现高阶单元格式转换时，应以“非结构单元节点编号约定”中的图和局部面表为最终依据；类型名和节点数量相同，不代表其他网格格式采用相同的局部节点顺序。
