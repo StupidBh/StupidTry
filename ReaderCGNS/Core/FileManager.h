@@ -1,9 +1,11 @@
 #pragma once
 #include "ReaderAPI/ReaderApiBase.h"
 #include "Logger.h"
+#include "CgnsTypes.hpp"
 
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 class FileManager : public ReaderAPI::ReaderApiBase {
@@ -31,11 +33,14 @@ public:
 
 protected:
     int get_file_id() const noexcept;
-    const std::string& get_file_name() const noexcept;
+    [[nodiscard]] std::vector<std::pair<int, std::vector<int>>> get_base_zone_indices() const;
 
     LogDispatcher& GetLogDispatcher() const noexcept;
 
 private:
+    virtual bool initialize_file_data();
+    virtual void clear_file_data() noexcept;
+
     void clear_data();
     bool initialize_base_zone_layout();
 

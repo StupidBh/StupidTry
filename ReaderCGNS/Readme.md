@@ -10,6 +10,7 @@
 
 - CGNS 存储类型、文件版本与数据精度；
 - Base、Zone、迭代信息与结构化/非结构化尺寸；
+- 打开文件时构建 Base/Zone/Section 内部网格拓扑，包括 Structured 尺寸、固定单元连接表以及 `MIXED/NGON_n/NFACE_n` 变长连接表；
 - FlowSolution、DiscreteData 与 ZoneSubRegion；
 - GridCoordinates 与元素 Section/Connectivity；
 - 一对一连接、一般网格连接与 Overset Holes；
@@ -18,6 +19,14 @@
 - ParticleZone、粒子坐标与粒子解描述。
 
 输入文件使用 `CG_MODE_READ` 打开。库不会修改 CGNS 文件，也不会主动创建日志文件；所有可观测信息均交给调用方注册的回调。
+
+### 内部网格拓扑
+
+`FileManager` 首先通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置，`ReaderMeshData` 只遍历这组索引，不会重新扫描已经被布局阶段过滤的节点。当前内部拓扑只覆盖 Base、Zone 和 Section 三个层级，不读取坐标、解场、边界条件或 Zone 间连接数据。
+
+Structured Zone 的单元拓扑由计算空间隐式确定，因此只保存 `VertexSize`、`CellSize` 和 `BoundaryVertexSize`，不要求存在 `Elements_t`。Unstructured Zone 会遍历 Section：固定元素类型通过 `cg_npe()` 校验每个元素的节点数并读取连续 connectivity；`MIXED`、`NGON_n` 和 `NFACE_n` 通过 `cg_poly_elements_read()` 同时保存 connectivity 与 `ElementStartOffset`。Section 声明 parent data 时，同时保留 `ParentElements` 和 `ParentElementsPosition` 的原始四列数据。
+
+拓扑读取采用临时结果构建，只有目标 Base/Zone 全部成功后才替换当前快照。任一必需 CGNS 调用、尺寸校验或 offset 校验失败都会使 `Open()` 返回 `false` 并执行关闭清理；`Close()` 会在关闭 CGNS 文件前释放拓扑数据。该快照属于 DLL 内部实现，尚未加入公开 `ReaderApiBase` 接口。
 
 ## 公开接口
 
@@ -79,7 +88,7 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 
 ## 返回值与错误处理
 
-`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件；文件无效或 `cg_open()` 失败时返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `GetVersion()`、`GetSolverType()` 和 `info()`，并在结束后显式调用 `Close()`。当前实现不支持在未关闭旧文件时复用同一实例打开另一个文件。
+`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件，然后初始化 Base/Zone 布局和内部网格拓扑；任一步失败都会关闭文件、清理已构建数据并返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `GetVersion()`、`GetSolverType()` 和 `info()`，并在结束后显式调用 `Close()`。使用同一实例打开不同文件时，当前文件会先被关闭和清理；再次打开同一路径且文件仍处于打开状态时直接返回成功。
 
 `GetSolverType()` 只读取第一个 `CGNSBase_t` 下直接声明的 `FlowEquationSet_t`，不遍历 Zone，也不根据 `SimulationType_t` 或其他节点推断方程类型。节点不存在或读取失败时，接口保留对应 CGNS 日志并返回 `"Unknown"`。
 
@@ -100,10 +109,11 @@ ReaderCGNS/
 ├── src/
 │   └── ExportFunctions.cpp              # Create/Destroy reader 导出
 ├── Common/
-│   └── CgnsTypes.hpp               # 内部 CGNS 公共常量
+│   └── CgnsTypes.hpp               # 内部 CGNS 常量与网格拓扑数据类型
 ├── Core/
 │   ├── CgnsCore.h                  # CGNS 层次遍历实现
 │   ├── FileManager.h               # 文件生命周期、版本与 Base 级方程类型
+│   ├── ReaderMeshData.h            # Base/Zone/Section 网格拓扑初始化
 │   └── src/
 ├── Utils/
 │   ├── Logger.h                    # 实例 dispatcher、格式化与错误适配

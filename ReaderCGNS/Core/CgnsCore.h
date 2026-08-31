@@ -1,7 +1,7 @@
 #pragma once
-#include "FileManager.h"
+#include "ReaderMeshData.h"
 
-class CgnsCore : virtual public FileManager {
+class CgnsCore : public ReaderMeshData {
 public:
     void info() const final;
 };
