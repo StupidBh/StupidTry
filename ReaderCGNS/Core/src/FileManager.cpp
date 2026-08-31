@@ -1,11 +1,5 @@
 #include "FileManager.h"
 
-#include "CgnsTypes.hpp"
-#include "Logger.h"
-
-#include "cgnslib.h"
-#include "../../../Utils/Utils.hpp"
-
 FileManager::~FileManager()
 {
     this->Close();
@@ -47,7 +41,6 @@ bool FileManager::Open(const std::string& cgns_file_path)
         return false;
     }
 
-    // int cg_file_id = 0;
     if (CGNS_LOG_CALL(cg_open(cgns_file_path.c_str(), CG_MODE_READ, &this->m_file_id)) != CG_OK) {
         return false;
     }
@@ -58,17 +51,18 @@ bool FileManager::Open(const std::string& cgns_file_path)
     CGNS_LOG_CALL(cg_precision(this->m_file_id, &cg_file_precision));
     LOG_INFO("[{}] v{:.2f}, Precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
 
-    if (!this->initialize_base_zone_layout()) {
+    this->m_cgns_file_path = cgns_file_path;
+    if (!this->initialize_base_zone_layout() || !this->initialize_file_data()) {
         this->Close();
         return false;
     }
 
-    this->m_cgns_file_path = cgns_file_path;
     return true;
 }
 
 void FileManager::Close()
 {
+    this->clear_file_data();
     if (this->IsOpen()) {
         LOG_INFO("Close CGNS file: [{}].", this->m_cgns_file_path);
         CGNS_LOG_CALL(cg_close(this->m_file_id));
@@ -104,14 +98,28 @@ int FileManager::get_file_id() const noexcept
     return this->m_file_id;
 }
 
-const std::string& FileManager::get_file_name() const noexcept
+std::vector<std::pair<int, std::vector<int>>> FileManager::get_base_zone_indices() const
 {
-    return this->m_cgns_file_path;
+    std::vector<std::pair<int, std::vector<int>>> base_zone_indices;
+    base_zone_indices.reserve(this->m_base_zone_indices.size());
+    for (const auto& [base_index, base_zone] : this->m_base_zone_indices) {
+        base_zone_indices.emplace_back(base_index, base_zone.zone_indices);
+    }
+    return base_zone_indices;
 }
 
 LogDispatcher& FileManager::GetLogDispatcher() const noexcept
 {
     return this->m_log_dispatcher;
+}
+
+bool FileManager::initialize_file_data()
+{
+    return true;
+}
+
+void FileManager::clear_file_data() noexcept
+{
 }
 
 void FileManager::clear_data()
@@ -141,7 +149,7 @@ bool FileManager::initialize_base_zone_layout()
         auto& zone_indices = this->m_base_zone_indices.try_emplace(index_base, BaseZone { .base = index_base }).first->second;
         zone_indices.zone_indices.reserve(nzones);
         for (int index_zone = 1; index_zone <= nzones; ++index_zone) {
-            zone_indices.zone_indices.emplace_back(index_base);
+            zone_indices.zone_indices.emplace_back(index_zone);
         }
 
         char base_name[CGNS_NAME_MAX_LEN] = { };

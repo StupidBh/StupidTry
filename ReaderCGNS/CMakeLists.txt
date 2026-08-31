@@ -3,8 +3,9 @@ project(ReaderCGNS LANGUAGES CXX)
 add_library(${PROJECT_NAME} MODULE
         src/ExportFunctions.cpp
         Utils/src/Logger.cpp
-        Core/src/CgnsCore.cpp
         Core/src/FileManager.cpp
+        Core/src/ReaderMeshData.cpp
+        Core/src/CgnsCore.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
@@ -14,6 +15,7 @@ endif ()
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
+        ${CMAKE_SOURCE_DIR}
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/Common"
         "${CMAKE_CURRENT_SOURCE_DIR}/Utils"
