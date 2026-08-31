@@ -11,6 +11,8 @@
 #include <atomic>
 #include <chrono>
 #include <concepts>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <future>
 #include <iostream>
