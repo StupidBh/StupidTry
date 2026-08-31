@@ -75,4 +75,4 @@ private:
 #define LOG_WARN(...)  this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_ERROR(...) this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
-#define CG_INFO(STATUS) this->GetLogDispatcher().HandleCgnsStatus((STATUS), #STATUS, std::source_location::current())
+#define CGNS_LOG_CALL(STATUS) this->GetLogDispatcher().HandleCgnsStatus((STATUS), #STATUS, std::source_location::current())

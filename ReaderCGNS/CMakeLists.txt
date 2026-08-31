@@ -1,7 +1,7 @@
 project(ReaderCGNS LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} MODULE
-        src/ReaderCGNS.cpp
+        src/ExportFunctions.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
         Core/src/FileManager.cpp

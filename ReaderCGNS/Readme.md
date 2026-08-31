@@ -85,7 +85,7 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 
 `info()` 没有返回值。节点级 CGNS API 错误不会汇总为调用结果，而是记录对应状态与 `cg_get_error()` 后在可行时继续。因此日志内容是判断局部读取问题的主要依据。`Close()` 同样没有返回值，关闭失败通过日志报告。
 
-内部 `CG_INFO(expression)` 适配器只求值一次 CGNS API 表达式。状态为 `CG_OK` 时不输出；其他状态会连同状态名称或数值、调用表达式、`cg_get_error()` 文本及调用位置交给日志回调，并原样返回状态码。它不会抛出异常、提前返回或改变调用方控制流；允许调用点忽略返回值，需要根据失败结果分支时也可以显式检查该返回值。
+内部 `CGNS_LOG_CALL(expression)` 适配器只求值一次 CGNS API 表达式。状态为 `CG_OK` 时不输出；其他状态会连同状态名称或数值、调用表达式、`cg_get_error()` 文本及调用位置交给日志回调，并原样返回状态码。它不会抛出异常、提前返回或改变调用方控制流；允许调用点忽略返回值，需要根据失败结果分支时也可以显式检查该返回值。
 
 ## 目录结构
 
@@ -98,7 +98,7 @@ ReaderCGNS/
 ├── include/ReaderAPI/
 │   └── ReaderApiBase.h             # reader 接口、工厂及日志协议类型
 ├── src/
-│   └── ReaderCGNS.cpp              # Create/Destroy reader 导出
+│   └── ExportFunctions.cpp              # Create/Destroy reader 导出
 ├── Common/
 │   └── CgnsTypes.hpp               # 内部 CGNS 公共常量
 ├── Core/

@@ -14,19 +14,19 @@ void CgnsCore::info() const
 {
     // Base Information
     int nbases = 0;
-    CG_INFO(cg_nbases(this->GetFileID(), &nbases));
+    CGNS_LOG_CALL(cg_nbases(this->get_file_id(), &nbases));
     for (int base = 1; base <= nbases; ++base) {
         char base_name[CGNS_NAME_MAX_LEN] = { }, base_biter_name[CGNS_NAME_MAX_LEN] = { };
         int base_cell_dim = 0, base_phys_dim = 0, base_iter_nsteps = 0, n1to1s_global = 0;
         CG_SimulationType_t base_simulation_type = CG_SimulationType_t::CG_SimulationTypeNull;
-        CG_INFO(cg_base_read(this->GetFileID(), base, base_name, &base_cell_dim, &base_phys_dim));
-        CG_INFO(cg_simulation_type_read(this->GetFileID(), base, &base_simulation_type));
+        CGNS_LOG_CALL(cg_base_read(this->get_file_id(), base, base_name, &base_cell_dim, &base_phys_dim));
+        CGNS_LOG_CALL(cg_simulation_type_read(this->get_file_id(), base, &base_simulation_type));
 
         // Base Iterative Data
-        CG_INFO(cg_biter_read(this->GetFileID(), base, base_biter_name, &base_iter_nsteps));
+        CGNS_LOG_CALL(cg_biter_read(this->get_file_id(), base, base_biter_name, &base_iter_nsteps));
 
         // One-to-One Connectivity Global
-        CG_INFO(cg_n1to1_global(this->GetFileID(), base, &n1to1s_global));
+        CGNS_LOG_CALL(cg_n1to1_global(this->get_file_id(), base, &n1to1s_global));
 
         LOG_INFO("[Base] {}:[{}] {}, CellDim={}, PhyDim={}, [{}] Iterative={}, n1to1s_global={}",
                  base,
@@ -40,17 +40,17 @@ void CgnsCore::info() const
 
         // Zone Information
         int nzones = 0;
-        CG_INFO(cg_nzones(this->GetFileID(), base, &nzones));
+        CGNS_LOG_CALL(cg_nzones(this->get_file_id(), base, &nzones));
         for (int zone = 1; zone <= nzones; ++zone) {
             char zone_name[CGNS_NAME_MAX_LEN] = { }, zone_iter_name[CGNS_NAME_MAX_LEN] = { };
             int zone_dim = 0;
             CG_ZoneType_t zone_type = CG_ZoneType_t::CG_ZoneTypeNull;
             std::array<cgsize_t, 9> zone_size { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-            CG_INFO(cg_index_dim(this->GetFileID(), base, zone, &zone_dim));
-            CG_INFO(cg_zone_type(this->GetFileID(), base, zone, &zone_type));
-            CG_INFO(cg_ziter_read(this->GetFileID(), base, zone, zone_iter_name));
-            CG_INFO(cg_zone_read(this->GetFileID(), base, zone, zone_name, zone_size.data()));
+            CGNS_LOG_CALL(cg_index_dim(this->get_file_id(), base, zone, &zone_dim));
+            CGNS_LOG_CALL(cg_zone_type(this->get_file_id(), base, zone, &zone_type));
+            CGNS_LOG_CALL(cg_ziter_read(this->get_file_id(), base, zone, zone_iter_name));
+            CGNS_LOG_CALL(cg_zone_read(this->get_file_id(), base, zone, zone_name, zone_size.data()));
 
             cgsize_t zone_vertex_sum = 0, zone_cell_sum = 0;
             if (zone_type == CG_ZoneType_t::CG_Structured) {
@@ -116,7 +116,7 @@ void CgnsCore::info() const
 
             // Flow Solution
             int nsols = 0;
-            CG_INFO(cg_nsols(this->GetFileID(), base, zone, &nsols));
+            CGNS_LOG_CALL(cg_nsols(this->get_file_id(), base, zone, &nsols));
             for (int sol = 1; sol <= nsols; ++sol) {
                 char sol_name[CGNS_NAME_MAX_LEN] = { };
                 int sol_data_dim = 0, sol_nfields = 0;
@@ -124,14 +124,14 @@ void CgnsCore::info() const
                 std::vector<cgsize_t> sol_dim_vals(zone_dim, 0);
                 CG_GridLocation_t sol_location = CG_GridLocation_t::CG_GridLocationNull;
                 CG_PointSetType_t sol_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
-                CG_INFO(cg_nfields(this->GetFileID(), base, zone, sol, &sol_nfields));
-                CG_INFO(cg_sol_info(this->GetFileID(), base, zone, sol, sol_name, &sol_location));
-                CG_INFO(cg_sol_size(this->GetFileID(), base, zone, sol, &sol_data_dim, sol_dim_vals.data()));
-                CG_INFO(cg_sol_ptset_info(this->GetFileID(), base, zone, sol, &sol_point_set_type, sol_npnts.data()));
+                CGNS_LOG_CALL(cg_nfields(this->get_file_id(), base, zone, sol, &sol_nfields));
+                CGNS_LOG_CALL(cg_sol_info(this->get_file_id(), base, zone, sol, sol_name, &sol_location));
+                CGNS_LOG_CALL(cg_sol_size(this->get_file_id(), base, zone, sol, &sol_data_dim, sol_dim_vals.data()));
+                CGNS_LOG_CALL(cg_sol_ptset_info(this->get_file_id(), base, zone, sol, &sol_point_set_type, sol_npnts.data()));
 
                 if (sol_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
                     sol_npnts.resize(sol_npnts[0] * zone_dim, 0);
-                    CG_INFO(cg_sol_ptset_read(this->GetFileID(), base, zone, sol, sol_npnts.data()));
+                    CGNS_LOG_CALL(cg_sol_ptset_read(this->get_file_id(), base, zone, sol, sol_npnts.data()));
                 }
 
                 LOG_INFO("    [FlowSolution]{:>2}:[{}]-[{}] {}, NField={}, DataDim={}, DataVal={}, npnts={}",
@@ -147,20 +147,20 @@ void CgnsCore::info() const
 
             // Discrete Data
             int ndiscrete = 0;
-            CG_INFO(cg_ndiscrete(this->GetFileID(), base, zone, &ndiscrete));
+            CGNS_LOG_CALL(cg_ndiscrete(this->get_file_id(), base, zone, &ndiscrete));
             for (int discrete = 1; discrete <= ndiscrete; ++discrete) {
                 char discrete_name[CGNS_NAME_MAX_LEN] = { };
                 int discrete_data_dim = 0;
                 std::vector<cgsize_t> discrete_dim_vals(zone_dim, 0), discrete_npnts(1, 0);
                 CG_PointSetType_t discrete_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
 
-                CG_INFO(cg_discrete_read(this->GetFileID(), base, zone, discrete, discrete_name));
-                CG_INFO(cg_discrete_size(this->GetFileID(), base, zone, discrete, &discrete_data_dim, discrete_dim_vals.data()));
-                CG_INFO(cg_discrete_ptset_info(this->GetFileID(), base, zone, discrete, &discrete_point_set_type, discrete_npnts.data()));
+                CGNS_LOG_CALL(cg_discrete_read(this->get_file_id(), base, zone, discrete, discrete_name));
+                CGNS_LOG_CALL(cg_discrete_size(this->get_file_id(), base, zone, discrete, &discrete_data_dim, discrete_dim_vals.data()));
+                CGNS_LOG_CALL(cg_discrete_ptset_info(this->get_file_id(), base, zone, discrete, &discrete_point_set_type, discrete_npnts.data()));
 
                 if (discrete_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
                     discrete_npnts.resize(discrete_npnts[0] * zone_dim, 0);
-                    CG_INFO(cg_discrete_ptset_read(this->GetFileID(), base, zone, discrete, discrete_npnts.data()));
+                    CGNS_LOG_CALL(cg_discrete_ptset_read(this->get_file_id(), base, zone, discrete, discrete_npnts.data()));
                 }
 
                 LOG_INFO("    [DiscreteData]{:>2}:[{}] {}, DataDim={}, DimVal={}, npnts={}",
@@ -174,7 +174,7 @@ void CgnsCore::info() const
 
             // Zone Subregions
             int nsubregs = 0;
-            CG_INFO(cg_nsubregs(this->GetFileID(), base, zone, &nsubregs));
+            CGNS_LOG_CALL(cg_nsubregs(this->get_file_id(), base, zone, &nsubregs));
             for (int subreg = 1; subreg <= nsubregs; ++subreg) {
                 char subreg_name[CGNS_NAME_MAX_LEN] = { };
                 int subreg_dim = 0, subreg_bcname_len = 0, subreg_gcname_len = 0;
@@ -182,7 +182,7 @@ void CgnsCore::info() const
                 CG_GridLocation_t subreg_location = CG_GridLocation_t::CG_GridLocationNull;
                 CG_PointSetType_t subreg_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
 
-                CG_INFO(cg_subreg_info(this->GetFileID(),
+                CGNS_LOG_CALL(cg_subreg_info(this->get_file_id(),
                                        base,
                                        zone,
                                        subreg,
@@ -195,7 +195,7 @@ void CgnsCore::info() const
                                        &subreg_gcname_len));
                 if (subreg_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
                     subreg_npnts.resize(subreg_npnts[0] * zone_dim, 1);
-                    CG_INFO(cg_subreg_ptset_read(this->GetFileID(), base, zone, subreg, subreg_npnts.data()));
+                    CGNS_LOG_CALL(cg_subreg_ptset_read(this->get_file_id(), base, zone, subreg, subreg_npnts.data()));
                 }
 
                 std::string msg = std::format("    [ZoneSubregions]{:>2}:[{}]-[{}] {}, Dimension={}",
@@ -206,12 +206,12 @@ void CgnsCore::info() const
                                               subreg_dim);
                 if (subreg_bcname_len > 0) {
                     std::string subreg_bcname(subreg_bcname_len + 1, '\0');
-                    CG_INFO(cg_subreg_bcname_read(this->GetFileID(), base, zone, subreg, subreg_bcname.data()));
+                    CGNS_LOG_CALL(cg_subreg_bcname_read(this->get_file_id(), base, zone, subreg, subreg_bcname.data()));
                     msg += std::format(" baname={}", subreg_name);
                 }
                 if (subreg_gcname_len > 0) {
                     std::string subreg_gcname(subreg_gcname_len + 1, '\0');
-                    CG_INFO(cg_subreg_gcname_read(this->GetFileID(), base, zone, subreg, subreg_gcname.data()));
+                    CGNS_LOG_CALL(cg_subreg_gcname_read(this->get_file_id(), base, zone, subreg, subreg_gcname.data()));
                     msg += std::format(" gcname={}", subreg_name);
                 }
                 LOG_INFO("{} npnts={}", msg, subreg_npnts);
@@ -219,24 +219,24 @@ void CgnsCore::info() const
 
             // Zone Grid Coordinates
             int ngrids = 0;
-            CG_INFO(cg_ngrids(this->GetFileID(), base, zone, &ngrids));
+            CGNS_LOG_CALL(cg_ngrids(this->get_file_id(), base, zone, &ngrids));
             for (int grid = 1; grid <= ngrids; ++grid) {
                 char grid_name[CGNS_NAME_MAX_LEN] = { };
                 // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
                 // std::vector<cgsize_t> grid_bounding_box(1, 0);
 
-                CG_INFO(cg_grid_read(this->GetFileID(), base, zone, grid, grid_name));
+                CGNS_LOG_CALL(cg_grid_read(this->get_file_id(), base, zone, grid, grid_name));
                 // CG_INFO(cg_grid_bounding_box_read(this->GetFileID(), base, zone, grid, grid_data_type, grid_bounding_box.data()));
 
                 LOG_INFO("    [ZoneGird]{:>2}:[{}]", grid, grid_name);
             }
             int ncoords = 0;
             std::string coord_info_msg;
-            CG_INFO(cg_ncoords(this->GetFileID(), base, zone, &ncoords));
+            CGNS_LOG_CALL(cg_ncoords(this->get_file_id(), base, zone, &ncoords));
             for (int coord = 1; coord <= ncoords; ++coord) {
                 char coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t coord_data_type = CG_DataType_t::CG_DataTypeNull;
-                CG_INFO(cg_coord_info(this->GetFileID(), base, zone, coord, &coord_data_type, coord_name));
+                CGNS_LOG_CALL(cg_coord_info(this->get_file_id(), base, zone, coord, &coord_data_type, coord_name));
 
                 coord_info_msg += std::format("[{}-{}-{}], ", coord, cg_DataTypeName(coord_data_type), coord_name);
             }
@@ -247,13 +247,13 @@ void CgnsCore::info() const
 
             // Element Connectivity
             int nsections = 0;
-            CG_INFO(cg_nsections(this->GetFileID(), base, zone, &nsections));
+            CGNS_LOG_CALL(cg_nsections(this->get_file_id(), base, zone, &nsections));
             for (int section = 1; section <= nsections; ++section) {
                 char section_name[CGNS_NAME_MAX_LEN] = { };
                 CG_ElementType_t section_element_type = CG_ElementType_t::CG_ElementTypeNull;
                 cgsize_t section_start = 0, section_end = 0;
                 int section_nbndry = 0, section_parent_flag = 0;
-                CG_INFO(cg_section_read(this->GetFileID(),
+                CGNS_LOG_CALL(cg_section_read(this->get_file_id(),
                                         base,
                                         zone,
                                         section,
@@ -269,7 +269,7 @@ void CgnsCore::info() const
                 }
 
                 cgsize_t element_data_size = 0;
-                CG_INFO(cg_ElementDataSize(this->GetFileID(), base, zone, section, &element_data_size));
+                CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), base, zone, section, &element_data_size));
                 if (element_data_size <= 0) {
                     LOG_INFO("    [ZoneSection] {} element data is empty.", section_name);
                     continue;
@@ -280,10 +280,10 @@ void CgnsCore::info() const
                 static const std::unordered_set MIX_ELEMENT = { CG_ElementType_t::CG_MIXED, CG_ElementType_t::CG_NGON_n, CG_ElementType_t::CG_NFACE_n };
                 if (MIX_ELEMENT.contains(section_element_type)) {
                     std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
-                    CG_INFO(cg_poly_elements_read(this->GetFileID(), base, zone, section, elements.data(), elements_connect_offset.data(), nullptr));
+                    CGNS_LOG_CALL(cg_poly_elements_read(this->get_file_id(), base, zone, section, elements.data(), elements_connect_offset.data(), nullptr));
                 }
                 else {
-                    CG_INFO(cg_elements_read(this->GetFileID(), base, zone, section, elements.data(), nullptr));
+                    CGNS_LOG_CALL(cg_elements_read(this->get_file_id(), base, zone, section, elements.data(), nullptr));
                 }
 
                 if (elements.empty()) {
@@ -309,14 +309,14 @@ void CgnsCore::info() const
 
             // One-to-One Connectivity
             int n1to1s = 0;
-            CG_INFO(cg_n1to1(this->GetFileID(), base, zone, &n1to1s));
+            CGNS_LOG_CALL(cg_n1to1(this->get_file_id(), base, zone, &n1to1s));
             for (int n1to1 = 1; n1to1 <= n1to1s; ++n1to1) {
                 char n1to1_connectname[CGNS_NAME_MAX_LEN] = { };
                 char n1to1_donorname[CGNS_NAME_MAX_LEN] = { };
                 std::vector<cgsize_t> n1to1_range(zone_dim * 2, 0), donor_range(zone_dim * 2, 0);
                 std::vector<int> n1to1_transform(zone_dim, 0);
 
-                CG_INFO(cg_1to1_read(this->GetFileID(),
+                CGNS_LOG_CALL(cg_1to1_read(this->get_file_id(),
                                      base,
                                      zone,
                                      n1to1,
@@ -336,7 +336,7 @@ void CgnsCore::info() const
 
             // Generalized Connectivity
             int nconns = 0;
-            CG_INFO(cg_nconns(this->GetFileID(), base, zone, &nconns));
+            CGNS_LOG_CALL(cg_nconns(this->get_file_id(), base, zone, &nconns));
             for (int ncoon = 1; ncoon <= nconns; ++ncoon) {
                 cgsize_t npnts = 0, ndata_donor = 0;
                 char ncoon_name[CGNS_NAME_MAX_LEN] = { }, ncoon_donor_name[CGNS_NAME_MAX_LEN] = { };
@@ -346,7 +346,7 @@ void CgnsCore::info() const
                 CG_ZoneType_t donor_zonetype = CG_ZoneType_t::CG_ZoneTypeNull;
                 CG_DataType_t donor_datatype = CG_DataType_t::CG_DataTypeNull;
 
-                CG_INFO(cg_conn_info(this->GetFileID(),
+                CGNS_LOG_CALL(cg_conn_info(this->get_file_id(),
                                      base,
                                      zone,
                                      ncoon,
@@ -375,7 +375,7 @@ void CgnsCore::info() const
                          ndata_donor);
             }
             int nholes = 0;
-            CG_INFO(cg_nholes(this->GetFileID(), base, zone, &nholes));
+            CGNS_LOG_CALL(cg_nholes(this->get_file_id(), base, zone, &nholes));
             for (int hole = 1; hole <= nholes; ++hole) {
                 char hole_name[CGNS_NAME_MAX_LEN] = { };
                 CG_GridLocation_t hole_location = CG_GridLocation_t::CG_GridLocationNull;
@@ -383,7 +383,7 @@ void CgnsCore::info() const
                 int hole_nptsets = 0;
                 cgsize_t hole_npnts = 0;
 
-                CG_INFO(cg_hole_info(this->GetFileID(), base, zone, hole, hole_name, &hole_location, &hole_ptset_type, &hole_nptsets, &hole_npnts));
+                CGNS_LOG_CALL(cg_hole_info(this->get_file_id(), base, zone, hole, hole_name, &hole_location, &hole_ptset_type, &hole_nptsets, &hole_npnts));
 
                 LOG_INFO("    [GeneralizedConnectivity]{:>2}:[{}] {}, [{}] nptsets={}, npnts={}",
                          hole,
@@ -396,7 +396,7 @@ void CgnsCore::info() const
 
             // Boundary Conditions
             int nbocos = 0;
-            CG_INFO(cg_nbocos(this->GetFileID(), base, zone, &nbocos));
+            CGNS_LOG_CALL(cg_nbocos(this->get_file_id(), base, zone, &nbocos));
             for (int boco = 1; boco <= nbocos; ++boco) {
                 char boco_name[CGNS_NAME_MAX_LEN] = { };
                 CG_BCType_t boco_type = CG_BCType_t::CG_BCTypeNull;
@@ -407,8 +407,8 @@ void CgnsCore::info() const
                 std::vector<int> boco_normal_index(zone_dim, 0);
                 int boco_ndataset = 0;
 
-                CG_INFO(cg_boco_gridlocation_read(this->GetFileID(), base, zone, boco, &boco_location));
-                CG_INFO(cg_boco_info(this->GetFileID(),
+                CGNS_LOG_CALL(cg_boco_gridlocation_read(this->get_file_id(), base, zone, boco, &boco_location));
+                CGNS_LOG_CALL(cg_boco_info(this->get_file_id(),
                                      base,
                                      zone,
                                      boco,
@@ -438,7 +438,7 @@ void CgnsCore::info() const
                     CG_BCType_t boco_dataset_type = CG_BCType_t::CG_BCTypeNull;
                     int boco_dataset_dirichlet_flag = 0, boco_dataset_neumann_flag = 0;
 
-                    CG_INFO(cg_dataset_read(this->GetFileID(),
+                    CGNS_LOG_CALL(cg_dataset_read(this->get_file_id(),
                                             base,
                                             zone,
                                             boco,
@@ -460,32 +460,32 @@ void CgnsCore::info() const
 
             // Rigid Grid Motion
             int n_rigid_motions = 0;
-            CG_INFO(cg_n_rigid_motions(this->GetFileID(), base, zone, &n_rigid_motions));
+            CGNS_LOG_CALL(cg_n_rigid_motions(this->get_file_id(), base, zone, &n_rigid_motions));
             for (int rigid_motion = 1; rigid_motion <= n_rigid_motions; ++rigid_motion) {
                 char rigid_motion_name[CGNS_NAME_MAX_LEN] = { };
                 CG_RigidGridMotionType_t rigid_motion_type = CG_RigidGridMotionType_t::CG_RigidGridMotionTypeNull;
-                CG_INFO(cg_rigid_motion_read(this->GetFileID(), base, zone, rigid_motion, rigid_motion_name, &rigid_motion_type));
+                CGNS_LOG_CALL(cg_rigid_motion_read(this->get_file_id(), base, zone, rigid_motion, rigid_motion_name, &rigid_motion_type));
 
                 LOG_INFO("    [RigidGridMotion]{:>2}:[{}] {}", rigid_motion, cg_RigidGridMotionTypeName(rigid_motion_type), rigid_motion_name);
             }
 
             // Arbitrary Grid Motion
             int n_arbitrary_motions = 0;
-            CG_INFO(cg_n_arbitrary_motions(this->GetFileID(), base, zone, &n_arbitrary_motions));
+            CGNS_LOG_CALL(cg_n_arbitrary_motions(this->get_file_id(), base, zone, &n_arbitrary_motions));
             for (int arbitrary_motion = 1; arbitrary_motion <= n_arbitrary_motions; ++arbitrary_motion) {
                 char arbitrary_motion_name[CGNS_NAME_MAX_LEN] = { };
                 CG_ArbitraryGridMotionType_t arbitrary_motion_type = CG_ArbitraryGridMotionType_t::CG_ArbitraryGridMotionTypeNull;
-                CG_INFO(cg_arbitrary_motion_read(this->GetFileID(), base, zone, arbitrary_motion, arbitrary_motion_name, &arbitrary_motion_type));
+                CGNS_LOG_CALL(cg_arbitrary_motion_read(this->get_file_id(), base, zone, arbitrary_motion, arbitrary_motion_name, &arbitrary_motion_type));
 
                 LOG_INFO("    [ArbitraryGridMotion]{:>2}:[{}] {}", arbitrary_motion, cg_ArbitraryGridMotionTypeName(arbitrary_motion_type), arbitrary_motion_name);
             }
 
             // Zone Grid Connectivity
             int nzconns = 0;
-            CG_INFO(cg_nzconns(this->GetFileID(), base, zone, &nzconns));
+            CGNS_LOG_CALL(cg_nzconns(this->get_file_id(), base, zone, &nzconns));
             for (int zconn = 1; zconn <= nzconns; ++zconn) {
                 char zconn_name[CGNS_NAME_MAX_LEN] = { };
-                CG_INFO(cg_zconn_read(this->GetFileID(), base, zone, zconn, zconn_name));
+                CGNS_LOG_CALL(cg_zconn_read(this->get_file_id(), base, zone, zconn, zconn_name));
 
                 LOG_INFO("    [ZoneGridConnectivity]{:>2}:[NULL] {}", zconn, zconn_name);
             }
@@ -493,32 +493,32 @@ void CgnsCore::info() const
 
         // Particle Zone Information
         int nparticlezones = 0;
-        CG_INFO(cg_nparticle_zones(this->GetFileID(), base, &nparticlezones));
+        CGNS_LOG_CALL(cg_nparticle_zones(this->get_file_id(), base, &nparticlezones));
         for (int particle_zone = 1; particle_zone <= nparticlezones; ++particle_zone) {
             double particle_zone_id = 0;
             char particle_zone_name[CGNS_NAME_MAX_LEN] = { };
             cgsize_t particle_zone_size = 0;
 
-            CG_INFO(cg_particle_id(this->GetFileID(), base, particle_zone, &particle_zone_id));
-            CG_INFO(cg_particle_read(this->GetFileID(), base, particle_zone, particle_zone_name, &particle_zone_size));
+            CGNS_LOG_CALL(cg_particle_id(this->get_file_id(), base, particle_zone, &particle_zone_id));
+            CGNS_LOG_CALL(cg_particle_read(this->get_file_id(), base, particle_zone, particle_zone_name, &particle_zone_size));
 
             LOG_INFO("  [Particle]{:>2}:[NULL] {}, id={}, size={}", particle_zone, particle_zone_name, particle_zone_id, particle_zone_size);
 
             // Particle Coordinates
             int particle_ncoord_nodes = 0;
-            CG_INFO(cg_particle_ncoord_nodes(this->GetFileID(), base, particle_zone, &particle_ncoord_nodes));
+            CGNS_LOG_CALL(cg_particle_ncoord_nodes(this->get_file_id(), base, particle_zone, &particle_ncoord_nodes));
             for (int particle_zone_coord = 1; particle_zone_coord <= particle_ncoord_nodes; ++particle_zone_coord) {
                 char particle_zone_coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t particle_zone_coord_type = CG_DataType_t::CG_DataTypeNull;
 
-                CG_INFO(cg_particle_coord_info(this->GetFileID(), base, particle_zone, particle_zone_coord, &particle_zone_coord_type, particle_zone_coord_name));
+                CGNS_LOG_CALL(cg_particle_coord_info(this->get_file_id(), base, particle_zone, particle_zone_coord, &particle_zone_coord_type, particle_zone_coord_name));
 
                 LOG_INFO("    [ParticleCoordinates]{:>2}:[{}] {}", particle_zone_coord, cg_DataTypeName(particle_zone_coord_type), particle_zone_coord_name);
             }
 
             // Particle Solution
             int particle_nsols = 0;
-            CG_INFO(cg_particle_nsols(this->GetFileID(), base, particle_zone, &particle_nsols));
+            CGNS_LOG_CALL(cg_particle_nsols(this->get_file_id(), base, particle_zone, &particle_nsols));
             for (int particle_sol = 1; particle_sol <= particle_nsols; ++particle_sol) {
                 char particle_sol_name[CGNS_NAME_MAX_LEN] = { };
                 double particle_sol_id = 0.0;
@@ -526,18 +526,18 @@ void CgnsCore::info() const
                 std::vector<cgsize_t> particle_sol_pnts;
                 CG_PointSetType_t particle_sol_ptset_type = CG_PointSetType_t::CG_PointSetTypeNull;
 
-                CG_INFO(cg_particle_sol_info(this->GetFileID(), base, particle_zone, particle_sol, particle_sol_name));
-                CG_INFO(cg_particle_sol_id(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_id));
-                CG_INFO(cg_particle_sol_size(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_size));
-                CG_INFO(cg_particle_sol_ptset_info(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_ptset_type, &particle_sol_npnts));
+                CGNS_LOG_CALL(cg_particle_sol_info(this->get_file_id(), base, particle_zone, particle_sol, particle_sol_name));
+                CGNS_LOG_CALL(cg_particle_sol_id(this->get_file_id(), base, particle_zone, particle_sol, &particle_sol_id));
+                CGNS_LOG_CALL(cg_particle_sol_size(this->get_file_id(), base, particle_zone, particle_sol, &particle_sol_size));
+                CGNS_LOG_CALL(cg_particle_sol_ptset_info(this->get_file_id(), base, particle_zone, particle_sol, &particle_sol_ptset_type, &particle_sol_npnts));
 
                 if (particle_sol_npnts != 0) {
                     particle_sol_pnts.resize(particle_sol_npnts);
-                    CG_INFO(cg_particle_sol_ptset_read(this->GetFileID(), base, particle_zone, particle_sol, particle_sol_pnts.data()));
+                    CGNS_LOG_CALL(cg_particle_sol_ptset_read(this->get_file_id(), base, particle_zone, particle_sol, particle_sol_pnts.data()));
                 }
 
                 int particle_nfields = 0;
-                CG_INFO(cg_particle_nfields(this->GetFileID(), base, particle_zone, particle_sol, &particle_nfields));
+                CGNS_LOG_CALL(cg_particle_nfields(this->get_file_id(), base, particle_zone, particle_sol, &particle_nfields));
                 LOG_INFO("    [ParticleSolution]{:>2}:[{}] {}, id={}, size={}, npnts={}, pnts={}, nfields={}",
                          particle_sol,
                          cg_PointSetTypeName(particle_sol_ptset_type),
