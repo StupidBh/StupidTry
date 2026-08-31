@@ -2,8 +2,6 @@
 #include <chrono>
 #include <concepts>
 #include <condition_variable>
-#include <cstddef>
-#include <exception>
 #include <functional>
 #include <future>
 #include <mutex>

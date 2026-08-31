@@ -3,5 +3,5 @@
 
 class CgnsCore : virtual public FileManager {
 public:
-    void info() override;
+    void info() const final;
 };

@@ -3,8 +3,12 @@
 #include "Utils/SingletonHolder.hpp"
 
 #include <exception>
+#include <filesystem>
 #include <iostream>
+#include <memory>
+#include <mutex>
 #include <shared_mutex>
+#include <string>
 #include <utility>
 #include <vector>
 

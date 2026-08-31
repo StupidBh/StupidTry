@@ -1,7 +1,7 @@
 project(ReaderCGNS LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} MODULE
-        src/ReaderCGNS.cpp
+        src/ExportFunctions.cpp
         Utils/src/Logger.cpp
         Core/src/CgnsCore.cpp
         Core/src/FileManager.cpp
@@ -15,6 +15,7 @@ endif ()
 target_include_directories(${PROJECT_NAME}
         PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Common"
         "${CMAKE_CURRENT_SOURCE_DIR}/Utils"
         "${CMAKE_CURRENT_SOURCE_DIR}/Core"
 )

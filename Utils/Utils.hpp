@@ -3,7 +3,6 @@
 #include <array>
 #include <cmath>
 #include <concepts>
-#include <cstddef>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
