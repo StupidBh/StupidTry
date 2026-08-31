@@ -1,6 +1,5 @@
 #include "MioReader.h"
 
-#include <cstring>
 #include <stdexcept>
 
 MioReader::MioReader(const std::string& filename) :

@@ -1,11 +1,8 @@
 #include "SingletonData.h"
 #include "Macros.hpp"
-
 #include "AnalysisCGNS.h"
 
-#include <cstdlib>
 #include <exception>
-#include <filesystem>
 
 int main(int argc, char* argv[])
 {

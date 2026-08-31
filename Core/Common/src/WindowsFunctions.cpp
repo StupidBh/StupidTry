@@ -1,7 +1,5 @@
 #include "WindowsFunctions.h"
-
 #include "Functions.h"
-#include "Logger/logger.hpp"
 
 #include <array>
 #include <cstddef>
@@ -12,6 +10,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#include "Logger/logger.hpp"
 
 namespace {
     constexpr UINT GBK_CODE_PAGE = 936;

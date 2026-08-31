@@ -16,8 +16,7 @@ std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_
         return 0;
     }
 
-    const auto res =
-        std::ranges::search(main_str, sub_str, [](unsigned char lhs, unsigned char rhs) { return ToAsciiLower(lhs) == ToAsciiLower(rhs); });
+    const auto res = std::ranges::search(main_str, sub_str, [](unsigned char lhs, unsigned char rhs) { return ToAsciiLower(lhs) == ToAsciiLower(rhs); });
     if (res.begin() == main_str.end()) {
         return std::string_view::npos;
     }
@@ -31,9 +30,7 @@ bool IEquals(std::string_view lhs, std::string_view rhs) noexcept
         return false;
     }
 
-    return std::ranges::equal(lhs, rhs, [](unsigned char lhs_char, unsigned char rhs_char) {
-        return ToAsciiLower(lhs_char) == ToAsciiLower(rhs_char);
-    });
+    return std::ranges::equal(lhs, rhs, [](unsigned char lhs_char, unsigned char rhs_char) { return ToAsciiLower(lhs_char) == ToAsciiLower(rhs_char); });
 }
 
 std::string_view TrimSpaces(const std::string_view str) noexcept

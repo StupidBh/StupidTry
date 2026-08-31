@@ -1,8 +1,6 @@
 #pragma once
-#include "Logger.h"
 #include "ReaderAPI/ReaderApiBase.h"
-
-#include <string>
+#include "Logger.h"
 
 class FileManager : public ReaderAPI::ReaderApiBase {
 public:

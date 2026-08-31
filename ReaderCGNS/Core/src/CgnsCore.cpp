@@ -4,10 +4,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cmath>
-#include <format>
 #include <functional>
-#include <string>
 #include <unordered_set>
 #include <vector>
 
@@ -99,12 +96,7 @@ void CgnsCore::info() const
                              zone_iter_name);
                 } break;
                 default: {
-                    LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]",
-                             zone,
-                             cg_ZoneTypeName(zone_type),
-                             zone_name,
-                             zone_dim,
-                             zone_iter_name);
+                    LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]", zone, cg_ZoneTypeName(zone_type), zone_name, zone_dim, zone_iter_name);
                 } break;
                 }
             }
@@ -285,9 +277,7 @@ void CgnsCore::info() const
 
                 std::vector<cgsize_t> elements(element_data_size, 0);
                 cgsize_t section_element_sum = section_end - section_start + 1;
-                static const std::unordered_set MIX_ELEMENT = { CG_ElementType_t::CG_MIXED,
-                                                                CG_ElementType_t::CG_NGON_n,
-                                                                CG_ElementType_t::CG_NFACE_n };
+                static const std::unordered_set MIX_ELEMENT = { CG_ElementType_t::CG_MIXED, CG_ElementType_t::CG_NGON_n, CG_ElementType_t::CG_NFACE_n };
                 if (MIX_ELEMENT.contains(section_element_type)) {
                     std::vector<cgsize_t> elements_connect_offset(section_element_sum + 1, 0);
                     CG_INFO(cg_poly_elements_read(this->GetFileID(), base, zone, section, elements.data(), elements_connect_offset.data(), nullptr));
@@ -487,10 +477,7 @@ void CgnsCore::info() const
                 CG_ArbitraryGridMotionType_t arbitrary_motion_type = CG_ArbitraryGridMotionType_t::CG_ArbitraryGridMotionTypeNull;
                 CG_INFO(cg_arbitrary_motion_read(this->GetFileID(), base, zone, arbitrary_motion, arbitrary_motion_name, &arbitrary_motion_type));
 
-                LOG_INFO("    [ArbitraryGridMotion]{:>2}:[{}] {}",
-                         arbitrary_motion,
-                         cg_ArbitraryGridMotionTypeName(arbitrary_motion_type),
-                         arbitrary_motion_name);
+                LOG_INFO("    [ArbitraryGridMotion]{:>2}:[{}] {}", arbitrary_motion, cg_ArbitraryGridMotionTypeName(arbitrary_motion_type), arbitrary_motion_name);
             }
 
             // Zone Grid Connectivity
@@ -524,17 +511,9 @@ void CgnsCore::info() const
                 char particle_zone_coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t particle_zone_coord_type = CG_DataType_t::CG_DataTypeNull;
 
-                CG_INFO(cg_particle_coord_info(this->GetFileID(),
-                                               base,
-                                               particle_zone,
-                                               particle_zone_coord,
-                                               &particle_zone_coord_type,
-                                               particle_zone_coord_name));
+                CG_INFO(cg_particle_coord_info(this->GetFileID(), base, particle_zone, particle_zone_coord, &particle_zone_coord_type, particle_zone_coord_name));
 
-                LOG_INFO("    [ParticleCoordinates]{:>2}:[{}] {}",
-                         particle_zone_coord,
-                         cg_DataTypeName(particle_zone_coord_type),
-                         particle_zone_coord_name);
+                LOG_INFO("    [ParticleCoordinates]{:>2}:[{}] {}", particle_zone_coord, cg_DataTypeName(particle_zone_coord_type), particle_zone_coord_name);
             }
 
             // Particle Solution
@@ -550,8 +529,7 @@ void CgnsCore::info() const
                 CG_INFO(cg_particle_sol_info(this->GetFileID(), base, particle_zone, particle_sol, particle_sol_name));
                 CG_INFO(cg_particle_sol_id(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_id));
                 CG_INFO(cg_particle_sol_size(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_size));
-                CG_INFO(
-                    cg_particle_sol_ptset_info(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_ptset_type, &particle_sol_npnts));
+                CG_INFO(cg_particle_sol_ptset_info(this->GetFileID(), base, particle_zone, particle_sol, &particle_sol_ptset_type, &particle_sol_npnts));
 
                 if (particle_sol_npnts != 0) {
                     particle_sol_pnts.resize(particle_sol_npnts);

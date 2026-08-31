@@ -1,10 +1,5 @@
 #include "Logger.h"
 
-#include <atomic>
-#include <cstddef>
-#include <cstdio>
-#include <mutex>
-
 #include "cgnslib.h"
 
 namespace {

@@ -1,7 +1,6 @@
 #pragma once
 #include <algorithm>
 #include <concepts>
-#include <cstddef>
 #include <cstdint>
 #include <execution>
 #include <functional>
@@ -66,8 +65,7 @@ namespace utils {
         }
 
         template<std::ranges::contiguous_range Range>
-        requires std::ranges::sized_range<Range> && std::ranges::borrowed_range<Range> &&
-                     std::same_as<std::remove_cv_t<std::ranges::range_value_t<Range>>, T> &&
+        requires std::ranges::sized_range<Range> && std::ranges::borrowed_range<Range> && std::same_as<std::remove_cv_t<std::ranges::range_value_t<Range>>, T> &&
                      (!std::same_as<std::remove_cvref_t<Range>, std::vector<T>>)
         explicit SmartPrefixSum(Range&& range, PrefixSumPolicy policy = { }) :
             m_static_data(std::ranges::data(range), std::ranges::size(range)),
