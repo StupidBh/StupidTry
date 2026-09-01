@@ -12,7 +12,7 @@
 - 初始化基于 spdlog 的异步日志系统；
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
-- 通过 `ReaderAPI::ReaderApiBase` 实例输出 CGNS 文件结构信息；
+- 通过 `ReaderAPI::ReaderApiBase` 实例输出 CGNS 文件结构信息、求解器类型和 element set 名称；
 - 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
 
 `Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，而不是复用 `Core/src/Main.cpp` 或链接其生成的 import library。
@@ -27,7 +27,7 @@
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
-7. 同步读取求解器类型和文件结构信息；
+7. 同步读取文件结构信息、求解器类型和 element set 名称；
 8. 关闭文件、清除回调、销毁 reader 并卸载 DLL。
 
 ## 命令行接口

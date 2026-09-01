@@ -1,17 +1,14 @@
 #pragma once
 #include "ReaderAPI/ReaderApiBase.h"
 #include "Logger.h"
-#include "CgnsTypes.hpp"
 
 #include <map>
 #include <unordered_map>
-#include <utility>
-#include <vector>
 
 class FileManager : public ReaderAPI::ReaderApiBase {
     struct BaseZone
     {
-        int base;
+        int index_base;
         std::vector<int> zone_indices;
     };
 
@@ -32,16 +29,18 @@ public:
     std::string GetSolverType() const final;
 
 protected:
+    virtual void clear_cache_data() noexcept;
+
     int get_file_id() const noexcept;
     [[nodiscard]] std::vector<std::pair<int, std::vector<int>>> get_base_zone_indices() const;
+    [[nodiscard]] const BaseZone* get_base_zone_indices(int base) const noexcept;
+    [[nodiscard]] const BaseZone* get_base_zone_indices(const std::string& base_name) const noexcept;
 
     LogDispatcher& GetLogDispatcher() const noexcept;
 
 private:
-    virtual bool initialize_file_data();
-    virtual void clear_file_data() noexcept;
+    void clear_file_data() noexcept;
 
-    void clear_data();
     bool initialize_base_zone_layout();
 
     mutable LogDispatcher m_log_dispatcher;
