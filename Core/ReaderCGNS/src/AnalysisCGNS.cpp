@@ -79,8 +79,14 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         return false;
     }
 
-    LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
     this->m_reader->info();
+
+    LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
+    std::vector<std::string> element_set_names;
+    if (this->m_reader->GetAllElementSetName(element_set_names)) {
+        LOG_INFO("ElementSet: {}", element_set_names);
+    }
+
     return true;
 }
 
