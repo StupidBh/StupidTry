@@ -1,5 +1,7 @@
 #include "FileManager.h"
 
+#include "CgnsTypes.hpp"
+
 FileManager::~FileManager()
 {
     this->Close();
@@ -52,7 +54,7 @@ bool FileManager::Open(const std::string& cgns_file_path)
     LOG_INFO("[{}] v{:.2f}, Precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
 
     this->m_cgns_file_path = cgns_file_path;
-    if (!this->initialize_base_zone_layout() || !this->initialize_file_data()) {
+    if (!this->initialize_base_zone_layout()) {
         this->Close();
         return false;
     }
@@ -62,12 +64,12 @@ bool FileManager::Open(const std::string& cgns_file_path)
 
 void FileManager::Close()
 {
-    this->clear_file_data();
     if (this->IsOpen()) {
         LOG_INFO("Close CGNS file: [{}].", this->m_cgns_file_path);
         CGNS_LOG_CALL(cg_close(this->m_file_id));
     }
-    this->clear_data();
+    this->clear_cache_data();
+    this->clear_file_data();
 }
 
 bool FileManager::IsOpen() const
@@ -93,6 +95,10 @@ std::string FileManager::GetSolverType() const
     return solver_type_name != nullptr ? solver_type_name : "Unknown";
 }
 
+void FileManager::clear_cache_data() noexcept
+{
+}
+
 int FileManager::get_file_id() const noexcept
 {
     return this->m_file_id;
@@ -108,21 +114,24 @@ std::vector<std::pair<int, std::vector<int>>> FileManager::get_base_zone_indices
     return base_zone_indices;
 }
 
+const FileManager::BaseZone* FileManager::get_base_zone_indices(const int base) const noexcept
+{
+    const auto iter = this->m_base_zone_indices.find(base);
+    return iter != this->m_base_zone_indices.end() ? &iter->second : nullptr;
+}
+
+const FileManager::BaseZone* FileManager::get_base_zone_indices(const std::string& base_name) const noexcept
+{
+    const auto iter = this->m_base_zone_layout.find(base_name);
+    return iter != this->m_base_zone_layout.end() ? iter->second : nullptr;
+}
+
 LogDispatcher& FileManager::GetLogDispatcher() const noexcept
 {
     return this->m_log_dispatcher;
 }
 
-bool FileManager::initialize_file_data()
-{
-    return true;
-}
-
 void FileManager::clear_file_data() noexcept
-{
-}
-
-void FileManager::clear_data()
 {
     this->m_file_id = 0;
     utils::DeepClear(this->m_cgns_file_path, this->m_base_zone_indices, this->m_base_zone_layout);
@@ -137,16 +146,16 @@ bool FileManager::initialize_base_zone_layout()
     }
 
     int count = 1;
-    for (int index_base = 1; index_base <= nbases; ++index_base) {
+    for (int base = 1; base <= nbases; ++base) {
         int nzones = 0;
-        if (CGNS_LOG_CALL(cg_nzones(this->m_file_id, index_base, &nzones)) != CG_OK) {
+        if (CGNS_LOG_CALL(cg_nzones(this->m_file_id, base, &nzones)) != CG_OK) {
             continue;
         }
         if (nzones == 0) {
             continue;
         }
 
-        auto& zone_indices = this->m_base_zone_indices.try_emplace(index_base, BaseZone { .base = index_base }).first->second;
+        auto& zone_indices = this->m_base_zone_indices.try_emplace(base, BaseZone { .index_base = base }).first->second;
         zone_indices.zone_indices.reserve(nzones);
         for (int index_zone = 1; index_zone <= nzones; ++index_zone) {
             zone_indices.zone_indices.emplace_back(index_zone);
@@ -154,14 +163,14 @@ bool FileManager::initialize_base_zone_layout()
 
         char base_name[CGNS_NAME_MAX_LEN] = { };
         int base_cell_dim = 0, base_phys_dim = 0;
-        CGNS_LOG_CALL(cg_base_read(this->get_file_id(), index_base, base_name, &base_cell_dim, &base_phys_dim));
+        CGNS_LOG_CALL(cg_base_read(this->get_file_id(), base, base_name, &base_cell_dim, &base_phys_dim));
         std::string base_name_str = base_name;
         if (base_name_str.empty()) {
             base_name_str = std::format("Step_{}", count++);
         }
 
         while (this->m_base_zone_layout.contains(base_name_str)) {
-            base_name_str = std::format("{}_{}_{}", base_name_str, index_base, count++);
+            base_name_str = std::format("{}_{}_{}", base_name_str, base, count++);
         }
 
         this->m_base_zone_layout.try_emplace(base_name_str, &zone_indices);

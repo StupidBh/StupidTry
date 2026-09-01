@@ -1,7 +1,14 @@
 #pragma once
 #include "ReaderMeshData.h"
+#include "ReaderFieldData.h"
 
-class CgnsCore : public ReaderMeshData {
+class CgnsCore final : public ReaderMeshData, public ReaderFieldData {
 public:
-    void info() const final;
+    CgnsCore() = default;
+    ~CgnsCore() override = default;
+
+    void info() const override;
+
+protected:
+    void clear_cache_data() noexcept override;
 };

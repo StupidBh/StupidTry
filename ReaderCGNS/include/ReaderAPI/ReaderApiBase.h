@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <string>
 
 #ifdef _WIN32
@@ -42,6 +43,8 @@ namespace ReaderAPI {
         virtual bool Open(const std::string& cgns_file_path) = 0;
         virtual void Close() = 0;
         [[nodiscard]] virtual bool IsOpen() const = 0;
+
+        [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
 
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;

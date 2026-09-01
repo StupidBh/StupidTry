@@ -1,14 +1,8 @@
 #include "CgnsCore.h"
 #include "CgnsTypes.hpp"
-#include "Logger.h"
 
-#include <algorithm>
-#include <array>
 #include <functional>
 #include <unordered_set>
-#include <vector>
-
-#include "cgnslib.h"
 
 void CgnsCore::info() const
 {
@@ -183,16 +177,16 @@ void CgnsCore::info() const
                 CG_PointSetType_t subreg_point_set_type = CG_PointSetType_t::CG_PointSetTypeNull;
 
                 CGNS_LOG_CALL(cg_subreg_info(this->get_file_id(),
-                                       base,
-                                       zone,
-                                       subreg,
-                                       subreg_name,
-                                       &subreg_dim,
-                                       &subreg_location,
-                                       &subreg_point_set_type,
-                                       subreg_npnts.data(),
-                                       &subreg_bcname_len,
-                                       &subreg_gcname_len));
+                                             base,
+                                             zone,
+                                             subreg,
+                                             subreg_name,
+                                             &subreg_dim,
+                                             &subreg_location,
+                                             &subreg_point_set_type,
+                                             subreg_npnts.data(),
+                                             &subreg_bcname_len,
+                                             &subreg_gcname_len));
                 if (subreg_point_set_type != CG_PointSetType_t::CG_PointSetTypeNull) {
                     subreg_npnts.resize(subreg_npnts[0] * zone_dim, 1);
                     CGNS_LOG_CALL(cg_subreg_ptset_read(this->get_file_id(), base, zone, subreg, subreg_npnts.data()));
@@ -254,15 +248,15 @@ void CgnsCore::info() const
                 cgsize_t section_start = 0, section_end = 0;
                 int section_nbndry = 0, section_parent_flag = 0;
                 CGNS_LOG_CALL(cg_section_read(this->get_file_id(),
-                                        base,
-                                        zone,
-                                        section,
-                                        section_name,
-                                        &section_element_type,
-                                        &section_start,
-                                        &section_end,
-                                        &section_nbndry,
-                                        &section_parent_flag));
+                                              base,
+                                              zone,
+                                              section,
+                                              section_name,
+                                              &section_element_type,
+                                              &section_start,
+                                              &section_end,
+                                              &section_nbndry,
+                                              &section_parent_flag));
                 if (section_end == 0 || section_end - section_start < 0) {
                     LOG_INFO("    [ZoneSection] {} element range [start, end] is empty.", section_name);
                     continue;
@@ -317,14 +311,14 @@ void CgnsCore::info() const
                 std::vector<int> n1to1_transform(zone_dim, 0);
 
                 CGNS_LOG_CALL(cg_1to1_read(this->get_file_id(),
-                                     base,
-                                     zone,
-                                     n1to1,
-                                     n1to1_connectname,
-                                     n1to1_donorname,
-                                     n1to1_range.data(),
-                                     donor_range.data(),
-                                     n1to1_transform.data()));
+                                           base,
+                                           zone,
+                                           n1to1,
+                                           n1to1_connectname,
+                                           n1to1_donorname,
+                                           n1to1_range.data(),
+                                           donor_range.data(),
+                                           n1to1_transform.data()));
                 LOG_INFO("    [One-to-One Connectivity]{:>2}:[{}] {}, range={}, donor_range={}, transform={}",
                          n1to1,
                          n1to1_connectname,
@@ -347,19 +341,19 @@ void CgnsCore::info() const
                 CG_DataType_t donor_datatype = CG_DataType_t::CG_DataTypeNull;
 
                 CGNS_LOG_CALL(cg_conn_info(this->get_file_id(),
-                                     base,
-                                     zone,
-                                     ncoon,
-                                     ncoon_name,
-                                     &ncoon_loc,
-                                     &connect_type,
-                                     &ptset_type,
-                                     &npnts,
-                                     ncoon_donor_name,
-                                     &donor_zonetype,
-                                     &donor_ptset_type,
-                                     &donor_datatype,
-                                     &ndata_donor));
+                                           base,
+                                           zone,
+                                           ncoon,
+                                           ncoon_name,
+                                           &ncoon_loc,
+                                           &connect_type,
+                                           &ptset_type,
+                                           &npnts,
+                                           ncoon_donor_name,
+                                           &donor_zonetype,
+                                           &donor_ptset_type,
+                                           &donor_datatype,
+                                           &ndata_donor));
 
                 LOG_INFO("    [GeneralizedConnectivity]{:>2}:[{}]-[{}] {}, [{}]:{}, [{}]-[{}] {}, [{}]:{}",
                          ncoon,
@@ -409,17 +403,17 @@ void CgnsCore::info() const
 
                 CGNS_LOG_CALL(cg_boco_gridlocation_read(this->get_file_id(), base, zone, boco, &boco_location));
                 CGNS_LOG_CALL(cg_boco_info(this->get_file_id(),
-                                     base,
-                                     zone,
-                                     boco,
-                                     boco_name,
-                                     &boco_type,
-                                     &boco_ptset_type,
-                                     &boco_npnts,
-                                     boco_normal_index.data(),
-                                     &boco_normal_list_size,
-                                     &boco_normal_datatype,
-                                     &boco_ndataset));
+                                           base,
+                                           zone,
+                                           boco,
+                                           boco_name,
+                                           &boco_type,
+                                           &boco_ptset_type,
+                                           &boco_npnts,
+                                           boco_normal_index.data(),
+                                           &boco_normal_list_size,
+                                           &boco_normal_datatype,
+                                           &boco_ndataset));
 
                 LOG_INFO("    [BoundaryConditions]{:>2}:[{}]-[{}] {}, [{}] npnts={}, [{}] index={}, listSize={}, ndataset={}",
                          boco,
@@ -439,14 +433,14 @@ void CgnsCore::info() const
                     int boco_dataset_dirichlet_flag = 0, boco_dataset_neumann_flag = 0;
 
                     CGNS_LOG_CALL(cg_dataset_read(this->get_file_id(),
-                                            base,
-                                            zone,
-                                            boco,
-                                            boco_dataset,
-                                            boco_dataset_name,
-                                            &boco_dataset_type,
-                                            &boco_dataset_dirichlet_flag,
-                                            &boco_dataset_neumann_flag));
+                                                  base,
+                                                  zone,
+                                                  boco,
+                                                  boco_dataset,
+                                                  boco_dataset_name,
+                                                  &boco_dataset_type,
+                                                  &boco_dataset_dirichlet_flag,
+                                                  &boco_dataset_neumann_flag));
 
                     LOG_INFO("      [BoundaryConditionsDataset]{:>2}:[{}]-[{}] {}, DirichletFlag={}, NeumannFlag ={}",
                              boco_dataset,
@@ -511,7 +505,8 @@ void CgnsCore::info() const
                 char particle_zone_coord_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t particle_zone_coord_type = CG_DataType_t::CG_DataTypeNull;
 
-                CGNS_LOG_CALL(cg_particle_coord_info(this->get_file_id(), base, particle_zone, particle_zone_coord, &particle_zone_coord_type, particle_zone_coord_name));
+                CGNS_LOG_CALL(
+                    cg_particle_coord_info(this->get_file_id(), base, particle_zone, particle_zone_coord, &particle_zone_coord_type, particle_zone_coord_name));
 
                 LOG_INFO("    [ParticleCoordinates]{:>2}:[{}] {}", particle_zone_coord, cg_DataTypeName(particle_zone_coord_type), particle_zone_coord_name);
             }
@@ -550,4 +545,10 @@ void CgnsCore::info() const
             }
         }
     }
+}
+
+void CgnsCore::clear_cache_data() noexcept
+{
+    this->clear_grid_topology();
+    this->clear_field_data();
 }

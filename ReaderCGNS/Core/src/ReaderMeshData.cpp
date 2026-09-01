@@ -1,27 +1,46 @@
 #include "ReaderMeshData.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <limits>
-#include <utility>
+#include <source_location>
 
 namespace {
-    constexpr std::size_t ParentValuesPerElement = 4;
-
-    bool IsVariableElementType(const CG_ElementType_t element_type) noexcept
+    constexpr bool IsVariableElementType(const CG_ElementType_t element_type) noexcept
     {
         return element_type == CG_ElementType_t::CG_MIXED || element_type == CG_ElementType_t::CG_NGON_n || element_type == CG_ElementType_t::CG_NFACE_n;
     }
 } // namespace
 
-bool ReaderMeshData::initialize_file_data()
+bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_names)
 {
-    return this->initialize_grid_topology();
+    if (this->m_grid_topology.empty()) {
+        if (!this->initialize_grid_topology()) {
+            LOG_INFO("initialize_grid_topology() failed.");
+            return false;
+        }
+    }
+
+    for (auto& grid_topology : this->m_grid_topology) {
+        std::string_view base_name = grid_topology.name;
+        for (auto& zone_topology : grid_topology.zones) {
+            std::string_view zone_name = zone_topology.name;
+
+            if (zone_topology.type == CG_ZoneType_t::CG_Structured || zone_topology.sections.empty()) {
+                element_set_names.emplace_back(std::format("{}.{}", base_name, zone_name));
+            }
+            else {
+                for (auto& section_topology : zone_topology.sections) {
+                    element_set_names.emplace_back(std::format("{}.{}.{}", base_name, zone_name, section_topology.name));
+                }
+            }
+        }
+    }
+
+    return !element_set_names.empty();
 }
 
-void ReaderMeshData::clear_file_data() noexcept
+void ReaderMeshData::clear_grid_topology() noexcept
 {
-    decltype(this->m_grid_topology)().swap(this->m_grid_topology);
+    utils::DeepClear(this->m_grid_topology);
 }
 
 bool ReaderMeshData::initialize_grid_topology()
@@ -38,245 +57,341 @@ bool ReaderMeshData::initialize_grid_topology()
     for (const auto& [base_index, zone_indices] : base_zone_indices) {
         BaseTopology base;
         if (!this->read_base_topology(base_index, zone_indices, base)) {
-            return false;
+            continue;
         }
         loaded_topology.emplace_back(std::move(base));
     }
 
     this->m_grid_topology = std::move(loaded_topology);
-    return true;
+    return !this->m_grid_topology.empty();
 }
 
-bool ReaderMeshData::read_base_topology(const int base_index, const std::span<const int> zone_indices, BaseTopology& base) const
+bool ReaderMeshData::read_base_topology(const int index_base, const std::span<const int> zone_indices, BaseTopology& base) const
 {
-    base.index = base_index;
     char base_name[CGNS_NAME_MAX_LEN] = { };
-    if (CGNS_LOG_CALL(cg_base_read(this->get_file_id(), base_index, base_name, &base.cell_dimension, &base.physical_dimension)) != CG_OK) {
+    if (CGNS_LOG_CALL(cg_base_read(this->get_file_id(), index_base, base_name, &base.cell_dim, &base.phy_dim)) != CG_OK) {
         return false;
     }
-    base.name = base_name;
-    base.zones.reserve(zone_indices.size());
 
+    base.index = index_base;
+    base.name = base_name;
+
+    CG_SimulationType_t simulation_type = CG_SimulationType_t::CG_SimulationTypeNull;
+    const int simulation_type_status = cg_simulation_type_read(this->get_file_id(), index_base, &simulation_type);
+    if (simulation_type_status == CG_OK) {
+        base.type = simulation_type;
+    }
+    else if (simulation_type_status != CG_NODE_NOT_FOUND) {
+        this->GetLogDispatcher().HandleCgnsStatus(simulation_type_status, "cg_simulation_type_read", std::source_location::current());
+    }
+
+    base.zones.reserve(zone_indices.size());
     for (const int zone_index : zone_indices) {
         ZoneTopology zone;
-        if (!this->read_zone_topology(base_index, base.cell_dimension, zone_index, zone)) {
-            return false;
+        if (!this->read_zone_topology(index_base, zone_index, zone)) {
+            continue;
         }
         base.zones.emplace_back(std::move(zone));
     }
     return true;
 }
 
-bool ReaderMeshData::read_zone_topology(const int base_index, const int base_cell_dimension, const int zone_index, ZoneTopology& zone) const
+bool ReaderMeshData::read_zone_topology(const int index_base, const int index_zone, ZoneTopology& zone) const
 {
-    zone.index = zone_index;
-    if (CGNS_LOG_CALL(cg_zone_type(this->get_file_id(), base_index, zone_index, &zone.zone_type)) != CG_OK ||
-        CGNS_LOG_CALL(cg_index_dim(this->get_file_id(), base_index, zone_index, &zone.index_dimension)) != CG_OK) {
-        return false;
-    }
-    if (zone.index_dimension < 1 || zone.index_dimension > 3) {
-        LOG_ERROR("Invalid index dimension {} at Base {}/Zone {}.", zone.index_dimension, base_index, zone_index);
+    if (CGNS_LOG_CALL(cg_zone_type(this->get_file_id(), index_base, index_zone, &zone.type)) != CG_OK ||
+        CGNS_LOG_CALL(cg_index_dim(this->get_file_id(), index_base, index_zone, &zone.dim)) != CG_OK) {
         return false;
     }
 
-    std::vector<cgsize_t> zone_size(static_cast<std::size_t>(zone.index_dimension) * 3);
-    char zone_name[CGNS_NAME_MAX_LEN] = { };
-    if (CGNS_LOG_CALL(cg_zone_read(this->get_file_id(), base_index, zone_index, zone_name, zone_size.data())) != CG_OK) {
+    std::size_t active_zone_size = 0;
+    if (zone.type == CG_ZoneType_t::CG_Structured) {
+        if (zone.dim < 1 || zone.dim > 3) {
+            LOG_ERROR("Invalid structured index dimension {} at Base {}/Zone {}.", zone.dim, index_base, index_zone);
+            return false;
+        }
+        active_zone_size = static_cast<std::size_t>(zone.dim) * 3;
+    }
+    else if (zone.type == CG_ZoneType_t::CG_Unstructured) {
+        active_zone_size = 3;
+    }
+    else {
+        LOG_ERROR("Unsupported zone type [{}] at Base {}/Zone {}.", cg_ZoneTypeName(zone.type), index_base, index_zone);
         return false;
     }
+
+    char zone_name[CGNS_NAME_MAX_LEN] = { };
+    if (CGNS_LOG_CALL(cg_zone_read(this->get_file_id(), index_base, index_zone, zone_name, zone.zone_size.data())) != CG_OK) {
+        return false;
+    }
+
+    const std::span<const cgsize_t> active_size(zone.zone_size.data(), active_zone_size);
+    if (std::ranges::any_of(active_size, [](const cgsize_t value) { return value < 0; })) {
+        LOG_ERROR("Invalid zone dimensions at Base {}/Zone {}.", index_base, index_zone);
+        return false;
+    }
+
+    zone.index = index_zone;
     zone.name = zone_name;
 
-    if (zone.zone_type == CG_ZoneType_t::CG_Structured) {
-        if (zone.index_dimension != base_cell_dimension) {
-            LOG_ERROR("Structured Base {}/Zone {} has index dimension {}, expected {}.", base_index, zone_index, zone.index_dimension, base_cell_dimension);
-            return false;
-        }
-        StructuredZoneTopology structured;
-        if (!this->read_structured_zone_topology(zone.index_dimension, zone_size, structured)) {
-            return false;
-        }
-        zone.data = std::move(structured);
-        return true;
-    }
-
-    if (zone.zone_type == CG_ZoneType_t::CG_Unstructured) {
-        if (zone.index_dimension != 1) {
-            LOG_ERROR("Unstructured Base {}/Zone {} has index dimension {}, expected 1.", base_index, zone_index, zone.index_dimension);
-            return false;
-        }
-        UnstructuredZoneTopology unstructured;
-        if (!this->read_unstructured_zone_topology(base_index, zone_index, zone_size, unstructured)) {
-            return false;
-        }
-        zone.data = std::move(unstructured);
-        return true;
-    }
-
-    LOG_ERROR("Unsupported zone type [{}] at Base {}/Zone {}.", cg_ZoneTypeName(zone.zone_type), base_index, zone_index);
-    return false;
-}
-
-bool ReaderMeshData::read_structured_zone_topology(const int index_dimension, const std::span<const cgsize_t> zone_size, StructuredZoneTopology& topology) const
-{
-    const std::size_t dimension = static_cast<std::size_t>(index_dimension);
-    if (zone_size.size() != dimension * 3 || std::ranges::any_of(zone_size, [](const cgsize_t value) { return value < 0; })) {
-        LOG_ERROR("Invalid structured zone dimensions.");
+    if (!read_zone_coordinates(index_base, index_zone, zone)) {
         return false;
     }
 
-    topology.vertex_size.assign(zone_size.begin(), zone_size.begin() + dimension);
-    topology.cell_size.assign(zone_size.begin() + dimension, zone_size.begin() + dimension * 2);
-    topology.boundary_vertex_size.assign(zone_size.begin() + dimension * 2, zone_size.end());
+    if (zone.type == CG_ZoneType_t::CG_Structured) {
+        return this->build_structured_section(zone);
+    }
+
+    this->read_unstructured_zone_sections(index_base, index_zone, zone);
     return true;
 }
 
-bool ReaderMeshData::read_unstructured_zone_topology(const int base_index,
-                                                     const int zone_index,
-                                                     const std::span<const cgsize_t> zone_size,
-                                                     UnstructuredZoneTopology& topology) const
+bool ReaderMeshData::read_zone_coordinates(int index_base, int index_zone, ZoneTopology& zone) const
 {
-    if (zone_size.size() != 3 || std::ranges::any_of(zone_size, [](const cgsize_t value) { return value < 0; })) {
-        LOG_ERROR("Invalid unstructured zone dimensions at Base {}/Zone {}.", base_index, zone_index);
+    int zone_ncoords = 0;
+    if (CGNS_LOG_CALL(cg_ncoords(this->get_file_id(), index_base, index_zone, &zone_ncoords)) != CG_OK) {
         return false;
     }
-    topology.vertex_count = zone_size[0];
-    topology.cell_count = zone_size[1];
-    topology.boundary_vertex_count = zone_size[2];
+    if (zone_ncoords < 1 || zone_ncoords > 3) {
+        LOG_ERROR("Invalid zone ncoords {} at Base {}/Zone {}.", zone_ncoords, index_base, index_zone);
+        return false;
+    }
 
+    const std::vector<cgsize_t> r_min(zone.dim, 1);
+    std::vector<cgsize_t> r_max(zone.dim, 1);
+    cgsize_t vertex_sum = 1;
+    for (int i = 0; i < zone.dim; ++i) {
+        r_max[i] = zone.zone_size[i];
+        vertex_sum *= zone.zone_size[i];
+    }
+    zone.coordinates_xyz.fill(std::vector(vertex_sum, 0.F));
+
+    for (int index_coord = 1; index_coord <= zone_ncoords; ++index_coord) {
+        char index_coord_name[CGNS_NAME_MAX_LEN] = { };
+        CG_DataType_t index_coord_type = CG_DataType_t::CG_DataTypeNull;
+        if (CGNS_LOG_CALL(cg_coord_info(this->get_file_id(), index_base, index_zone, index_coord, &index_coord_type, index_coord_name)) != CG_OK) {
+            continue;
+        }
+
+        if (index_coord_type == CG_DataType_t::CG_RealSingle) {
+            CGNS_LOG_CALL(cg_coord_read(this->get_file_id(),
+                                        index_base,
+                                        index_zone,
+                                        index_coord_name,
+                                        index_coord_type,
+                                        r_min.data(),
+                                        r_max.data(),
+                                        zone.coordinates_xyz[index_coord - 1].data()));
+        }
+        else if (index_coord_type == CG_DataType_t::CG_RealDouble) {
+            std::vector<double> temp_buff(vertex_sum, 0.0);
+
+            CGNS_LOG_CALL(
+                cg_coord_read(this->get_file_id(), index_base, index_zone, index_coord_name, index_coord_type, r_min.data(), r_max.data(), temp_buff.data()));
+            zone.coordinates_xyz[index_coord - 1] = utils::ShrinkVector<float>(temp_buff);
+        }
+        else {
+            LOG_WARN("[ZoneCoords]{:>2}:[{}] {}, Unknown data-type.", index_coord, cg_DataTypeName(index_coord_type), index_coord_name);
+        }
+    }
+
+    return true;
+}
+
+void ReaderMeshData::read_unstructured_zone_sections(const int index_base, const int index_zone, ZoneTopology& zone) const
+{
     int section_count = 0;
-    if (CGNS_LOG_CALL(cg_nsections(this->get_file_id(), base_index, zone_index, &section_count)) != CG_OK || section_count < 0) {
-        return false;
+    if (CGNS_LOG_CALL(cg_nsections(this->get_file_id(), index_base, index_zone, &section_count)) != CG_OK) {
+        return;
     }
-    topology.sections.reserve(static_cast<std::size_t>(section_count));
+    if (section_count < 0) {
+        LOG_ERROR("Invalid section count {} at Base {}/Zone {}.", section_count, index_base, index_zone);
+        return;
+    }
 
-    for (int section_index = 1; section_index <= section_count; ++section_index) {
+    zone.sections.reserve(static_cast<std::size_t>(section_count));
+    for (int index_section = 1; index_section <= section_count; ++index_section) {
         SectionTopology section;
-        if (!this->read_section_topology(base_index, zone_index, section_index, section)) {
-            return false;
+        if (!this->read_section_topology(index_base, index_zone, index_section, section)) {
+            continue;
         }
-        topology.sections.emplace_back(std::move(section));
+        zone.sections.emplace_back(std::move(section));
     }
-    return true;
 }
 
-bool ReaderMeshData::read_section_topology(const int base_index, const int zone_index, const int section_index, SectionTopology& section) const
+bool ReaderMeshData::read_section_topology(const int index_base, const int index_zone, const int index_section, SectionTopology& section) const
 {
-    section.index = section_index;
     char section_name[CGNS_NAME_MAX_LEN] = { };
+    int boundary_element_count = 0;
     int parent_flag = 0;
     if (CGNS_LOG_CALL(cg_section_read(this->get_file_id(),
-                                      base_index,
-                                      zone_index,
-                                      section_index,
+                                      index_base,
+                                      index_zone,
+                                      index_section,
                                       section_name,
-                                      &section.element_type,
+                                      &section.type,
                                       &section.range_start,
                                       &section.range_end,
-                                      &section.boundary_element_count,
+                                      &boundary_element_count,
                                       &parent_flag)) != CG_OK) {
         return false;
     }
+
+    section.index = index_section;
     section.name = section_name;
     section.has_parent_data = parent_flag != 0;
 
+    // Parent data is intentionally not cached; the connectivity readers pass a null parent buffer.
     if (section.range_start < 1 || section.range_end < section.range_start) {
-        LOG_ERROR("Invalid element range [{}, {}] at Base {}/Zone {}/Section {}.", section.range_start, section.range_end, base_index, zone_index, section_index);
+        LOG_ERROR("Invalid element range [{}, {}] at Base {}/Zone {}/Section {}.", section.range_start, section.range_end, index_base, index_zone, index_section);
         return false;
     }
+
     const cgsize_t element_count_value = section.range_end - section.range_start + 1;
     if (!std::in_range<std::size_t>(element_count_value)) {
-        LOG_ERROR("Element count exceeds addressable memory at Base {}/Zone {}/Section {}.", base_index, zone_index, section_index);
+        LOG_ERROR("Element count exceeds addressable memory at Base {}/Zone {}/Section {}.", index_base, index_zone, index_section);
         return false;
     }
     const std::size_t element_count = static_cast<std::size_t>(element_count_value);
 
     cgsize_t element_data_size = 0;
-    if (CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), base_index, zone_index, section_index, &element_data_size)) != CG_OK || element_data_size < 0 ||
+    if (CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), index_base, index_zone, index_section, &element_data_size)) != CG_OK || element_data_size < 0 ||
         !std::in_range<std::size_t>(element_data_size)) {
         return false;
     }
 
-    if (section.has_parent_data) {
-        if (element_count > std::numeric_limits<std::size_t>::max() / ParentValuesPerElement) {
-            LOG_ERROR("Parent data exceeds addressable memory at Base {}/Zone {}/Section {}.", base_index, zone_index, section_index);
+    if (IsVariableElementType(section.type)) {
+        if (element_count == std::numeric_limits<std::size_t>::max()) {
+            LOG_ERROR("Connectivity offsets exceed addressable memory at Base {}/Zone {}/Section {}.", index_base, index_zone, index_section);
             return false;
         }
-        section.parent_data.resize(element_count * ParentValuesPerElement);
+
+        section.elements.resize(static_cast<std::size_t>(element_data_size));
+        section.connect_offset.resize(element_count + 1);
+        if (CGNS_LOG_CALL(cg_poly_elements_read(this->get_file_id(),
+                                                index_base,
+                                                index_zone,
+                                                index_section,
+                                                section.elements.data(),
+                                                section.connect_offset.data(),
+                                                nullptr)) != CG_OK) {
+            return false;
+        }
+        if (section.connect_offset.front() != 0 || section.connect_offset.back() != element_data_size || !std::ranges::is_sorted(section.connect_offset)) {
+            LOG_ERROR("Invalid connectivity offsets at Base {}/Zone {}/Section {}.", index_base, index_zone, index_section);
+            return false;
+        }
+        return true;
     }
 
-    if (IsVariableElementType(section.element_type)) {
-        return this->read_variable_connectivity(base_index, zone_index, section_index, element_count, element_data_size, section);
-    }
-    return this->read_fixed_connectivity(base_index, zone_index, section_index, element_count, element_data_size, section);
-}
-
-bool ReaderMeshData::read_fixed_connectivity(const int base_index,
-                                             const int zone_index,
-                                             const int section_index,
-                                             const std::size_t element_count,
-                                             const cgsize_t element_data_size,
-                                             SectionTopology& section) const
-{
-    FixedElementConnectivity connectivity;
-    if (CGNS_LOG_CALL(cg_npe(section.element_type, &connectivity.nodes_per_element)) != CG_OK || connectivity.nodes_per_element <= 0) {
-        LOG_ERROR("Unsupported fixed element type [{}] at Base {}/Zone {}/Section {}.",
-                  cg_ElementTypeName(section.element_type),
-                  base_index,
-                  zone_index,
-                  section_index);
+    int nodes_per_element = 0;
+    if (CGNS_LOG_CALL(cg_npe(section.type, &nodes_per_element)) != CG_OK || nodes_per_element <= 0) {
+        LOG_ERROR("Unsupported fixed element type [{}] at Base {}/Zone {}/Section {}.", cg_ElementTypeName(section.type), index_base, index_zone, index_section);
         return false;
     }
 
-    const std::size_t nodes_per_element = static_cast<std::size_t>(connectivity.nodes_per_element);
-    if (element_count > std::numeric_limits<std::size_t>::max() / nodes_per_element ||
-        element_count * nodes_per_element != static_cast<std::size_t>(element_data_size)) {
+    const std::size_t node_count = static_cast<std::size_t>(nodes_per_element);
+    if (element_count > std::numeric_limits<std::size_t>::max() / node_count || element_count * node_count != static_cast<std::size_t>(element_data_size)) {
         LOG_ERROR("Connectivity size does not match element type [{}] at Base {}/Zone {}/Section {}.",
-                  cg_ElementTypeName(section.element_type),
-                  base_index,
-                  zone_index,
-                  section_index);
+                  cg_ElementTypeName(section.type),
+                  index_base,
+                  index_zone,
+                  index_section);
         return false;
     }
 
-    connectivity.values.resize(static_cast<std::size_t>(element_data_size));
-    cgsize_t* parent_data = section.parent_data.empty() ? nullptr : section.parent_data.data();
-    if (CGNS_LOG_CALL(cg_elements_read(this->get_file_id(), base_index, zone_index, section_index, connectivity.values.data(), parent_data)) != CG_OK) {
-        return false;
-    }
-    section.connectivity = std::move(connectivity);
-    return true;
+    section.elements.resize(static_cast<std::size_t>(element_data_size));
+    return CGNS_LOG_CALL(cg_elements_read(this->get_file_id(), index_base, index_zone, index_section, section.elements.data(), nullptr)) == CG_OK;
 }
 
-bool ReaderMeshData::read_variable_connectivity(const int base_index,
-                                                const int zone_index,
-                                                const int section_index,
-                                                const std::size_t element_count,
-                                                const cgsize_t element_data_size,
-                                                SectionTopology& section) const
+bool ReaderMeshData::build_structured_section(ZoneTopology& zone) const
 {
-    if (element_count == std::numeric_limits<std::size_t>::max()) {
-        LOG_ERROR("Connectivity offsets exceed addressable memory at Base {}/Zone {}/Section {}.", base_index, zone_index, section_index);
+    if (zone.type != CG_ZoneType_t::CG_Structured || zone.dim < 1 || zone.dim > 3) {
+        LOG_ERROR("Cannot build a structured section for Zone {} with type [{}] and dimension {}.", zone.index, cg_ZoneTypeName(zone.type), zone.dim);
         return false;
     }
 
-    VariableElementConnectivity connectivity;
-    connectivity.values.resize(static_cast<std::size_t>(element_data_size));
-    connectivity.offsets.resize(element_count + 1);
-    cgsize_t* parent_data = section.parent_data.empty() ? nullptr : section.parent_data.data();
-    if (CGNS_LOG_CALL(cg_poly_elements_read(this->get_file_id(),
-                                            base_index,
-                                            zone_index,
-                                            section_index,
-                                            connectivity.values.data(),
-                                            connectivity.offsets.data(),
-                                            parent_data)) != CG_OK) {
-        return false;
+    const cgsize_t NVertexI = zone.zone_size[0];
+    const cgsize_t NCellI = NVertexI;
+
+    cgsize_t cell_sum = 0;
+
+    SectionTopology section;
+    if (zone.dim == 1) {
+        cell_sum = zone.zone_size[1];
+        section.elements.reserve(cell_sum * 2);
+        section.type = CG_BAR_2;
+
+        std::array<cgsize_t, 2> element_node { };
+        for (cgsize_t i = 1; i < NCellI; ++i) {
+            element_node[0] = i;
+            element_node[1] = i + 1;
+
+            section.elements.insert(section.elements.end(), element_node.begin(), element_node.end());
+        }
     }
-    if (connectivity.offsets.front() != 0 || connectivity.offsets.back() != element_data_size || !std::ranges::is_sorted(connectivity.offsets)) {
-        LOG_ERROR("Invalid connectivity offsets at Base {}/Zone {}/Section {}.", base_index, zone_index, section_index);
-        return false;
+    else if (zone.dim == 2) {
+        cell_sum = zone.zone_size[2] * zone.zone_size[3];
+        section.elements.reserve(cell_sum * 4);
+        section.type = CG_QUAD_4;
+
+        const cgsize_t NVertexJ = zone.zone_size[1];
+        const cgsize_t NCellJ = NVertexJ;
+
+        auto vertex_id = [&NVertexI](cgsize_t i, cgsize_t j) {
+            return (j - 1) * NVertexI + i;
+        };
+
+        std::array<cgsize_t, 4> element_node { };
+        for (cgsize_t j = 1; j < NCellJ; ++j) {
+            for (cgsize_t i = 1; i < NCellI; ++i) {
+                element_node[0] = vertex_id(i, j);
+                element_node[1] = vertex_id(i + 1, j);
+                element_node[2] = vertex_id(i + 1, j + 1);
+                element_node[3] = vertex_id(i, j + 1);
+
+                section.elements.insert(section.elements.end(), element_node.begin(), element_node.end());
+            }
+        }
+    }
+    else {
+        cell_sum = zone.zone_size[3] * zone.zone_size[4] * zone.zone_size[5];
+        section.elements.reserve(cell_sum * 8);
+        section.type = CG_HEXA_8;
+
+        const cgsize_t NVertexJ = zone.zone_size[1];
+        const cgsize_t NVertexK = zone.zone_size[2];
+
+        const cgsize_t NCellJ = NVertexJ;
+        const cgsize_t NCellK = NVertexK;
+
+        auto vertex_id = [&NVertexI, &NVertexJ](cgsize_t i, cgsize_t j, cgsize_t k) {
+            return (k - 1) * (NVertexI * NVertexJ) + (j - 1) * NVertexI + i;
+        };
+
+        std::array<cgsize_t, 8> element_node { };
+        for (cgsize_t k = 1; k < NCellK; ++k) {
+            for (cgsize_t j = 1; j < NCellJ; ++j) {
+                for (cgsize_t i = 1; i < NCellI; ++i) {
+                    element_node[0] = vertex_id(i, j, k);
+                    element_node[1] = vertex_id(i + 1, j, k);
+                    element_node[2] = vertex_id(i + 1, j + 1, k);
+                    element_node[3] = vertex_id(i, j + 1, k);
+                    element_node[4] = vertex_id(i, j, k + 1);
+                    element_node[5] = vertex_id(i + 1, j, k + 1);
+                    element_node[6] = vertex_id(i + 1, j + 1, k + 1);
+                    element_node[7] = vertex_id(i, j + 1, k + 1);
+
+                    section.elements.insert(section.elements.end(), element_node.begin(), element_node.end());
+                }
+            }
+        }
     }
 
-    section.connectivity = std::move(connectivity);
+    section.index = 1;
+    section.name = zone.name;
+    section.range_start = 1;
+    section.range_end = cell_sum;
+    zone.sections.emplace_back(std::move(section));
+
     return true;
 }
