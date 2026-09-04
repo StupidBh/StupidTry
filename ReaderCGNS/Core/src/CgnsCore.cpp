@@ -201,12 +201,12 @@ void CgnsCore::info() const
                 if (subreg_bcname_len > 0) {
                     std::string subreg_bcname(subreg_bcname_len + 1, '\0');
                     CGNS_LOG_CALL(cg_subreg_bcname_read(this->get_file_id(), base, zone, subreg, subreg_bcname.data()));
-                    msg += std::format(" baname={}", subreg_name);
+                    msg += std::format(" bcname={}", subreg_bcname);
                 }
                 if (subreg_gcname_len > 0) {
                     std::string subreg_gcname(subreg_gcname_len + 1, '\0');
                     CGNS_LOG_CALL(cg_subreg_gcname_read(this->get_file_id(), base, zone, subreg, subreg_gcname.data()));
-                    msg += std::format(" gcname={}", subreg_name);
+                    msg += std::format(" gcname={}", subreg_gcname);
                 }
                 LOG_INFO("{} npnts={}", msg, subreg_npnts);
             }
