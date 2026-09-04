@@ -21,7 +21,7 @@ private:
     [[nodiscard]] bool read_base_topology(int index_base, std::span<const int> zone_indices, BaseTopology& base) const;
     [[nodiscard]] bool read_zone_topology(int index_base, int index_zone, ZoneTopology& zone) const;
     [[nodiscard]] bool read_zone_coordinates(int index_base, int index_zone, ZoneTopology& zone) const;
-    void read_unstructured_zone_sections(int index_base, int index_zone, ZoneTopology& zone) const;
+    bool read_unstructured_zone_sections(int index_base, int index_zone, ZoneTopology& zone) const;
     [[nodiscard]] bool read_section_topology(int index_base, int index_zone, int index_section, SectionTopology& section) const;
 
     [[nodiscard]] bool build_structured_section(ZoneTopology& zone) const;

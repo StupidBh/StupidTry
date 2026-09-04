@@ -50,8 +50,7 @@ bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_co
     int count = 0;
     for (auto& grid_topology : this->m_grid_topology) {
         for (auto& zone_topology : grid_topology.zones) {
-            const auto node_size = zone_topology.coordinates_xyz.front().size();
-            for (std::size_t i = 0; i < node_size; ++i) {
+            for (std::size_t i = 0; i < zone_topology.NodeSum(); ++i) {
                 node_coordinates.emplace_back(ReaderAPI::Node { .index = count,
                                                                 .id = count,
                                                                 .x = zone_topology.coordinates_xyz[0][i],
@@ -172,8 +171,7 @@ bool ReaderMeshData::read_zone_topology(const int index_base, const int index_zo
         return this->build_structured_section(zone);
     }
 
-    this->read_unstructured_zone_sections(index_base, index_zone, zone);
-    return true;
+    return this->read_unstructured_zone_sections(index_base, index_zone, zone);
 }
 
 bool ReaderMeshData::read_zone_coordinates(int index_base, int index_zone, ZoneTopology& zone) const
@@ -228,15 +226,15 @@ bool ReaderMeshData::read_zone_coordinates(int index_base, int index_zone, ZoneT
     return true;
 }
 
-void ReaderMeshData::read_unstructured_zone_sections(const int index_base, const int index_zone, ZoneTopology& zone) const
+bool ReaderMeshData::read_unstructured_zone_sections(const int index_base, const int index_zone, ZoneTopology& zone) const
 {
     int section_count = 0;
     if (CGNS_LOG_CALL(cg_nsections(this->get_file_id(), index_base, index_zone, &section_count)) != CG_OK) {
-        return;
+        return false;
     }
     if (section_count < 0) {
         LOG_ERROR("Invalid section count {} at Base {}/Zone {}.", section_count, index_base, index_zone);
-        return;
+        return false;
     }
 
     zone.sections.reserve(static_cast<std::size_t>(section_count));
@@ -247,6 +245,8 @@ void ReaderMeshData::read_unstructured_zone_sections(const int index_base, const
         }
         zone.sections.emplace_back(std::move(section));
     }
+
+    return !zone.sections.empty();
 }
 
 bool ReaderMeshData::read_section_topology(const int index_base, const int index_zone, const int index_section, SectionTopology& section) const
@@ -344,12 +344,9 @@ bool ReaderMeshData::build_structured_section(ZoneTopology& zone) const
     const cgsize_t NVertexI = zone.zone_size[0];
     const cgsize_t NCellI = NVertexI;
 
-    cgsize_t cell_sum = 0;
-
     SectionTopology section;
     if (zone.dim == 1) {
-        cell_sum = zone.zone_size[1];
-        section.elements.reserve(cell_sum * 2);
+        section.elements.reserve(zone.CellSum() * 2);
         section.type = CG_BAR_2;
 
         std::array<cgsize_t, 2> element_node { };
@@ -361,8 +358,7 @@ bool ReaderMeshData::build_structured_section(ZoneTopology& zone) const
         }
     }
     else if (zone.dim == 2) {
-        cell_sum = zone.zone_size[2] * zone.zone_size[3];
-        section.elements.reserve(cell_sum * 4);
+        section.elements.reserve(zone.CellSum() * 4);
         section.type = CG_QUAD_4;
 
         const cgsize_t NVertexJ = zone.zone_size[1];
@@ -385,8 +381,7 @@ bool ReaderMeshData::build_structured_section(ZoneTopology& zone) const
         }
     }
     else {
-        cell_sum = zone.zone_size[3] * zone.zone_size[4] * zone.zone_size[5];
-        section.elements.reserve(cell_sum * 8);
+        section.elements.reserve(zone.CellSum() * 8);
         section.type = CG_HEXA_8;
 
         const cgsize_t NVertexJ = zone.zone_size[1];
@@ -421,7 +416,7 @@ bool ReaderMeshData::build_structured_section(ZoneTopology& zone) const
     section.index = 1;
     section.name = zone.name;
     section.range_start = 1;
-    section.range_end = cell_sum;
+    section.range_end = zone.CellSum();
     zone.sections.emplace_back(std::move(section));
 
     return true;
