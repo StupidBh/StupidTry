@@ -38,6 +38,37 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
     return !element_set_names.empty();
 }
 
+bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_coordinates)
+{
+    if (this->m_grid_topology.empty()) {
+        if (!this->initialize_grid_topology()) {
+            LOG_INFO("initialize_grid_topology() failed.");
+            return false;
+        }
+    }
+
+    int count = 0;
+    for (auto& grid_topology : this->m_grid_topology) {
+        for (auto& zone_topology : grid_topology.zones) {
+            const auto node_size = zone_topology.coordinates_xyz.front().size();
+            for (std::size_t i = 0; i < node_size; ++i) {
+                node_coordinates.emplace_back(ReaderAPI::Node { .index = count,
+                                                                .id = count,
+                                                                .x = zone_topology.coordinates_xyz[0][i],
+                                                                .y = zone_topology.coordinates_xyz[1][i],
+                                                                .z = zone_topology.coordinates_xyz[2][i] });
+
+                count++;
+            }
+        }
+    }
+
+    if (node_coordinates.empty()) {
+        LOG_WARN("Node coordinates is empty.");
+    }
+    return !node_coordinates.empty();
+}
+
 void ReaderMeshData::clear_grid_topology() noexcept
 {
     utils::DeepClear(this->m_grid_topology);

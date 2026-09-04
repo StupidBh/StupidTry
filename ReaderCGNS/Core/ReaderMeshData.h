@@ -10,6 +10,7 @@ public:
     ~ReaderMeshData() override = default;
 
     bool GetAllElementSetName(std::vector<std::string>& element_set_names) final;
+    bool GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_coordinates) final;
 
 protected:
     void clear_grid_topology() noexcept;

@@ -1,4 +1,6 @@
 #pragma once
+#include "io-data-type.hpp"
+
 #include <vector>
 #include <string>
 
@@ -45,6 +47,7 @@ namespace ReaderAPI {
         [[nodiscard]] virtual bool IsOpen() const = 0;
 
         [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
+        [[nodiscard]] virtual bool GetAllNodeCoordinates(std::vector<Node>& node_coordinates) = 0;
 
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;
