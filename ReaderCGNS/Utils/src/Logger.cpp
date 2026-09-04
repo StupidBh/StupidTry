@@ -135,20 +135,20 @@ int LogDispatcher::HandleCgnsStatus(const int status, const std::string_view cal
     ReaderAPI::Logger::LogLevel level = ReaderAPI::Logger::READER_CGNS_LOG_ERROR;
     const char* status_name = nullptr;
     switch (status) {
-    case CG_ERROR         : status_name = "CG_ERROR"; break;
-    case CG_NODE_NOT_FOUND: {
-        level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
-        status_name = "CG_NODE_NOT_FOUND";
-    } break;
-    case CG_INCORRECT_PATH: {
-        level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
-        status_name = "CG_INCORRECT_PATH";
-    } break;
-    case CG_NO_INDEX_DIM: {
-        level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
-        status_name = "CG_NO_INDEX_DIM";
-    } break;
-    default: break;
+        case CG_ERROR         : status_name = "CG_ERROR"; break;
+        case CG_NODE_NOT_FOUND: {
+            level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
+            status_name = "CG_NODE_NOT_FOUND";
+        } break;
+        case CG_INCORRECT_PATH: {
+            level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
+            status_name = "CG_INCORRECT_PATH";
+        } break;
+        case CG_NO_INDEX_DIM: {
+            level = ReaderAPI::Logger::READER_CGNS_LOG_WARN;
+            status_name = "CG_NO_INDEX_DIM";
+        } break;
+        default: break;
     }
 
     const char* error_message = cg_get_error();

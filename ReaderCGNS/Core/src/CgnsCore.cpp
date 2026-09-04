@@ -49,49 +49,49 @@ void CgnsCore::info() const
             cgsize_t zone_vertex_sum = 0, zone_cell_sum = 0;
             if (zone_type == CG_ZoneType_t::CG_Structured) {
                 switch (zone_dim) {
-                case 2: {
-                    zone_vertex_sum = zone_size[0] * zone_size[1];
-                    zone_cell_sum = zone_size[2] * zone_size[3];
-                    LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name=[{}]",
-                             zone,
-                             cg_ZoneTypeName(zone_type),
-                             zone_name,
-                             zone_dim,
-                             zone_size[0],
-                             zone_size[1],
-                             zone_vertex_sum,
-                             zone_size[2],
-                             zone_size[3],
-                             zone_cell_sum,
-                             zone_size[4],
-                             zone_size[5],
-                             zone_iter_name);
+                    case 2: {
+                        zone_vertex_sum = zone_size[0] * zone_size[1];
+                        zone_cell_sum = zone_size[2] * zone_size[3];
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name=[{}]",
+                                 zone,
+                                 cg_ZoneTypeName(zone_type),
+                                 zone_name,
+                                 zone_dim,
+                                 zone_size[0],
+                                 zone_size[1],
+                                 zone_vertex_sum,
+                                 zone_size[2],
+                                 zone_size[3],
+                                 zone_cell_sum,
+                                 zone_size[4],
+                                 zone_size[5],
+                                 zone_iter_name);
 
-                } break;
-                case 3: {
-                    zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
-                    zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
-                    LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name=[{}]",
-                             zone,
-                             cg_ZoneTypeName(zone_type),
-                             zone_name,
-                             zone_dim,
-                             zone_size[0],
-                             zone_size[1],
-                             zone_size[2],
-                             zone_vertex_sum,
-                             zone_size[3],
-                             zone_size[4],
-                             zone_size[5],
-                             zone_cell_sum,
-                             zone_size[6],
-                             zone_size[7],
-                             zone_size[8],
-                             zone_iter_name);
-                } break;
-                default: {
-                    LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]", zone, cg_ZoneTypeName(zone_type), zone_name, zone_dim, zone_iter_name);
-                } break;
+                    } break;
+                    case 3: {
+                        zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
+                        zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name=[{}]",
+                                 zone,
+                                 cg_ZoneTypeName(zone_type),
+                                 zone_name,
+                                 zone_dim,
+                                 zone_size[0],
+                                 zone_size[1],
+                                 zone_size[2],
+                                 zone_vertex_sum,
+                                 zone_size[3],
+                                 zone_size[4],
+                                 zone_size[5],
+                                 zone_cell_sum,
+                                 zone_size[6],
+                                 zone_size[7],
+                                 zone_size[8],
+                                 zone_iter_name);
+                    } break;
+                    default: {
+                        LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]", zone, cg_ZoneTypeName(zone_type), zone_name, zone_dim, zone_iter_name);
+                    } break;
                 }
             }
             else if (zone_type == CG_ZoneType_t::CG_Unstructured) {

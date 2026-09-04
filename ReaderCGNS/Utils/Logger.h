@@ -22,11 +22,7 @@ public:
     bool ClearCallback() noexcept;
 
     template<class... Args>
-    void FormatAndDispatch(ReaderAPI::Logger::LogLevel level,
-                           const char* file,
-                           int line,
-                           std::format_string<Args...> fmt_text,
-                           Args&&... args) noexcept
+    void FormatAndDispatch(ReaderAPI::Logger::LogLevel level, const char* file, int line, std::format_string<Args...> fmt_text, Args&&... args) noexcept
     {
         if (!this->IsDispatchEnabled(level)) {
             return;

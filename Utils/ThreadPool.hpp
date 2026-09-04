@@ -86,8 +86,7 @@ namespace utils {
                             Task task;
                             {
                                 std::unique_lock lock(this->m_mutex);
-                                const bool ready =
-                                    this->m_task_cv.wait(lock, st, [this] { return this->m_state != State::running || !this->m_tasks.empty(); });
+                                const bool ready = this->m_task_cv.wait(lock, st, [this] { return this->m_state != State::running || !this->m_tasks.empty(); });
 
                                 if (!ready || st.stop_requested() || this->m_tasks.empty()) {
                                     return;
@@ -143,9 +142,8 @@ namespace utils {
             using return_type = std::invoke_result_t<std::decay_t<Func>, std::decay_t<Args>...>;
 
             // 与 std::thread 一致：任务和参数衰减复制进任务对象；引用语义通过 std::ref 显式表达。
-            std::packaged_task<return_type()> packaged_task([f = std::forward<Func>(f), ... a = std::forward<Args>(args)]() mutable -> return_type {
-                return std::invoke(std::move(f), std::move(a)...);
-            });
+            std::packaged_task<return_type()> packaged_task(
+                [f = std::forward<Func>(f), ... a = std::forward<Args>(args)]() mutable -> return_type { return std::invoke(std::move(f), std::move(a)...); });
 
             std::future<return_type> future = packaged_task.get_future();
             Task task([task = std::move(packaged_task), this]() mutable {

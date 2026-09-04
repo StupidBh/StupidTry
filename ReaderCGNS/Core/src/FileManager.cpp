@@ -32,10 +32,10 @@ bool FileManager::Open(const std::string& cgns_file_path)
     const int status = cg_is_cgns(cgns_file_path.c_str(), &cgns_file_type);
     auto FileTypeName = [](int file_type) -> const char* {
         switch (file_type) {
-        case CG_FILE_ADF : return "ADF";
-        case CG_FILE_ADF2: return "ADF2";
-        case CG_FILE_HDF5: return "HDF5";
-        default          : return "ERROR_FILE";
+            case CG_FILE_ADF : return "ADF";
+            case CG_FILE_ADF2: return "ADF2";
+            case CG_FILE_HDF5: return "HDF5";
+            default          : return "ERROR_FILE";
         }
     };
     if (status != CG_OK || cgns_file_type == CG_FILE_NONE) {

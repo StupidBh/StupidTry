@@ -21,8 +21,6 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 NamespaceIndentation: All
-IndentCaseBlocks: false
-IndentCaseLabels: false
 IndentGotoLabels: false
 IndentAccessModifiers: false
 IndentExternBlock: AfterExternBlock
@@ -106,7 +104,7 @@ CompactNamespaces: false
 # 参数打包
 # ============================================================================
 BinPackArguments: false
-BinPackParameters: false
+BinPackParameters: "false"
 PackConstructorInitializers: Never
 
 # ============================================================================
@@ -182,6 +180,9 @@ AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: None
 
 # ---- switch case ----
+IndentCaseBlocks: false
+IndentCaseLabels: true
+
 AlignConsecutiveShortCaseStatements:
   Enabled: true
   AcrossEmptyLines: false
@@ -206,7 +207,7 @@ ReferenceAlignment: Left
 
 # ---- 大括号相关 ----
 InsertBraces: true
-Cpp11BracedListStyle: false
+Cpp11BracedListStyle: "false"
 RemoveBracesLLVM: false
 
 # ---- 尾部 ----
