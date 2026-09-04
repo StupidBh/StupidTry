@@ -216,11 +216,7 @@ void CgnsCore::info() const
             CGNS_LOG_CALL(cg_ngrids(this->get_file_id(), base, zone, &ngrids));
             for (int grid = 1; grid <= ngrids; ++grid) {
                 char grid_name[CGNS_NAME_MAX_LEN] = { };
-                // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
-                // std::vector<cgsize_t> grid_bounding_box(1, 0);
-
                 CGNS_LOG_CALL(cg_grid_read(this->get_file_id(), base, zone, grid, grid_name));
-                // CG_INFO(cg_grid_bounding_box_read(this->GetFileID(), base, zone, grid, grid_data_type, grid_bounding_box.data()));
 
                 LOG_INFO("    [ZoneGird]{:>2}:[{}]", grid, grid_name);
             }
@@ -486,9 +482,9 @@ void CgnsCore::info() const
         }
 
         // Particle Zone Information
-        int nparticlezones = 0;
-        CGNS_LOG_CALL(cg_nparticle_zones(this->get_file_id(), base, &nparticlezones));
-        for (int particle_zone = 1; particle_zone <= nparticlezones; ++particle_zone) {
+        int nparticle_zones = 0;
+        CGNS_LOG_CALL(cg_nparticle_zones(this->get_file_id(), base, &nparticle_zones));
+        for (int particle_zone = 1; particle_zone <= nparticle_zones; ++particle_zone) {
             double particle_zone_id = 0;
             char particle_zone_name[CGNS_NAME_MAX_LEN] = { };
             cgsize_t particle_zone_size = 0;
