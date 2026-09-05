@@ -1,5 +1,4 @@
 #include "CgnsCore.h"
-#include "CgnsTypes.hpp"
 
 #include <functional>
 #include <unordered_set>

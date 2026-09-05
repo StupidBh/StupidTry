@@ -1,6 +1,6 @@
 #include "FileManager.h"
 
-#include "CgnsTypes.hpp"
+#include "CgnsTopology.hpp"
 
 FileManager::~FileManager()
 {
