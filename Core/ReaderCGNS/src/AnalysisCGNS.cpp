@@ -87,6 +87,11 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         LOG_INFO("ElementSet: {}", element_set_names);
     }
 
+    std::vector<std::string> field_function_names;
+    if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
+        LOG_INFO("FieldFunction: {}", field_function_names);
+    }
+
     return true;
 }
 
