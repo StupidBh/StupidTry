@@ -1,10 +1,10 @@
 #pragma once
+#include "CgnsTypes.hpp"
+
 #include <string>
 
 #include "cgnslib.h"
 #include "Utils/Utils.hpp"
-
-inline static constexpr auto CGNS_NAME_MAX_LEN = 33;
 
 template<class T>
 struct Topology
