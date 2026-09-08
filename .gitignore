@@ -38,3 +38,5 @@ cmake-build-*/
 # === OS generated ===
 Thumbs.db
 Desktop.ini
+/.codex/
+/.agents/
