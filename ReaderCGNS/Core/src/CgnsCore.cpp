@@ -106,6 +106,9 @@ void CgnsCore::info() const
                          zone_size[2],
                          zone_iter_name);
             }
+            else {
+                LOG_WARN("  [Zone]{:>2}:[{}] {} unsupported types.", zone, cg_ZoneTypeName(zone_type), zone_name);
+            }
 
             // Flow Solution
             int nsols = 0;
