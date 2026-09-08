@@ -253,14 +253,14 @@ void CgnsCore::info() const
                                               &section_nbndry,
                                               &section_parent_flag));
                 if (section_end == 0 || section_end - section_start < 0) {
-                    LOG_INFO("    [ZoneSection] {} element range [start, end] is empty.", section_name);
+                    LOG_INFO("    [ElementConnectivity] {} element range [start, end] is empty.", section_name);
                     continue;
                 }
 
                 cgsize_t element_data_size = 0;
                 CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), base, zone, section, &element_data_size));
                 if (element_data_size <= 0) {
-                    LOG_INFO("    [ZoneSection] {} element data is empty.", section_name);
+                    LOG_INFO("    [ElementConnectivity] {} element data is empty.", section_name);
                     continue;
                 }
 
