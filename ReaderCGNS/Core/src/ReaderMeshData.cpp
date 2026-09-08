@@ -14,7 +14,6 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
 {
     if (this->m_grid_topology.empty()) {
         if (!this->initialize_grid_topology()) {
-            LOG_INFO("initialize_grid_topology() failed.");
             return false;
         }
     }
@@ -42,7 +41,6 @@ bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_co
 {
     if (this->m_grid_topology.empty()) {
         if (!this->initialize_grid_topology()) {
-            LOG_INFO("initialize_grid_topology() failed.");
             return false;
         }
     }
@@ -90,6 +88,11 @@ bool ReaderMeshData::initialize_grid_topology()
             continue;
         }
         loaded_topology.emplace_back(std::move(base));
+    }
+
+    if (loaded_topology.empty()) {
+        LOG_ERROR("Failed to initialize grid topology: no base topology could be loaded.");
+        return false;
     }
 
     this->m_grid_topology = std::move(loaded_topology);
@@ -187,18 +190,17 @@ bool ReaderMeshData::read_zone_coordinates(int index_base, int index_zone, ZoneT
 
     const std::vector<cgsize_t> r_min(zone.dim, 1);
     std::vector<cgsize_t> r_max(zone.dim, 1);
-    cgsize_t vertex_sum = 1;
     for (int i = 0; i < zone.dim; ++i) {
         r_max[i] = zone.zone_size[i];
-        vertex_sum *= zone.zone_size[i];
     }
-    zone.coordinates_xyz.fill(std::vector(vertex_sum, 0.F));
+    zone.coordinates_xyz.fill(std::vector(zone.NodeSum(), 0.F));
 
     for (int index_coord = 1; index_coord <= zone_ncoords; ++index_coord) {
         char index_coord_name[CGNS_NAME_MAX_LEN] = { };
         CG_DataType_t index_coord_type = CG_DataType_t::CG_DataTypeNull;
         if (CGNS_LOG_CALL(cg_coord_info(this->get_file_id(), index_base, index_zone, index_coord, &index_coord_type, index_coord_name)) != CG_OK) {
-            continue;
+            zone.coordinates_xyz.fill(std::vector(0, 0.F));
+            break;
         }
 
         if (index_coord_type == CG_DataType_t::CG_RealSingle) {
@@ -212,17 +214,27 @@ bool ReaderMeshData::read_zone_coordinates(int index_base, int index_zone, ZoneT
                                         zone.coordinates_xyz[index_coord - 1].data()));
         }
         else if (index_coord_type == CG_DataType_t::CG_RealDouble) {
-            std::vector<double> temp_buff(vertex_sum, 0.0);
+            std::vector<double> temp_buff(zone.NodeSum(), 0.0);
 
             CGNS_LOG_CALL(
                 cg_coord_read(this->get_file_id(), index_base, index_zone, index_coord_name, index_coord_type, r_min.data(), r_max.data(), temp_buff.data()));
             zone.coordinates_xyz[index_coord - 1] = utils::ShrinkVector<float>(temp_buff);
         }
         else {
-            LOG_WARN("[ZoneCoords]{:>2}:[{}] {}, Unknown data-type.", index_coord, cg_DataTypeName(index_coord_type), index_coord_name);
+            LOG_WARN("[ZoneCoords]{:>2}:[{}] {}, unsupported type at Base {}/Zone {}.",
+                     index_coord,
+                     cg_DataTypeName(index_coord_type),
+                     index_coord_name,
+                     index_base,
+                     index_zone);
+            utils::DeepClear(zone.coordinates_xyz[index_coord - 1]);
         }
     }
 
+    if (zone.coordinates_xyz[0].empty() || zone.coordinates_xyz[1].empty() || zone.coordinates_xyz[2].empty()) {
+        LOG_ERROR("Read coordinates failed at Base {}/Zone {}.", index_base, index_zone);
+        return false;
+    }
     return true;
 }
 
@@ -285,8 +297,12 @@ bool ReaderMeshData::read_section_topology(const int index_base, const int index
     const std::size_t element_count = static_cast<std::size_t>(element_count_value);
 
     cgsize_t element_data_size = 0;
-    if (CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), index_base, index_zone, index_section, &element_data_size)) != CG_OK || element_data_size < 0 ||
-        !std::in_range<std::size_t>(element_data_size)) {
+    if (CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), index_base, index_zone, index_section, &element_data_size)) != CG_OK) {
+        return false;
+    }
+
+    if (element_data_size < 0 || !std::in_range<std::size_t>(element_data_size)) {
+        LOG_ERROR("Element data size value is invalid [{}] at Base {}/Zone {}/Section {}.", element_data_size, index_base, index_zone, index_section);
         return false;
     }
 

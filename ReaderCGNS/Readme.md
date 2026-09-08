@@ -1,8 +1,8 @@
 # ReaderCGNS
 
-`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出。
+`ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出，并提供名称列表和节点坐标查询。
 
-当前公开能力定位为“结构检查与诊断”，而不是完整的数据导入器：接口可读取文件版本和 Base 级方程类型、列出 element set 名称，`ReaderAPI::ReaderApiBase::info()` 输出元数据和连接摘要，但不返回可供业务计算使用的网格对象。
+当前公开能力定位为“结构检查、诊断与轻量数据查询”，而不是完整的数据导入器：接口可读取文件版本和 Base 级方程类型、列出 element set 与场函数名称，并以扁平节点数组返回坐标；`ReaderAPI::ReaderApiBase::info()` 输出元数据和连接摘要，但不返回完整的网格拓扑对象。
 
 ## 能力范围
 
@@ -10,7 +10,7 @@
 
 - CGNS 存储类型、文件版本与数据精度；
 - Base、Zone、迭代信息与结构化/非结构化尺寸；
-- 首次查询 element set 名称时按需构建 Base/Zone/Section 内部网格拓扑，包括坐标、Structured connectivity、固定单元连接表以及 `MIXED/NGON_n/NFACE_n` 变长连接表；
+- 首次查询 element set 名称或节点坐标时按需构建 Base/Zone/Section 内部网格拓扑，包括坐标、Structured connectivity、固定单元连接表以及 `MIXED/NGON_n/NFACE_n` 变长连接表；
 - FlowSolution、DiscreteData 与 ZoneSubRegion；
 - GridCoordinates 与元素 Section/Connectivity；
 - 一对一连接、一般网格连接与 Overset Holes；
@@ -22,11 +22,11 @@
 
 ### 内部网格拓扑
 
-`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置。首次调用 `GetAllElementSetName()` 时，`ReaderMeshData` 只遍历这组索引并按需缓存 Base、Zone、Section 和各 Zone 的坐标，不会重新扫描已经被布局阶段过滤的节点。当前内部拓扑不读取解场、边界条件或 Zone 间连接数据。
+`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置。首次调用 `GetAllElementSetName()` 或 `GetAllNodeCoordinates()` 时，`ReaderMeshData` 只遍历这组索引并按需缓存 Base、Zone、Section 和各 Zone 的坐标，不会重新扫描已经被布局阶段过滤的节点。`GetAllFieldFunctionName()` 使用独立的按需缓存遍历各 Zone 的 FlowSolution 与字段描述。当前内部拓扑不读取场值、边界条件或 Zone 间连接数据。
 
 Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSize` 和 `CellSize` 合成一个 Section，并按维度展开为 `BAR_2`、`QUAD_4` 或 `HEXA_8` 的 1-based connectivity。Unstructured Zone 会遍历 Section：固定元素类型通过 `cg_npe()` 校验每个元素的节点数并读取连续 connectivity；`MIXED`、`NGON_n` 和 `NFACE_n` 通过 `cg_poly_elements_read()` 同时保存 connectivity 与 `ElementStartOffset`。Section 声明 parent data 时只记录存在标志，不缓存 `ParentElements` 或 `ParentElementsPosition` 的原始数据。
 
-拓扑读取先构建临时结果；无法读取的 Base、Zone 或 Section 会记录错误并跳过，至少得到一个可读 Base 后才替换当前快照。`Open()` 只负责文件和 Base/Zone 布局初始化，拓扑读取失败由 `GetAllElementSetName()` 返回 `false`。`Close()` 会关闭 CGNS 文件并释放拓扑缓存。公开接口只暴露从该缓存生成的名称列表，坐标和 connectivity 快照仍属于 DLL 内部实现。
+拓扑读取先构建临时结果；无法读取的 Base、Zone 或 Section 会记录错误并跳过，至少得到一个可读 Base 后才替换当前快照。坐标描述读取失败或坐标数据类型不受支持时，对应 Zone 不会进入可用拓扑。`Open()` 只负责文件和 Base/Zone 布局初始化，按需初始化失败由发起查询的接口返回 `false`。`Close()` 会关闭 CGNS 文件并释放网格与字段缓存。公开接口只暴露从缓存生成的名称列表和扁平节点坐标，Section connectivity 快照仍属于 DLL 内部实现。
 
 ## 公开接口
 
@@ -49,9 +49,11 @@ Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSi
 | `ReaderAPI::ReaderApiBase::GetVersion()` | 返回当前文件记录的 CGNS 版本。 |
 | `ReaderAPI::ReaderApiBase::GetSolverType()` | 返回第一个 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
 | `ReaderAPI::ReaderApiBase::GetAllElementSetName(names)` | 将当前文件的 element set 名称追加到调用方提供的字符串数组。 |
+| `ReaderAPI::ReaderApiBase::GetAllFieldFunctionName(names)` | 将当前文件的场函数名称追加到调用方提供的字符串数组。 |
+| `ReaderAPI::ReaderApiBase::GetAllNodeCoordinates(nodes)` | 将可读 Zone 的节点坐标追加到调用方提供的节点数组。 |
 | `ReaderAPI::ReaderApiBase::info()` | 遍历当前已打开文件并输出结构检查信息。 |
 
-`GetAllElementSetName()` 要求文件已成功打开，输出容器由调用方拥有且不会被接口预先清空；需要替换内容时，调用方应在调用前自行清空。Structured Zone 或没有可读 Section 的 Unstructured Zone 使用 `Base.Zone`，其他 Unstructured Section 使用 `Base.Zone.Section`。成功生成至少一个名称时返回 `true`；拓扑初始化失败或没有可返回名称时返回 `false`。同一 reader 的文件与数据读取接口不保证并发调用安全。
+三个容器输出接口都要求文件已成功打开，输出容器由调用方拥有且不会被接口预先清空；需要替换内容时，调用方应在调用前自行清空。Structured Zone 或没有可读 Section 的 Unstructured Zone 使用 `Base.Zone`，其他 Unstructured Section 使用 `Base.Zone.Section`。`GetAllFieldFunctionName()` 返回去重后的字段名称，顺序不构成接口保证。`GetAllNodeCoordinates()` 按缓存中的 Base/Zone 顺序追加 `float` 坐标，生成的 `index` 和 `id` 在每次调用内从 0 连续编号。按需初始化失败或没有可返回数据时，相关查询返回 `false`。同一 reader 的文件与数据读取接口不保证并发调用安全。
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
@@ -91,7 +93,7 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 
 ## 返回值与错误处理
 
-`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件，然后初始化 Base/Zone 布局；任一步失败都会关闭文件、清理已构建数据并返回 `false`。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用 `GetVersion()`、`GetSolverType()`、`GetAllElementSetName()` 和 `info()`，并在结束后显式调用 `Close()`。使用同一实例打开不同文件时，当前文件会先被关闭和清理；再次打开同一路径且文件仍处于打开状态时直接返回成功。
+`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件，然后初始化 Base/Zone 布局；任一步失败都会关闭文件、清理已构建数据并返回 `false`。打开过程会记录只读打开尝试、可用的存储类型/版本/精度、Base 名称回退和最终成功状态。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用数据查询和 `info()`，并在结束后显式调用 `Close()`。使用同一实例打开不同文件时，当前文件会先被关闭和清理；再次打开同一路径且文件仍处于打开状态时直接返回成功。
 
 `GetSolverType()` 只读取第一个 `CGNSBase_t` 下直接声明的 `FlowEquationSet_t`，不遍历 Zone，也不根据 `SimulationType_t` 或其他节点推断方程类型。节点不存在或读取失败时，接口保留对应 CGNS 日志并返回 `"Unknown"`。
 

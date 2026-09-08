@@ -26,10 +26,14 @@ bool FileManager::Open(const std::string& cgns_file_path)
         }
         this->Close();
     }
-    LOG_INFO("Open in read only: [{}]", cgns_file_path);
+    LOG_INFO("Open in read only: [{}]...", cgns_file_path);
 
     int cgns_file_type = -1;
-    const int status = cg_is_cgns(cgns_file_path.c_str(), &cgns_file_type);
+    if (cg_is_cgns(cgns_file_path.c_str(), &cgns_file_type) != CG_OK) {
+        LOG_ERROR("Failed to inspect CGNS file: {}", cg_get_error());
+        return false;
+    }
+
     auto FileTypeName = [](int file_type) -> const char* {
         switch (file_type) {
             case CG_FILE_ADF : return "ADF";
@@ -38,8 +42,8 @@ bool FileManager::Open(const std::string& cgns_file_path)
             default          : return "ERROR_FILE";
         }
     };
-    if (status != CG_OK || cgns_file_type == CG_FILE_NONE) {
-        LOG_INFO("[CG_ERROR] [{}] msg: {}", FileTypeName(cgns_file_type), cg_get_error());
+    if (cgns_file_type == CG_FILE_NONE) {
+        LOG_ERROR("File type [{}] is unsupported CGNS file.", FileTypeName(cgns_file_type));
         return false;
     }
 
@@ -49,9 +53,9 @@ bool FileManager::Open(const std::string& cgns_file_path)
 
     float cg_file_version = 0.F;
     int cg_file_precision = 0;
-    CGNS_LOG_CALL(cg_version(this->m_file_id, &cg_file_version));
-    CGNS_LOG_CALL(cg_precision(this->m_file_id, &cg_file_precision));
-    LOG_INFO("[{}] v{:.2f}, Precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
+    if (CGNS_LOG_CALL(cg_version(this->m_file_id, &cg_file_version)) == CG_OK && CGNS_LOG_CALL(cg_precision(this->m_file_id, &cg_file_precision)) == CG_OK) {
+        LOG_INFO("[{}] v{:.2f}, Precision={}", FileTypeName(cgns_file_type), cg_file_version, cg_file_precision);
+    }
 
     this->m_cgns_file_path = cgns_file_path;
     if (!this->initialize_base_zone_layout()) {
@@ -59,6 +63,7 @@ bool FileManager::Open(const std::string& cgns_file_path)
         return false;
     }
 
+    LOG_INFO("Open file successfully.");
     return true;
 }
 
@@ -141,7 +146,6 @@ bool FileManager::initialize_base_zone_layout()
 {
     int nbases = 0;
     if (CGNS_LOG_CALL(cg_nbases(this->m_file_id, &nbases)) != CG_OK) {
-        LOG_ERROR("No base data in CGNS.");
         return false;
     }
 
@@ -167,6 +171,7 @@ bool FileManager::initialize_base_zone_layout()
         std::string base_name_str = base_name;
         if (base_name_str.empty()) {
             base_name_str = std::format("Step_{}", count++);
+            LOG_WARN("Base name is empty at [{}], falling back to: {}", base, base_name_str);
         }
 
         while (this->m_base_zone_layout.contains(base_name_str)) {

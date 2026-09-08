@@ -6,7 +6,6 @@ bool ReaderFieldData::GetAllFieldFunctionName(std::vector<std::string>& field_na
 {
     if (this->m_field_layout.empty()) {
         if (!this->initialize_field_layout()) {
-            LOG_INFO("initialize_field_layout() failed.");
             return false;
         }
     }
@@ -66,6 +65,11 @@ bool ReaderFieldData::initialize_field_layout()
         }
     }
 
+    if (loaded_field_layout.empty()) {
+        LOG_INFO("initialize_field_layout() failed.");
+        return false;
+    }
+
     this->m_field_layout = std::move(loaded_field_layout);
-    return !this->m_field_layout.empty();
+    return true;
 }
