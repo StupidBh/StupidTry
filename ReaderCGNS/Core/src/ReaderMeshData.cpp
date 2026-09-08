@@ -49,13 +49,12 @@ bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_co
     for (auto& grid_topology : this->m_grid_topology) {
         for (auto& zone_topology : grid_topology.zones) {
             for (std::size_t i = 0; i < zone_topology.NodeSum(); ++i) {
-                node_coordinates.emplace_back(ReaderAPI::Node { .index = count,
-                                                                .id = count,
+                node_coordinates.emplace_back(ReaderAPI::Node { .id = count,
                                                                 .x = zone_topology.coordinates_xyz[0][i],
                                                                 .y = zone_topology.coordinates_xyz[1][i],
                                                                 .z = zone_topology.coordinates_xyz[2][i] });
 
-                count++;
+                ++count;
             }
         }
     }
