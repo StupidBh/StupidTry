@@ -46,14 +46,17 @@ namespace ReaderAPI {
         virtual void Close() = 0;
         [[nodiscard]] virtual bool IsOpen() const = 0;
 
-        [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
-        [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<std::string>& field_names) = 0;
         [[nodiscard]] virtual bool GetAllNodeCoordinates(std::vector<Node>& node_coordinates) = 0;
+        [[nodiscard]] virtual bool GetAllElement(std::vector<Elem>& elements) = 0;
+
+        [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
+
+        [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<std::string>& field_names) = 0;
 
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;
 
-        [[nodiscard]] virtual float GetVersion() const = 0;
+        [[nodiscard]] virtual Real GetVersion() const = 0;
         [[nodiscard]] virtual std::string GetSolverType() const = 0;
     };
 

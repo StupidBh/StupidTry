@@ -82,7 +82,7 @@ bool FileManager::IsOpen() const
     return this->m_file_id != 0 && !this->m_cgns_file_path.empty();
 }
 
-float FileManager::GetVersion() const
+ReaderAPI::Real FileManager::GetVersion() const
 {
     float cg_file_version = 0.F;
     CGNS_LOG_CALL(cg_version(this->m_file_id, &cg_file_version));

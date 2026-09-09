@@ -25,7 +25,7 @@ public:
     void Close() final;
     bool IsOpen() const final;
 
-    float GetVersion() const final;
+    ReaderAPI::Real GetVersion() const final;
     std::string GetSolverType() const final;
 
 protected:

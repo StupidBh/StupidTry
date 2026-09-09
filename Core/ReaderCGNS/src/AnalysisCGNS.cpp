@@ -92,6 +92,11 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         LOG_INFO("FieldFunction: {}", field_function_names);
     }
 
+    std::vector<ReaderAPI::Elem> all_elements;
+    if (this->m_reader->GetAllElement(all_elements)) {
+        LOG_INFO("AllElement: {}", all_elements.size());
+    }
+
     return true;
 }
 
