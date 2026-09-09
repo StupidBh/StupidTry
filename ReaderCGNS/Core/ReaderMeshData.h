@@ -37,4 +37,5 @@ private:
     [[nodiscard]] bool build_structured_section(ZoneTopology& zone) const;
 
     std::vector<BaseTopology> m_grid_topology;
+    std::unordered_map<std::string, std::vector<ReaderAPI::Integer>> m_components;
 };

@@ -50,7 +50,11 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
             return false;
         }
     }
+    else {
+        utils::DeepClear(this->m_components);
+    }
 
+    int component_count = 1;
     cgsize_t node_offset = 0;
     cgsize_t element_offset = 0;
 
@@ -83,6 +87,17 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
                     element_count = this->initialize_section_normal(section_topology, loaded_elements, element_offset, node_offset);
                 }
 
+                if (element_count == 0) {
+                    continue;
+                }
+
+                auto component_name = std::format("{}.{}.{}", grid_topology.name, zone_topology.name, section_topology.name);
+                while (this->m_components.contains(component_name)) {
+                    component_name = std::format("{}_{}", component_name, component_count);
+                    ++component_count;
+                }
+                this->m_components[component_name] = utils::CreateVector<ReaderAPI::Integer>(element_count, element_offset);
+
                 element_offset += element_count;
             }
 
@@ -90,7 +105,7 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
         }
     }
 
-    if (loaded_elements.empty()) {
+    if (loaded_elements.empty() || this->m_components.empty()) {
         LOG_WARN("Element is empty.");
         return false;
     }
@@ -100,34 +115,25 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
 
 bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_names)
 {
-    if (this->m_grid_topology.empty()) {
-        if (!this->initialize_grid_topology()) {
+    if (this->m_components.empty()) {
+        std::vector<ReaderAPI::Elem> elements;
+        if (!this->GetAllElement(elements)) {
             return false;
         }
     }
 
-    for (auto& grid_topology : this->m_grid_topology) {
-        std::string_view base_name = grid_topology.name;
-        for (auto& zone_topology : grid_topology.zones) {
-            std::string_view zone_name = zone_topology.name;
-
-            if (zone_topology.type == CG_ZoneType_t::CG_Structured || zone_topology.sections.empty()) {
-                element_set_names.emplace_back(std::format("{}.{}", base_name, zone_name));
-            }
-            else {
-                for (auto& section_topology : zone_topology.sections) {
-                    element_set_names.emplace_back(std::format("{}.{}.{}", base_name, zone_name, section_topology.name));
-                }
-            }
-        }
+    std::vector<std::string> loaded_components;
+    for (const auto& name : this->m_components | std::views::keys) {
+        loaded_components.emplace_back(name);
     }
 
-    return !element_set_names.empty();
+    utils::AppendVector(element_set_names, std::move(loaded_components));
+    return true;
 }
 
 void ReaderMeshData::clear_grid_topology() noexcept
 {
-    utils::DeepClear(this->m_grid_topology);
+    utils::DeepClear(this->m_grid_topology, this->m_components);
 }
 
 bool ReaderMeshData::initialize_grid_topology()
