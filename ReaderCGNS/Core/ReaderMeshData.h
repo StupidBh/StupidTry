@@ -2,7 +2,6 @@
 #include "FileManager.h"
 #include "CgnsTopology.hpp"
 
-#include <optional>
 #include <span>
 
 class ReaderMeshData : virtual public FileManager {
@@ -19,14 +18,14 @@ protected:
     void clear_grid_topology() noexcept;
 
     [[nodiscard]] bool initialize_grid_topology();
-    [[nodiscard]] std::optional<ReaderAPI::Integer> initialize_section_mixed(const SectionTopology& section,
-                                                                             std::vector<ReaderAPI::Elem>& elements,
-                                                                             const ReaderAPI::Integer& element_offset,
-                                                                             const ReaderAPI::Integer& node_offset) const;
-    [[nodiscard]] std::optional<ReaderAPI::Integer> initialize_section_normal(const SectionTopology& section,
-                                                                              std::vector<ReaderAPI::Elem>& elements,
-                                                                              const ReaderAPI::Integer& element_offset,
-                                                                              const ReaderAPI::Integer& node_offset) const;
+    [[nodiscard]] cgsize_t initialize_section_mixed(const SectionTopology& section,
+                                                    std::vector<ReaderAPI::Elem>& elements,
+                                                    const ReaderAPI::Integer& element_offset,
+                                                    const ReaderAPI::Integer& node_offset) const;
+    [[nodiscard]] cgsize_t initialize_section_normal(const SectionTopology& section,
+                                                     std::vector<ReaderAPI::Elem>& elements,
+                                                     const ReaderAPI::Integer& element_offset,
+                                                     const ReaderAPI::Integer& node_offset) const;
 
 private:
     [[nodiscard]] bool read_base_topology(int index_base, std::span<const int> zone_indices, BaseTopology& base) const;

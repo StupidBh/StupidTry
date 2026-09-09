@@ -56,7 +56,13 @@ Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSi
 
 四个容器输出接口都要求文件已成功打开，输出容器由调用方拥有。名称和节点坐标接口会追加结果且不会预先清空容器；`GetAllElement()` 成功时替换调用方容器，失败时保留其原内容。Structured Zone 或没有可读 Section 的 Unstructured Zone 使用 `Base.Zone`，其他 Unstructured Section 使用 `Base.Zone.Section`。`GetAllFieldFunctionName()` 返回去重后的字段名称，顺序不构成接口保证。`GetAllNodeCoordinates()` 按缓存中的 Base/Zone 顺序追加 `Real` 坐标，生成的 `Node::id` 在每次调用内从 0 连续编号。
 
-`GetAllElement()` 按缓存中的 Base/Zone/Section 顺序返回 `Elem`。`Elem::id` 是本次结果内从 0 连续编号的单元 ID，`Elem::type` 是对应 `CG_ElementType_t` 的整数值，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID；节点 ID 按所有可读 Zone 合并为全局 0-based 编号。固定类型与 `MIXED` Section 会展开，`NGON_n` 和 `NFACE_n` Section 当前记录警告并跳过。整数结果使用 32 位 `ReaderAPI::Integer`；节点数、单元数或 connectivity 超出其表示范围时，接口记录错误并返回 `false`。按需初始化失败或没有可返回数据时，相关查询同样返回 `false`。同一 reader 的文件与数据读取接口不保证并发调用安全。
+`GetAllElement()` 按缓存中的 Base/Zone/Section 顺序返回 `Elem`。`Elem::id` 按实际输出的单元从 0 连续编号，跳过的单元不占编号；`Elem::type` 是对应 `CG_ElementType_t` 的整数值，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID；节点 ID 按所有可读 Zone 合并为全局 0-based 编号。固定类型与 `MIXED` Section 会展开，`NGON_n` 和 `NFACE_n` Section 当前记录警告并跳过。
+
+单元展开采用局部失败后继续处理的方式：Section 初始化函数直接返回实际读取数量，无法展开时记录错误并返回 0；`MIXED` 中节点数查询失败、节点数无效或与连接偏移长度不匹配的单元会记录错误并跳过，继续处理后续单元。只要最终得到至少一个单元，`GetAllElement()` 就替换输出容器并返回 `true`，因此成功不代表所有 Section 和单元都已返回；按需初始化失败或最终没有单元时返回 `false`，保留调用方容器原内容。
+
+整数结果使用 32 位 `ReaderAPI::Integer`，内部累计节点/单元偏移与 Section 初始化返回的数量使用 `cgsize_t`。单元展开保留 Section 单元数量与累计单元数量的范围检查，超出范围时跳过该 Section；节点偏移和 connectivity 节点 ID 直接转换，不再做范围检查，输入需使用有效的 Zone 内节点编号，且累计节点数量与转换后的编号须在 `ReaderAPI::Integer` 表示范围内。
+
+`GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`；范围检查失败前已追加的节点会保留。完成遍历后返回 `true`，即使输出容器为空也只记录警告。同一 reader 的文件与数据读取接口不保证并发调用安全。
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
