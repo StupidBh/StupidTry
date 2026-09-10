@@ -24,10 +24,13 @@ protected:
                                                     const cgsize_t& node_offset) const;
     [[nodiscard]] cgsize_t initialize_section_normal(const SectionTopology& section,
                                                      std::vector<ReaderAPI::Elem>& elements,
-                                                     const ReaderAPI::Integer& element_offset,
-                                                     const ReaderAPI::Integer& node_offset) const;
                                                      const cgsize_t& element_offset,
                                                      const cgsize_t& node_offset) const;
+    cgsize_t initialize_section_ngon_nface(const ZoneTopology& zone_topology,
+                                           std::vector<ReaderAPI::Elem>& elements,
+                                           cgsize_t& element_offset,
+                                           cgsize_t node_offset,
+                                           bool flag);
 
 private:
     [[nodiscard]] bool read_base_topology(int index_base, std::span<const int> zone_indices, BaseTopology& base) const;
