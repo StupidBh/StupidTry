@@ -12,10 +12,10 @@
 - 初始化基于 spdlog 的异步日志系统；
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
-- 通过 `ReaderAPI::ReaderApiBase` 实例输出 CGNS 文件结构信息、求解器类型、element set 名称、场函数名称和单元数量；
+- 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、单元与 element set 名称，并批量读取场值、输出字段摘要；
 - 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
 
-`Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，而不是复用 `Core/src/Main.cpp` 或链接其生成的 import library。
+`Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，由调用方管理 reader 实例。
 
 ## 运行流程
 
@@ -27,15 +27,17 @@
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
-7. 同步读取文件结构信息、求解器类型、element set 名称、场函数名称和单元数量；
+7. 打开文件，依次查询求解器类型、全部单元、element set 名称，再获取场函数名称并批量读取场值；
 8. 关闭文件、清除回调、销毁 reader 并卸载 DLL。
+
+当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。单元查询成功时输出 `AllElement` 数量；字段批量读取至少成功一项时输出名称列表，以及各成功字段的 `type`、`ids` 数量和 `values` 数量，不逐项打印数值。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
 
 ## 命令行接口
 
 | 参数 | 必需 | 说明 |
 |---|---:|---|
 | `--inputPath`, `-i` | 是 | 要检查的 CGNS 文件路径。 |
-| `--workDirectory`, `-w` | 否 | 日志与生成文件目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
+| `--workDirectory`, `-w` | 否 | 日志目录，不改变进程当前目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
 | `--DEBUG` | 否 | 启用详细日志。Debug 构建会强制启用详细日志。 |
 | `--help`, `-h` | 否 | 输出参数帮助。 |
 
@@ -52,9 +54,13 @@
 
 | 路径 | 内容 |
 |---|---|
-| `logs/stupid-bhh.log` | 应用及 ReaderCGNS 转发日志。 |
+| `logs/stupid-bhh_YYYY-MM-DD.log` | 应用及 ReaderCGNS 转发日志，按日期命名，每天午夜轮换，最多保留 30 个日志文件。 |
 
-日志同时输出到控制台。CGNS 文件以只读方式打开，`ReaderAPI::ReaderApiBase::info()` 不修改输入文件。
+日志同时输出到控制台；文件日志初始化失败时会向标准错误报告并继续使用控制台日志。CGNS 文件以只读方式打开，当前流程不生成网格或场值导出文件。
+
+### 退出状态
+
+参数解析失败、`--help`、DLL/reader 初始化失败或文件打开失败返回 `EXIT_FAILURE`；输入路径不存在时返回 `-1`。打开文件后的单元、集合或字段查询失败不会使 `Analyze()` 返回 `false`，且 `main()` 捕获分析异常后仍会返回 `0`。因此当前退出码不能作为数据完整性或全部查询成功的判据，应检查日志与字段摘要。
 
 ## 目录结构
 
@@ -91,7 +97,7 @@ Core/
 | HighFive | HDF5 C++ 封装 | 头文件库 |
 | spdlog | 控制台与文件日志 | 头文件库 |
 | mio | 内存映射文件读取 | 头文件库 |
-| TBB | 标准并行算法后端 | 可选；未找到时并行算法退化为串行执行 |
+| TBB | 部分标准库实现的并行算法后端 | 可选；未找到时不链接 `TBB::tbb`，MSVC STL 不依赖它 |
 
 依赖版本及仓库级工具链要求以根目录 [`README.md`](../README.md) 为准。
 
