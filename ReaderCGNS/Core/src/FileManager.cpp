@@ -109,16 +109,6 @@ int FileManager::get_file_id() const noexcept
     return this->m_file_id;
 }
 
-std::vector<std::pair<int, std::vector<int>>> FileManager::get_base_zone_indices() const
-{
-    std::vector<std::pair<int, std::vector<int>>> base_zone_indices;
-    base_zone_indices.reserve(this->m_base_zone_indices.size());
-    for (const auto& [base_index, base_zone] : this->m_base_zone_indices) {
-        base_zone_indices.emplace_back(base_index, base_zone.zone_indices);
-    }
-    return base_zone_indices;
-}
-
 const FileManager::BaseZone* FileManager::get_base_zone_indices(const int base) const noexcept
 {
     const auto iter = this->m_base_zone_indices.find(base);
