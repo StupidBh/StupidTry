@@ -27,7 +27,6 @@ public:
     bool IsOpen() const final;
 
     ReaderAPI::Real GetVersion() const final;
-    std::string GetSolverType() const final;
 
 protected:
     virtual void clear_cache_data() noexcept;

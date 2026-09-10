@@ -89,17 +89,6 @@ ReaderAPI::Real FileManager::GetVersion() const
     return cg_file_version;
 }
 
-std::string FileManager::GetSolverType() const
-{
-    CG_GoverningEquationsType_t solver_type = CG_GoverningEquationsType_t::CG_GoverningEquationsNull;
-    if (CGNS_LOG_CALL(cg_goto(this->m_file_id, 1, "FlowEquationSet_t", 1, "end")) != CG_OK || CGNS_LOG_CALL(cg_governing_read(&solver_type)) != CG_OK) {
-        return "Unknown";
-    }
-
-    const char* solver_type_name = cg_GoverningEquationsTypeName(solver_type);
-    return solver_type_name != nullptr ? solver_type_name : "Unknown";
-}
-
 void FileManager::clear_cache_data() noexcept
 {
 }

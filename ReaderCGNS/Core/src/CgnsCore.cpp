@@ -3,6 +3,20 @@
 #include <functional>
 #include <unordered_set>
 
+std::string CgnsCore::GetSolverType() const
+{
+    auto first_base = this->get_base_zone_indices();
+
+    CG_GoverningEquationsType_t solver_type = CG_GoverningEquationsType_t::CG_GoverningEquationsNull;
+    if (CGNS_LOG_CALL(cg_goto(this->get_file_id(), first_base.front().index_base, "FlowEquationSet_t", 1, "end")) != CG_OK ||
+        CGNS_LOG_CALL(cg_governing_read(&solver_type)) != CG_OK) {
+        return "Unknown";
+    }
+
+    const char* solver_type_name = cg_GoverningEquationsTypeName(solver_type);
+    return solver_type_name != nullptr ? solver_type_name : "Unknown";
+}
+
 void CgnsCore::info() const
 {
     // Base Information
