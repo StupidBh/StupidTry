@@ -20,12 +20,14 @@ protected:
     [[nodiscard]] bool initialize_grid_topology();
     [[nodiscard]] cgsize_t initialize_section_mixed(const SectionTopology& section,
                                                     std::vector<ReaderAPI::Elem>& elements,
-                                                    const ReaderAPI::Integer& element_offset,
-                                                    const ReaderAPI::Integer& node_offset) const;
+                                                    const cgsize_t& element_offset,
+                                                    const cgsize_t& node_offset) const;
     [[nodiscard]] cgsize_t initialize_section_normal(const SectionTopology& section,
                                                      std::vector<ReaderAPI::Elem>& elements,
                                                      const ReaderAPI::Integer& element_offset,
                                                      const ReaderAPI::Integer& node_offset) const;
+                                                     const cgsize_t& element_offset,
+                                                     const cgsize_t& node_offset) const;
 
 private:
     [[nodiscard]] bool read_base_topology(int index_base, std::span<const int> zone_indices, BaseTopology& base) const;

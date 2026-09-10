@@ -166,8 +166,8 @@ bool ReaderMeshData::initialize_grid_topology()
 
 cgsize_t ReaderMeshData::initialize_section_mixed(const SectionTopology& section,
                                                   std::vector<ReaderAPI::Elem>& elements,
-                                                  const ReaderAPI::Integer& element_offset,
-                                                  const ReaderAPI::Integer& node_offset) const
+                                                  const cgsize_t& element_offset,
+                                                  const cgsize_t& node_offset) const
 {
     if (section.elements.empty() || section.connect_offset.size() < 2) {
         LOG_ERROR("Init section [MIXED] {} failed: connectivity is empty.", section.name);
@@ -208,7 +208,7 @@ cgsize_t ReaderMeshData::initialize_section_mixed(const SectionTopology& section
             element_node.emplace_back(node_offset + static_cast<ReaderAPI::Integer>(section.elements[j] - 1));
         }
 
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = element_offset + static_cast<ReaderAPI::Integer>(loaded_elements.size()),
+        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(element_offset + loaded_elements.size()),
                                                        .type = static_cast<ReaderAPI::Integer>(elem_type_id),
                                                        .npts = static_cast<ReaderAPI::Integer>(element_node.size()),
                                                        .nodes = std::move(element_node) });
@@ -226,8 +226,8 @@ cgsize_t ReaderMeshData::initialize_section_mixed(const SectionTopology& section
 
 cgsize_t ReaderMeshData::initialize_section_normal(const SectionTopology& section,
                                                    std::vector<ReaderAPI::Elem>& elements,
-                                                   const ReaderAPI::Integer& element_offset,
-                                                   const ReaderAPI::Integer& node_offset) const
+                                                   const cgsize_t& element_offset,
+                                                   const cgsize_t& node_offset) const
 {
     const cgsize_t element_count = section.ElemSum();
     if (element_count < 1 || element_count > static_cast<cgsize_t>(std::numeric_limits<ReaderAPI::Integer>::max() - element_offset)) {
@@ -254,7 +254,7 @@ cgsize_t ReaderMeshData::initialize_section_normal(const SectionTopology& sectio
             element_node.emplace_back(node_offset + static_cast<ReaderAPI::Integer>(section.elements[j] - 1));
         }
 
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = element_offset + static_cast<ReaderAPI::Integer>(loaded_elements.size()),
+        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(element_offset + loaded_elements.size()),
                                                        .type = static_cast<ReaderAPI::Integer>(section.type),
                                                        .npts = static_cast<ReaderAPI::Integer>(element_points),
                                                        .nodes = std::move(element_node) });
