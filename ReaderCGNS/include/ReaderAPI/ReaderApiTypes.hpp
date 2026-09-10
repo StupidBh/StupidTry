@@ -26,7 +26,7 @@ namespace ReaderAPI {
     struct Field
     {
         std::string name;
-        Integer type = -1; // 0-Node | 1-CellCenter | 2-FaceCenter | 3-PointSet
+        Integer type; // 0-Node | 1-CellCenter | 2-FaceCenter | 3-PointSet
 
         std::vector<Integer> ids;
         std::vector<Real> values;
