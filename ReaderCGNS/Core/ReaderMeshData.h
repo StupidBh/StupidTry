@@ -18,6 +18,9 @@ protected:
     void clear_grid_topology() noexcept;
 
     [[nodiscard]] bool initialize_grid_topology();
+    [[nodiscard]] bool build_connectivity_components();
+
+private:
     [[nodiscard]] cgsize_t initialize_section_mixed(const SectionTopology& section,
                                                     std::vector<ReaderAPI::Elem>& elements,
                                                     const cgsize_t& element_offset,
@@ -26,13 +29,15 @@ protected:
                                                      std::vector<ReaderAPI::Elem>& elements,
                                                      const cgsize_t& element_offset,
                                                      const cgsize_t& node_offset) const;
-    cgsize_t initialize_section_ngon_nface(const ZoneTopology& zone_topology,
+    cgsize_t initialize_section_ngon_nface(std::string_view base_name,
+                                           const ZoneTopology& zone_topology,
                                            std::vector<ReaderAPI::Elem>& elements,
                                            cgsize_t& element_offset,
                                            cgsize_t node_offset,
                                            bool flag);
 
-private:
+    void update_components(std::string& component_name, std::size_t element_count, cgsize_t element_start);
+
     [[nodiscard]] bool read_base_topology(int index_base, std::span<const int> zone_indices, BaseTopology& base) const;
     [[nodiscard]] bool read_zone_topology(int index_base, int index_zone, ZoneTopology& zone) const;
     [[nodiscard]] bool read_zone_coordinates(int index_base, int index_zone, ZoneTopology& zone) const;
@@ -42,5 +47,6 @@ private:
     [[nodiscard]] bool build_structured_section(ZoneTopology& zone) const;
 
     std::vector<BaseTopology> m_grid_topology;
+    std::vector<ReaderAPI::Elem> m_elements;
     std::unordered_map<std::string, std::vector<ReaderAPI::Integer>> m_components;
 };

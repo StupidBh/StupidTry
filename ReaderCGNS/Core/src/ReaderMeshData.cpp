@@ -47,95 +47,20 @@ bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_co
 
 bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
 {
-    if (this->m_grid_topology.empty()) {
-        if (!this->initialize_grid_topology()) {
+    if (this->m_elements.empty()) {
+        if (!this->build_connectivity_components()) {
             return false;
         }
     }
-    else {
-        utils::DeepClear(this->m_components);
-    }
 
-    int component_count = 1;
-    cgsize_t node_offset = 0;
-    cgsize_t element_offset = 0;
-
-    std::vector<ReaderAPI::Elem> loaded_elements;
-    for (const auto& grid_topology : this->m_grid_topology) {
-        LOG_INFO("Init Base [{}] {}, CellDim={}, PhyDim={}",
-                 cg_SimulationTypeName(grid_topology.type),
-                 grid_topology.name,
-                 grid_topology.cell_dim,
-                 grid_topology.phy_dim);
-
-        for (auto& zone_topology : grid_topology.zones) {
-            LOG_INFO("Init Zone [{}] {}, NodeSum={}, CellSum={}",
-                     cg_ZoneTypeName(zone_topology.type),
-                     zone_topology.name,
-                     zone_topology.NodeSum(),
-                     zone_topology.CellSum());
-
-            for (auto& section_topology : zone_topology.sections) {
-                if (section_topology.type == CG_ElementType_t::CG_NGON_n || section_topology.type == CG_ElementType_t::CG_NFACE_n) {
-                    bool flag = false;
-                    {
-                        int nsols = 0;
-                        if (CGNS_LOG_CALL(cg_nsols(this->get_file_id(), grid_topology.index, zone_topology.index, &nsols)) == CG_OK) {
-                            if (nsols > 0) {
-                                char solution_name[CGNS_NAME_MAX_LEN] = { };
-                                CG_GridLocation_t solution_location = CG_GridLocation_t::CG_GridLocationNull;
-                                if (CGNS_LOG_CALL(
-                                        cg_sol_info(this->get_file_id(), grid_topology.index, section_topology.index, 1, solution_name, &solution_location)) ==
-                                    CG_OK) {
-                                    flag = solution_location == CG_GridLocation_t::CG_Vertex;
-                                }
-                            }
-                        }
-                    }
-
-                    this->initialize_section_ngon_nface(zone_topology, loaded_elements, element_offset, node_offset, flag);
-                    break;
-                }
-
-                cgsize_t element_count = 0;
-                if (section_topology.type == CG_ElementType_t::CG_MIXED) {
-                    element_count = this->initialize_section_mixed(section_topology, loaded_elements, element_offset, node_offset);
-                }
-                else {
-                    element_count = this->initialize_section_normal(section_topology, loaded_elements, element_offset, node_offset);
-                }
-
-                if (element_count == 0) {
-                    continue;
-                }
-
-                auto component_name = std::format("{}.{}.{}", grid_topology.name, zone_topology.name, section_topology.name);
-                while (this->m_components.contains(component_name)) {
-                    component_name = std::format("{}_{}", component_name, component_count);
-                    ++component_count;
-                }
-                this->m_components[component_name] = utils::CreateVector<ReaderAPI::Integer>(element_count, element_offset);
-
-                element_offset += element_count;
-            }
-
-            node_offset += zone_topology.NodeSum();
-        }
-    }
-
-    if (loaded_elements.empty() || this->m_components.empty()) {
-        LOG_WARN("Element is empty.");
-        return false;
-    }
-    elements = std::move(loaded_elements);
+    utils::AppendVector(elements, this->m_elements);
     return true;
 }
 
 bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_names)
 {
     if (this->m_components.empty()) {
-        std::vector<ReaderAPI::Elem> elements;
-        if (!this->GetAllElement(elements)) {
+        if (!this->build_connectivity_components()) {
             return false;
         }
     }
@@ -151,7 +76,7 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
 
 void ReaderMeshData::clear_grid_topology() noexcept
 {
-    utils::DeepClear(this->m_grid_topology, this->m_components);
+    utils::DeepClear(this->m_grid_topology, this->m_elements, this->m_components);
 }
 
 bool ReaderMeshData::initialize_grid_topology()
@@ -180,6 +105,83 @@ bool ReaderMeshData::initialize_grid_topology()
 
     this->m_grid_topology = std::move(loaded_topology);
     return !this->m_grid_topology.empty();
+}
+
+bool ReaderMeshData::build_connectivity_components()
+{
+    if (this->m_grid_topology.empty()) {
+        if (!this->initialize_grid_topology()) {
+            return false;
+        }
+    }
+    cgsize_t node_offset = 0;
+    cgsize_t element_offset = 0;
+
+    std::vector<ReaderAPI::Elem> loaded_elements;
+    for (const auto& base_topology : this->m_grid_topology) {
+        LOG_INFO("Init Base [{}] {}, CellDim={}, PhyDim={}",
+                 cg_SimulationTypeName(base_topology.type),
+                 base_topology.name,
+                 base_topology.cell_dim,
+                 base_topology.phy_dim);
+
+        for (auto& zone_topology : base_topology.zones) {
+            LOG_INFO("Init Zone [{}] {}, NodeSum={}, CellSum={}",
+                     cg_ZoneTypeName(zone_topology.type),
+                     zone_topology.name,
+                     zone_topology.NodeSum(),
+                     zone_topology.CellSum());
+
+            for (auto& section_topology : zone_topology.sections) {
+                if (section_topology.type == CG_ElementType_t::CG_NGON_n || section_topology.type == CG_ElementType_t::CG_NFACE_n) {
+                    bool flag = false;
+                    {
+                        int nsols = 0;
+                        if (CGNS_LOG_CALL(cg_nsols(this->get_file_id(), base_topology.index, zone_topology.index, &nsols)) == CG_OK) {
+                            if (nsols > 0) {
+                                char solution_name[CGNS_NAME_MAX_LEN] = { };
+                                CG_GridLocation_t solution_location = CG_GridLocation_t::CG_GridLocationNull;
+                                if (CGNS_LOG_CALL(
+                                        cg_sol_info(this->get_file_id(), base_topology.index, section_topology.index, 1, solution_name, &solution_location)) ==
+                                    CG_OK) {
+                                    flag = solution_location == CG_GridLocation_t::CG_Vertex;
+                                }
+                            }
+                        }
+                    }
+
+                    this->initialize_section_ngon_nface(base_topology.name, zone_topology, loaded_elements, element_offset, node_offset, flag);
+                    break;
+                }
+
+                cgsize_t element_count = 0;
+                if (section_topology.type == CG_ElementType_t::CG_MIXED) {
+                    element_count = this->initialize_section_mixed(section_topology, loaded_elements, element_offset, node_offset);
+                }
+                else {
+                    element_count = this->initialize_section_normal(section_topology, loaded_elements, element_offset, node_offset);
+                }
+
+                if (element_count == 0) {
+                    continue;
+                }
+
+                auto component_name = std::format("{}.{}.{}", base_topology.name, zone_topology.name, section_topology.name);
+                this->update_components(component_name, element_count, element_offset);
+
+                element_offset += element_count;
+            }
+
+            node_offset += zone_topology.NodeSum();
+        }
+    }
+
+    if (loaded_elements.empty() || this->m_components.empty()) {
+        LOG_WARN("Element is empty.");
+        return false;
+    }
+    m_elements = std::move(loaded_elements);
+    return true;
 }
 
 cgsize_t ReaderMeshData::initialize_section_mixed(const SectionTopology& section,
@@ -288,7 +290,8 @@ cgsize_t ReaderMeshData::initialize_section_normal(const SectionTopology& sectio
     return loaded_element_count;
 }
 
-cgsize_t ReaderMeshData::initialize_section_ngon_nface(const ZoneTopology& zone_topology,
+cgsize_t ReaderMeshData::initialize_section_ngon_nface(std::string_view base_name,
+                                                       const ZoneTopology& zone_topology,
                                                        std::vector<ReaderAPI::Elem>& elements,
                                                        cgsize_t& element_offset,
                                                        cgsize_t node_offset,
@@ -337,12 +340,8 @@ cgsize_t ReaderMeshData::initialize_section_ngon_nface(const ZoneTopology& zone_
             }
             else {
                 if (flag) { // 将 NGON 也视为 component
-                    const auto base_name = std::format("{}.{}", zone_topology.name, section.name);
-                    auto component_name = base_name;
-                    for (std::size_t suffix = 1; this->m_components.contains(component_name); ++suffix) {
-                        component_name = std::format("{}_{}", base_name, suffix);
-                    }
-                    this->m_components[component_name] = utils::CreateVector<ReaderAPI::Integer>(temp_elems.size(), element_offset);
+                    auto component_name = std::format("{}.{}.{}", base_name, zone_topology.name, section.name);
+                    this->update_components(component_name, temp_elems.size(), element_offset);
 
                     element_offset += temp_elems.size();
                 }
@@ -357,12 +356,8 @@ cgsize_t ReaderMeshData::initialize_section_ngon_nface(const ZoneTopology& zone_
                 LOG_WARN("Section [{}] {} is empty.", cg_ElementTypeName(section.type), section.name);
             }
             else {
-                const auto base_name = std::format("{}.{}", zone_topology.name, section.name);
-                auto component_name = base_name;
-                for (std::size_t suffix = 1; this->m_components.contains(component_name); ++suffix) {
-                    component_name = std::format("{}_{}", base_name, suffix);
-                }
-                this->m_components[component_name] = utils::CreateVector<ReaderAPI::Integer>(temp_elems.size(), element_offset);
+                auto component_name = std::format("{}.{}.{}", base_name, zone_topology.name, section.name);
+                this->update_components(component_name, temp_elems.size(), element_offset);
                 nface_component_names.emplace_back(component_name);
 
                 element_offset += temp_elems.size();
@@ -411,6 +406,16 @@ cgsize_t ReaderMeshData::initialize_section_ngon_nface(const ZoneTopology& zone_
     }
 
     return static_cast<cgsize_t>(elements.size() - initial_size);
+}
+
+void ReaderMeshData::update_components(std::string& component_name, std::size_t element_count, cgsize_t element_start)
+{
+    int component_count = 0;
+    while (this->m_components.contains(component_name)) {
+        component_name = std::format("{}_{}", component_name, component_count);
+        ++component_count;
+    }
+    this->m_components[component_name] = utils::CreateVector<ReaderAPI::Integer>(element_count, element_start);
 }
 
 bool ReaderMeshData::read_base_topology(const int index_base, const std::span<const int> zone_indices, BaseTopology& base) const
