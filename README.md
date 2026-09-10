@@ -1,8 +1,10 @@
 # StupidBhh
 
+Windows x64 上的 CGNS 只读检查与数据查询项目：`Core.exe` 提供命令行入口，运行时加载 `ReaderCGNS.dll`，读取求解器类型、网格单元、集合名称以及支持的节点/单元中心场值。完整结构诊断由 DLL 的 `info()` 接口提供，当前命令行流程不调用它。
+
 ## 工具链与语言标准
 
-- **C++23**（由 `Core` 和 `ReaderCGNS` 子项目设置，且要求严格满足）
+- **C++23**（`Core` 和 `ReaderCGNS` 通过 `target_compile_features(... cxx_std_23)` 要求至少 C++23）
 - **CMake 4.3+**
 - **首选生成器：Visual Studio 18 2026（x64）**
 - **MSVC 使用 `/EHsc` 启用标准 C++ 异常展开语义**
@@ -23,6 +25,20 @@ ctest --test-dir build/Debug -C Release
 
 默认构建会同时生成 `Core.exe` 和 `ReaderCGNS.dll`。`Core` 不链接 ReaderCGNS import library，而是在运行时从可执行文件目录加载 DLL；因此只构建 `Core` target 不会得到完整的可运行布局。
 
+`main` 已集成三个第一方 CTest 测试：`Utils.GenericUtilities`、`Core.Functions` 和 `ReaderCGNS.LoggerCallback`，分别覆盖通用工具、Core 字符串/Win32 工具和 reader 日志回调。`BUILD_TESTING` 默认开启；只构建生产目标时可在配置命令中传入 `-DBUILD_TESTING=OFF`。
+
+## 运行与验证
+
+在仓库根目录运行，替换为实际 CGNS 文件和日志目录；Release 构建将路径中的 `Debug` 改为 `Release`：
+
+```powershell
+.\bin\Debug\Core.exe --inputPath D:\data\case.cgns --workDirectory D:\work\case
+```
+
+日志输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，包括单元数量、集合名称及成功读取字段的类型、ID 数量和值数量。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [ReaderCGNS 的场值读取说明](ReaderCGNS/Readme.md#场值读取)。
+
+当前测试未覆盖真实 CGNS 网格和场值读取，也没有随仓库提供 CGNS 测试样例。构建后可用 `Core.exe --help` 检查程序能否启动，再用实际文件验证 DLL 加载和读取；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
+
 ## 工程目录
 
 ```text
@@ -32,7 +48,7 @@ StupidTry/
 │   ├── CMakeLists.txt
 │   ├── Readme.md                    # Core 架构、运行与开发说明
 │   ├── src/
-│   │   └── Main.cpp                # 程序入口和功能示例
+│   │   └── Main.cpp                # 命令行入口与 CGNS 分析流程
 │   ├── Common/                     # 参数处理、全局配置等通用实现
 │   │   ├── Functions.h             # 仅依赖标准库的字符串工具
 │   │   ├── SingletonData.h
@@ -54,7 +70,8 @@ StupidTry/
 │   ├── CGNS_API.md                  # CGNS 4.5.1 C API 开发参考
 │   ├── include/ReaderAPI/          # ReaderCGNS 对外公开头文件
 │   ├── src/                        # DLL reader 工厂导出
-│   ├── Core/                       # 文件生命周期与 CGNS 层次遍历
+│   ├── Common/                     # CGNS 常量、拓扑与内部字段类型
+│   ├── Core/                       # 文件生命周期、网格/场值读取与层次遍历
 │   ├── Utils/                      # ReaderCGNS 内部日志工具
 │   ├── tests/                      # ReaderCGNS 模块级 CTest 测试
 │   └── 3rdparty/
@@ -86,7 +103,7 @@ StupidTry/
 
 ## 第三方依赖
 
-必需依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。TBB 不随仓库交付，仅作为可选的环境依赖；找不到时相关标准并行算法会退化为串行执行。
+必需依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。TBB 不随仓库交付；找到时 Core 额外链接 `TBB::tbb`，找不到时省略该链接。`std::execution::par` 的实际执行后端取决于标准库实现，不能据此判断是否串行执行；MSVC STL 的并行算法不依赖 TBB。
 
 | 库        | 版本     | 链接方式                     | 用途                                    |
 |----------|--------|--------------------------|---------------------------------------|
@@ -97,4 +114,4 @@ StupidTry/
 | meojson  | vendored snapshot | 头文件库             | JSON/JSON5 解析与序列化                  |
 | mio      | —      | 头文件库                     | 内存映射文件 I/O                            |
 | spdlog   | 1.17.0 | 头文件库                     | 异步日志                                  |
-| TBB      | 环境提供 | 可选动态/静态库               | `std::execution::par` 并行后端              |
+| TBB      | 环境提供 | 可选动态/静态库               | 部分标准库实现的并行算法后端              |

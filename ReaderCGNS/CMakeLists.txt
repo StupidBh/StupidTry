@@ -3,6 +3,7 @@ project(ReaderCGNS LANGUAGES CXX)
 add_library(${PROJECT_NAME} MODULE
         src/ExportFunctions.cpp
         Utils/src/Logger.cpp
+
         Core/src/FileManager.cpp
         Core/src/ReaderMeshData.cpp
         Core/src/ReaderFieldData.cpp

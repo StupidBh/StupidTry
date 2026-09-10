@@ -1,8 +1,20 @@
 #include "CgnsCore.h"
-#include "CgnsTypes.hpp"
 
 #include <functional>
 #include <unordered_set>
+
+std::string CgnsCore::GetSolverType() const
+{
+    auto first_base = this->get_base_zone_indices().front().index_base;
+
+    CG_GoverningEquationsType_t solver_type = CG_GoverningEquationsType_t::CG_GoverningEquationsNull;
+    if (CGNS_LOG_CALL(cg_goto(this->get_file_id(), first_base, "FlowEquationSet_t", 1, "end")) != CG_OK || CGNS_LOG_CALL(cg_governing_read(&solver_type)) != CG_OK) {
+        return "Unknown";
+    }
+
+    const char* solver_type_name = cg_GoverningEquationsTypeName(solver_type);
+    return solver_type_name != nullptr ? solver_type_name : "Unknown";
+}
 
 void CgnsCore::info() const
 {
@@ -49,49 +61,49 @@ void CgnsCore::info() const
             cgsize_t zone_vertex_sum = 0, zone_cell_sum = 0;
             if (zone_type == CG_ZoneType_t::CG_Structured) {
                 switch (zone_dim) {
-                case 2: {
-                    zone_vertex_sum = zone_size[0] * zone_size[1];
-                    zone_cell_sum = zone_size[2] * zone_size[3];
-                    LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name=[{}]",
-                             zone,
-                             cg_ZoneTypeName(zone_type),
-                             zone_name,
-                             zone_dim,
-                             zone_size[0],
-                             zone_size[1],
-                             zone_vertex_sum,
-                             zone_size[2],
-                             zone_size[3],
-                             zone_cell_sum,
-                             zone_size[4],
-                             zone_size[5],
-                             zone_iter_name);
+                    case 2: {
+                        zone_vertex_sum = zone_size[0] * zone_size[1];
+                        zone_cell_sum = zone_size[2] * zone_size[3];
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{}]:{}, NCell=[{},{}]:{}, NBoundVertex=[{},{}], iter_name=[{}]",
+                                 zone,
+                                 cg_ZoneTypeName(zone_type),
+                                 zone_name,
+                                 zone_dim,
+                                 zone_size[0],
+                                 zone_size[1],
+                                 zone_vertex_sum,
+                                 zone_size[2],
+                                 zone_size[3],
+                                 zone_cell_sum,
+                                 zone_size[4],
+                                 zone_size[5],
+                                 zone_iter_name);
 
-                } break;
-                case 3: {
-                    zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
-                    zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
-                    LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name=[{}]",
-                             zone,
-                             cg_ZoneTypeName(zone_type),
-                             zone_name,
-                             zone_dim,
-                             zone_size[0],
-                             zone_size[1],
-                             zone_size[2],
-                             zone_vertex_sum,
-                             zone_size[3],
-                             zone_size[4],
-                             zone_size[5],
-                             zone_cell_sum,
-                             zone_size[6],
-                             zone_size[7],
-                             zone_size[8],
-                             zone_iter_name);
-                } break;
-                default: {
-                    LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]", zone, cg_ZoneTypeName(zone_type), zone_name, zone_dim, zone_iter_name);
-                } break;
+                    } break;
+                    case 3: {
+                        zone_vertex_sum = zone_size[0] * zone_size[1] * zone_size[2];
+                        zone_cell_sum = zone_size[3] * zone_size[4] * zone_size[5];
+                        LOG_INFO("  [Zone]{:>2}:[{}] {}, Dim={}, NVertex=[{},{},{}]:{}, NCell=[{},{},{}]:{}, NBoundVertex=[{},{},{}], iter_name=[{}]",
+                                 zone,
+                                 cg_ZoneTypeName(zone_type),
+                                 zone_name,
+                                 zone_dim,
+                                 zone_size[0],
+                                 zone_size[1],
+                                 zone_size[2],
+                                 zone_vertex_sum,
+                                 zone_size[3],
+                                 zone_size[4],
+                                 zone_size[5],
+                                 zone_cell_sum,
+                                 zone_size[6],
+                                 zone_size[7],
+                                 zone_size[8],
+                                 zone_iter_name);
+                    } break;
+                    default: {
+                        LOG_WARN("  [Zone]{:>2}:[{}] {}, Invalid-Dim={}, iter_name=[{}]", zone, cg_ZoneTypeName(zone_type), zone_name, zone_dim, zone_iter_name);
+                    } break;
                 }
             }
             else if (zone_type == CG_ZoneType_t::CG_Unstructured) {
@@ -106,6 +118,9 @@ void CgnsCore::info() const
                          zone_cell_sum,
                          zone_size[2],
                          zone_iter_name);
+            }
+            else {
+                LOG_WARN("  [Zone]{:>2}:[{}] {} unsupported types.", zone, cg_ZoneTypeName(zone_type), zone_name);
             }
 
             // Flow Solution
@@ -201,12 +216,12 @@ void CgnsCore::info() const
                 if (subreg_bcname_len > 0) {
                     std::string subreg_bcname(subreg_bcname_len + 1, '\0');
                     CGNS_LOG_CALL(cg_subreg_bcname_read(this->get_file_id(), base, zone, subreg, subreg_bcname.data()));
-                    msg += std::format(" baname={}", subreg_name);
+                    msg += std::format(" bcname={}", subreg_bcname);
                 }
                 if (subreg_gcname_len > 0) {
                     std::string subreg_gcname(subreg_gcname_len + 1, '\0');
                     CGNS_LOG_CALL(cg_subreg_gcname_read(this->get_file_id(), base, zone, subreg, subreg_gcname.data()));
-                    msg += std::format(" gcname={}", subreg_name);
+                    msg += std::format(" gcname={}", subreg_gcname);
                 }
                 LOG_INFO("{} npnts={}", msg, subreg_npnts);
             }
@@ -216,11 +231,7 @@ void CgnsCore::info() const
             CGNS_LOG_CALL(cg_ngrids(this->get_file_id(), base, zone, &ngrids));
             for (int grid = 1; grid <= ngrids; ++grid) {
                 char grid_name[CGNS_NAME_MAX_LEN] = { };
-                // CG_DataType_t grid_data_type = CG_DataType_t::CG_DataTypeNull;
-                // std::vector<cgsize_t> grid_bounding_box(1, 0);
-
                 CGNS_LOG_CALL(cg_grid_read(this->get_file_id(), base, zone, grid, grid_name));
-                // CG_INFO(cg_grid_bounding_box_read(this->GetFileID(), base, zone, grid, grid_data_type, grid_bounding_box.data()));
 
                 LOG_INFO("    [ZoneGird]{:>2}:[{}]", grid, grid_name);
             }
@@ -258,14 +269,14 @@ void CgnsCore::info() const
                                               &section_nbndry,
                                               &section_parent_flag));
                 if (section_end == 0 || section_end - section_start < 0) {
-                    LOG_INFO("    [ZoneSection] {} element range [start, end] is empty.", section_name);
+                    LOG_INFO("    [ElementConnectivity] {} element range [start, end] is empty.", section_name);
                     continue;
                 }
 
                 cgsize_t element_data_size = 0;
                 CGNS_LOG_CALL(cg_ElementDataSize(this->get_file_id(), base, zone, section, &element_data_size));
                 if (element_data_size <= 0) {
-                    LOG_INFO("    [ZoneSection] {} element data is empty.", section_name);
+                    LOG_INFO("    [ElementConnectivity] {} element data is empty.", section_name);
                     continue;
                 }
 
@@ -486,9 +497,9 @@ void CgnsCore::info() const
         }
 
         // Particle Zone Information
-        int nparticlezones = 0;
-        CGNS_LOG_CALL(cg_nparticle_zones(this->get_file_id(), base, &nparticlezones));
-        for (int particle_zone = 1; particle_zone <= nparticlezones; ++particle_zone) {
+        int nparticle_zones = 0;
+        CGNS_LOG_CALL(cg_nparticle_zones(this->get_file_id(), base, &nparticle_zones));
+        for (int particle_zone = 1; particle_zone <= nparticle_zones; ++particle_zone) {
             double particle_zone_id = 0;
             char particle_zone_name[CGNS_NAME_MAX_LEN] = { };
             cgsize_t particle_zone_size = 0;

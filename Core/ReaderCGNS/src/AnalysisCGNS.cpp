@@ -79,12 +79,30 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         return false;
     }
 
-    this->m_reader->info();
+    // this->m_reader->info();
 
     LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
+
+    std::vector<ReaderAPI::Elem> all_elements;
+    if (this->m_reader->GetAllElement(all_elements)) {
+        LOG_INFO("AllElement: {}", all_elements.size());
+    }
+
     std::vector<std::string> element_set_names;
     if (this->m_reader->GetAllElementSetName(element_set_names)) {
-        LOG_INFO("ElementSet: {}", element_set_names);
+        LOG_INFO("ElementSet: {}:{}", element_set_names, element_set_names.size());
+    }
+
+    std::vector<std::string> field_function_names;
+    if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
+        std::vector<ReaderAPI::Field> loaded_fields;
+        if (this->m_reader->GetFieldFunctionData(field_function_names, loaded_fields)) {
+            LOG_INFO("FieldFunction: {}:{}", field_function_names, field_function_names.size());
+
+            for (auto& [name, type, ids, values] : loaded_fields) {
+                LOG_INFO("FieldFunction: {}, type={}, ids={}, value={}", name, type, ids.size(), values.size());
+            }
+        }
     }
 
     return true;
@@ -107,13 +125,13 @@ void AnalysisCGNS::LogCallback(void* context, const ReaderAPI::Logger::LogLevel 
 
     spdlog::level::level_enum spd_level;
     switch (level) {
-    case ReaderAPI::Logger::READER_CGNS_LOG_TRACE   : spd_level = spdlog::level::trace; break;
-    case ReaderAPI::Logger::READER_CGNS_LOG_DEBUG   : spd_level = spdlog::level::debug; break;
-    case ReaderAPI::Logger::READER_CGNS_LOG_INFO    : spd_level = spdlog::level::info; break;
-    case ReaderAPI::Logger::READER_CGNS_LOG_WARN    : spd_level = spdlog::level::warn; break;
-    case ReaderAPI::Logger::READER_CGNS_LOG_ERROR   : spd_level = spdlog::level::err; break;
-    case ReaderAPI::Logger::READER_CGNS_LOG_CRITICAL: spd_level = spdlog::level::critical; break;
-    default                                         : spd_level = spdlog::level::info; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_TRACE   : spd_level = spdlog::level::trace; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_DEBUG   : spd_level = spdlog::level::debug; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_INFO    : spd_level = spdlog::level::info; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_WARN    : spd_level = spdlog::level::warn; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_ERROR   : spd_level = spdlog::level::err; break;
+        case ReaderAPI::Logger::READER_CGNS_LOG_CRITICAL: spd_level = spdlog::level::critical; break;
+        default                                         : spd_level = spdlog::level::info; break;
     }
 
 #ifndef NDEBUG

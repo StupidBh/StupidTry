@@ -7,6 +7,8 @@ public:
     CgnsCore() = default;
     ~CgnsCore() override = default;
 
+    std::string GetSolverType() const override;
+
     void info() const override;
 
 protected:

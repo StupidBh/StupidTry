@@ -4,6 +4,8 @@
 > (`CGNS_VERSION == 4510`)。C API 的完整索引、调用约定和所有权规则见
 > [CGNS_API.md](CGNS_API.md)。
 
+本文描述 CGNS 标准能力；ReaderCGNS 当前实现的查询范围、场值限制和编号约定见 [模块文档](Readme.md)。
+
 ## 1. CGNS 是什么
 
 CGNS（CFD General Notation System）同时定义了三件事：
@@ -369,7 +371,7 @@ cg_xxx_id          获取低层节点 ID（仅特殊需求）
 | `cgsize_t` | CGNS 索引/尺寸整数类型，可能是 32 位或 64 位 |
 | `DataType_t` | 文件数据或目标内存数据类型，如 `RealSingle`、`RealDouble` |
 
-返回值应与 `CG_OK` 比较。失败后用 `cg_get_error()` 获取线程当前的错误文本；由 CGNS 分配并交给调用者的内存，应使用 `cg_free()` 释放。
+返回值应与 `CG_OK` 比较。失败后用 `cg_get_error()` 获取库记录的错误文本，不应假定错误状态按线程隔离；由 CGNS 分配并交给调用者的内存，应使用 `cg_free()` 释放。
 
 ### 4.2 常用节点与 API 对照
 

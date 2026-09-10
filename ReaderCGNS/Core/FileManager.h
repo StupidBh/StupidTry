@@ -3,6 +3,7 @@
 #include "Logger.h"
 
 #include <map>
+#include <ranges>
 #include <unordered_map>
 
 class FileManager : public ReaderAPI::ReaderApiBase {
@@ -25,14 +26,15 @@ public:
     void Close() final;
     bool IsOpen() const final;
 
-    float GetVersion() const final;
-    std::string GetSolverType() const final;
+    ReaderAPI::Real GetVersion() const final;
 
 protected:
     virtual void clear_cache_data() noexcept;
 
     int get_file_id() const noexcept;
-    [[nodiscard]] std::vector<std::pair<int, std::vector<int>>> get_base_zone_indices() const;
+
+    [[nodiscard]] auto get_base_zone_indices() const { return std::views::values(this->m_base_zone_indices); }
+
     [[nodiscard]] const BaseZone* get_base_zone_indices(int base) const noexcept;
     [[nodiscard]] const BaseZone* get_base_zone_indices(const std::string& base_name) const noexcept;
 
