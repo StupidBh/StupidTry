@@ -1,6 +1,8 @@
 #include "AnalysisCGNS.h"
 #include "WindowsFunctions.h"
 
+#include <unordered_set>
+
 #include "Logger/logger.hpp"
 
 namespace {
@@ -83,9 +85,35 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
 
+    std::vector<ReaderAPI::Node> all_nodes;
+    if (this->m_reader->GetAllNodeCoordinates(all_nodes)) {
+        LOG_INFO("All Node: {}", all_nodes.size());
+
+        std::unordered_set<int> unique_id;
+        for (const auto& [id, x, y, z] : all_nodes) {
+            if (unique_id.contains(id)) {
+                LOG_WARN("Repeat elem: id={}, xyz=[{},{},{}]", id, x, y, z);
+            }
+            unique_id.insert(id);
+        }
+    }
+
     std::vector<ReaderAPI::Elem> all_elements;
     if (this->m_reader->GetAllElement(all_elements)) {
-        LOG_INFO("AllElement: {}", all_elements.size());
+        LOG_INFO("All Element: {}", all_elements.size());
+
+        std::unordered_set<int> unique_id;
+        for (const auto& element : all_elements) {
+            if (unique_id.contains(element.id)) {
+                LOG_WARN("Repeat elem: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+            }
+
+            if (element.type != 23 && std::ranges::any_of(element.nodes, [limit = all_nodes.size()](auto value) { return value < 0 || value >= limit; })) {
+                LOG_WARN("Invalid elem in nodes: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+            }
+
+            unique_id.insert(element.id);
+        }
     }
 
     std::vector<std::string> element_set_names;
@@ -97,8 +125,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
     if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
         std::vector<ReaderAPI::Field> loaded_fields;
         if (this->m_reader->GetFieldFunctionData(field_function_names, loaded_fields)) {
-            LOG_INFO("FieldFunction: {}:{}", field_function_names, field_function_names.size());
-
+            LOG_INFO("Field Function sum={}", field_function_names.size());
             for (auto& [name, type, ids, values] : loaded_fields) {
                 LOG_INFO("FieldFunction: {}, type={}, ids={}, value={}", name, type, ids.size(), values.size());
             }

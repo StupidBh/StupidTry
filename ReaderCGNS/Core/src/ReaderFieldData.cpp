@@ -1,11 +1,10 @@
 #include "ReaderFieldData.h"
 
-#include "Utils/Utils.hpp"
-
 #include <format>
 #include <limits>
 #include <span>
-#include <utility>
+
+#include "Utils/Utils.hpp"
 
 namespace {
     constexpr ReaderAPI::Integer ToFieldType(const CG_GridLocation_t location) noexcept

@@ -1,9 +1,6 @@
 #pragma once
 #include "ReaderApiTypes.hpp"
 
-#include <vector>
-#include <string>
-
 #ifdef _WIN32
     #ifdef READER_CGNS_EXPORTS
         #define READER_API __declspec(dllexport)

@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "cgnslib.h"
-
 struct FieldFunction
 {
     std::string name;
