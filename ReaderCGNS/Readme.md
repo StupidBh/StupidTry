@@ -23,11 +23,13 @@
 
 ### 内部网格拓扑
 
-`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置，跳过 Zone 数量读取失败或没有普通 Zone 的 Base；因此仅含 ParticleZone 的文件无法成功打开。首次调用 `GetAllElementSetName()`、`GetAllNodeCoordinates()` 或 `GetAllElement()` 时，`ReaderMeshData` 只遍历这组索引并按需缓存 Base、Zone、Section 和各 Zone 的坐标。`ReaderFieldData` 使用独立的按需缓存保存 FlowSolution 字段布局，查询场值时直接读取文件，不依赖网格拓扑缓存。当前网格拓扑不缓存边界条件或 Zone 间连接数据。
+`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置，跳过 Zone 数量读取失败或没有普通 Zone 的 Base；因此仅含 ParticleZone 的文件无法成功打开。首次调用 `GetAllElementSetName()`、`GetAllNodeCoordinates()` 或 `GetAllElement()` 时，`ReaderMeshData` 遍历这组索引，读取临时 Base/Zone/Section 数据，并缓存合并后的节点坐标、展开单元与集合映射。`ReaderFieldData` 使用独立的按需缓存保存 FlowSolution 字段布局，查询场值时直接读取文件，不依赖网格拓扑缓存。当前网格拓扑不缓存边界条件或 Zone 间连接数据。
 
 Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSize` 和 `CellSize` 合成一个 Section，并按维度展开为 `BAR_2`、`QUAD_4` 或 `HEXA_8` 的 1-based connectivity。Unstructured Zone 会遍历 Section：固定元素类型通过 `cg_npe()` 校验每个元素的节点数并读取连续 connectivity；`MIXED`、`NGON_n` 和 `NFACE_n` 通过 `cg_poly_elements_read()` 同时保存 connectivity 与 `ElementStartOffset`。Section 声明 parent data 时只记录存在标志，不缓存 `ParentElements` 或 `ParentElementsPosition` 的原始数据。
 
-拓扑读取先构建临时结果；无法读取的 Base、Zone 或 Section 会记录错误并跳过，至少得到一个可读 Base 后才替换当前快照。坐标描述读取失败或坐标数据类型不受支持时，对应 Zone 不会进入可用拓扑。`Open()` 只负责文件和 Base/Zone 布局初始化，按需初始化失败由发起查询的接口返回 `false`。首次查询单元或 element set 名称时共同构建单元连接与集合缓存，成功后重复查询复用缓存。`Close()` 会关闭 CGNS 文件并释放网格拓扑、单元、集合与字段缓存。公开接口从缓存生成名称列表、扁平节点坐标和受支持单元的扁平连接数据；Base、Zone 与 Section 层次结构仍属于 DLL 内部实现。
+`read_section_topology()` 统一验证 Section 元素范围为正且起止有序，并检查数量和数据长度能否由 `size_t` 表示。对于变长 Section，先检查数量上限，再分配 connectivity 和 `ElementSize + 1` 个 offsets；读取成功后检查 offsets 首项为 0、末项等于 connectivity 长度且单调不减。只有通过这些检查的 Section 才会交给展开逻辑。`fatten_section_elem_poly()` 依赖该前置条件，不重复检查每条记录的 offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
+
+网格初始化在遍历期间直接向成员缓存追加结果。Base 读取失败会返回 `false`，Zone 或 Section 读取失败通常记录日志并跳过；发生中途失败时，已经生成的内部缓存不会自动回滚。`Open()` 只负责文件和 Base/Zone 布局初始化。节点和单元查询以单元缓存是否为空决定是否初始化，集合查询以集合映射是否为空决定是否初始化；当前没有独立的“初始化已完成”标志。重复查询通常复用缓存，失败后重试和空结果的行为见下文[当前网格读取限制](#当前网格读取限制)。
 
 ## 公开接口
 
@@ -57,19 +59,47 @@ Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSi
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(names, fields)` | 按请求顺序批量读取场值，至少一项成功时用成功项替换输出数组。 |
 | `ReaderAPI::ReaderApiBase::info()` | 遍历当前已打开文件并输出结构检查信息。 |
 
-所有数据查询都要求文件已成功打开。四个 `GetAll*` 容器输出接口成功时追加结果且不会预先清空容器，输出容器由调用方拥有。`GetAllElement()` 返回 `false` 时保留容器原内容；重复向同一容器查询会追加同一批单元及其原有 ID，不按容器已有大小重新编号，需要替换结果时由调用方先清空容器。`GetAllFieldFunctionName()` 返回去重后的公开字段名称，顺序不构成接口保证。`GetAllNodeCoordinates()` 按缓存中的 Base/Zone 顺序追加 `Real` 坐标，生成的 `Node::id` 在每次调用内从 0 连续编号。两个 `GetFieldFunctionData()` 重载使用替换语义，详见下文。
+所有数据查询都要求文件已成功打开。四个 `GetAll*` 容器输出接口成功时追加结果且不会预先清空容器，输出容器由调用方拥有；按需初始化返回 `false` 时保留调用方容器原内容。缓存复用期间，重复向同一容器查询会追加同一批数据及其原有 ID，不按容器已有大小重新编号，需要替换结果时由调用方先清空容器。`GetAllFieldFunctionName()` 返回去重后的公开字段名称，顺序不构成接口保证。`GetAllNodeCoordinates()` 追加缓存中的 `Real` 坐标；正常首次构建时，`Node::id` 从 0 开始按被接受的 Zone 累加生成。两个 `GetFieldFunctionData()` 重载使用替换语义，详见下文。
 
-element set 统一使用 `Base.Zone.Section` 命名，包括注册的 `NGON_n` 和 `NFACE_n` 集合；Structured Zone 合成的 Section 与 Zone 同名，因此名称为 `Base.Zone.Zone`。重名时从 `_0` 开始向当前名称追加数字后缀，直到名称唯一；名称返回顺序不构成接口保证。没有可展开 Section 的 Unstructured Zone 不生成占位集合。
+element set 的当前命名如下：
 
-`GetAllElement()` 复制缓存中的 `Elem`。固定类型与 `MIXED` Section 按缓存中的 Base/Zone/Section 顺序展开；`Elem::id` 从累计单元偏移连续编号，跳过的单元不占编号，`Elem::type` 是对应 `CG_ElementType_t` 的整数值，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID。节点 ID 按所有可读 Zone 合并为全局 0-based 编号。
+| 来源 | 集合名称 |
+|---|---|
+| Structured Zone | `Base.Zone` |
+| 固定类型或 `MIXED` Section | `Base.Zone.Section` |
+| `NGON_n` Section | `Base.Zone.Section`，仅在内部启用 `separate_surface` 时生成 |
+| `NFACE_n` Section | `Base.Zone`，由完整 Section 名去掉最后一段得到 |
 
-遇到 `NGON_n` 或 `NFACE_n` 时会进入 Zone 级联合处理路径。`NGON_n` 使用面节点列表；只有内部判定第一份 FlowSolution 位于 `Vertex` 时才注册 NGON 集合。`NFACE_n` 的连接按引用面展开，`npts` 表示保留的面数，`nodes` 使用“面节点数、该面的节点 ID、下一面节点数、……”的布局。该路径会按 Section 预分配单元 ID，过滤失败的 `NFACE_n` 后不重新编号，因此不能假定 ID 连续或等于输出数组下标。多面体路径仍有实现限制，不保证 NGON 集合注册、所有 Section 排列和面引用都能完整展开，应结合日志检查结果。
+重名时从 `_0` 开始向当前名称追加数字后缀，直到名称唯一；名称返回顺序不构成接口保证。没有可展开 Section 的 Unstructured Zone 不生成占位集合。公开 API 当前只提供集合名称查询。
 
-单元展开采用局部失败后继续处理的方式：`MIXED` 中节点数查询失败、节点数无效或与连接偏移长度不匹配的单元会记录错误并跳过，继续处理后续单元。首次构建要求单元数组和集合映射均非空，成功后保存单元缓存；`GetAllElement()` 将缓存追加到输出容器并返回 `true`，因此成功不代表所有 Section 和单元都已返回。按需初始化失败或最终单元数组、集合映射任一为空时返回 `false`，保留调用方容器原内容。
+`GetAllElement()` 复制缓存中的 `Elem`。`Elem::id` 是用于唯一标识单元的属性，不承诺连续、排序或等于输出数组下标，也不应直接视为 CGNS 原始元素号。`Elem::type` 是对应 `CG_ElementType_t` 的整数值。固定类型与 `MIXED` Section 按 Base/Zone/Section 遍历顺序展开，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID；节点 ID 加上被接受 Zone 的累计节点偏移后转换为全局 0-based 编号。
 
-整数结果使用 32 位 `ReaderAPI::Integer`，内部累计节点/单元偏移与 Section 初始化返回的数量使用 `cgsize_t`。固定类型与 `MIXED` 的单元展开检查 Section 单元数量与累计单元数量，超出范围时跳过该 Section；多面体路径没有同等范围检查。节点偏移和 connectivity 节点 ID 直接转换，输入需使用有效的 Zone 内节点编号，且累计节点/单元数量与转换后的编号须在 `ReaderAPI::Integer` 表示范围内。
+### 多面体展开
 
-`GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`；范围检查失败前已追加的节点会保留。完成遍历后返回 `true`，即使输出容器为空也只记录警告。同一 reader 的文件与数据读取接口不保证并发调用安全。
+`fatten_section_elem_poly()` 对已经收集的 `NGON_n/NFACE_n` Section 进行两阶段展开：
+
+1. 遍历全部 NGON Section，建立局部 `unordered_map<cgsize_t, FaceNodes>`。key 是 `section.range_start + 面在 Section 内的序号`，即 CGNS 原始面元素号；value 是已经转换为全局 0-based 编号的面节点列表。面号不需要从 1 开始，多个 NGON Section 的面号区间也不需要相邻。重复面号记录错误并保留先加入的面；空面或含非法顶点号的面跳过。
+2. 遍历全部 NFACE Section，以 `cgsize_t` 读取带符号的面号，取绝对值后查 map。负面号只反转当前节点列表副本，不修改共享 NGON 数据。面号唯一时，已收集 Section 的排列顺序和共享面的引用先后都不会改变面匹配或方向。
+
+NFACE 面号为 0、为 `cgsize_t` 最小值或查不到对应 NGON 面时，记录警告并跳过该面。至少保留一个面就输出该单元；所有面均被跳过的单元不输出。这是局部容错行为，不包含多面体闭合性验证。NFACE 路径仍按 Section 原始单元数量累计偏移，过滤单元后不压缩该偏移。
+
+多面体结果的 `Elem::npts` 表示保留的面数，`Elem::nodes` 按 `[面节点数, 该面的节点ID..., 下一面节点数, ...]` 编码。例如 `npts = 2`、`nodes = [3, 0, 1, 2, 4, 2, 3, 4, 5]` 表示一个三节点面和一个四节点面；其中 `nodes[0]` 和 `nodes[4]` 是长度前缀，不能当成节点 ID。
+
+内部参数 `separate_surface = true` 时，还按 NGON Section 顺序输出面单元并注册对应集合；为 `false` 时，NGON 仅用于面查找，输出单元来自 NFACE。当前唯一调用点使用 `false`，公开 API 和命令行没有提供该开关，行为与 FlowSolution 的位置无关。函数结束时清空待处理的 `m_ngon_nface`。
+
+### 当前网格读取限制
+
+以下描述是当前实现的限制，调用方应结合返回结果与日志判断读取完整性：
+
+- 纯 NGON/NFACE Zone 的调用路径尚未完整接通：`read_section_topology()` 将这些 Section 加入待处理列表后返回 `false`，`read_unstructured_zone_sections()` 在没有成功展开的固定类型或 MIXED Section 时也返回 `false`。外层会跳过该 Zone 的节点追加与多面体展开。因此上述两阶段算法的能力不等于公开 API 已完整支持纯多面体文件。
+- 被跳过 Zone 的待处理 Section 可能留到后续 Zone；`Close()` 会清空节点、单元、集合、字段及文件布局，但当前 `clear_grid_topology()` 未清除 `m_ngon_nface`。异常流程中的待处理数据可能跨 Zone 或跨文件残留，不能依赖关闭重开来完整复位这一状态。
+- 初始化仅以是否读到 Base 判断最终成功，所有 Zone 均被跳过时也可能返回 `true`；`GetAllElement()` 和 `GetAllElementSetName()` 没有“最终结果非空”的额外要求。空单元/集合会触发再次初始化，而中途失败留下的非空缓存又可能在后续查询中被直接复用；当前不保证失败后重试的缓存一致性。
+- 坐标描述读取失败或数据类型不受支持时跳过 Zone，但 `cg_coord_read()` 的失败状态目前只记日志，未使坐标读取立即失败。坐标按 CGNS 枚举顺序装入 x/y/z，未按坐标名称重排或转换坐标系。
+- MIXED 当前以 offsets 差值减去类型字段得到节点数，未逐单元调用 `cg_npe()` 核对数量；非法类型号会回退为 `NODE`。不要将读取成功视为 MIXED 拓扑已完整验证。
+
+整数结果使用 32 位 `ReaderAPI::Integer`，内部 Section 范围、connectivity、面号和累计偏移使用 `cgsize_t`，当前 vendored CGNS 为 64 位尺寸构建。固定类型与 MIXED 检查 Section 数量和累计单元数量；NGON 检查顶点号为正且加节点偏移后的编号可由 `ReaderAPI::Integer` 表示；NFACE 检查累计单元偏移的 `cgsize_t` 溢出，并在取绝对值前排除最小负值。这些检查尚未完整覆盖输出 `Elem::id`、`npts` 的 32 位转换，也未完整校验 Zone 内顶点编号上界。
+
+`GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`，调用方输出容器不变，但此前生成的内部缓存会保留。初始化完成后追加节点并返回 `true`，即使输出容器为空也只记录警告。同一 reader 的文件与数据读取接口不保证并发调用安全。
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
@@ -140,7 +170,7 @@ ReaderCGNS 的交付物是 `include/ReaderAPI/` 下的公开头和 `ReaderCGNS.d
 
 ## 返回值与错误处理
 
-`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件，然后初始化 Base/Zone 布局；任一步失败都会关闭文件、清理已构建数据并返回 `false`。打开过程会记录只读打开尝试、可用的存储类型/版本/精度、Base 名称回退和最终成功状态。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用数据查询和 `info()`，并在结束后显式调用 `Close()`。使用同一实例打开不同文件时，当前文件会先被关闭和清理；再次打开同一路径且文件仍处于打开状态时直接返回成功。
+`Open()` 会验证 CGNS 文件类型并以 `CG_MODE_READ` 打开文件，然后初始化 Base/Zone 布局。类型检查或文件打开失败时返回 `false`；布局初始化失败时调用 `Close()` 后返回 `false`。版本或精度读取失败只记录日志，不阻止后续布局初始化。打开过程会记录只读打开尝试、可用的存储类型/版本/精度、Base 名称回退和最终成功状态。调用方应仅在 `Open()` 成功且 `IsOpen()` 为 `true` 时调用数据查询和 `info()`，并在结束后显式调用 `Close()`。使用同一实例打开不同文件时，当前文件会先被关闭；再次打开同一路径且文件仍处于打开状态时直接返回成功。缓存清理的当前例外见[当前网格读取限制](#当前网格读取限制)。
 
 `GetSolverType()` 只读取 Base/Zone 布局中第一个有效 `CGNSBase_t` 下直接声明的 `FlowEquationSet_t`，不遍历 Zone，也不根据 `SimulationType_t` 或其他节点推断方程类型。节点不存在或读取失败时，接口保留对应 CGNS 日志并返回 `"Unknown"`。
 

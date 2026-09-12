@@ -1,6 +1,6 @@
 # StupidBhh
 
-Windows x64 上的 CGNS 只读检查与数据查询项目：`Core.exe` 提供命令行入口，运行时加载 `ReaderCGNS.dll`，读取求解器类型、网格单元、集合名称以及支持的节点/单元中心场值。完整结构诊断由 DLL 的 `info()` 接口提供，当前命令行流程不调用它。
+Windows x64 上的 CGNS 只读检查与数据查询项目：`Core.exe` 提供命令行入口，运行时加载 `ReaderCGNS.dll`，读取求解器类型、节点坐标、网格单元、集合名称以及支持的节点/单元中心场值，并检查节点和单元的重复 ID。完整结构诊断由 DLL 的 `info()` 接口提供，当前命令行流程不调用它。
 
 ## 工具链与语言标准
 
@@ -31,9 +31,17 @@ cmake --build build/Debug --config Release
 .\bin\Debug\Core.exe --inputPath D:\data\case.cgns --workDirectory D:\work\case
 ```
 
-日志输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，包括单元数量、集合名称及成功读取字段的类型、ID 数量和值数量。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [ReaderCGNS 的场值读取说明](ReaderCGNS/Readme.md#场值读取)。
+日志输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，包括节点和单元数量、重复 ID 与连接范围警告、集合名称，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
 
-当前未注册第一方 CTest 测试，也没有随仓库提供 CGNS 测试样例。构建后可用 `Core.exe --help` 检查程序能否启动，再用实际文件验证 DLL 加载和读取；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
+单元 ID 用于唯一标识单元，不要求连续或等于数组下标。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；当前纯多面体 Zone 的外层调用路径和失败后的缓存清理仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
+
+仓库已注册 `ReaderCGNSTests` CTest，覆盖多面体展开中的原始面号查找、负面引用反转、无效引用容错和 NGON 表面输出；测试使用内存中的 Section 数据，不依赖外部 CGNS 样例文件。构建后可运行：
+
+```powershell
+ctest --test-dir build/Debug -C Debug --output-on-failure
+```
+
+仍没有随仓库提供完整 CGNS 样例文件，因此 Core 的 DLL 加载和真实文件读取需要另行用实际文件验证；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
 
 ## 工程目录
 
@@ -92,7 +100,7 @@ StupidTry/
 ## 模块文档
 
 - [`Core/Readme.md`](Core/Readme.md)：命令行接口、运行流程、输出、依赖和日志生命周期。
-- [`ReaderCGNS/Readme.md`](ReaderCGNS/Readme.md)：共享库能力、公开 API、回调并发约定和集成方式。
+- [`ReaderCGNS/Readme.md`](ReaderCGNS/Readme.md)：共享库能力、公开 API、多面体展开与读取限制、回调并发约定和集成方式。
 - [`ReaderCGNS/CGNS.md`](ReaderCGNS/CGNS.md)：CGNS 文件树、节点语义、元素类型与数据布局。
 - [`ReaderCGNS/CGNS_API.md`](ReaderCGNS/CGNS_API.md)：仓库 CGNS 4.5.1 的完整 Mid-Level Library C API 开发参考。
 

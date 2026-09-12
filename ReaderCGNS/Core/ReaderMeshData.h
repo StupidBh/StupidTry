@@ -17,7 +17,11 @@ protected:
 
     [[nodiscard]] bool initialize_grid_topology();
 
+#ifdef READER_CGNS_TESTING
+public:
+#else
 private:
+#endif
     void update_components(std::string& component_name, std::size_t element_count, cgsize_t element_start);
 
     [[nodiscard]] bool read_zone_topology(const BaseTopology& base, ZoneTopology& zone);

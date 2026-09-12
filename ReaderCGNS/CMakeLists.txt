@@ -36,3 +36,23 @@ find_package(cgns CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CGNS::cgns_static
 )
+
+add_executable(ReaderCGNSTests
+        tests/ReaderMeshDataPolyTests.cpp
+        Utils/src/Logger.cpp
+        Core/src/FileManager.cpp
+        Core/src/ReaderMeshData.cpp
+)
+target_compile_features(ReaderCGNSTests PRIVATE cxx_std_23)
+target_compile_definitions(ReaderCGNSTests PRIVATE READER_CGNS_TESTING)
+target_include_directories(ReaderCGNSTests PRIVATE
+        ${CMAKE_SOURCE_DIR}
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Common"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Utils"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Core"
+)
+target_link_libraries(ReaderCGNSTests PRIVATE
+        CGNS::cgns_static
+)
+add_test(NAME ReaderCGNSTests COMMAND ReaderCGNSTests)

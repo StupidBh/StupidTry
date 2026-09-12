@@ -12,7 +12,8 @@
 - 初始化基于 spdlog 的异步日志系统；
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
-- 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、单元与 element set 名称，并批量读取场值、输出字段摘要；
+- 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、节点坐标、单元与 element set 名称，并批量读取场值、输出字段摘要；
+- 检查返回的节点和单元 ID 是否重复，并对单元连接数据做范围诊断；
 - 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
 
 `Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，由调用方管理 reader 实例。
@@ -27,10 +28,14 @@
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
-7. 打开文件，依次查询求解器类型、全部单元、element set 名称，再获取场函数名称并批量读取场值；
+7. 打开文件，依次查询求解器类型、全部节点和全部单元，检查重复 ID 与连接数据范围，再查询 element set 名称、场函数名称并批量读取场值；
 8. 关闭文件、清除回调、销毁 reader 并卸载 DLL。
 
-当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。单元查询成功时输出 `AllElement` 数量；字段批量读取至少成功一项时输出名称列表，以及各成功字段的 `type`、`ids` 数量和 `values` 数量，不逐项打印数值。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
+当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。节点和单元查询成功时分别输出 `All Node`、`All Element` 数量，集合查询成功时输出名称和数量。
+
+节点与单元分别检查 ID 唯一性，重复时记录 `Repeat elem` 警告（节点警告也使用这一前缀）。单元 ID 只承担标识作用，不要求连续或等于数组下标。当前连接范围诊断将 `Elem::nodes` 中的每个值与 `[0, 节点数量)` 比较；它尚未解析 NFACE 的面节点数前缀，因此可能把长度当作节点 ID 而误报。该诊断不等于完整拓扑验证，数据布局见 [多面体展开说明](../ReaderCGNS/Readme.md#多面体展开)。
+
+字段批量读取至少成功一项时输出 `Field Function sum` 和各成功字段的名称、`type`、`ids` 数量及 `value` 数量，不逐项打印数值。其中 `sum` 是枚举到的字段名称数量，部分读取失败时不等于成功字段数。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
 
 ## 命令行接口
 
@@ -60,7 +65,7 @@
 
 ### 退出状态
 
-参数解析失败、`--help`、DLL/reader 初始化失败或文件打开失败返回 `EXIT_FAILURE`；输入路径不存在时返回 `-1`。打开文件后的单元、集合或字段查询失败不会使 `Analyze()` 返回 `false`，且 `main()` 捕获分析异常后仍会返回 `0`。因此当前退出码不能作为数据完整性或全部查询成功的判据，应检查日志与字段摘要。
+参数解析失败、`--help`、DLL/reader 初始化失败或文件打开失败返回 `EXIT_FAILURE`；输入路径不存在时返回 `-1`。打开文件后的节点、单元、集合或字段查询失败，以及重复 ID、连接范围警告，都不会使 `Analyze()` 返回 `false`，且 `main()` 捕获分析异常后仍会返回 `0`。因此当前退出码不能作为数据完整性或全部查询成功的判据，应检查日志与字段摘要。
 
 ## 目录结构
 

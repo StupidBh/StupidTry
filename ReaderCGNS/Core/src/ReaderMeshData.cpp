@@ -304,7 +304,8 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
     }
 
     if (IsVariableElementType(section.type)) {
-        if (element_count == std::numeric_limits<std::size_t>::max()) {
+        // Each variable-length section needs a trailing offset after its last element.
+        if (element_count == std::numeric_limits<std::size_t>::max() || element_count_value == std::numeric_limits<cgsize_t>::max()) {
             LOG_ERROR("Connectivity offsets exceed addressable memory at Base {}/Zone {}/Section {}.", base.index, zone.index, section.index);
             return false;
         }
@@ -320,10 +321,14 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
                                                 nullptr)) != CG_OK) {
             return false;
         }
+
+        // The range check and resize above guarantee a nonempty offset array of the required size.
+        // Validate its contents once, before passing the section to any connectivity expansion.
         if (section.connect_offset.front() != 0 || section.connect_offset.back() != element_data_size || !std::ranges::is_sorted(section.connect_offset)) {
             LOG_ERROR("Invalid connectivity offsets at Base {}/Zone {}/Section {}.", base.index, zone.index, section.index);
             return false;
         }
+
         if (section.type == CG_MIXED) {
             auto element_init = this->m_elements.size();
             auto element_begin = this->m_element_offset;
@@ -578,100 +583,142 @@ bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section)
     return true;
 }
 
-void ReaderMeshData::fatten_section_elem_poly(bool separate_surface)
+void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
 {
-    auto get_elems = [this](const SectionTopology& section, const cgsize_t offset, const cgsize_t node) -> std::vector<ReaderAPI::Elem> {
-        std::vector<ReaderAPI::Elem> elems;
+    // Preconditions established by read_section_topology(): each section has a
+    // positive ElementRange and ElemSum() + 1 nondecreasing offsets spanning
+    // [0, elements.size()]. Record bounds and range_start + i are therefore
+    // valid below; checks involving current offsets and face references remain local.
 
-        auto& element_nodes = section.elements;
-        auto& connect_offset = section.connect_offset;
+    // NFACE connectivity stores signed CGNS element numbers of NGON faces.
+    // Keep the original CGNS number as the key; it is not an index into a
+    // concatenated vector and may start at an arbitrary ElementRange value.
+    using FaceNodes = std::vector<ReaderAPI::Integer>;
+    std::unordered_map<cgsize_t, FaceNodes> ngon_faces;
 
-        LOG_INFO("Init section [{}] {}, size={}", cg_ElementTypeName(section.type), section.name, section.ElemSum());
-        for (std::size_t i = 1; i < connect_offset.size(); ++i) {
-            cgsize_t npts = connect_offset[i] - connect_offset[i - 1];
+    // First pass: index every NGON by its original CGNS element number.
+    // NFACE references this number, not the position in a concatenated vector.
+    for (const auto& section : this->m_ngon_nface) {
+        if (section.type != CG_ElementType_t::CG_NGON_n) {
+            continue;
+        }
 
-            std::vector<ReaderAPI::Integer> element_node;
-            element_node.reserve(npts);
-            for (std::size_t j = connect_offset[i - 1]; j < connect_offset[i] && j < element_nodes.size(); ++j) {
-                element_node.emplace_back(static_cast<ReaderAPI::Integer>(element_nodes[j] + node));
+        const cgsize_t element_count = section.ElemSum();
+        const cgsize_t surface_element_base = this->m_element_offset;
+        cgsize_t valid_surface_count = 0;
+        for (cgsize_t i = 0; i < element_count; ++i) {
+            const cgsize_t begin = section.connect_offset[i];
+            const cgsize_t end = section.connect_offset[i + 1];
+
+            FaceNodes nodes;
+            nodes.reserve(end - begin);
+            bool valid_face = true;
+            for (cgsize_t j = begin; j < end; ++j) {
+                const cgsize_t vertex_id = section.elements[j];
+                if (vertex_id < 1 || vertex_id > std::numeric_limits<ReaderAPI::Integer>::max() - this->m_node_offset + 1) {
+                    valid_face = false;
+                    LOG_WARN("Invalid NGON vertex id {} in section {}.", vertex_id, section.name);
+                    break;
+                }
+                nodes.emplace_back(static_cast<ReaderAPI::Integer>(vertex_id + this->m_node_offset - 1));
             }
-            if (element_node.empty()) {
+            if (!valid_face || nodes.empty()) {
                 continue;
             }
-            elems.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(offset + section.range_start + elems.size()),
-                                                 .type = static_cast<ReaderAPI::Integer>(section.type),
-                                                 .npts = static_cast<ReaderAPI::Integer>(npts),
-                                                 .nodes = std::move(element_node) });
-        }
 
-        return elems;
-    };
-
-    std::vector<ReaderAPI::Elem> face_elements;
-    std::vector<std::pair<std::string, std::vector<ReaderAPI::Elem>>> nface_sections;
-
-    for (auto& section : this->m_ngon_nface) {
-        if (section.type == CG_ElementType_t::CG_NGON_n) {
-            std::vector<ReaderAPI::Elem> temp_elems = get_elems(section, this->m_element_offset, this->m_node_offset - 1);
-
-            if (temp_elems.empty()) {
-                LOG_WARN("Section [{}] {} is empty.", cg_ElementTypeName(section.type), section.name);
+            const cgsize_t face_id = section.range_start + i;
+            if (!ngon_faces.emplace(face_id, nodes).second) {
+                LOG_ERROR("Duplicated NGON element id {}.", face_id);
+                continue;
             }
-            else {
-                if (separate_surface) { // 将 NGON 也视为 component
-                    this->update_components(section.name, temp_elems.size(), this->m_element_offset);
-                    this->m_element_offset += temp_elems.size();
-                }
-                face_elements.insert(face_elements.end(), temp_elems.begin(), temp_elems.end());
-            }
-        }
-        else if (section.type == CG_ElementType_t::CG_NFACE_n) {
-            std::vector<ReaderAPI::Elem> temp_elems = get_elems(section, this->m_element_offset, 0);
 
-            if (temp_elems.empty()) {
-                LOG_WARN("Section [{}] {} is empty.", cg_ElementTypeName(section.type), section.name);
-            }
-            else {
-                this->m_element_offset += temp_elems.size();
-                nface_sections.emplace_back(section.name.substr(0, section.name.rfind(".")), std::move(temp_elems));
+            if (separate_surface) {
+                this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(surface_element_base + valid_surface_count),
+                                                                .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NGON_n),
+                                                                .npts = static_cast<ReaderAPI::Integer>(nodes.size()),
+                                                                .nodes = nodes });
+                ++valid_surface_count;
             }
         }
 
-        else {
-            LOG_WARN("Section {}, Invalid type [{}].", section.name, cg_ElementTypeName(section.type));
+        if (separate_surface && valid_surface_count > 0) {
+            std::string component_name = section.name;
+            this->update_components(component_name, valid_surface_count, surface_element_base);
+            this->m_element_offset += valid_surface_count;
         }
     }
 
-    for (auto& [component_name, nfaces] : nface_sections) {
+    // Second pass: expand each NFACE through the map.  Reverse a copy of a
+    // face so shared NGON data is never mutated by one cell's orientation.
+    for (const auto& section : this->m_ngon_nface) {
+        if (section.type != CG_ElementType_t::CG_NFACE_n) {
+            continue;
+        }
+
+        const cgsize_t element_count = section.ElemSum();
+        if (element_count > std::numeric_limits<cgsize_t>::max() - this->m_element_offset) {
+            LOG_ERROR("NFACE element offset overflows in section {}.", section.name);
+            continue;
+        }
+        const auto element_id_base = this->m_element_offset;
+        this->m_element_offset += element_count;
+        std::vector<ReaderAPI::Elem> loaded_elements;
+        loaded_elements.reserve(static_cast<std::size_t>(element_count));
+
+        for (cgsize_t i = 0; i < element_count; ++i) {
+            const cgsize_t begin = section.connect_offset[i];
+            const cgsize_t end = section.connect_offset[i + 1];
+
+            std::vector<ReaderAPI::Integer> encoded_nodes;
+            int valid_face_count = 0;
+            for (cgsize_t j = begin; j < end; ++j) {
+                const cgsize_t reference = section.elements[j];
+                if (reference == 0 || reference == std::numeric_limits<cgsize_t>::min()) {
+                    LOG_WARN("Invalid NFACE face reference in section {}.", section.name);
+                    continue;
+                }
+
+                const bool reverse = reference < 0;
+                const cgsize_t face_id = reverse ? -reference : reference;
+                const auto face_iter = ngon_faces.find(face_id);
+                if (face_iter == ngon_faces.end()) {
+                    LOG_WARN("NFACE references unknown NGON face {} in section {}.", face_id, section.name);
+                    continue;
+                }
+
+                auto face_nodes = face_iter->second;
+                if (reverse) {
+                    std::ranges::reverse(face_nodes);
+                }
+
+                encoded_nodes.emplace_back(static_cast<ReaderAPI::Integer>(face_nodes.size()));
+                utils::AppendVector(encoded_nodes, std::move(face_nodes));
+                ++valid_face_count;
+            }
+
+            if (valid_face_count == 0) {
+                continue;
+            }
+
+            loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(element_id_base + section.range_start + i),
+                                                           .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NFACE_n),
+                                                           .npts = valid_face_count,
+                                                           .nodes = std::move(encoded_nodes) });
+        }
+
+        if (loaded_elements.empty()) {
+            LOG_WARN("Section [NFACE_n] {} has no valid elements.", section.name);
+            continue;
+        }
+
         const auto element_start = this->m_elements.size();
-        for (auto& nface : nfaces) {
-            std::vector<ReaderAPI::Integer> element_node;
-            for (auto& nface_node : nface.nodes) {
-                auto face_index = std::abs(nface_node) - 1;
-                if (face_index < face_elements.size()) {
-                    auto& face = face_elements[face_index];
-                    element_node.emplace_back(face.npts);
-
-                    if (nface_node < 0) {
-                        std::ranges::reverse(face.nodes);
-                    }
-                    utils::AppendVector(element_node, face.nodes);
-                }
-                else {
-                    LOG_WARN("Invalid face id.");
-                    nface.npts--;
-                }
-            }
-
-            if (nface.npts > 0) {
-                nface.nodes = std::move(element_node);
-                this->m_elements.emplace_back(nface);
-            }
+        utils::AppendVector(this->m_elements, std::move(loaded_elements));
+        std::string component_name = section.name;
+        const auto dot = component_name.rfind('.');
+        if (dot != std::string::npos) {
+            component_name.resize(dot);
         }
-
-        if (this->m_elements.size() > element_start) {
-            this->update_components(component_name, this->m_elements.size() - element_start, static_cast<cgsize_t>(element_start));
-        }
+        this->update_components(component_name, this->m_elements.size() - element_start, static_cast<cgsize_t>(element_start));
     }
 
     this->m_ngon_nface.clear();
