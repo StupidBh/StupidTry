@@ -492,6 +492,8 @@ bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section)
     }
 
     auto& element_nodes = section.elements;
+
+    const auto element_id_base = this->m_element_offset + section.range_start;
     std::vector<ReaderAPI::Elem> loaded_elements;
     loaded_elements.reserve(element_sum);
     for (std::size_t i = 0; i < element_nodes.size(); i += npts) {
@@ -505,17 +507,19 @@ bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section)
             continue;
         }
 
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(this->m_element_offset + section.range_start + loaded_elements.size()),
+        const auto id = element_id_base + loaded_elements.size();
+        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
                                                        .type = static_cast<ReaderAPI::Integer>(section.type),
                                                        .npts = static_cast<ReaderAPI::Integer>(npts),
                                                        .nodes = std::move(element_node) });
-        ++this->m_element_offset;
     }
 
     if (loaded_elements.empty()) {
         LOG_WARN("Section [{}] {}, valid element is empty.", cg_ElementTypeName(section.type), section.name);
         return false;
     }
+    this->m_element_offset += loaded_elements.size();
+
     utils::AppendVector(this->m_elements, std::move(loaded_elements));
     return true;
 }
@@ -537,6 +541,7 @@ bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section)
              section.range_end,
              section.elements.size());
 
+    const auto element_id_base = this->m_element_offset + section.range_start;
     std::vector<ReaderAPI::Elem> loaded_elements;
     loaded_elements.reserve(element_sum);
     for (std::size_t i = 0; i < connect_offset.size() - 1; ++i) {
@@ -568,17 +573,18 @@ bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section)
             continue;
         }
 
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(this->m_element_offset + section.range_start + loaded_elements.size()),
+        auto id = element_id_base + loaded_elements.size();
+        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
                                                        .type = static_cast<ReaderAPI::Integer>(element_type_id),
                                                        .npts = static_cast<ReaderAPI::Integer>(npts),
                                                        .nodes = std::move(element_node) });
-        ++this->m_element_offset;
     }
 
     if (loaded_elements.empty()) {
         LOG_WARN("Section [MIXED] {}, valid element is empty.", section.name);
         return false;
     }
+    m_element_offset += loaded_elements.size();
     utils::AppendVector(this->m_elements, std::move(loaded_elements));
     return true;
 }
