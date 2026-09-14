@@ -601,6 +601,8 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
     // concatenated vector and may start at an arbitrary ElementRange value.
     using FaceNodes = std::vector<ReaderAPI::Integer>;
     std::unordered_map<cgsize_t, FaceNodes> ngon_faces;
+    const bool has_nface = std::ranges::any_of(this->m_ngon_nface, [](const auto& section) { return section.type == CG_ElementType_t::CG_NFACE_n; });
+    const bool emit_surface = separate_surface || !has_nface;
 
     // First pass: index every NGON by its original CGNS element number.
     // NFACE references this number, not the position in a concatenated vector.
@@ -645,7 +647,7 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
                 continue;
             }
 
-            if (separate_surface) {
+            if (emit_surface) {
                 this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(surface_element_base + valid_surface_count),
                                                                 .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NGON_n),
                                                                 .npts = static_cast<ReaderAPI::Integer>(nodes.size()),
@@ -654,7 +656,7 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             }
         }
 
-        if (separate_surface && valid_surface_count > 0) {
+        if (emit_surface && valid_surface_count > 0) {
             std::string component_name = section.name;
             this->update_components(component_name, valid_surface_count, surface_element_base);
             this->m_element_offset += valid_surface_count;
