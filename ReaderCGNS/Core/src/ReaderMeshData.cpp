@@ -609,6 +609,13 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             continue;
         }
 
+        LOG_INFO("Init section [{}] {}, range=[{}, {}]:{}",
+                 cg_ElementTypeName(section.type),
+                 section.name,
+                 section.range_start,
+                 section.range_end,
+                 section.elements.size());
+
         const cgsize_t element_count = section.ElemSum();
         const cgsize_t surface_element_base = this->m_element_offset;
         cgsize_t valid_surface_count = 0;
@@ -660,6 +667,13 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
         if (section.type != CG_ElementType_t::CG_NFACE_n) {
             continue;
         }
+
+        LOG_INFO("Init section [{}] {}, range=[{}, {}]:{}",
+                 cg_ElementTypeName(section.type),
+                 section.name,
+                 section.range_start,
+                 section.range_end,
+                 section.elements.size());
 
         const cgsize_t element_count = section.ElemSum();
         if (element_count > std::numeric_limits<cgsize_t>::max() - this->m_element_offset) {
