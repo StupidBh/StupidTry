@@ -338,12 +338,12 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
                 this->update_components(component_name, (this->m_elements.size() - element_init), element_begin);
                 return true;
             }
+            return false;
         }
-        else {
-            section.name = std::format("{}.{}.{}", base.name, zone.name, section_name);
-            this->m_ngon_nface.emplace_back(section);
-        }
-        return false;
+
+        section.name = std::format("{}.{}.{}", base.name, zone.name, section_name);
+        this->m_ngon_nface.emplace_back(section);
+        return true;
     }
 
     int nodes_per_element = 0;
