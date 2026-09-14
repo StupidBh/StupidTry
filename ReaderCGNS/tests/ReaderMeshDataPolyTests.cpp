@@ -78,11 +78,29 @@ namespace {
         expect(data.m_elements[0].type == static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NGON_n), "surface elements must retain the NGON type");
         expect(data.m_components.size() == 1 && data.m_components.contains("Base.Zone.Faces"), "surface output must register its element set");
     }
+
+    void test_ngon_only_sections_become_components()
+    {
+        auto second = make_ngon();
+        second.name = "Base.Zone.Wall";
+        second.range_start = 20;
+        second.range_end = 21;
+
+        TestReaderMeshData data;
+        data.m_ngon_nface = { make_ngon(), second };
+        data.fatten_section_elem_poly(false);
+
+        expect(data.m_elements.size() == 4, "NGON-only zones must emit every valid face");
+        expect(data.m_components.size() == 2, "each NGON section must become a component");
+        expect(data.m_components.at("Base.Zone.Faces") == std::vector<ReaderAPI::Integer> { 0, 1 }, "first NGON component must cover its faces");
+        expect(data.m_components.at("Base.Zone.Wall") == std::vector<ReaderAPI::Integer> { 2, 3 }, "second NGON component must cover its faces");
+    }
 } // namespace
 
 int main()
 {
     test_raw_face_ids_and_reversed_references();
     test_separate_surface_output();
+    test_ngon_only_sections_become_components();
     return EXIT_SUCCESS;
 }
