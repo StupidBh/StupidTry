@@ -85,13 +85,13 @@ NFACE 面号为 0、为 `cgsize_t` 最小值或查不到对应 NGON 面时，记
 
 多面体结果的 `Elem::npts` 表示保留的面数，`Elem::nodes` 按 `[面节点数, 该面的节点ID..., 下一面节点数, ...]` 编码。例如 `npts = 2`、`nodes = [3, 0, 1, 2, 4, 2, 3, 4, 5]` 表示一个三节点面和一个四节点面；其中 `nodes[0]` 和 `nodes[4]` 是长度前缀，不能当成节点 ID。
 
-内部参数 `separate_surface = true` 时，还按 NGON Section 顺序输出面单元并注册对应集合；为 `false` 时，NGON 仅用于面查找，输出单元来自 NFACE。当前唯一调用点使用 `false`，公开 API 和命令行没有提供该开关，行为与 FlowSolution 的位置无关。函数结束时清空待处理的 `m_ngon_nface`。
+内部参数 `separate_surface = true` 时，还按 NGON Section 顺序输出面单元并注册对应集合；为 `false` 时，NGON 仅用于面查找，输出单元来自 NFACE。若一个 Zone 只有 NGON 而没有 NFACE，则自动输出每个 NGON Section 的面单元，并将每个 Section 注册为对应集合。当前唯一调用点使用 `false`，公开 API 和命令行没有提供该开关，行为与 FlowSolution 的位置无关。函数结束时清空待处理的 `m_ngon_nface`。
 
 ### 当前网格读取限制
 
 以下描述是当前实现的限制，调用方应结合返回结果与日志判断读取完整性：
 
-- 纯 NGON/NFACE Zone 的调用路径尚未完整接通：`read_section_topology()` 将这些 Section 加入待处理列表后返回 `false`，`read_unstructured_zone_sections()` 在没有成功展开的固定类型或 MIXED Section 时也返回 `false`。外层会跳过该 Zone 的节点追加与多面体展开。因此上述两阶段算法的能力不等于公开 API 已完整支持纯多面体文件。
+- 纯 NGON Zone 会在多面体展开阶段输出 NGON 面单元和按 Section 注册的集合；NGON/NFACE Zone 则按上述两阶段流程输出 NFACE 多面体单元。
 - 被跳过 Zone 的待处理 Section 可能留到后续 Zone；`Close()` 会清空节点、单元、集合、字段及文件布局，但当前 `clear_grid_topology()` 未清除 `m_ngon_nface`。异常流程中的待处理数据可能跨 Zone 或跨文件残留，不能依赖关闭重开来完整复位这一状态。
 - 初始化仅以是否读到 Base 判断最终成功，所有 Zone 均被跳过时也可能返回 `true`；`GetAllElement()` 和 `GetAllElementSetName()` 没有“最终结果非空”的额外要求。空单元/集合会触发再次初始化，而中途失败留下的非空缓存又可能在后续查询中被直接复用；当前不保证失败后重试的缓存一致性。
 - 坐标描述读取失败或数据类型不受支持时跳过 Zone，但 `cg_coord_read()` 的失败状态目前只记日志，未使坐标读取立即失败。坐标按 CGNS 枚举顺序装入 x/y/z，未按坐标名称重排或转换坐标系。

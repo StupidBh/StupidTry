@@ -33,9 +33,9 @@ cmake --build build/Debug --config Release
 
 日志输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，包括节点和单元数量、重复 ID 与连接范围警告、集合名称，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
 
-单元 ID 用于唯一标识单元，不要求连续或等于数组下标。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；当前纯多面体 Zone 的外层调用路径和失败后的缓存清理仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
+单元 ID 用于唯一标识单元，不要求连续或等于数组下标。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存清理仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
-仓库已注册 `ReaderCGNSTests` CTest，覆盖多面体展开中的原始面号查找、负面引用反转、无效引用容错和 NGON 表面输出；测试使用内存中的 Section 数据，不依赖外部 CGNS 样例文件。构建后可运行：
+仓库已注册 `ReaderCGNSTests` CTest，覆盖多面体展开中的原始面号查找、负面引用反转、无效引用容错、NGON 表面输出以及纯 NGON Section component；测试使用内存中的 Section 数据，不依赖外部 CGNS 样例文件。构建后可运行：
 
 ```powershell
 ctest --test-dir build/Debug -C Debug --output-on-failure
