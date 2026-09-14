@@ -199,20 +199,25 @@ bool ReaderMeshData::read_zone_coordinates(int index_base, ZoneTopology& zone) c
         }
 
         if (index_coord_type == CG_DataType_t::CG_RealSingle) {
-            CGNS_LOG_CALL(cg_coord_read(this->get_file_id(),
-                                        index_base,
-                                        zone.index,
-                                        index_coord_name,
-                                        index_coord_type,
-                                        r_min.data(),
-                                        r_max.data(),
-                                        zone.coordinates_xyz[index_coord - 1].data()));
+            if (CGNS_LOG_CALL(cg_coord_read(this->get_file_id(),
+                                            index_base,
+                                            zone.index,
+                                            index_coord_name,
+                                            index_coord_type,
+                                            r_min.data(),
+                                            r_max.data(),
+                                            zone.coordinates_xyz[index_coord - 1].data())) != CG_OK) {
+                zone.coordinates_xyz.fill(std::vector<float> { });
+                return false;
+            }
         }
         else if (index_coord_type == CG_DataType_t::CG_RealDouble) {
             std::vector<double> temp_buff(zone.NodeSum(), 0.0);
-
-            CGNS_LOG_CALL(
-                cg_coord_read(this->get_file_id(), index_base, zone.index, index_coord_name, index_coord_type, r_min.data(), r_max.data(), temp_buff.data()));
+            if (CGNS_LOG_CALL(
+                    cg_coord_read(this->get_file_id(), index_base, zone.index, index_coord_name, index_coord_type, r_min.data(), r_max.data(), temp_buff.data())) !=
+                CG_OK) {
+                return false;
+            }
             zone.coordinates_xyz[index_coord - 1] = utils::ShrinkVector<float>(temp_buff);
         }
         else {
