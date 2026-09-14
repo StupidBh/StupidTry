@@ -481,7 +481,7 @@ bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section)
         return false;
     }
 
-    LOG_INFO("Init section [{}] {}, range=[{}, {}]:{}",
+    LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
              cg_ElementTypeName(section.type),
              section.name,
              section.range_start,
@@ -539,7 +539,7 @@ bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section)
 
     auto& element_nodes = section.elements;
     auto& connect_offset = section.connect_offset;
-    LOG_INFO("Init section [MIXED]-[{}] {}, range=[{}, {}]:{}",
+    LOG_INFO("  Init section [MIXED]-[{}] {}, range=[{}, {}]:{}",
              ElementTypeName[element_nodes[0]],
              section.name,
              section.range_start,
@@ -616,7 +616,7 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             continue;
         }
 
-        LOG_INFO("Init section [{}] {}, range=[{}, {}]:{}",
+        LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
                  cg_ElementTypeName(section.type),
                  section.name,
                  section.range_start,
@@ -675,7 +675,7 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             continue;
         }
 
-        LOG_INFO("Init section [{}] {}, range=[{}, {}]:{}",
+        LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
                  cg_ElementTypeName(section.type),
                  section.name,
                  section.range_start,
