@@ -56,7 +56,7 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
 
 void ReaderMeshData::clear_grid_topology() noexcept
 {
-    utils::DeepClear(this->m_node_coordinates, this->m_elements, this->m_components);
+    utils::DeepClear(this->m_node_coordinates, this->m_elements, this->m_components, m_ngon_nface);
 }
 
 bool ReaderMeshData::initialize_grid_topology()
