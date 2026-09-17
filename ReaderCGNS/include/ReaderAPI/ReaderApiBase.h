@@ -45,6 +45,7 @@ namespace ReaderAPI {
 
         [[nodiscard]] virtual bool GetAllNodeCoordinates(std::vector<Node>& node_coordinates) = 0;
         [[nodiscard]] virtual bool GetAllElement(std::vector<Elem>& elements) = 0;
+        [[nodiscard]] virtual bool GetAllElement(ElementTable& elements) = 0;
 
         [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
 

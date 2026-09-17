@@ -12,16 +12,13 @@ namespace {
 
 bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_coordinates)
 {
-    if (this->m_elements.empty()) {
+    if (this->m_node_coordinates.empty()) {
         if (!this->initialize_grid_topology()) {
             return false;
         }
     }
-    utils::AppendVector(node_coordinates, this->m_node_coordinates);
 
-    if (node_coordinates.empty()) {
-        LOG_WARN("Node coordinates is empty.");
-    }
+    node_coordinates = this->m_node_coordinates;
     return true;
 }
 
@@ -33,7 +30,19 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
         }
     }
 
-    utils::AppendVector(elements, this->m_elements);
+    elements = this->m_elements;
+    return true;
+}
+
+bool ReaderMeshData::GetAllElement(ReaderAPI::ElementTable& elements)
+{
+    if (this->m_elements.empty()) {
+        if (!this->initialize_grid_topology()) {
+            return false;
+        }
+    }
+
+    elements.Assign(this->m_elements);
     return true;
 }
 
@@ -50,7 +59,7 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
         loaded_components.emplace_back(name);
     }
 
-    utils::AppendVector(element_set_names, std::move(loaded_components));
+    element_set_names = std::move(loaded_components);
     return true;
 }
 

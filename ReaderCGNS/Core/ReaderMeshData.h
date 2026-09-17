@@ -9,6 +9,7 @@ public:
 
     bool GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_coordinates) final;
     bool GetAllElement(std::vector<ReaderAPI::Elem>& elements) final;
+    bool GetAllElement(ReaderAPI::ElementTable& elements) final;
 
     bool GetAllElementSetName(std::vector<std::string>& element_set_names) final;
 
