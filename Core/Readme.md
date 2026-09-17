@@ -23,7 +23,7 @@
 程序入口位于 `src/Main.cpp`，主要流程如下：
 
 1. `SingletonData::ProcessArguments()` 解析并规范化参数；
-2. 在工作目录下初始化控制台与文件日志；
+2. 按日志级别初始化控制台日志，并在日志目录下初始化文件日志；
 3. 验证输入路径存在；
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
@@ -41,25 +41,29 @@
 
 | 参数 | 必需 | 说明 |
 |---|---:|---|
-| `--inputPath`, `-i` | 是 | 要检查的 CGNS 文件路径。 |
-| `--workDirectory`, `-w` | 否 | 日志目录，不改变进程当前目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
-| `--DEBUG` | 否 | 启用详细日志。Debug 构建会强制启用详细日志。 |
-| `--help`, `-h` | 否 | 输出参数帮助。 |
+| `--input_file` | 是 | 要检查的 CGNS 文件路径。 |
+| `--workspace_dir` | 否 | 工作目录，不改变进程当前目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
+| `--log_dir` | 否 | 日志文件目录，默认使用 `<workspace_dir>/logs/`。 |
+| `--log_level` | 否 | 接受 `trace`、`debug`、`info`、`warning`、`error`，默认为 `info`；Debug 构建会强制使用 `trace`。 |
+| `--help` | 否 | 输出参数帮助。 |
+
+旧参数 `--inputPath`、`--workDirectory`、`--DEBUG` 及短选项 `-i`、`-w`、`-h` 已移除，请使用上表中的参数。
 
 示例：
 
 ```powershell
 .\bin\Debug\Core.exe `
-    --inputPath D:\data\case.cgns `
-    --workDirectory D:\work\case `
-    --DEBUG
+    --input_file D:\data\case.cgns `
+    --workspace_dir D:\work\case `
+    --log_dir D:\work\case\logs `
+    --log_level debug
 ```
 
-运行时会在工作目录产生以下内容：
+运行时会在日志目录（默认 `<workspace_dir>/logs/`）产生以下内容：
 
 | 路径 | 内容 |
 |---|---|
-| `logs/stupid-bhh_YYYY-MM-DD.log` | 应用及 ReaderCGNS 转发日志，按日期命名，每天午夜轮换，最多保留 30 个日志文件。 |
+| `stupid-bhh_YYYY-MM-DD.log` | 应用及 ReaderCGNS 转发日志，按日期命名，每天午夜轮换，最多保留 30 个日志文件。 |
 
 日志同时输出到控制台；文件日志初始化失败时会向标准错误报告并继续使用控制台日志。CGNS 文件以只读方式打开，当前流程不生成网格或场值导出文件。
 

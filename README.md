@@ -25,13 +25,13 @@ cmake --build build/Debug --config Release
 
 ## 运行与验证
 
-在仓库根目录运行，替换为实际 CGNS 文件和日志目录；Release 构建将路径中的 `Debug` 改为 `Release`：
+在仓库根目录运行，替换为实际 CGNS 文件和工作目录；Release 构建将路径中的 `Debug` 改为 `Release`：
 
 ```powershell
-.\bin\Debug\Core.exe --inputPath D:\data\case.cgns --workDirectory D:\work\case
+.\bin\Debug\Core.exe --input_file D:\data\case.cgns --workspace_dir D:\work\case
 ```
 
-日志输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，包括节点和单元数量、重复 ID 与连接范围警告、集合名称，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
+日志默认输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，可通过 `--log_dir` 指定日志目录，通过 `--log_level` 设置 `trace`、`debug`、`info`、`warning` 或 `error`（默认为 `info`；Debug 构建强制使用 `trace`）。旧参数及短选项迁移见 [Core 命令行接口](Core/Readme.md#命令行接口)。日志包括节点和单元数量、重复 ID 与连接范围警告、集合名称，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
 
 单元 ID 用于唯一标识单元，不要求连续或等于数组下标。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存清理仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 

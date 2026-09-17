@@ -6,15 +6,33 @@
 
 #include "Logger/logger.hpp"
 
+namespace spdlog::level {
+    static void validate(boost::any& value, const std::vector<std::string>& values, level_enum*, int)
+    {
+        namespace bpo = boost::program_options;
+
+        bpo::validators::check_first_occurrence(value);
+        const auto& text = bpo::validators::get_single_string(values);
+
+        if (text != "debug" && text != "info" && text != "warning" && text != "error" && text != "trace") {
+            throw bpo::validation_error(bpo::validation_error::invalid_option_value, "log_level", text);
+        }
+
+        value = from_str(text);
+    }
+}
+
 bool SingletonData::ProcessArguments(int argc, char* argv[])
 {
     namespace bpo = boost::program_options;
 
     bpo::options_description desc("Usage: StupidBhh [options]", 150, 10);
-    desc.add_options()("help,h", "Display this help message")                            //
-        ("inputPath,i", bpo::value<std::string>()->required(), "Path to the input file") //
-        ("workDirectory,w", bpo::value<std::string>(), "Directory for working")          //
-        ("DEBUG", bpo::bool_switch()->default_value(false), "Enable verbose output")     //
+    desc.add_options()                                                                                                                                          //
+        ("help", "Display this help message")                                                                                                                   //
+        ("input_file", bpo::value<std::string>()->required(), "Path to the input file")                                                                         //
+        ("workspace_dir", bpo::value<std::string>(), "Directory for working")                                                                                   //
+        ("log_dir", bpo::value<std::string>(), "Directory for log file")                                                                                        //
+        ("log_level", bpo::value<spdlog::level::level_enum>()->default_value(spdlog::level::info, "info")->value_name("debug|info|warning|error"), "Log level") //
         ;
     std::ostringstream oss;
     oss << desc;
@@ -43,7 +61,7 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
     }
 
 #ifndef NDEBUG
-    this->m_vm.at("DEBUG").value() = true;
+    this->m_vm.at("log_level").value() = spdlog::level::level_enum::trace;
 #endif
 
     auto normalize_path_option = [this](const std::string& key) {
@@ -55,24 +73,36 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
         path.make_preferred();
         iter->second.value() = path.string();
     };
-    normalize_path_option("inputPath");
+    normalize_path_option("input_file");
 
-    if (!this->m_vm.contains("workDirectory")) {
-        const auto input_path = std::filesystem::path(this->m_vm["inputPath"].as<std::string>());
+    if (!this->m_vm.contains("workspace_dir")) {
+        const auto input_path = std::filesystem::path(this->m_vm["input_file"].as<std::string>());
         auto work_dir = input_path.parent_path();
         if (work_dir.empty()) {
             work_dir = ".";
             work_dir /= input_path.filename().stem();
         }
         work_dir.make_preferred();
-        std::cerr << std::format("Miss parameters <workDirectory>, use <inputPath> parent path: {}", work_dir.string()) << std::endl;
-        this->m_vm.emplace("workDirectory", bpo::variable_value(work_dir.string(), true));
+        std::cerr << std::format("Miss parameters <workspace_dir>, use <input_file> parent path: {}", work_dir.string()) << std::endl;
+        this->m_vm.emplace("workspace_dir", bpo::variable_value(work_dir.string(), true));
     }
     else {
-        normalize_path_option("workDirectory");
+        normalize_path_option("workspace_dir");
     }
 
-    dylog::Logger::get_instance().InitLog(this->m_vm["workDirectory"].as<std::string>(), "stupid-bhh", this->m_vm["DEBUG"].as<bool>());
+    if (!this->m_vm.contains("log_dir")) {
+        const auto workspace_dir = std::filesystem::path(this->m_vm["workspace_dir"].as<std::string>());
+        auto log_dir = workspace_dir / "logs";
+        log_dir.make_preferred();
+
+        std::cerr << std::format("Miss parameters <log_dir>, use <workspace_dir> parent path: {}", log_dir.string()) << std::endl;
+        this->m_vm.emplace("log_dir", bpo::variable_value(log_dir.string(), true));
+    }
+    else {
+        normalize_path_option("log_dir");
+    }
+
+    dylog::Logger::get_instance().InitLog(this->m_vm["log_dir"].as<std::string>(), "stupid-bhh", this->m_vm["log_level"].as<spdlog::level::level_enum>());
 
 #ifndef NDEBUG
     LOG_INFO(GetExecutableDirectory());
@@ -100,12 +130,12 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
 
 const std::filesystem::path& SingletonData::GetOrCreateWorkDirectory()
 {
-    static const std::filesystem::path workDirectory = this->GetProgramOptions<std::string>("workDirectory");
-    if (!std::filesystem::exists(workDirectory)) {
-        if (std::error_code ec; !std::filesystem::create_directories(workDirectory, ec)) {
-            LOG_ERROR("create_directories [{}] failed: {}", workDirectory, ec.message());
+    static const std::filesystem::path workspaceDir = this->GetProgramOptions<std::string>("workspace_dir");
+    if (!std::filesystem::exists(workspaceDir)) {
+        if (std::error_code ec; !std::filesystem::create_directories(workspaceDir, ec)) {
+            LOG_ERROR("Create directories [{}] failed: {}", workspaceDir, ec.message());
             exit(1003);
         }
     }
-    return workDirectory;
+    return workspaceDir;
 }
