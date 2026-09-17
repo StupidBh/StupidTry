@@ -304,7 +304,6 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
                                       &parent_flag)) != CG_OK) {
         return false;
     }
-
     section.name = section_name;
     section.has_parent_data = parent_flag != 0;
 
@@ -510,7 +509,6 @@ bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section, 
         if (element_node.size() != npts) {
             continue;
         }
-
         const auto id = this->m_elements.size();
         this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
                                                         .type = static_cast<ReaderAPI::Integer>(section.type),
@@ -712,7 +710,6 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             if (valid_face_count == 0) {
                 continue;
             }
-
             const auto id = this->m_elements.size();
             this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
                                                             .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NFACE_n),
