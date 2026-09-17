@@ -92,7 +92,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         std::unordered_set<int> unique_id;
         for (const auto& [id, x, y, z] : all_nodes) {
             if (unique_id.contains(id)) {
-                LOG_WARN("Repeat elem: id={}, xyz=[{},{},{}]", id, x, y, z);
+                LOG_WARN("Repeat node: id={}, xyz=[{},{},{}]", id, x, y, z);
             }
             unique_id.insert(id);
         }
