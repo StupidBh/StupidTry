@@ -30,18 +30,16 @@ private:
     bool read_unstructured_zone_sections(const BaseTopology& base, ZoneTopology& zone);
     [[nodiscard]] bool read_section_topology(const BaseTopology& base, const ZoneTopology& zone, SectionTopology& section);
 
-    [[nodiscard]] bool build_structured_section(ZoneTopology& zone);
+    [[nodiscard]] bool build_structured_section(const ZoneTopology& zone);
 
-    bool fatten_section_elem_normal(const SectionTopology& section);
-    bool fatten_section_elem_mixed(const SectionTopology& section);
+    bool fatten_section_elem_normal(const SectionTopology& section, std::string& component_name);
+    bool fatten_section_elem_mixed(const SectionTopology& section, std::string& component_name);
     void fatten_section_elem_poly(bool separate_surface);
 
-    std::vector<ReaderAPI::Node> m_node_coordinates;
     std::vector<ReaderAPI::Elem> m_elements;
+    std::vector<ReaderAPI::Node> m_node_coordinates;
     std::unordered_map<std::string, std::vector<ReaderAPI::Integer>> m_components;
 
+    cgsize_t m_node_id_offset = 0;
     std::vector<SectionTopology> m_ngon_nface;
-
-    cgsize_t m_node_offset = 0;
-    cgsize_t m_element_offset = 0;
 };

@@ -65,7 +65,8 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
 
 void ReaderMeshData::clear_grid_topology() noexcept
 {
-    utils::DeepClear(this->m_node_coordinates, this->m_elements, this->m_components, m_ngon_nface);
+    utils::DeepClear(this->m_elements, this->m_node_coordinates, this->m_components, this->m_ngon_nface);
+    this->m_node_id_offset = 0;
 }
 
 bool ReaderMeshData::initialize_grid_topology()
@@ -74,7 +75,7 @@ bool ReaderMeshData::initialize_grid_topology()
         LOG_ERROR("Cannot initialize grid topology without an open CGNS file.");
         return false;
     }
-    m_node_offset = m_element_offset = 0;
+    this->m_node_id_offset = 0;
 
     bool is_invalid = true;
     for (const auto& [base_index, zone_indices] : this->get_base_zone_indices()) {
@@ -97,7 +98,7 @@ bool ReaderMeshData::initialize_grid_topology()
             }
 
             const cgsize_t node_count = zone.NodeSum();
-            if (node_count < 0 || node_count > std::numeric_limits<ReaderAPI::Integer>::max() - this->m_node_offset) {
+            if (node_count < 0 || node_count > std::numeric_limits<ReaderAPI::Integer>::max() - this->m_node_id_offset) {
                 LOG_ERROR("Node count exceeds the ReaderAPI::Integer range.");
                 return false;
             }
@@ -107,12 +108,12 @@ bool ReaderMeshData::initialize_grid_topology()
             }
 
             for (std::size_t i = 0; i < node_count; ++i) {
-                this->m_node_coordinates.emplace_back(ReaderAPI::Node { .id = static_cast<ReaderAPI::Integer>(this->m_node_offset + i),
+                this->m_node_coordinates.emplace_back(ReaderAPI::Node { .id = static_cast<ReaderAPI::Integer>(this->m_node_id_offset + i),
                                                                         .x = zone.coordinates_xyz[0][i],
                                                                         .y = zone.coordinates_xyz[1][i],
                                                                         .z = zone.coordinates_xyz[2][i] });
             }
-            this->m_node_offset += node_count;
+            this->m_node_id_offset += node_count;
         }
 
         if (is_invalid) {
@@ -157,7 +158,7 @@ bool ReaderMeshData::read_zone_topology(const BaseTopology& base, ZoneTopology& 
         return false;
     }
 
-    if (std::ranges::any_of(zone.zone_size, [](const cgsize_t value) { return value < 0; })) {
+    if (std::ranges::any_of(zone.zone_size, [](const auto value) { return value < 0; })) {
         LOG_ERROR("Invalid zone dimensions at Base {}/Zone {}.", base.index, zone.index);
         return false;
     }
@@ -165,19 +166,14 @@ bool ReaderMeshData::read_zone_topology(const BaseTopology& base, ZoneTopology& 
     if (!read_zone_coordinates(base.index, zone)) {
         return false;
     }
-    zone.name = zone_name;
-    LOG_INFO("Init [Zone] [{}] {}, Dim={}, Size={}", cg_ZoneTypeName(zone.type), zone.name, zone.dim, std::span(zone.zone_size).subspan(0, zone.dim * 3));
+    LOG_INFO("Init [Zone] [{}] {}, Dim={}, Size={}", cg_ZoneTypeName(zone.type), zone_name, zone.dim, std::span(zone.zone_size).subspan(0, zone.dim * 3));
 
     if (zone.type == CG_ZoneType_t::CG_Structured) {
-        auto element_init = this->m_elements.size();
-        auto element_begin = this->m_element_offset;
-        if (this->build_structured_section(zone)) {
-            std::string component_name = std::format("{}.{}", base.name, zone.name);
-            this->update_components(component_name, (this->m_elements.size() - element_init), element_begin);
-            return true;
-        }
+        zone.name = std::format("{}.{}", base.name, zone_name);
+        return this->build_structured_section(zone);
     }
 
+    zone.name = zone_name;
     return this->read_unstructured_zone_sections(base, zone);
 }
 
@@ -336,15 +332,8 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
         }
 
         if (section.type == CG_MIXED) {
-            auto element_init = this->m_elements.size();
-            auto element_begin = this->m_element_offset;
-
-            if (this->fatten_section_elem_mixed(section)) {
-                std::string component_name = std::format("{}.{}.{}", base.name, zone.name, section.name);
-                this->update_components(component_name, (this->m_elements.size() - element_init), element_begin);
-                return true;
-            }
-            return false;
+            std::string component_name = std::format("{}.{}.{}", base.name, zone.name, section.name);
+            return this->fatten_section_elem_mixed(section, component_name);
         }
 
         section.name = std::format("{}.{}.{}", base.name, zone.name, section_name);
@@ -373,24 +362,12 @@ bool ReaderMeshData::read_section_topology(const BaseTopology& base, const ZoneT
         return false;
     }
 
-    auto element_init = this->m_elements.size();
-    auto element_begin = this->m_element_offset;
-    if (!this->fatten_section_elem_normal(section)) {
-        return false;
-    }
     std::string component_name = std::format("{}.{}.{}", base.name, zone.name, section.name);
-    this->update_components(component_name, (this->m_elements.size() - element_init), element_begin);
-
-    return true;
+    return this->fatten_section_elem_normal(section, component_name);
 }
 
-bool ReaderMeshData::build_structured_section(ZoneTopology& zone)
+bool ReaderMeshData::build_structured_section(const ZoneTopology& zone)
 {
-    if (zone.type != CG_ZoneType_t::CG_Structured || zone.dim < 1 || zone.dim > 3) {
-        LOG_ERROR("Cannot build a structured section for Zone {} with type [{}] and dimension {}.", zone.index, cg_ZoneTypeName(zone.type), zone.dim);
-        return false;
-    }
-
     const cgsize_t NVertexI = zone.zone_size[0];
     const cgsize_t NCellI = NVertexI;
 
@@ -463,31 +440,28 @@ bool ReaderMeshData::build_structured_section(ZoneTopology& zone)
         }
     }
 
-    section.index = 1;
     section.name = zone.name;
     section.range_start = 1;
     section.range_end = zone.CellSum();
-    if (!this->fatten_section_elem_normal(section)) {
-        return false;
-    }
 
-    return true;
+    std::string component_name = zone.name;
+    return this->fatten_section_elem_normal(section, component_name);
 }
 
-bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section)
+bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section, std::string& component_name)
 {
     const auto element_sum = section.ElemSum();
-    if (element_sum < 1 || element_sum > static_cast<cgsize_t>(std::numeric_limits<ReaderAPI::Integer>::max() - this->m_element_offset)) {
+    if (element_sum < 1 || element_sum > static_cast<ReaderAPI::Integer>(std::numeric_limits<ReaderAPI::Integer>::max() - this->m_elements.size())) {
         LOG_ERROR("Element count in section [{}] {} exceeds the <ReaderAPI::Integer> range.", cg_ElementTypeName(section.type), section.name);
         return false;
     }
-
     LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
              cg_ElementTypeName(section.type),
              section.name,
              section.range_start,
              section.range_end,
              section.elements.size());
+
     int npts = 0;
     if (CGNS_LOG_CALL(cg_npe(section.type, &npts)) != CG_OK) {
         return false;
@@ -496,102 +470,97 @@ bool ReaderMeshData::fatten_section_elem_normal(const SectionTopology& section)
         LOG_ERROR("Invalid element points {} in type {}.", npts, cg_ElementTypeName(section.type));
         return false;
     }
+    this->m_elements.reserve(this->m_elements.size() + element_sum);
 
     auto& element_nodes = section.elements;
-
-    const auto element_id_base = this->m_element_offset + section.range_start;
-    std::vector<ReaderAPI::Elem> loaded_elements;
-    loaded_elements.reserve(element_sum);
+    const auto element_index_begin = this->m_elements.size();
     for (std::size_t i = 0; i < element_nodes.size(); i += npts) {
         std::vector<ReaderAPI::Integer> element_node;
         element_node.reserve(npts);
         for (std::size_t j = i; j < i + npts && j < element_nodes.size(); ++j) {
-            element_node.emplace_back(static_cast<ReaderAPI::Integer>(element_nodes[j] + this->m_node_offset - 1));
+            element_node.emplace_back(static_cast<ReaderAPI::Integer>(element_nodes[j] + this->m_node_id_offset - 1));
         }
 
         if (element_node.size() != npts) {
             continue;
         }
 
-        const auto id = element_id_base + loaded_elements.size();
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
-                                                       .type = static_cast<ReaderAPI::Integer>(section.type),
-                                                       .npts = static_cast<ReaderAPI::Integer>(npts),
-                                                       .nodes = std::move(element_node) });
+        const auto id = this->m_elements.size();
+        this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
+                                                        .type = static_cast<ReaderAPI::Integer>(section.type),
+                                                        .npts = static_cast<ReaderAPI::Integer>(npts),
+                                                        .nodes = std::move(element_node) });
     }
 
-    if (loaded_elements.empty()) {
+    if (this->m_elements.size() == element_index_begin) {
         LOG_WARN("Section [{}] {}, valid element is empty.", cg_ElementTypeName(section.type), section.name);
         return false;
     }
-    this->m_element_offset += loaded_elements.size();
+    this->update_components(component_name, this->m_elements.size() - element_index_begin, element_index_begin);
 
-    utils::AppendVector(this->m_elements, std::move(loaded_elements));
     return true;
 }
 
-bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section)
+bool ReaderMeshData::fatten_section_elem_mixed(const SectionTopology& section, std::string& component_name)
 {
     const auto element_sum = section.ElemSum();
-    if (element_sum < 1 || element_sum > static_cast<cgsize_t>(std::numeric_limits<ReaderAPI::Integer>::max() - this->m_element_offset)) {
+    if (element_sum < 1 || element_sum > static_cast<ReaderAPI::Integer>(std::numeric_limits<ReaderAPI::Integer>::max() - this->m_elements.size())) {
         LOG_ERROR("Element count in section [MIXED] {} exceeds the <ReaderAPI::Integer> range.", section.name);
         return false;
     }
+    LOG_INFO("  Init section [MIXED] {}, range=[{}, {}]:{}", section.name, section.range_start, section.range_end, section.elements.size());
+
+    const auto element_index_begin = this->m_elements.size();
+    this->m_elements.reserve(this->m_elements.size() + element_sum);
 
     auto& element_nodes = section.elements;
     auto& connect_offset = section.connect_offset;
-    LOG_INFO("  Init section [MIXED]-[{}] {}, range=[{}, {}]:{}",
-             ElementTypeName[element_nodes[0]],
-             section.name,
-             section.range_start,
-             section.range_end,
-             section.elements.size());
-
-    const auto element_id_base = this->m_element_offset + section.range_start;
-    std::vector<ReaderAPI::Elem> loaded_elements;
-    loaded_elements.reserve(element_sum);
     for (std::size_t i = 0; i < connect_offset.size() - 1; ++i) {
-        cgsize_t element_node_begin = connect_offset[i];
-        if (element_node_begin >= element_nodes.size()) {
-            LOG_WARN("Invalid index: {} in elements range=[0, {}].", element_node_begin, element_nodes.size());
+        cgsize_t element_type_id_index = connect_offset[i];
+        if (element_type_id_index >= element_nodes.size()) {
+            LOG_WARN("Invalid index: {} in elements range=[0, {}].", element_type_id_index, element_nodes.size());
             continue;
         }
 
-        cgsize_t element_type_id = element_nodes[element_node_begin];
+        cgsize_t element_type_id = element_nodes[element_type_id_index];
         if (element_type_id < CG_ElementType_t::CG_NODE || element_type_id >= NofValidElementTypes) {
             LOG_ERROR("Invalid element type id: {}, falling back to [{}].", element_type_id, cg_ElementTypeName(CG_ElementType_t::CG_NODE));
             element_type_id = static_cast<cgsize_t>(CG_ElementType_t::CG_NODE);
         }
 
+        int npts = 0;
+        if (CGNS_LOG_CALL(cg_npe(static_cast<CG_ElementType_t>(element_type_id), &npts)) != CG_OK) {
+            return false;
+        }
+
         const cgsize_t element_node_end = connect_offset[i + 1];
-        const cgsize_t npts = element_node_end - element_node_begin - 1;
-        if (npts < 1) {
-            continue;
+        if (npts < 1 || npts != element_node_end - element_type_id_index - 1) {
+            LOG_ERROR("Invalid element points {} in type {}.", npts, cg_ElementTypeName(section.type));
+            return false;
         }
 
         std::vector<ReaderAPI::Integer> element_node;
         element_node.reserve(npts);
-        for (std::size_t j = element_node_begin + 1; j < element_node_end && j < element_nodes.size(); ++j) {
-            element_node.emplace_back(static_cast<ReaderAPI::Integer>(element_nodes[j] + this->m_node_offset - 1));
+        for (std::size_t j = element_type_id_index + 1; j < element_node_end && j < element_nodes.size(); ++j) {
+            element_node.emplace_back(static_cast<ReaderAPI::Integer>(element_nodes[j] + this->m_node_id_offset - 1));
         }
 
         if (element_node.size() != npts) {
             continue;
         }
-
-        auto id = element_id_base + loaded_elements.size();
-        loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
-                                                       .type = static_cast<ReaderAPI::Integer>(element_type_id),
-                                                       .npts = static_cast<ReaderAPI::Integer>(npts),
-                                                       .nodes = std::move(element_node) });
+        const auto id = this->m_elements.size();
+        this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
+                                                        .type = static_cast<ReaderAPI::Integer>(element_type_id),
+                                                        .npts = static_cast<ReaderAPI::Integer>(npts),
+                                                        .nodes = std::move(element_node) });
     }
 
-    if (loaded_elements.empty()) {
+    if (this->m_elements.size() == element_index_begin) {
         LOG_WARN("Section [MIXED] {}, valid element is empty.", section.name);
         return false;
     }
-    m_element_offset += loaded_elements.size();
-    utils::AppendVector(this->m_elements, std::move(loaded_elements));
+    this->update_components(component_name, this->m_elements.size() - element_index_begin, element_index_begin);
+
     return true;
 }
 
@@ -616,18 +585,16 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
         if (section.type != CG_ElementType_t::CG_NGON_n) {
             continue;
         }
+        LOG_INFO("  Init section [NGON] {}, range=[{}, {}]:{}", section.name, section.range_start, section.range_end, section.elements.size());
 
-        LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
-                 cg_ElementTypeName(section.type),
-                 section.name,
-                 section.range_start,
-                 section.range_end,
-                 section.elements.size());
+        const cgsize_t element_sum = section.ElemSum();
+        const cgsize_t element_index_begin = this->m_elements.size();
+        if (emit_surface) {
+            this->m_elements.reserve(this->m_elements.size() + element_sum);
+        }
 
-        const cgsize_t element_count = section.ElemSum();
-        const cgsize_t surface_element_base = this->m_element_offset;
         cgsize_t valid_surface_count = 0;
-        for (cgsize_t i = 0; i < element_count; ++i) {
+        for (cgsize_t i = 0; i < element_sum; ++i) {
             const cgsize_t begin = section.connect_offset[i];
             const cgsize_t end = section.connect_offset[i + 1];
 
@@ -636,12 +603,12 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             bool valid_face = true;
             for (cgsize_t j = begin; j < end; ++j) {
                 const cgsize_t vertex_id = section.elements[j];
-                if (vertex_id < 1 || vertex_id > std::numeric_limits<ReaderAPI::Integer>::max() - this->m_node_offset + 1) {
+                if (vertex_id < 1 || vertex_id > std::numeric_limits<ReaderAPI::Integer>::max() - this->m_node_id_offset) {
                     valid_face = false;
                     LOG_WARN("Invalid NGON vertex id {} in section {}.", vertex_id, section.name);
                     break;
                 }
-                nodes.emplace_back(static_cast<ReaderAPI::Integer>(vertex_id + this->m_node_offset - 1));
+                nodes.emplace_back(static_cast<ReaderAPI::Integer>(vertex_id + this->m_node_id_offset - 1));
             }
             if (!valid_face || nodes.empty()) {
                 continue;
@@ -654,7 +621,8 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
             }
 
             if (emit_surface) {
-                this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(surface_element_base + valid_surface_count),
+                const auto id = this->m_elements.size();
+                this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
                                                                 .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NGON_n),
                                                                 .npts = static_cast<ReaderAPI::Integer>(nodes.size()),
                                                                 .nodes = nodes });
@@ -664,8 +632,7 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
 
         if (emit_surface && valid_surface_count > 0) {
             std::string component_name = section.name;
-            this->update_components(component_name, valid_surface_count, surface_element_base);
-            this->m_element_offset += valid_surface_count;
+            this->update_components(component_name, valid_surface_count, element_index_begin);
         }
     }
 
@@ -675,25 +642,17 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
         if (section.type != CG_ElementType_t::CG_NFACE_n) {
             continue;
         }
+        LOG_INFO("  Init section [NFACE] {}, range=[{}, {}]:{}", section.name, section.range_start, section.range_end, section.elements.size());
 
-        LOG_INFO("  Init section [{}] {}, range=[{}, {}]:{}",
-                 cg_ElementTypeName(section.type),
-                 section.name,
-                 section.range_start,
-                 section.range_end,
-                 section.elements.size());
-
-        const cgsize_t element_count = section.ElemSum();
-        if (element_count > std::numeric_limits<cgsize_t>::max() - this->m_element_offset) {
+        const cgsize_t element_sum = section.ElemSum();
+        if (element_sum > static_cast<ReaderAPI::Integer>(std::numeric_limits<ReaderAPI::Integer>::max() - this->m_elements.size())) {
             LOG_ERROR("NFACE element offset overflows in section {}.", section.name);
             continue;
         }
-        const auto element_id_base = this->m_element_offset;
-        this->m_element_offset += element_count;
-        std::vector<ReaderAPI::Elem> loaded_elements;
-        loaded_elements.reserve(static_cast<std::size_t>(element_count));
+        const auto element_index_begin = this->m_elements.size();
+        this->m_elements.reserve(this->m_elements.size() + element_sum);
 
-        for (cgsize_t i = 0; i < element_count; ++i) {
+        for (cgsize_t i = 0; i < element_sum; ++i) {
             const cgsize_t begin = section.connect_offset[i];
             const cgsize_t end = section.connect_offset[i + 1];
 
@@ -728,25 +687,23 @@ void ReaderMeshData::fatten_section_elem_poly(const bool separate_surface)
                 continue;
             }
 
-            loaded_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(element_id_base + section.range_start + i),
-                                                           .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NFACE_n),
-                                                           .npts = valid_face_count,
-                                                           .nodes = std::move(encoded_nodes) });
+            const auto id = this->m_elements.size();
+            this->m_elements.emplace_back(ReaderAPI::Elem { .id = static_cast<ReaderAPI::Integer>(id),
+                                                            .type = static_cast<ReaderAPI::Integer>(CG_ElementType_t::CG_NFACE_n),
+                                                            .npts = valid_face_count,
+                                                            .nodes = std::move(encoded_nodes) });
         }
-
-        if (loaded_elements.empty()) {
+        if (this->m_elements.size() == element_index_begin) {
             LOG_WARN("Section [NFACE_n] {} has no valid elements.", section.name);
             continue;
         }
 
-        const auto element_start = this->m_elements.size();
-        utils::AppendVector(this->m_elements, std::move(loaded_elements));
         std::string component_name = section.name;
         const auto dot = component_name.rfind('.');
         if (dot != std::string::npos) {
             component_name.resize(dot);
         }
-        this->update_components(component_name, this->m_elements.size() - element_start, static_cast<cgsize_t>(element_start));
+        this->update_components(component_name, this->m_elements.size() - element_index_begin, element_index_begin);
     }
 
     this->m_ngon_nface.clear();
