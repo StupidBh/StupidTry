@@ -166,6 +166,8 @@ bool ReaderFieldData::GetFieldFunctionData(const std::vector<std::string>& field
 void ReaderFieldData::clear_field_data() noexcept
 {
     utils::DeepClear(this->m_field_layout);
+
+    LOG_TRACE("[clear_field_data] finish.");
 }
 
 bool ReaderFieldData::initialize_field_layout()

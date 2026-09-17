@@ -83,8 +83,6 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     std::vector<ReaderAPI::Node> all_nodes;
     if (this->m_reader->GetAllNodeCoordinates(all_nodes)) {
-        LOG_INFO("All Node: {}", all_nodes.size());
-
         std::unordered_set<int> unique_id;
         for (const auto& [id, x, y, z] : all_nodes) {
             if (unique_id.contains(id)) {
@@ -97,8 +95,6 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     std::vector<ReaderAPI::Elem> all_elements;
     if (this->m_reader->GetAllElement(all_elements)) {
-        LOG_INFO("All Element: {}", all_elements.size());
-
         std::unordered_set<int> unique_id;
         for (const auto& element : all_elements) {
             if (unique_id.contains(element.id)) {
@@ -113,12 +109,10 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         }
     }
 
-    std::vector<std::string> element_set_names;
-    if (this->m_reader->GetAllComponentName(element_set_names)) {
-        LOG_INFO("ElementSet: {}:{}", element_set_names, element_set_names.size());
-
+    std::vector<std::string> all_component_names;
+    if (this->m_reader->GetAllComponentName(all_component_names)) {
         std::vector<ReaderAPI::Integer> ids;
-        for (const auto& component_name : element_set_names) {
+        for (const auto& component_name : all_component_names) {
             if (this->m_reader->GetComponent(component_name, ids)) {
                 if (std::ranges::any_of(ids, [limit = all_elements.size()](auto value) { return value < 0 || value >= limit; })) {
                     LOG_WARN("Invalid component: name={}, ids_range=[{}, {}]", component_name, std::ranges::min(ids), std::ranges::max(ids));

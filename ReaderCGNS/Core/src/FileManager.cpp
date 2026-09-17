@@ -1,5 +1,4 @@
 #include "FileManager.h"
-
 #include "CgnsTopology.hpp"
 
 FileManager::~FileManager()
@@ -75,6 +74,8 @@ void FileManager::Close()
     }
     this->clear_cache_data();
     this->clear_file_data();
+
+    LOG_TRACE("[Close] finish.");
 }
 
 bool FileManager::IsOpen() const
@@ -119,6 +120,8 @@ void FileManager::clear_file_data() noexcept
 {
     this->m_file_id = 0;
     utils::DeepClear(this->m_cgns_file_path, this->m_base_zone_indices, this->m_base_zone_layout);
+
+    LOG_TRACE("[clear_file_data] finish.");
 }
 
 bool FileManager::initialize_base_zone_layout()

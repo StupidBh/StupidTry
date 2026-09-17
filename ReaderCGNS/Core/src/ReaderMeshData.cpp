@@ -18,6 +18,7 @@ bool ReaderMeshData::GetAllNodeCoordinates(std::vector<ReaderAPI::Node>& node_co
     }
 
     node_coordinates = this->m_node_coordinates;
+    LOG_INFO("All nodes: {}", node_coordinates.size());
     return true;
 }
 
@@ -30,6 +31,7 @@ bool ReaderMeshData::GetAllElement(std::vector<ReaderAPI::Elem>& elements)
     }
 
     elements = this->m_elements;
+    LOG_INFO("All elements: {}", elements.size());
     return true;
 }
 
@@ -45,7 +47,7 @@ bool ReaderMeshData::GetAllElement(ReaderAPI::ElementTable& elements)
     return true;
 }
 
-bool ReaderMeshData::GetAllComponentName(std::vector<std::string>& element_set_names)
+bool ReaderMeshData::GetAllComponentName(std::vector<std::string>& component_names)
 {
     if (this->m_components.empty()) {
         if (!this->initialize_grid_topology()) {
@@ -58,7 +60,8 @@ bool ReaderMeshData::GetAllComponentName(std::vector<std::string>& element_set_n
         loaded_components.emplace_back(name);
     }
 
-    element_set_names = std::move(loaded_components);
+    component_names = std::move(loaded_components);
+    LOG_TRACE("Components: {}:{}", component_names, component_names.size());
     return true;
 }
 
@@ -80,6 +83,7 @@ bool ReaderMeshData::GetComponent(const std::string& name, std::vector<ReaderAPI
         return false;
     }
 
+    LOG_TRACE("Component: name={}, ids_range=[{}, {}]:{}", name, std::ranges::min(ids), std::ranges::max(ids), ids.size());
     return true;
 }
 
@@ -87,6 +91,8 @@ void ReaderMeshData::clear_grid_topology() noexcept
 {
     utils::DeepClear(this->m_elements, this->m_node_coordinates, this->m_components, this->m_ngon_nface);
     this->m_node_id_offset = 0;
+
+    LOG_TRACE("[clear_grid_topology] finish.");
 }
 
 bool ReaderMeshData::initialize_grid_topology()
