@@ -1,5 +1,5 @@
 #pragma once
-#include "ReaderApiTypes.hpp"
+#include "ElementTypes.hpp"
 
 #ifdef _WIN32
     #ifdef READER_CGNS_EXPORTS
@@ -47,7 +47,7 @@ namespace ReaderAPI {
         [[nodiscard]] virtual bool GetAllElement(std::vector<Elem>& elements) = 0;
         [[nodiscard]] virtual bool GetAllElement(ElementTable& elements) = 0;
 
-        [[nodiscard]] virtual bool GetAllComponentName(std::vector<std::string>& element_set_names) = 0;
+        [[nodiscard]] virtual bool GetAllComponentName(std::vector<std::string>& component_names) = 0;
         [[nodiscard]] virtual bool GetComponent(const std::string& name, std::vector<ReaderAPI::Integer>& ids) = 0;
 
         [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<std::string>& field_names) = 0;
