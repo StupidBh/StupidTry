@@ -422,35 +422,6 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
     }
 }
 
-std::string GetEnv(const std::string& env)
-{
-    if (env.empty()) {
-        LOG_ERROR("Environment variable name is empty.");
-        return { };
-    }
-
-    DWORD buffer_size = GetEnvironmentVariableA(env.c_str(), nullptr, 0);
-    if (buffer_size == 0) {
-        LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-        return { };
-    }
-
-    std::string buffer(buffer_size, '\0');
-    while (true) {
-        const DWORD value_size = GetEnvironmentVariableA(env.c_str(), buffer.data(), static_cast<DWORD>(buffer.size()));
-        if (value_size == 0) {
-            LOG_ERROR("GetEnvironmentVariableA [{}] failed: {}", env, GetLastError());
-            return { };
-        }
-        if (value_size < buffer.size()) {
-            buffer.resize(value_size);
-            return buffer;
-        }
-
-        buffer.resize(value_size);
-    }
-}
-
 std::filesystem::path GetExecutablePath()
 {
     std::wstring buffer(256, L'\0');

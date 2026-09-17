@@ -76,9 +76,9 @@ Core/
 │   └── Main.cpp                    # 命令行入口与集成流程
 ├── Common/
 │   ├── SingletonData.h             # 参数和应用级状态
-│   ├── Functions.h                 # 仅依赖标准库的字符串工具
+│   ├── Functions.h                 # 仅依赖标准库的字符串和环境变量工具
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
-│   ├── WindowsFunctions.h          # Win32 编码、进程、环境、路径和 DLL 句柄工具
+│   ├── WindowsFunctions.h          # Win32 编码、进程、路径和 DLL 句柄工具
 │   └── src/
 ├── ReaderCGNS/
 │   ├── AnalysisCGNS.h              # ReaderCGNS DLL 加载、实例与分析流程
@@ -90,6 +90,8 @@ Core/
 └── 3rdparty/
     └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置
 ```
+
+`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。
 
 ## 依赖关系
 

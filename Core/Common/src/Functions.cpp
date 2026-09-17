@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <stdexcept>
 
 namespace {
     constexpr unsigned char ToAsciiLower(unsigned char value) noexcept
@@ -57,4 +58,14 @@ std::string_view StripEdgeChar(std::string_view str, char c) noexcept
         str.remove_suffix(1);
     }
     return str;
+}
+
+std::string GetEnv(const std::string& env)
+{
+    if (const char* value = std::getenv(env.c_str())) {
+        return value;
+    }
+
+    throw std::runtime_error(std::string("Environment variable not found: ") + env);
+    return { };
 }

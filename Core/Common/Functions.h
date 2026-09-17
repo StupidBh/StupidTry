@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <string_view>
 
 /// Byte-wise comparisons with ASCII-only case folding.
@@ -6,3 +7,5 @@
 [[nodiscard]] bool IEquals(std::string_view lhs, std::string_view rhs) noexcept;
 [[nodiscard]] std::string_view TrimSpaces(std::string_view str) noexcept;
 [[nodiscard]] std::string_view StripEdgeChar(std::string_view str, char c) noexcept;
+
+[[nodiscard]] std::string GetEnv(const std::string& env);

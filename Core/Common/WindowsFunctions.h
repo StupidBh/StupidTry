@@ -33,9 +33,6 @@ enum class CallCmdAction
 /// Runs a UTF-8 command through cmd.exe and forwards each non-empty, trimmed UTF-8 output line.
 void CallCmd(const std::string& command, std::function<CallCmdAction(const std::string&)> callback = { });
 
-/// Returns an environment variable, or an empty string when it cannot be read.
-[[nodiscard]] std::string GetEnv(const std::string& env);
-
 [[nodiscard]] std::filesystem::path GetExecutablePath();
 [[nodiscard]] std::filesystem::path GetExecutableDirectory();
 

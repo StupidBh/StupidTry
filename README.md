@@ -54,9 +54,9 @@ StupidTry/
 │   ├── src/
 │   │   └── Main.cpp                # 命令行入口与 CGNS 分析流程
 │   ├── Common/                     # 参数处理、全局配置等通用实现
-│   │   ├── Functions.h             # 仅依赖标准库的字符串工具
+│   │   ├── Functions.h             # 仅依赖标准库的字符串和环境变量工具
 │   │   ├── SingletonData.h
-│   │   ├── WindowsFunctions.h      # Win32 编码、进程、环境和路径工具
+│   │   ├── WindowsFunctions.h      # Win32 编码、进程和路径工具
 │   │   └── src/
 │   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
 │   │   ├── AnalysisCGNS.h          # DLL 加载、reader 生命周期和日志适配
