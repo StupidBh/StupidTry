@@ -11,7 +11,8 @@ public:
     bool GetAllElement(std::vector<ReaderAPI::Elem>& elements) final;
     bool GetAllElement(ReaderAPI::ElementTable& elements) final;
 
-    bool GetAllElementSetName(std::vector<std::string>& element_set_names) final;
+    bool GetAllComponentName(std::vector<std::string>& element_set_names) final;
+    bool GetComponent(const std::string& name, std::vector<ReaderAPI::Integer>& ids) final;
 
 protected:
     void clear_grid_topology() noexcept;

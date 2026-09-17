@@ -1,7 +1,6 @@
 #include "ReaderMeshData.h"
 
 #include <limits>
-#include <source_location>
 
 namespace {
     constexpr bool IsVariableElementType(const CG_ElementType_t element_type) noexcept
@@ -46,7 +45,7 @@ bool ReaderMeshData::GetAllElement(ReaderAPI::ElementTable& elements)
     return true;
 }
 
-bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_names)
+bool ReaderMeshData::GetAllComponentName(std::vector<std::string>& element_set_names)
 {
     if (this->m_components.empty()) {
         if (!this->initialize_grid_topology()) {
@@ -60,6 +59,27 @@ bool ReaderMeshData::GetAllElementSetName(std::vector<std::string>& element_set_
     }
 
     element_set_names = std::move(loaded_components);
+    return true;
+}
+
+bool ReaderMeshData::GetComponent(const std::string& name, std::vector<ReaderAPI::Integer>& ids)
+{
+    if (this->m_components.empty()) {
+        if (!this->initialize_grid_topology()) {
+            return false;
+        }
+    }
+    if (!this->m_components.contains(name)) {
+        LOG_ERROR("Component {} not found.", name);
+        return false;
+    }
+
+    ids = this->m_components[name];
+    if (ids.empty()) {
+        LOG_WARN("Component {} is empty.", name);
+        return false;
+    }
+
     return true;
 }
 

@@ -1,6 +1,7 @@
 #include "AnalysisCGNS.h"
 #include "WindowsFunctions.h"
 
+#include <algorithm>
 #include <unordered_set>
 
 #include "Logger/logger.hpp"
@@ -115,8 +116,17 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
     }
 
     std::vector<std::string> element_set_names;
-    if (this->m_reader->GetAllElementSetName(element_set_names)) {
+    if (this->m_reader->GetAllComponentName(element_set_names)) {
         LOG_INFO("ElementSet: {}:{}", element_set_names, element_set_names.size());
+
+        std::vector<ReaderAPI::Integer> ids;
+        for (const auto& component_name : element_set_names) {
+            if (this->m_reader->GetComponent(component_name, ids)) {
+                if (std::ranges::any_of(ids, [limit = all_elements.size()](auto value) { return value < 0 || value >= limit; })) {
+                    LOG_WARN("Invalid component: name={}, ids_range=[{}, {}]", component_name, std::ranges::min(ids), std::ranges::max(ids));
+                }
+            }
+        }
     }
 
     std::vector<std::string> field_function_names;
