@@ -14,13 +14,9 @@ namespace {
     }
 
     template<class Function>
-    Function ResolveExport(const HMODULE module, const char* export_name)
+    Function ResolveExport(const ModuleGuard& module, const char* export_name)
     {
-        const auto function = reinterpret_cast<Function>(GetProcAddress(module, export_name));
-        if (function == nullptr) {
-            LOG_ERROR("ReaderCGNS.dll does not export {}: {}", export_name, GetLastError());
-        }
-        return function;
+        return reinterpret_cast<Function>(module.GetExport(export_name));
     }
 } // namespace
 
@@ -36,9 +32,8 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
         return;
     }
 
-    const HMODULE module = this->m_module_guard->GetModule();
-    const auto create = ResolveExport<ReaderAPI::CreateReaderCGNSFunc>(module, "CreateReaderCGNS");
-    const auto destroy = ResolveExport<ReaderAPI::DestroyReaderCGNSFunc>(module, "DestroyReaderCGNS");
+    const auto create = ResolveExport<ReaderAPI::CreateReaderCGNSFunc>(*this->m_module_guard, "CreateReaderCGNS");
+    const auto destroy = ResolveExport<ReaderAPI::DestroyReaderCGNSFunc>(*this->m_module_guard, "DestroyReaderCGNS");
     if (create == nullptr || destroy == nullptr) {
         return;
     }

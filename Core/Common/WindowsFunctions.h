@@ -1,14 +1,9 @@
 #pragma once
-
-#ifdef WIN32
-    #define NOMINMAX
-    #include <windows.h>
-
-    #include <filesystem>
-    #include <functional>
-    #include <memory>
-    #include <string>
-    #include <string_view>
+#include <filesystem>
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
 
 /// Returns true when the complete byte sequence is valid UTF-8.
 [[nodiscard]] bool IsValidUTF8(std::string_view str) noexcept;
@@ -41,6 +36,8 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
 
 class ModuleGuard final {
 public:
+    using ModuleProc = void (*)();
+
     explicit ModuleGuard(const std::filesystem::path& library_path) noexcept;
     ~ModuleGuard() noexcept;
 
@@ -51,12 +48,10 @@ public:
 
     [[nodiscard]] explicit operator bool() const noexcept { return this->m_module != nullptr; }
 
-    [[nodiscard]] HMODULE GetModule() const noexcept { return this->m_module; }
+    [[nodiscard]] ModuleProc GetExport(const char* name) const;
 
 private:
-    HMODULE m_module = nullptr;
+    void* m_module = nullptr;
 };
 
 [[nodiscard]] std::unique_ptr<ModuleGuard> LoadModuleGuard(const std::filesystem::path& library_path);
-
-#endif

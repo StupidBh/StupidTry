@@ -1,4 +1,10 @@
 #include "WindowsFunctions.h"
+
+#ifndef NOMINMAX
+    #define NOMINMAX
+#endif
+#include <windows.h>
+
 #include "Functions.h"
 
 #include <array>
@@ -455,7 +461,7 @@ ModuleGuard::ModuleGuard(const std::filesystem::path& library_path) noexcept :
 ModuleGuard::~ModuleGuard() noexcept
 {
     if (this->m_module != nullptr) {
-        FreeLibrary(this->m_module);
+        FreeLibrary(static_cast<HMODULE>(this->m_module));
     }
 }
 
@@ -468,11 +474,21 @@ ModuleGuard& ModuleGuard::operator=(ModuleGuard&& other) noexcept
 {
     if (this != &other) {
         if (this->m_module != nullptr) {
-            FreeLibrary(this->m_module);
+            FreeLibrary(static_cast<HMODULE>(this->m_module));
         }
         this->m_module = std::exchange(other.m_module, nullptr);
     }
     return *this;
+}
+
+ModuleGuard::ModuleProc ModuleGuard::GetExport(const char* name) const
+{
+    const auto proc = GetProcAddress(static_cast<HMODULE>(this->m_module), name);
+    if (proc == nullptr) {
+        const DWORD error = GetLastError();
+        LOG_ERROR("GetProcAddress({}) failed: {}", name, error);
+    }
+    return reinterpret_cast<ModuleProc>(proc);
 }
 
 std::unique_ptr<ModuleGuard> LoadModuleGuard(const std::filesystem::path& library_path)
