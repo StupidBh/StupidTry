@@ -1,11 +1,14 @@
 #pragma once
-#include <windows.h>
 
-#include <filesystem>
-#include <functional>
-#include <memory>
-#include <string>
-#include <string_view>
+#ifdef WIN32
+    #define NOMINMAX
+    #include <windows.h>
+
+    #include <filesystem>
+    #include <functional>
+    #include <memory>
+    #include <string>
+    #include <string_view>
 
 /// Returns true when the complete byte sequence is valid UTF-8.
 [[nodiscard]] bool IsValidUTF8(std::string_view str) noexcept;
@@ -55,3 +58,5 @@ private:
 };
 
 [[nodiscard]] std::unique_ptr<ModuleGuard> LoadModuleGuard(const std::filesystem::path& library_path);
+
+#endif
