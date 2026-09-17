@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "3.0.0")
    message(FATAL_ERROR "CMake >= 3.0.0 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 3.0.0...4.1)
+cmake_policy(VERSION 3.0.0...4.2)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -59,7 +59,7 @@ add_library(Boost::fusion INTERFACE IMPORTED)
 
 set_target_properties(Boost::fusion PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "Boost::config;Boost::container_hash;Boost::core;Boost::function_types;Boost::mpl;Boost::preprocessor;Boost::tuple;Boost::type_traits;Boost::typeof;Boost::utility;Boost::functional;Boost::describe;Boost::mp11"
+  INTERFACE_LINK_LIBRARIES "Boost::config;Boost::container_hash;Boost::core;Boost::function_types;Boost::mpl;Boost::preprocessor;Boost::tuple;Boost::type_traits;Boost::typeof;Boost::utility"
 )
 
 # Load information for each installed configuration.

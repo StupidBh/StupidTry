@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-smart-ptr-x64-windows-1.91.0-5b1bf270-cb33-42a5-b14b-e243731175fd",
-  "name": "boost-smart-ptr:x64-windows@1.91.0 b24fba7e3370c758537c194f4dbca73b56c177f9d5787b8d84418f6a4f10f295",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-smart-ptr-x64-windows-static-md-1.92.0-e86ffb22-72ed-485e-899e-13a18bfbdbb3",
+  "name": "boost-smart-ptr:x64-windows-static-md@1.92.0 580e3ba1a65891c9d74f41abe4c10adaa22d625196b68a85bc5a7e0c106c1ac9",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:54:04Z"
+    "created": "2026-09-17T13:06:53Z"
   },
   "relationships": [
     {
@@ -411,25 +411,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-75"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-76"
     }
   ],
   "packages": [
     {
       "name": "boost-smart-ptr",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-smart-ptr",
       "homepage": "https://www.boost.org/library/latest/smart_ptr/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost smart_ptr module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-smart-ptr@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-smart-ptr"
+        }
+      ]
     },
     {
-      "name": "boost-smart-ptr:x64-windows",
+      "name": "boost-smart-ptr:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "b24fba7e3370c758537c194f4dbca73b56c177f9d5787b8d84418f6a4f10f295",
+      "versionInfo": "580e3ba1a65891c9d74f41abe4c10adaa22d625196b68a85bc5a7e0c106c1ac9",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -438,17 +450,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/smart_ptr",
-      "downloadLocation": "git+https://github.com/boostorg/smart_ptr@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "6aa61191a1cab8d55121b5528dab0814395b120de84e0f1e8f09a0453254460b7fd2c7e616715cfc734e45daed5c4793742e814ececa063c357b9edf407fc6eb"
+          "checksumValue": "e72b5001bdfb1ec49c468094e89e122f19d53b4df389577905db9e4be7f7f8314ed3cc544acc187ebfcaccd2d713a5942fb70020dff59b3f21ab69b855684451"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/smart_ptr@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/smart_ptr"
     }
   ],
   "files": [
@@ -458,7 +470,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "355addbafb4e924ba138533cb0e36d321b2827065d6115b9ae13410c0a4daabb"
+          "checksumValue": "108cb5267ea303c86a7bb99bf74bbb6919459cccb0548440d4ad03a952f70402"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -470,7 +482,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "07dfc5819a01613fc1d7a0782dd12267997efc9233a7710cffe0ca3efc8cddcc"
+          "checksumValue": "72a244636893b5957763cdf06824d4273c6e7a4f14a87c45d99f5e1f8c363235"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -482,7 +494,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1353,12 +1365,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_smart_ptr/boost_smart_ptr-config-version.cmake",
+      "fileName": "./share/boost-smart-ptr/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-73",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "58333a0c9f557c3911197ea51869ad134d7d2453381535676968762b25bb3b08"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_smart_ptr/boost_smart_ptr-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-74",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1366,11 +1390,11 @@
     },
     {
       "fileName": "./share/boost_smart_ptr/boost_smart_ptr-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-74",
+      "SPDXID": "SPDXRef-binary-file-75",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "0dc3f7cfcd420f90ed6836d27c233fb10fe881a05a134eca35c68dfa13aeb85d"
+          "checksumValue": "df574790409d9c445641509db6a4159e4ea9915a2a16e66e9f8a099856f85976"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1378,11 +1402,11 @@
     },
     {
       "fileName": "./share/boost_smart_ptr/boost_smart_ptr-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-75",
+      "SPDXID": "SPDXRef-binary-file-76",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "df364f040c421f1aaf8fbef22d5ebbedbf3cdeb41c051704e0f5d7edabab4fd8"
+          "checksumValue": "a0e2a339e2fd98479175cf4f59937a9ce10c9a46fa85d5f74dbc55d0c035a187"
         }
       ],
       "licenseConcluded": "NOASSERTION",

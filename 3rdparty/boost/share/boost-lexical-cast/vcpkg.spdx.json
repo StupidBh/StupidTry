@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-lexical-cast-x64-windows-1.91.0-f3f309f2-90d8-48eb-a487-9c5d0effa6dc",
-  "name": "boost-lexical-cast:x64-windows@1.91.0 ae09cf48c4363d7a0d1bd8632498bc47a76279f22f0a56850ad782360985a2a6",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-lexical-cast-x64-windows-static-md-1.92.0-f3b6804c-765d-4987-829e-7e72c7998bc2",
+  "name": "boost-lexical-cast:x64-windows-static-md@1.92.0 3d1ac024f332f0bcea9dd3efb2ef0f27bf1fa7e76fc7b61eac2ca25f462efdd0",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:54:01Z"
+    "created": "2026-09-17T13:11:05Z"
   },
   "relationships": [
     {
@@ -141,25 +141,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-21"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-22"
     }
   ],
   "packages": [
     {
       "name": "boost-lexical-cast",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-lexical-cast",
       "homepage": "https://www.boost.org/library/latest/lexical_cast/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost lexical_cast module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-lexical-cast@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-lexical-cast"
+        }
+      ]
     },
     {
-      "name": "boost-lexical-cast:x64-windows",
+      "name": "boost-lexical-cast:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "ae09cf48c4363d7a0d1bd8632498bc47a76279f22f0a56850ad782360985a2a6",
+      "versionInfo": "3d1ac024f332f0bcea9dd3efb2ef0f27bf1fa7e76fc7b61eac2ca25f462efdd0",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -168,17 +180,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/lexical_cast",
-      "downloadLocation": "git+https://github.com/boostorg/lexical_cast@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "40a4b258ed47471e355e263b1c591129c0b86e5e0304653080dc36611ec6a4cdaa9131bf1ae6c858dfec70ce3cd93be0dc73dec5077a1fb6995a1f9e347cea41"
+          "checksumValue": "0fe59bb233158219920c19aa1d4321ff69a5bfcd9ca6d491531e099d65106c5b135b1c81d0ebf38cf64959009f3c62c9197cc3af52330f154bd89fbe3af4418b"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/lexical_cast@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/lexical_cast"
     }
   ],
   "files": [
@@ -188,7 +200,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c7a0d8dcd6bde7d76854add133bc975ca584d34fd79c6365b7623291f73b51fd"
+          "checksumValue": "2a133b65fb54015357be1892e6c6327931394a00364bfbf881dadf826c299fdb"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -200,7 +212,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5c953bf537e41000d516f4c593eb59b7fb425e8afd85e999a9f31947996bf24e"
+          "checksumValue": "319d81297ee7dcf20a0c26883036594d3321c55e0a66da4121d0e1c046f64f05"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -212,7 +224,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -435,12 +447,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_lexical_cast/boost_lexical_cast-config-version.cmake",
+      "fileName": "./share/boost-lexical-cast/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-19",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "3036428b92a3998be0813226161ca63e12047d454edd8c9bb0fa516e3686404c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_lexical_cast/boost_lexical_cast-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-20",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -448,11 +472,11 @@
     },
     {
       "fileName": "./share/boost_lexical_cast/boost_lexical_cast-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-20",
+      "SPDXID": "SPDXRef-binary-file-21",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "563e4150a51054d5da778dbecedfcee6850cfeb1ed9645efbdeff4d48da4fb8d"
+          "checksumValue": "630eb8e0b05ddde17756b2695644162e80506ea067cb1adac88b795537789544"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -460,11 +484,11 @@
     },
     {
       "fileName": "./share/boost_lexical_cast/boost_lexical_cast-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-21",
+      "SPDXID": "SPDXRef-binary-file-22",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9fc7fc395fb07c81de64c252548a99a4f1170ed5322cbfc5a69270c73f895270"
+          "checksumValue": "f85e39f4d136e2fee998f19199a863ce310ef5fe26ae4906904d2f07e4794bb6"
         }
       ],
       "licenseConcluded": "NOASSERTION",

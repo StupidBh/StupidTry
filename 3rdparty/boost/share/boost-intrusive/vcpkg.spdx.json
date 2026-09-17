@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-windows-1.91.0-8dab42fd-4b17-4e50-8ae8-cc8b6ff28e29",
-  "name": "boost-intrusive:x64-windows@1.91.0 9032246bad0165c4e2630d87dab66a7c7d961d945f746a7ebd6dfb9a61bb3a7b",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-intrusive-x64-windows-static-md-1.92.0-7d0c2dc2-8d2e-4b26-af59-10ec7826a77e",
+  "name": "boost-intrusive:x64-windows-static-md@1.92.0 27fcde735c0e3e4d2497dae3819301dd7cb6e3e610033d7b364955f5a8c8f5b5",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:17Z"
+    "created": "2026-09-17T13:10:43Z"
   },
   "relationships": [
     {
@@ -546,25 +546,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-102"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-103"
     }
   ],
   "packages": [
     {
       "name": "boost-intrusive",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-intrusive",
       "homepage": "https://www.boost.org/library/latest/intrusive/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost intrusive module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-intrusive@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-intrusive"
+        }
+      ]
     },
     {
-      "name": "boost-intrusive:x64-windows",
+      "name": "boost-intrusive:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "9032246bad0165c4e2630d87dab66a7c7d961d945f746a7ebd6dfb9a61bb3a7b",
+      "versionInfo": "27fcde735c0e3e4d2497dae3819301dd7cb6e3e610033d7b364955f5a8c8f5b5",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -573,17 +585,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/intrusive",
-      "downloadLocation": "git+https://github.com/boostorg/intrusive@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "e0addaec63ab6e5712855a29fa77acba68cf4a99067ba3dc1a312788d6dd465adb7aefdb555c65611e970ccb1ef26937f7c0b1f647e139e20c86e0bb005850d5"
+          "checksumValue": "0354336128e7547e8bec8d1ec9f91e03bd36531af416e58cbea8778d363eebf4040a8a78d46166676fd40637818b517758fba436847a0a4655a7a2e0d4204203"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/intrusive@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/intrusive"
     }
   ],
   "files": [
@@ -593,7 +605,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3727e36e94e0eccfe34386081a2535b1b4548d42db00843146e1d37f1c93f163"
+          "checksumValue": "6af661d408454eb79c312fff3bd08cfc711b1e127d51724f5bface1f5f1c5334"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -605,7 +617,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d01c143ad9bbb14f43a750f1c6e3893068cb15fe715b95f17267ef69a170e9b9"
+          "checksumValue": "f1ffb10b6f300fc100a192058bed4b9dbbfe78d3720df54e64b2ad5abb43e3f2"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -617,7 +629,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1409,7 +1421,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a65aad2011f1dfd2ea1e087e3bfc36818e6ef8144d4fe8c805c58b3a3746e08a"
+          "checksumValue": "1b58dcf095c6347cdd1f53985764b58c0e125ff1b24244416da5d67e8210002c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1812,12 +1824,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_intrusive/boost_intrusive-config-version.cmake",
+      "fileName": "./share/boost-intrusive/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-100",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "e06463aea00ffd31989b25c21219c17cbc02a3b2c3aef052257a72c2982b23fa"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_intrusive/boost_intrusive-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-101",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1825,11 +1849,11 @@
     },
     {
       "fileName": "./share/boost_intrusive/boost_intrusive-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-101",
+      "SPDXID": "SPDXRef-binary-file-102",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2645618373c904983e4f676fc0bd995cc45766b192878bd1d163ee67210ddb4a"
+          "checksumValue": "642defb64451a596f6d44b3dad123f854a88f45454fabef020ab222f054149f7"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1837,11 +1861,11 @@
     },
     {
       "fileName": "./share/boost_intrusive/boost_intrusive-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-102",
+      "SPDXID": "SPDXRef-binary-file-103",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "44dfdeb106240fde90542d74ba197ddd17cbf4dd8ef72f594ab7c04549092fc0"
+          "checksumValue": "1d5e5bd927f7143a33dc4d85520bc190981d7f071be7b713e1e63ad1a080dfd2"
         }
       ],
       "licenseConcluded": "NOASSERTION",

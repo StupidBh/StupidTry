@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-uninstall-x64-windows-1.91.0-9e2f6124-b1a8-4b92-8161-2e2af0f616c7",
-  "name": "boost-uninstall:x64-windows@1.91.0 d2233a7b04b52c60677bef11d4d955a50407346c3511942c91cb06051ee2a0a5",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-uninstall-x64-windows-static-md-1.92.0-c3ae4439-a61c-44db-a8a9-db0ad46252e9",
+  "name": "boost-uninstall:x64-windows-static-md@1.92.0 eaf22a9dc4e4a163e051960627424dd8f6f8e959a38dcf1a303551f4bcec65b5",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:52:34Z"
+    "created": "2026-09-17T13:05:34Z"
   },
   "relationships": [
     {
@@ -52,18 +52,25 @@
     {
       "name": "boost-uninstall",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-uninstall",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Internal vcpkg port used to uninstall Boost",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-uninstall@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-uninstall"
+        }
+      ]
     },
     {
-      "name": "boost-uninstall:x64-windows",
+      "name": "boost-uninstall:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "d2233a7b04b52c60677bef11d4d955a50407346c3511942c91cb06051ee2a0a5",
+      "versionInfo": "eaf22a9dc4e4a163e051960627424dd8f6f8e959a38dcf1a303551f4bcec65b5",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -78,7 +85,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "312c9bdc0c2c9d16736f0044c35dd05a935ef2c8ed097c6e35dc74e167a2f72e"
+          "checksumValue": "851fc2e1346b2cf0902b98ee31b46e4ebdc28c8159e939e3e6b47578ecfd3c28"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -90,7 +97,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "82aa8ef51ee2737c554493d9825a713641d1ec675fd04ef5462e94f2d2511e87"
+          "checksumValue": "fea7d4e394374814fcedc423397acf2b25cee26bf715e195d9a7e388c2114809"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -102,7 +109,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "79fb33a007f13d3cb3e26a327a13fddd3cc2230e5d192cf15ea6e1e6d9ba063e"
+          "checksumValue": "7285612cb7657e4ba94691b5734cda9a580911c5ecba55152e870457e7b1e6f4"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -114,7 +121,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a73b10fef47d7e23b16c4603b4eed0f405d298ac520f9cf61cf5ba087ed4e225"
+          "checksumValue": "72683627809af20bef88a7d56b7dec1cf140fa6a0683bd60eef5b177509c5d1c"
         }
       ],
       "licenseConcluded": "NOASSERTION",

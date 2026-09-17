@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "2.8.12")
    message(FATAL_ERROR "CMake >= 2.8.12 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.8.12...4.1)
+cmake_policy(VERSION 2.8.12...4.2)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -55,10 +55,10 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target Boost::container
-add_library(Boost::container SHARED IMPORTED)
+add_library(Boost::container STATIC IMPORTED)
 
 set_target_properties(Boost::container PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "BOOST_CONTAINER_NO_LIB;BOOST_CONTAINER_DYN_LINK"
+  INTERFACE_COMPILE_DEFINITIONS "BOOST_CONTAINER_NO_LIB;BOOST_CONTAINER_STATIC_LINK"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "Boost::assert;Boost::config;Boost::intrusive;Boost::move"
 )

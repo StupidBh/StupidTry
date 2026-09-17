@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-type-traits-x64-windows-1.91.0-0c558793-78f5-4091-abc2-59fbf65d7e63",
-  "name": "boost-type-traits:x64-windows@1.91.0 f8ff617adf41dce66d8d17ed3a72df3eb7851c71b1c2ada341d02b7af9a7b624",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-type-traits-x64-windows-static-md-1.92.0-b62195be-a205-45fe-ad7f-33b26adf6a1d",
+  "name": "boost-type-traits:x64-windows-static-md@1.92.0 5e7bc9453fe8481dc67316f83bc31e7caeedb9aa3f71abc41c786ba09f20cc96",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:10Z"
+    "created": "2026-09-17T13:06:40Z"
   },
   "relationships": [
     {
@@ -1061,25 +1061,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-205"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-206"
     }
   ],
   "packages": [
     {
       "name": "boost-type-traits",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-type-traits",
       "homepage": "https://www.boost.org/library/latest/type_traits/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost type_traits module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-type-traits@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-type-traits"
+        }
+      ]
     },
     {
-      "name": "boost-type-traits:x64-windows",
+      "name": "boost-type-traits:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "f8ff617adf41dce66d8d17ed3a72df3eb7851c71b1c2ada341d02b7af9a7b624",
+      "versionInfo": "5e7bc9453fe8481dc67316f83bc31e7caeedb9aa3f71abc41c786ba09f20cc96",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -1088,17 +1100,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/type_traits",
-      "downloadLocation": "git+https://github.com/boostorg/type_traits@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "5dfcda2f41dff736a6821b71eb14f86d17956853363cfd86611bf8e5be9a1e0648a671425b6aea095b74d07c7be2a31c35cb528f903fd91e751ee9dad9314125"
+          "checksumValue": "3d0163fc99691e181c97f830a96b28e03e89209120bbba818795c18bc426cf90e91994925df15bcf48e75c26c253973a49af299f028a4ee71b824fcb212edc31"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/type_traits@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/type_traits"
     }
   ],
   "files": [
@@ -1108,7 +1120,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f89a6e5e1ab73e8bf59e2138a9a13ede690ba1217ddf0432706bb2796f3a96b0"
+          "checksumValue": "e8a70056a7aae039c73e1176bacaceb6b83dc0a2293d29d470261f8b3a08ff61"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1120,7 +1132,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "41501064175d3c0b9b324d406a3604ea994a1534699a860c9e180c79366f9ebb"
+          "checksumValue": "977dd6489ac7d781407e50157077157ca342ce6f358175f39dd7502ac67e9ca7"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -1132,7 +1144,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -3563,12 +3575,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_type_traits/boost_type_traits-config-version.cmake",
+      "fileName": "./share/boost-type-traits/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-203",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "0bc9189147859f129b71d99baa0822287e279d49200756de7dda3b377aaf3a06"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_type_traits/boost_type_traits-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-204",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -3576,11 +3600,11 @@
     },
     {
       "fileName": "./share/boost_type_traits/boost_type_traits-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-204",
+      "SPDXID": "SPDXRef-binary-file-205",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "e469d6dc8fb32674c07477ae5cd6e3ba2e44e000e5466912badab983e8fd0502"
+          "checksumValue": "7e147c3e3d1cb6067c6456b3081c039e07426931c0199584d675d6d5823134cf"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -3588,11 +3612,11 @@
     },
     {
       "fileName": "./share/boost_type_traits/boost_type_traits-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-205",
+      "SPDXID": "SPDXRef-binary-file-206",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2938ecd1c432db8d6728d19e8ca51451a10009dc9e588f64e94a42c8930a1c6a"
+          "checksumValue": "64deb916cdcf93584771eb8a9e39d3cb5e1c669db8bc9135747e451d173662e6"
         }
       ],
       "licenseConcluded": "NOASSERTION",

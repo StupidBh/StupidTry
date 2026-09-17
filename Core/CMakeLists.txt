@@ -22,10 +22,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 set(BOOST_ROOT "${3RD_ROOT}/boost")
 set(HDF5_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/hdf5")
 find_package(HDF5 CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS container program_options)
+find_package(Boost REQUIRED COMPONENTS process program_options)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        Boost::container
         Boost::program_options
+        Boost::process
         hdf5::hdf5-shared
 )
 
