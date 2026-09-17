@@ -94,6 +94,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         for (const auto& [id, x, y, z] : all_nodes) {
             if (unique_id.contains(id)) {
                 LOG_WARN("Repeat node: id={}, xyz=[{},{},{}]", id, x, y, z);
+                break;
             }
             unique_id.insert(id);
         }
@@ -107,9 +108,11 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         for (const auto& element : all_elements) {
             if (unique_id.contains(element.id)) {
                 LOG_WARN("Repeat elem: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+                break;
             }
             if (std::ranges::any_of(element.nodes, [limit = all_nodes.size()](auto value) { return value < 0 || value >= limit; })) {
                 LOG_WARN("Invalid elem in nodes: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+                break;
             }
             unique_id.insert(element.id);
         }
