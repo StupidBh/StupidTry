@@ -1,4 +1,5 @@
 #include "AnalysisCGNS.h"
+#include "Functions.h"
 #include "WindowsFunctions.h"
 
 #include <algorithm>

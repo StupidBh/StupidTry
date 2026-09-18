@@ -1,5 +1,5 @@
 #include "SingletonData.h"
-#include "WindowsFunctions.h"
+#include "Functions.h"
 
 #include <iostream>
 #include <system_error>
