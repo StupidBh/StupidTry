@@ -80,9 +80,9 @@ Core/
 │   └── Main.cpp                    # 命令行入口与集成流程
 ├── Common/
 │   ├── SingletonData.h             # 参数和应用级状态
-│   ├── Functions.h                 # 仅依赖标准库的字符串和环境变量工具
+│   ├── Functions.h                 # 字符串、环境变量和可执行文件路径工具
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
-│   ├── WindowsFunctions.h          # Win32 编码、进程、路径和 DLL 句柄工具
+│   ├── WindowsFunctions.h          # Win32 编码、命令执行和 DLL 句柄工具
 │   └── src/
 ├── ReaderCGNS/
 │   ├── AnalysisCGNS.h              # ReaderCGNS DLL 加载、实例与分析流程
@@ -95,15 +95,15 @@ Core/
     └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置
 ```
 
-`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。
+`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。`GetExecutablePath()` 和 `GetExecutableDirectory()` 使用 Boost.Process 查询当前进程的可执行文件路径，供 `AnalysisCGNS` 定位同目录下的 `ReaderCGNS.dll`。
 
 ## 依赖关系
 
 | 依赖 | 用途 | 集成方式 |
 |---|---|---|
 | `ReaderCGNS` | CGNS 文件检查与日志回调 | 公开头 + 运行时 DLL；不链接 import library |
+| Boost.Process | 当前进程可执行文件路径 | vendored CMake package |
 | Boost.Program_options | 命令行解析 | vendored CMake package |
-| Boost.Container | 容器支持 | vendored CMake package |
 | HDF5 | 数据文件后端 | 共享库 |
 | HighFive | HDF5 C++ 封装 | 头文件库 |
 | spdlog | 控制台与文件日志 | 头文件库 |

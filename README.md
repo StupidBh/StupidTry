@@ -50,9 +50,9 @@ StupidTry/
 │   ├── src/
 │   │   └── Main.cpp                # 命令行入口与 CGNS 分析流程
 │   ├── Common/                     # 参数处理、全局配置等通用实现
-│   │   ├── Functions.h             # 仅依赖标准库的字符串和环境变量工具
+│   │   ├── Functions.h             # 字符串、环境变量和可执行文件路径工具
 │   │   ├── SingletonData.h
-│   │   ├── WindowsFunctions.h      # Win32 编码、进程和路径工具
+│   │   ├── WindowsFunctions.h      # Win32 编码、命令执行和 DLL 句柄工具
 │   │   └── src/
 │   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
 │   │   ├── AnalysisCGNS.h          # DLL 加载、reader 生命周期和日志适配
@@ -106,7 +106,7 @@ StupidTry/
 
 | 库        | 版本     | 链接方式                     | 用途                                    |
 |----------|--------|--------------------------|---------------------------------------|
-| Boost    | 1.91   | 静态库（`.lib`）              | `program_options`（CLI 解析）、`container` |
+| Boost    | 1.92   | 静态库（`.lib`）              | `process`（可执行文件路径）、`program_options`（CLI 解析） |
 | CGNS     | 4.5.1  | 静态库（`CGNS::cgns_static`） | CGNS 网格/解文件读取                         |
 | HDF5     | 2.1.1  | Core 动态链接；ReaderCGNS 私有静态依赖 | HighFive 数据后端与 CGNS 的 HDF5 存储后端 |
 | HighFive | 3.3.0  | 头文件库                     | HDF5 C++ 封装                           |
