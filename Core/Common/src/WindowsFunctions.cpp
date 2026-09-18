@@ -428,31 +428,6 @@ void CallCmd(const std::string& command, std::function<CallCmdAction(const std::
     }
 }
 
-std::filesystem::path GetExecutablePath()
-{
-    std::wstring buffer(256, L'\0');
-
-    while (true) {
-        const DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
-        if (length == 0) {
-            LOG_ERROR("GetModuleFileNameW failed: {}", GetLastError());
-            return { };
-        }
-
-        if (length < buffer.size()) {
-            buffer.resize(length);
-            return buffer;
-        }
-
-        buffer.resize(buffer.size() * 2);
-    }
-}
-
-std::filesystem::path GetExecutableDirectory()
-{
-    return GetExecutablePath().parent_path();
-}
-
 ModuleGuard::ModuleGuard(const std::filesystem::path& library_path) noexcept :
     m_module(LoadLibraryW(library_path.c_str()))
 {

@@ -1,8 +1,11 @@
 #include "Functions.h"
 
 #include <algorithm>
-#include <iterator>
 #include <stdexcept>
+
+#include "Logger/logger.hpp"
+#include "boost/process/v2/pid.hpp"
+#include "boost/process/ext/exe.hpp"
 
 namespace {
     constexpr unsigned char ToAsciiLower(unsigned char value) noexcept
@@ -68,4 +71,20 @@ std::string GetEnv(const std::string& env)
 
     throw std::runtime_error(std::string("Environment variable not found: ") + env);
     return { };
+}
+
+std::filesystem::path GetExecutablePath()
+{
+    boost::system::error_code ec;
+    const auto path = boost::process::v2::ext::exe(boost::process::v2::current_pid(), ec);
+    if (ec) {
+        LOG_ERROR("Boost.Precess exe failed: {}", ec.message());
+        return { };
+    }
+    return std::filesystem::path(path.native());
+}
+
+std::filesystem::path GetExecutableDirectory()
+{
+    return GetExecutablePath().parent_path();
 }

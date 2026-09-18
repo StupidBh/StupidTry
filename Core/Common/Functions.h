@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <string_view>
+#include <filesystem>
 
 /// Byte-wise comparisons with ASCII-only case folding.
 [[nodiscard]] std::size_t FindCaseInsensitive(std::string_view main_str, std::string_view sub_str) noexcept;
@@ -9,3 +10,6 @@
 [[nodiscard]] std::string_view StripEdgeChar(std::string_view str, char c) noexcept;
 
 [[nodiscard]] std::string GetEnv(const std::string& env);
+
+[[nodiscard]] std::filesystem::path GetExecutablePath();
+[[nodiscard]] std::filesystem::path GetExecutableDirectory();

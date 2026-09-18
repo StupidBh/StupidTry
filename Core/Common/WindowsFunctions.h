@@ -1,6 +1,6 @@
 #pragma once
-#include <filesystem>
 #include <functional>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -30,9 +30,6 @@ enum class CallCmdAction
 
 /// Runs a UTF-8 command through cmd.exe and forwards each non-empty, trimmed UTF-8 output line.
 void CallCmd(const std::string& command, std::function<CallCmdAction(const std::string&)> callback = { });
-
-[[nodiscard]] std::filesystem::path GetExecutablePath();
-[[nodiscard]] std::filesystem::path GetExecutableDirectory();
 
 class ModuleGuard final {
 public:
