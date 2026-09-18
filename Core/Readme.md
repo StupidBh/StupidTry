@@ -14,7 +14,7 @@
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
 - 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、节点坐标、单元与 element set 名称，并批量读取场值、输出字段摘要；
 - 检查返回的节点和单元 ID 是否重复，并对单元连接数据做范围诊断；
-- 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
+- 提供内存映射文本读取和进程调用等应用侧工具。
 
 `Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，由调用方管理 reader 实例。
 
@@ -80,9 +80,9 @@ Core/
 │   └── Main.cpp                    # 命令行入口与集成流程
 ├── Common/
 │   ├── SingletonData.h             # 参数和应用级状态
-│   ├── Functions.h                 # 字符串、环境变量和可执行文件路径工具
+│   ├── Functions.h                 # 字符串、环境变量、进程调用和可执行文件路径工具
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
-│   ├── WindowsFunctions.h          # Win32 编码、命令执行和 DLL 句柄工具
+│   ├── WindowsFunctions.h          # Win32 DLL 句柄工具
 │   └── src/
 ├── ReaderCGNS/
 │   ├── AnalysisCGNS.h              # ReaderCGNS DLL 加载、实例与分析流程
@@ -95,14 +95,14 @@ Core/
     └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置
 ```
 
-`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。`GetExecutablePath()` 和 `GetExecutableDirectory()` 使用 Boost.Process 查询当前进程的可执行文件路径，供 `AnalysisCGNS` 定位同目录下的 `ReaderCGNS.dll`。
+`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。`GetExecutablePath()` 和 `GetExecutableDirectory()` 使用 Boost.Process 查询当前进程的可执行文件路径，供 `AnalysisCGNS` 定位同目录下的 `ReaderCGNS.dll`。`ExecuteProcess()` 使用 Boost.Process 启动子进程并转发其输出，支持通过回调控制进程收尾行为。
 
 ## 依赖关系
 
 | 依赖 | 用途 | 集成方式 |
 |---|---|---|
 | `ReaderCGNS` | CGNS 文件检查与日志回调 | 公开头 + 运行时 DLL；不链接 import library |
-| Boost.Process | 当前进程可执行文件路径 | vendored CMake package |
+| Boost.Process | 子进程执行与当前进程可执行文件路径查询 | vendored CMake package |
 | Boost.Program_options | 命令行解析 | vendored CMake package |
 | HDF5 | 数据文件后端 | 共享库 |
 | HighFive | HDF5 C++ 封装 | 头文件库 |
