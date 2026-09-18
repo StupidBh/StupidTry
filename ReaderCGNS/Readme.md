@@ -2,7 +2,7 @@
 
 `ReaderCGNS` 是一个以只读方式检查 CGNS 文件的 C++ 动态加载模块。它基于官方 CGNS Mid-Level Library 遍历文件层次，将文件类型、网格结构、解数据描述、连接关系和边界条件等信息通过调用方提供的日志回调输出，并提供名称列表、节点坐标、单元连接和场值查询。
 
-当前公开能力定位为“结构检查、诊断与数据查询”：接口可读取文件版本和 Base 级方程类型、列出 element set 与场函数名称，以扁平数组返回节点坐标和受支持单元的连接关系，并读取满足下述限制的节点/单元中心场值；`ReaderAPI::ReaderApiBase::info()` 负责输出更完整的元数据和连接摘要。
+当前公开能力定位为“结构检查、诊断与数据查询”：接口可读取文件版本和 Base 级方程类型、列出组件与场函数名称，以扁平数组返回节点坐标和受支持单元的连接关系，并读取满足下述限制的节点/单元中心场值；`ReaderAPI::ReaderApiBase::info()` 负责输出更完整的元数据和连接摘要。
 
 ## 能力范围
 
@@ -10,7 +10,7 @@
 
 - CGNS 存储类型、文件版本与数据精度；
 - Base、Zone、迭代信息与结构化/非结构化尺寸；
-- 首次查询 element set 名称、节点坐标或单元连接时按需构建 Base/Zone/Section 内部网格拓扑，包括坐标、Structured connectivity、固定单元连接表以及 `MIXED/NGON_n/NFACE_n` 变长连接表；
+- 首次查询组件名称、节点坐标或单元连接时按需构建 Base/Zone/Section 内部网格拓扑，包括坐标、Structured connectivity、固定单元连接表以及 `MIXED/NGON_n/NFACE_n` 变长连接表；
 - FlowSolution、DiscreteData 与 ZoneSubRegion；
 - 按名称读取单个或批量 FlowSolution 字段值，支持 `Vertex` 和 `CellCenter`；
 - GridCoordinates 与元素 Section/Connectivity；
@@ -23,13 +23,13 @@
 
 ### 内部网格拓扑
 
-`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置，跳过 Zone 数量读取失败或没有普通 Zone 的 Base；因此仅含 ParticleZone 的文件无法成功打开。首次调用 `GetAllElementSetName()`、`GetAllNodeCoordinates()` 或 `GetAllElement()` 时，`ReaderMeshData` 遍历这组索引，读取临时 Base/Zone/Section 数据，并缓存合并后的节点坐标、展开单元与集合映射。`ReaderFieldData` 使用独立的按需缓存保存 FlowSolution 字段布局，查询场值时直接读取文件，不依赖网格拓扑缓存。当前网格拓扑不缓存边界条件或 Zone 间连接数据。
+`FileManager` 在 `Open()` 期间通过 `initialize_base_zone_layout()` 确定本次需要分析的 Base/Zone 位置，跳过 Zone 数量读取失败或没有普通 Zone 的 Base；因此仅含 ParticleZone 的文件无法成功打开。首次调用 `GetAllComponentName()`、`GetAllNodeCoordinates()` 或 `GetAllElement()` 时，`ReaderMeshData` 遍历这组索引，读取临时 Base/Zone/Section 数据，并缓存合并后的节点坐标、展开单元与组件映射。`ReaderFieldData` 使用独立的按需缓存保存 FlowSolution 字段布局，查询场值时直接读取文件，不依赖网格拓扑缓存。当前网格拓扑不缓存边界条件或 Zone 间连接数据。
 
 Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSize` 和 `CellSize` 合成一个 Section，并按维度展开为 `BAR_2`、`QUAD_4` 或 `HEXA_8` 的 1-based connectivity。Unstructured Zone 会遍历 Section：固定元素类型通过 `cg_npe()` 校验每个元素的节点数并读取连续 connectivity；`MIXED`、`NGON_n` 和 `NFACE_n` 通过 `cg_poly_elements_read()` 同时保存 connectivity 与 `ElementStartOffset`。Section 声明 parent data 时只记录存在标志，不缓存 `ParentElements` 或 `ParentElementsPosition` 的原始数据。
 
 `read_section_topology()` 统一验证 Section 元素范围为正且起止有序，并检查数量和数据长度能否由 `size_t` 表示。对于变长 Section，先检查数量上限，再分配 connectivity 和 `ElementSize + 1` 个 offsets；读取成功后检查 offsets 首项为 0、末项等于 connectivity 长度且单调不减。只有通过这些检查的 Section 才会交给展开逻辑。`fatten_section_elem_poly()` 依赖该前置条件，不重复检查每条记录的 offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 
-网格初始化在遍历期间直接向成员缓存追加结果。Base 读取失败会返回 `false`，Zone 或 Section 读取失败通常记录日志并跳过；发生中途失败时，已经生成的内部缓存不会自动回滚。`Open()` 只负责文件和 Base/Zone 布局初始化。节点和单元查询以单元缓存是否为空决定是否初始化，集合查询以集合映射是否为空决定是否初始化；当前没有独立的“初始化已完成”标志。重复查询通常复用缓存，失败后重试和空结果的行为见下文[当前网格读取限制](#当前网格读取限制)。
+网格初始化在遍历期间直接向成员缓存追加结果。Base 读取失败会返回 `false`，Zone 或 Section 读取失败通常记录日志并跳过；发生中途失败时，已经生成的内部缓存不会自动回滚。`Open()` 只负责文件和 Base/Zone 布局初始化。节点和单元查询以单元缓存是否为空决定是否初始化，组件查询以组件映射是否为空决定是否初始化；当前没有独立的“初始化已完成”标志。重复查询通常复用缓存，失败后重试和空结果的行为见下文[当前网格读取限制](#当前网格读取限制)。
 
 ## 公开接口
 
@@ -51,28 +51,30 @@ Structured Zone 不要求存在 `Elements_t`；`ReaderMeshData` 根据 `VertexSi
 | `ReaderAPI::ReaderApiBase::IsOpen()` | 查询文件是否已打开。 |
 | `ReaderAPI::ReaderApiBase::GetVersion()` | 返回当前文件记录的 CGNS 版本。 |
 | `ReaderAPI::ReaderApiBase::GetSolverType()` | 返回 Base/Zone 布局中第一个有效 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
-| `ReaderAPI::ReaderApiBase::GetAllElementSetName(names)` | 将当前文件的 element set 名称追加到调用方提供的字符串数组。 |
+| `ReaderAPI::ReaderApiBase::GetAllComponentName(names)` | 用当前文件的组件名称替换输出数组。 |
+| `ReaderAPI::ReaderApiBase::GetComponent(name, ids)` | 用指定组件的扁平单元 ID 替换输出数组。 |
 | `ReaderAPI::ReaderApiBase::GetAllFieldFunctionName(names)` | 将当前文件的场函数名称追加到调用方提供的字符串数组。 |
-| `ReaderAPI::ReaderApiBase::GetAllNodeCoordinates(nodes)` | 将可读 Zone 的节点坐标追加到调用方提供的节点数组。 |
-| `ReaderAPI::ReaderApiBase::GetAllElement(elements)` | 将缓存中的单元类型和连接数据复制追加到调用方提供的单元数组。 |
+| `ReaderAPI::ReaderApiBase::GetAllNodeCoordinates(nodes)` | 用可读 Zone 的节点坐标替换输出数组。 |
+| `ReaderAPI::ReaderApiBase::GetAllElement(std::vector<Elem>& elements)` | 用缓存中的单元类型和连接数据替换 `std::vector<Elem>` 输出。 |
+| `ReaderAPI::ReaderApiBase::GetAllElement(ElementTable& elements)` | 用缓存中的单元类型和连接数据填充并替换 `ElementTable` 输出。 |
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(name, field)` | 按公开字段名读取场值，成功时替换输出 `Field`。 |
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(names, fields)` | 按请求顺序批量读取场值，至少一项成功时用成功项替换输出数组。 |
 | `ReaderAPI::ReaderApiBase::info()` | 遍历当前已打开文件并输出结构检查信息。 |
 
-所有数据查询都要求文件已成功打开。四个 `GetAll*` 容器输出接口成功时追加结果且不会预先清空容器，输出容器由调用方拥有；按需初始化返回 `false` 时保留调用方容器原内容。缓存复用期间，重复向同一容器查询会追加同一批数据及其原有 ID，不按容器已有大小重新编号，需要替换结果时由调用方先清空容器。`GetAllFieldFunctionName()` 返回去重后的公开字段名称，顺序不构成接口保证。`GetAllNodeCoordinates()` 追加缓存中的 `Real` 坐标；正常首次构建时，`Node::id` 从 0 开始按被接受的 Zone 累加生成。两个 `GetFieldFunctionData()` 重载使用替换语义，详见下文。
+所有数据查询都要求文件已成功打开。`GetAllNodeCoordinates()`、两个 `GetAllElement()` 重载、`GetAllComponentName()` 和 `GetComponent()` 成功时替换输出对象；按需初始化返回 `false` 时保留调用方输出。`GetAllFieldFunctionName()` 成功时向输出数组追加名称，重复调用也会追加；它返回去重后的公开字段名称，顺序不构成接口保证。正常首次构建时，`Node::id` 从 0 开始按被接受的 Zone 累加生成。两个 `GetFieldFunctionData()` 重载使用替换语义，详见下文。
 
-element set 的当前命名如下：
+组件名称和成员 ID 的当前语义如下：
 
-| 来源 | 集合名称 |
+| 来源 | 组件名称 |
 |---|---|
 | Structured Zone | `Base.Zone` |
 | 固定类型或 `MIXED` Section | `Base.Zone.Section` |
-| `NGON_n` Section | `Base.Zone.Section`，仅在内部启用 `separate_surface` 时生成 |
+| `NGON_n` Section | `Base.Zone.Section`，作为面单元输出时生成 |
 | `NFACE_n` Section | `Base.Zone`，由完整 Section 名去掉最后一段得到 |
 
-重名时从 `_0` 开始向当前名称追加数字后缀，直到名称唯一；名称返回顺序不构成接口保证。没有可展开 Section 的 Unstructured Zone 不生成占位集合。公开 API 当前只提供集合名称查询。
+重名时从 `_0` 开始向当前名称追加数字后缀，直到名称唯一；名称返回顺序不构成接口保证。没有可展开 Section 的 Unstructured Zone 不生成占位组件。`GetComponent()` 返回该组件在扁平 `GetAllElement()` 结果中的 0-based 单元 ID，成功时替换输出数组。
 
-`GetAllElement()` 复制缓存中的 `Elem`。`Elem::id` 是用于唯一标识单元的属性，不承诺连续、排序或等于输出数组下标，也不应直接视为 CGNS 原始元素号。`Elem::type` 是对应 `CG_ElementType_t` 的整数值。固定类型与 `MIXED` Section 按 Base/Zone/Section 遍历顺序展开，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID；节点 ID 加上被接受 Zone 的累计节点偏移后转换为全局 0-based 编号。
+`GetAllElement(std::vector<Elem>&)` 复制缓存中的 `Elem`；`GetAllElement(ElementTable&)` 将同一结果写入连续存储表，并可通过 `ElementView` 读取 `nodes`、`mid_nodes` 和 `corner_nodes` 三个范围。当前读取器为支持的扁平单元填充 `nodes`，其余两个范围保持为空。`Elem::id` 按扁平输出顺序从 0 开始，与输出数组下标一致，不应直接视为 CGNS 原始元素号。`Elem::type` 是对应 `CG_ElementType_t` 的整数值。固定类型与 `MIXED` Section 按 Base/Zone/Section 遍历顺序展开，`Elem::npts` 与 `Elem::nodes` 分别给出节点数和节点 ID；节点 ID 加上被接受 Zone 的累计节点偏移后转换为全局 0-based 编号。
 
 ### 多面体展开
 
@@ -81,25 +83,25 @@ element set 的当前命名如下：
 1. 遍历全部 NGON Section，建立局部 `unordered_map<cgsize_t, FaceNodes>`。key 是 `section.range_start + 面在 Section 内的序号`，即 CGNS 原始面元素号；value 是已经转换为全局 0-based 编号的面节点列表。面号不需要从 1 开始，多个 NGON Section 的面号区间也不需要相邻。重复面号记录错误并保留先加入的面；空面或含非法顶点号的面跳过。
 2. 遍历全部 NFACE Section，以 `cgsize_t` 读取带符号的面号，取绝对值后查 map。负面号只反转当前节点列表副本，不修改共享 NGON 数据。面号唯一时，已收集 Section 的排列顺序和共享面的引用先后都不会改变面匹配或方向。
 
-NFACE 面号为 0、为 `cgsize_t` 最小值或查不到对应 NGON 面时，记录警告并跳过该面。至少保留一个面就输出该单元；所有面均被跳过的单元不输出。这是局部容错行为，不包含多面体闭合性验证。NFACE 路径仍按 Section 原始单元数量累计偏移，过滤单元后不压缩该偏移。
+NFACE 面号为 0、为 `cgsize_t` 最小值或查不到对应 NGON 面时，记录警告并跳过该面。至少保留一个面就输出该单元；所有面均被跳过的单元不输出。这是局部容错行为，不包含多面体闭合性验证。过滤后的单元仍按扁平输出顺序重新编号，不保留原始 Section 元素号。
 
 多面体结果的 `Elem::npts` 表示保留的面数，`Elem::nodes` 按 `[面节点数, 该面的节点ID..., 下一面节点数, ...]` 编码。例如 `npts = 2`、`nodes = [3, 0, 1, 2, 4, 2, 3, 4, 5]` 表示一个三节点面和一个四节点面；其中 `nodes[0]` 和 `nodes[4]` 是长度前缀，不能当成节点 ID。
 
-内部参数 `separate_surface = true` 时，还按 NGON Section 顺序输出面单元并注册对应集合；为 `false` 时，NGON 仅用于面查找，输出单元来自 NFACE。若一个 Zone 只有 NGON 而没有 NFACE，则自动输出每个 NGON Section 的面单元，并将每个 Section 注册为对应集合。当前唯一调用点使用 `false`，公开 API 和命令行没有提供该开关，行为与 FlowSolution 的位置无关。函数结束时清空待处理的 `m_ngon_nface`。
+内部参数 `separate_surface = true` 时，还按 NGON Section 顺序输出面单元并注册对应组件；为 `false` 时，NGON 仅用于面查找，输出单元来自 NFACE。若一个 Zone 只有 NGON 而没有 NFACE，则自动输出每个 NGON Section 的面单元，并将每个 Section 注册为对应组件。当前唯一调用点使用 `false`，公开 API 和命令行没有提供该开关，行为与 FlowSolution 的位置无关。函数结束时清空待处理的 `m_ngon_nface`。
 
 ### 当前网格读取限制
 
 以下描述是当前实现的限制，调用方应结合返回结果与日志判断读取完整性：
 
-- 纯 NGON Zone 会在多面体展开阶段输出 NGON 面单元和按 Section 注册的集合；NGON/NFACE Zone 则按上述两阶段流程输出 NFACE 多面体单元。
-- 被跳过 Zone 的待处理 Section 可能留到后续 Zone；`Close()` 会清空节点、单元、集合、字段及文件布局，但当前 `clear_grid_topology()` 未清除 `m_ngon_nface`。异常流程中的待处理数据可能跨 Zone 或跨文件残留，不能依赖关闭重开来完整复位这一状态。
-- 初始化仅以是否读到 Base 判断最终成功，所有 Zone 均被跳过时也可能返回 `true`；`GetAllElement()` 和 `GetAllElementSetName()` 没有“最终结果非空”的额外要求。空单元/集合会触发再次初始化，而中途失败留下的非空缓存又可能在后续查询中被直接复用；当前不保证失败后重试的缓存一致性。
-- 坐标描述读取失败或数据类型不受支持时跳过 Zone，但 `cg_coord_read()` 的失败状态目前只记日志，未使坐标读取立即失败。坐标按 CGNS 枚举顺序装入 x/y/z，未按坐标名称重排或转换坐标系。
-- MIXED 当前以 offsets 差值减去类型字段得到节点数，未逐单元调用 `cg_npe()` 核对数量；非法类型号会回退为 `NODE`。不要将读取成功视为 MIXED 拓扑已完整验证。
+- 纯 NGON Zone 会在多面体展开阶段输出 NGON 面单元和按 Section 注册的组件；NGON/NFACE Zone 则按上述两阶段流程输出 NFACE 多面体单元。
+- `Close()` 会清空节点、单元、组件、字段、待处理多面体 Section 及文件布局；初始化中途失败时，已经生成的其他缓存仍可能保留到下一次 `Close()`。
+- 初始化仅以是否读到 Base 判断最终成功，所有 Zone 均被跳过时也可能返回 `true`；`GetAllElement()` 和 `GetAllComponentName()` 没有“最终结果非空”的额外要求。空单元/组件会触发再次初始化，而中途失败留下的非空缓存又可能在后续查询中被直接复用；当前不保证失败后重试的缓存一致性。
+- 坐标描述读取失败、数据类型不受支持或 `cg_coord_read()` 失败时跳过 Zone。坐标按 CGNS 枚举顺序装入 x/y/z，未按坐标名称重排或转换坐标系。
+- MIXED 当前按每条记录的类型调用 `cg_npe()` 核对节点数；非法类型号会回退为 `NODE`，节点数不匹配会使该 Section 读取失败。不要将读取成功视为 MIXED 拓扑已完整验证。
 
-整数结果使用 32 位 `ReaderAPI::Integer`，内部 Section 范围、connectivity、面号和累计偏移使用 `cgsize_t`，当前 vendored CGNS 为 64 位尺寸构建。固定类型与 MIXED 检查 Section 数量和累计单元数量；NGON 检查顶点号为正且加节点偏移后的编号可由 `ReaderAPI::Integer` 表示；NFACE 检查累计单元偏移的 `cgsize_t` 溢出，并在取绝对值前排除最小负值。这些检查尚未完整覆盖输出 `Elem::id`、`npts` 的 32 位转换，也未完整校验 Zone 内顶点编号上界。
+整数结果使用 32 位 `ReaderAPI::Integer`，内部 Section 范围、connectivity、面号和累计偏移使用 `cgsize_t`，当前 vendored CGNS 为 64 位尺寸构建。固定类型与 MIXED 检查 Section 数量和累计单元数量；NGON 检查顶点号为正且加节点偏移后的编号可由 `ReaderAPI::Integer` 表示；NFACE 检查当前扁平单元数量是否仍可表示，并在取绝对值前排除最小负值。这些检查尚未完整覆盖输出 `Elem::npts` 的 32 位转换，也未完整校验 Zone 内顶点编号上界。
 
-`GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`，调用方输出容器不变，但此前生成的内部缓存会保留。初始化完成后追加节点并返回 `true`，即使输出容器为空也只记录警告。同一 reader 的文件与数据读取接口不保证并发调用安全。
+`GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`，调用方输出容器不变，但此前生成的内部缓存会保留。初始化完成后替换节点输出并返回 `true`，即使结果为空也不代表文件包含可用网格。同一 reader 的文件与数据读取接口不保证并发调用安全。
 
 日志级别依次为 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR` 和 `CRITICAL`。
 
@@ -188,7 +190,8 @@ ReaderCGNS/
 ├── CGNS_API.md                     # CGNS 4.5.1 C API 开发参考
 ├── include/ReaderAPI/
 │   ├── ReaderApiBase.h             # reader 接口、工厂及日志协议类型
-│   └── ReaderApiTypes.hpp          # Integer/Real 与 Node/Elem/Field
+│   ├── ReaderApiTypes.hpp          # Integer/Real 与 Node/Field
+│   └── ElementTypes.hpp            # Elem、ElementTable 与视图类型
 ├── src/
 │   └── ExportFunctions.cpp         # Create/Destroy reader 导出
 ├── Common/

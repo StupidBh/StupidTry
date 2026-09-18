@@ -1,6 +1,6 @@
 # StupidBhh
 
-Windows x64 上的 CGNS 只读检查与数据查询项目：`Core.exe` 提供命令行入口，运行时加载 `ReaderCGNS.dll`，读取求解器类型、节点坐标、网格单元、集合名称以及支持的节点/单元中心场值，并检查节点和单元的重复 ID。完整结构诊断由 DLL 的 `info()` 接口提供，当前命令行流程不调用它。
+Windows x64 上的 CGNS 只读检查与数据查询项目：`Core.exe` 提供命令行入口，运行时加载 `ReaderCGNS.dll`，读取求解器类型、节点坐标、网格单元、组件名称及其成员 ID，以及支持的节点/单元中心场值，并检查节点和单元的重复 ID。完整结构诊断由 DLL 的 `info()` 接口提供，当前命令行流程不调用它。
 
 ## 工具链与语言标准
 
@@ -31,9 +31,9 @@ cmake --build build/Debug --config Release
 .\bin\Debug\Core.exe --input_file D:\data\case.cgns --workspace_dir D:\work\case
 ```
 
-日志默认输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，可通过 `--log_dir` 指定日志目录，通过 `--log_level` 设置 `trace`、`debug`、`info`、`warning` 或 `error`（默认为 `info`；Debug 构建强制使用 `trace`）。旧参数及短选项迁移见 [Core 命令行接口](Core/Readme.md#命令行接口)。日志包括节点和单元数量、重复 ID 与连接范围警告、集合名称，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
+日志默认输出到控制台和工作目录的 `logs/stupid-bhh_YYYY-MM-DD.log`，可通过 `--log_dir` 指定日志目录，通过 `--log_level` 设置 `trace`、`debug`、`info`、`warning` 或 `error`（默认为 `info`；Debug 构建强制使用 `trace`）。旧参数及短选项迁移见 [Core 命令行接口](Core/Readme.md#命令行接口)。日志包括节点和单元数量、重复 ID、组件成员范围警告、连接范围警告，以及成功读取字段的名称、类型、ID 数量和值数量。当前连接范围诊断尚未区分 NFACE 编码中的长度前缀，不能作为完整拓扑验证，详见 [Core 运行流程](Core/Readme.md#运行流程)。
 
-单元 ID 用于唯一标识单元，不要求连续或等于数组下标。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存清理仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
+单元 ID 按扁平输出顺序生成，从 0 开始并与 `GetAllElement()` 结果下标一致；组件成员 ID 复用这一编号。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存一致性仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
 当前不提供直接针对 `ReaderCGNS` 模块的测试目标；可通过上面的 `Core.exe` 命令进行集成验证。
 
@@ -50,9 +50,9 @@ StupidTry/
 │   ├── src/
 │   │   └── Main.cpp                # 命令行入口与 CGNS 分析流程
 │   ├── Common/                     # 参数处理、全局配置等通用实现
-│   │   ├── Functions.h             # 字符串、环境变量和可执行文件路径工具
+│   │   ├── Functions.h             # 字符串、环境变量、进程调用和可执行文件路径工具
 │   │   ├── SingletonData.h
-│   │   ├── WindowsFunctions.h      # Win32 编码、命令执行和 DLL 句柄工具
+│   │   ├── WindowsFunctions.h      # Win32 DLL 句柄工具
 │   │   └── src/
 │   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
 │   │   ├── AnalysisCGNS.h          # DLL 加载、reader 生命周期和日志适配
