@@ -78,7 +78,7 @@ std::filesystem::path GetExecutablePath()
     boost::system::error_code ec;
     const auto path = boost::process::v2::ext::exe(boost::process::v2::current_pid(), ec);
     if (ec) {
-        LOG_ERROR("Boost.Precess exe failed: {}", ec.message());
+        LOG_ERROR("Boost.Process exe failed: {}", ec.message());
         return { };
     }
     return std::filesystem::path(path.native());
