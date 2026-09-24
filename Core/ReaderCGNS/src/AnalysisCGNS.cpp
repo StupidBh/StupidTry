@@ -122,15 +122,9 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         }
     }
 
-    std::vector<std::string> field_function_names;
+    std::vector<ReaderAPI::Field> field_function_names;
     if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
         std::vector<ReaderAPI::Field> loaded_fields;
-        if (this->m_reader->GetFieldFunctionData(field_function_names, loaded_fields)) {
-            LOG_INFO("Field Function sum={}", field_function_names.size());
-            for (auto& [name, type, ids, values] : loaded_fields) {
-                LOG_INFO("FieldFunction: {}, type={}, ids={}, value={}", name, type, ids.size(), values.size());
-            }
-        }
     }
 
     return true;
