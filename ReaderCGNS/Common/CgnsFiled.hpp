@@ -1,6 +1,8 @@
 #pragma once
 #include "CgnsTypes.hpp"
 
+#include <array>
+#include <vector>
 #include <unordered_map>
 
 struct FieldIndex
@@ -15,6 +17,9 @@ struct ZoneOffset
 {
     cgsize_t node_offset;
     cgsize_t cell_offset;
+
+    static constexpr std::array<cgsize_t, 3> r_min = { 1, 1, 1 };
+    std::vector<cgsize_t> r_max;
 };
 
 template<class T>

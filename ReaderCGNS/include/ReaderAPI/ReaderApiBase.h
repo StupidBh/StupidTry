@@ -51,6 +51,7 @@ namespace ReaderAPI {
         [[nodiscard]] virtual bool GetComponent(const std::string& name, std::vector<Integer>& ids) = 0;
 
         [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<Field>& field_names) = 0;
+        [[nodiscard]] virtual bool GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<Real>& data) = 0;
 
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;

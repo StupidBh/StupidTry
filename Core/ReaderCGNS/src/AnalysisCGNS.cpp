@@ -122,9 +122,16 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         }
     }
 
-    std::vector<ReaderAPI::Field> field_function_names;
-    if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
-        std::vector<ReaderAPI::Field> loaded_fields;
+    std::vector<ReaderAPI::Field> all_field_function_names;
+    if (this->m_reader->GetAllFieldFunctionName(all_field_function_names)) {
+        for (auto& [var, sub_vars] : all_field_function_names) {
+            for (auto& sub_var : sub_vars) {
+                std::vector<ReaderAPI::Real> field_data;
+                if (this->m_reader->GetFieldFunctionData(var, sub_var, field_data)) {
+                    LOG_INFO("Field function [{}]-[{}], data size={}", var, sub_var, field_data.size());
+                }
+            }
+        }
     }
 
     return true;
