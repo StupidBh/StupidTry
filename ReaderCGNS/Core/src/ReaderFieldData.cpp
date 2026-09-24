@@ -69,6 +69,27 @@ bool ReaderFieldData::GetAllFieldFunctionName(std::vector<ReaderAPI::Field>& fie
     return true;
 }
 
+int ReaderFieldData::GetFieldFunctionPosition(const std::string& var, const std::string& sub_var)
+{
+    if (this->m_field_layout.empty()) {
+        if (!this->initialize_field_layout()) {
+            return -1;
+        }
+    }
+
+    auto iter = this->m_field_layout.find(sub_var);
+    if (iter == this->m_field_layout.end()) {
+        LOG_ERROR("Field function [{}]-[{}] doesn't exists.", var, sub_var);
+        return -1;
+    }
+    auto first_index = iter->second.front();
+    switch (this->m_solution_location[first_index.base][first_index.zone][first_index.solution]) {
+        case CG_GridLocation_t::CG_Vertex    : return 0;
+        case CG_GridLocation_t::CG_CellCenter: return 1;
+        default                              : return -1;
+    }
+}
+
 bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Integer>& ids)
 {
     if (this->m_field_layout.empty()) {

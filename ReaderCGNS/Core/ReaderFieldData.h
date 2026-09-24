@@ -10,6 +10,7 @@ public:
     ~ReaderFieldData() override = default;
 
     bool GetAllFieldFunctionName(std::vector<ReaderAPI::Field>& field_names) final;
+    int GetFieldFunctionPosition(const std::string& var, const std::string& sub_var) final;
     bool GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Integer>& ids) final;
     bool GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Real>& data) final;
 
