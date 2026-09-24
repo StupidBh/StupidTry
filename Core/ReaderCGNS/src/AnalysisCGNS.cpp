@@ -126,9 +126,18 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
     if (this->m_reader->GetAllFieldFunctionName(all_field_function_names)) {
         for (auto& [var, sub_vars] : all_field_function_names) {
             for (auto& sub_var : sub_vars) {
+                std::vector<ReaderAPI::Integer> field_ids;
                 std::vector<ReaderAPI::Real> field_data;
-                if (this->m_reader->GetFieldFunctionData(var, sub_var, field_data)) {
-                    LOG_INFO("Field function [{}]-[{}], data size={}", var, sub_var, field_data.size());
+                if (this->m_reader->GetFieldFunctionData(var, sub_var, field_data) && this->m_reader->GetFieldFunctionIds(var, sub_var, field_ids)) {
+                    LOG_INFO("Field function [{}]-[{}], values=[{},{}]:{}, ids=[{},{}]:{}",
+                             var,
+                             sub_var,
+                             std::ranges::min(field_data),
+                             std::ranges::max(field_data),
+                             field_data.size(),
+                             std::ranges::min(field_ids),
+                             std::ranges::max(field_ids),
+                             field_ids.size());
                 }
             }
         }

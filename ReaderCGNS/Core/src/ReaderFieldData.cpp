@@ -69,6 +69,39 @@ bool ReaderFieldData::GetAllFieldFunctionName(std::vector<ReaderAPI::Field>& fie
     return true;
 }
 
+bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Integer>& ids)
+{
+    if (this->m_field_layout.empty()) {
+        if (!this->initialize_field_layout()) {
+            return false;
+        }
+    }
+
+    auto iter = this->m_field_layout.find(sub_var);
+    if (iter == this->m_field_layout.end()) {
+        LOG_ERROR("Field function [{}]-[{}] doesn't exists.", var, sub_var);
+        return false;
+    }
+
+    for (const auto& index : iter->second) {
+        cgsize_t data_size = 1;
+        const auto& offset = this->m_offset[index.base][index.zone];
+        for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
+            data_size *= (offset.r_max[i] - offset.r_min[i] + 1);
+        }
+
+        auto position = this->m_solution_location[index.base][index.zone][index.solution];
+        utils::AppendVector(
+            ids,
+            utils::CreateVector<ReaderAPI::Integer>(data_size, position == CG_GridLocation_t::CG_Vertex ? offset.node_offset : offset.cell_offset, 1));
+    }
+
+    if (ids.empty()) {
+        LOG_WARN("Field function [{}]-[{}] ids is empty.", var, sub_var);
+    }
+    return true;
+}
+
 bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Real>& data)
 {
     if (this->m_field_layout.empty()) {
@@ -112,7 +145,7 @@ bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::st
     }
 
     if (data.empty()) {
-        LOG_WARN("Field function [{}]-[{}] is empty.", var, sub_var);
+        LOG_WARN("Field function [{}]-[{}] values is empty.", var, sub_var);
     }
     return true;
 }
