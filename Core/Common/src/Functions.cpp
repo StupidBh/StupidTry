@@ -90,7 +90,7 @@ std::filesystem::path GetExecutablePath()
         LOG_ERROR("Boost.Process exe failed: {}", ec.message());
         return { };
     }
-    return std::filesystem::path(path.native());
+    return path.native();
 }
 
 std::filesystem::path GetExecutableDirectory()
