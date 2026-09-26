@@ -207,6 +207,21 @@ bool ReaderFieldData::initialize_field_layout()
                 continue;
             }
 
+            cgsize_t node_count = 0;
+            cgsize_t cell_count = 0;
+            if (!CheckedProduct(std::span(zone_size.data(), static_cast<std::size_t>(index_zone_dim)), node_count) ||
+                !CheckedProduct(std::span(zone_size.data() + index_zone_dim, static_cast<std::size_t>(index_zone_dim)), cell_count)) {
+                LOG_ERROR("Invalid zone size at Base {}/Zone {}.", index_base, index_zone);
+                continue;
+            }
+
+            ZoneOffset index_offset;
+            index_offset.node_offset = node_offset;
+            index_offset.cell_offset = cell_offset;
+
+            node_offset += node_count;
+            cell_offset += cell_count;
+
             int temp_check_bit = 0;
             if (CGNS_LOG_CALL(cg_nsols(this->get_file_id(), index_base, index_zone, &temp_check_bit)) != CG_OK) {
                 continue;
@@ -214,19 +229,21 @@ bool ReaderFieldData::initialize_field_layout()
             if (temp_check_bit < 1) {
                 continue;
             }
-            static constexpr int index_sol = 1;
 
-            ZoneOffset index_offset;
+            static constexpr int index_sol = 1;
             index_offset.r_max.resize(index_zone_dim, 0);
             if (CGNS_LOG_CALL(cg_sol_size(this->get_file_id(), index_base, index_zone, index_sol, &temp_check_bit, index_offset.r_max.data())) != CG_OK) {
                 return false;
             }
+            this->m_offset[index_base][index_zone] = std::move(index_offset);
 
             char sol_name[CGNS_NAME_MAX_LEN] = { };
             CG_GridLocation_t sol_location = CG_GridLocation_t::CG_GridLocationNull;
             if (CGNS_LOG_CALL(cg_sol_info(this->get_file_id(), index_base, index_zone, index_sol, sol_name, &sol_location)) != CG_OK) {
                 continue;
             }
+            this->m_solution_location[index_base][index_zone][index_sol] = sol_location;
+
             if (sol_location != CG_GridLocation_t::CG_Vertex && sol_location != CG_GridLocation_t::CG_CellCenter) {
                 LOG_WARN("Skip unsupported type [{}] by [{}] at Base {}/Zone {}/Sol {}",
                          cg_GridLocationName(sol_location),
@@ -242,7 +259,6 @@ bool ReaderFieldData::initialize_field_layout()
                 continue;
             }
 
-            bool flag = false;
             for (int index_field = 1; index_field <= nfields; ++index_field) {
                 char field_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t field_data_type = CG_DataType_t::CG_DataTypeNull;
@@ -263,26 +279,6 @@ bool ReaderFieldData::initialize_field_layout()
                 const auto position = sol_location == CG_GridLocation_t::CG_Vertex ? 0 : 1;
                 loaded_field_layout[field_name][position].emplace_back(
                     FieldIndex { .base = index_base, .zone = index_zone, .solution = index_sol, .field = index_field });
-
-                flag = true;
-            }
-
-            if (flag) { // 当前 Base/Zone/sol 有真实存在的 Field 字段
-                cgsize_t node_count = 0;
-                cgsize_t cell_count = 0;
-                if (!CheckedProduct(std::span(zone_size.data(), static_cast<std::size_t>(index_zone_dim)), node_count) ||
-                    !CheckedProduct(std::span(zone_size.data() + index_zone_dim, static_cast<std::size_t>(index_zone_dim)), cell_count)) {
-                    LOG_ERROR("Invalid zone size at Base {}/Zone {}.", index_base, index_zone);
-                    continue;
-                }
-
-                index_offset.node_offset = node_offset;
-                index_offset.cell_offset = cell_offset;
-                this->m_offset[index_base][index_zone] = std::move(index_offset);
-                this->m_solution_location[index_base][index_zone][index_sol] = sol_location;
-
-                node_offset += node_count;
-                cell_offset += cell_count;
             }
         }
     }
