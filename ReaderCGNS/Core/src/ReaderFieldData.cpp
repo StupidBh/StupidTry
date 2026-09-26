@@ -287,14 +287,14 @@ bool ReaderFieldData::initialize_field_layout()
         auto& [vertex, cell_center] = groups;
 
         if (!vertex.empty() && !cell_center.empty()) {
-            this->m_field_layout.emplace(name + "_Vertex", std::move(vertex));
-            this->m_field_layout.emplace(name + "_CellCenter", std::move(cell_center));
+            utils::AppendVector(this->m_field_layout[name + "_Vertex"], std::move(vertex));
+            utils::AppendVector(this->m_field_layout[name + "_CellCenter"], std::move(cell_center));
         }
         else if (!vertex.empty()) {
-            this->m_field_layout.emplace(name, std::move(vertex));
+            utils::AppendVector(this->m_field_layout[name], std::move(vertex));
         }
         else {
-            this->m_field_layout.emplace(name, std::move(cell_center));
+            utils::AppendVector(this->m_field_layout[name], std::move(cell_center));
         }
     }
 
