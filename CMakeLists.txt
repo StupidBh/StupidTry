@@ -21,3 +21,7 @@ set(3RD_ROOT "${CMAKE_SOURCE_DIR}/3rdparty")
 # ---- Sub-projects ----
 add_subdirectory(ReaderCGNS)
 add_subdirectory(Core)
+add_executable(UtilsAppendVectorTests Utils/tests/AppendVectorTests.cpp)
+target_compile_features(UtilsAppendVectorTests PRIVATE cxx_std_23)
+target_include_directories(UtilsAppendVectorTests PRIVATE "${CMAKE_SOURCE_DIR}")
+add_test(NAME UtilsAppendVectorTests COMMAND UtilsAppendVectorTests)
