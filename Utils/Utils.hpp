@@ -56,7 +56,7 @@ namespace utils::detail {
     constexpr void AppendBuffered(std::vector<ValueType>& target, std::vector<ValueType>& buffered)
     {
         ReserveAdditional(target, buffered.size());
-        for (auto& value : buffered) {
+        for (auto&& value : buffered) {
             target.emplace_back(std::move(value));
         }
     }
@@ -132,12 +132,17 @@ namespace utils {
     requires std::constructible_from<ValueType, const SourceType&> && std::move_constructible<ValueType>
     constexpr void AppendVector(std::vector<ValueType>& target, const std::vector<SourceType, Allocator>& source)
     {
-        std::vector<ValueType> buffered;
-        buffered.reserve(source.size());
-        for (const auto& value : source) {
-            buffered.emplace_back(value);
+        if constexpr (std::same_as<std::vector<ValueType>, std::vector<SourceType, Allocator>>) {
+            if (std::addressof(target) == std::addressof(source)) {
+                std::vector<ValueType> snapshot(source);
+                detail::AppendBuffered(target, snapshot);
+                return;
+            }
         }
-        detail::AppendBuffered(target, buffered);
+        detail::ReserveAdditional(target, source.size());
+        for (auto&& value : source) {
+            target.emplace_back(value);
+        }
     }
 
     template<class ValueType, class SourceType, class Allocator>
@@ -150,12 +155,10 @@ namespace utils {
             }
         }
 
-        std::vector<ValueType> buffered;
-        buffered.reserve(source.size());
-        for (auto& value : source) {
-            buffered.emplace_back(std::move(value));
+        detail::ReserveAdditional(target, source.size());
+        for (auto&& value : source) {
+            target.emplace_back(std::move(value));
         }
-        detail::AppendBuffered(target, buffered);
     }
 
     template<class ValueType, class SourceType>
@@ -167,8 +170,17 @@ namespace utils {
         }
         const ValueType stable_value(std::forward<SourceType>(value));
         detail::ReserveAdditional(target, count);
-        for (std::size_t index = 0; index < count; ++index) {
-            target.emplace_back(stable_value);
+        const auto original_size = target.size();
+        try {
+            for (std::size_t index = 0; index < count; ++index) {
+                target.emplace_back(stable_value);
+            }
+        }
+        catch (...) {
+            while (target.size() > original_size) {
+                target.pop_back();
+            }
+            throw;
         }
     }
 
