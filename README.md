@@ -35,6 +35,15 @@ cmake --build build/Debug --config Release
 
 单元 ID 按扁平输出顺序生成，从 0 开始并与 `GetAllElement()` 结果下标一致；组件成员 ID 复用这一编号。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存一致性仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
+`UtilsAppendVectorTests` 已注册到 CTest，覆盖 `AppendVector` 的重载、别名和异常处理。构建后运行：
+
+```powershell
+ctest --test-dir build/Debug -C Debug --output-on-failure
+ctest --test-dir build/Debug -C Release --output-on-failure
+```
+
+`AppendVector` 对独立 vector 直接追加；元素构造抛异常时，目标可能保留已追加的前缀。右值来源的移动抛异常时，来源也可能有元素已被移动。计数填充值重载在追加元素的复制抛异常时撤销本次新增元素（容量仍可能变化）。
+
 当前不提供直接针对 `ReaderCGNS` 模块的测试目标；可通过上面的 `Core.exe` 命令进行集成验证。
 
 仍没有随仓库提供完整 CGNS 样例文件，因此 Core 的 DLL 加载和真实文件读取需要另行用实际文件验证；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
