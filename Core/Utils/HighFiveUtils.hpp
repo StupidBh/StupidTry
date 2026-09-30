@@ -39,6 +39,9 @@ namespace HFUtils {
         std::size_t old_size = 0;
         HighFive::DataSet data_set;
         if (!loc.exist(name)) {
+            using RawVectorType = std::remove_cvref_t<ValueType>;
+            using TrueValueType = typename RawVectorType::value_type;
+
             const std::size_t total_size = input.size();
             const std::size_t chunk_size = std::clamp(total_size / 100, static_cast<std::size_t>(1024), static_cast<std::size_t>(1024 * 1024));
 
@@ -47,7 +50,7 @@ namespace HFUtils {
             H5Pset_fill_time(props.getId(), H5D_FILL_TIME_NEVER);
 
             HighFive::DataSpace dataspace = HighFive::DataSpace({ 0 }, { HighFive::DataSpace::UNLIMITED });
-            data_set = std::forward<T>(loc).createDataSet(name, dataspace, props);
+            data_set = std::forward<T>(loc).template createDataSet<TrueValueType>(name, dataspace, props);
         }
         else {
             data_set = std::forward<T>(loc).getDataSet(name);
