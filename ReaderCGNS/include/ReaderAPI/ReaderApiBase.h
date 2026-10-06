@@ -1,18 +1,5 @@
 #pragma once
-#include "ReaderApiTypes.hpp"
-
-#include <vector>
-#include <string>
-
-#ifdef _WIN32
-    #ifdef READER_CGNS_EXPORTS
-        #define READER_API __declspec(dllexport)
-    #else
-        #define READER_API __declspec(dllimport)
-    #endif
-#else
-    #define READER_API __attribute__((visibility("default")))
-#endif
+#include "Types/ElementTypes.hpp"
 
 namespace ReaderAPI {
     namespace Logger {
@@ -48,12 +35,15 @@ namespace ReaderAPI {
 
         [[nodiscard]] virtual bool GetAllNodeCoordinates(std::vector<Node>& node_coordinates) = 0;
         [[nodiscard]] virtual bool GetAllElement(std::vector<Elem>& elements) = 0;
+        [[nodiscard]] virtual bool GetAllElement(ElementTable& elements) = 0;
 
-        [[nodiscard]] virtual bool GetAllElementSetName(std::vector<std::string>& element_set_names) = 0;
+        [[nodiscard]] virtual bool GetAllComponentName(std::vector<std::string>& component_names) = 0;
+        [[nodiscard]] virtual bool GetComponent(const std::string& name, std::vector<Integer>& ids) = 0;
 
-        [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<std::string>& field_names) = 0;
-        [[nodiscard]] virtual bool GetFieldFunctionData(const std::string& field_name, Field& field_data) = 0;
-        [[nodiscard]] virtual bool GetFieldFunctionData(const std::vector<std::string>& field_names, std::vector<Field>& field_data) = 0;
+        [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<Field>& field_names) = 0;
+        [[nodiscard]] virtual int GetFieldFunctionPosition(const std::string& var, const std::string& sub_var) = 0;
+        [[nodiscard]] virtual bool GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<Integer>& ids) = 0;
+        [[nodiscard]] virtual bool GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<Real>& data) = 0;
 
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;

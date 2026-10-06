@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-throw-exception-x64-windows-1.91.0-8c17174b-894c-4ed7-b476-0d64ef607c18",
-  "name": "boost-throw-exception:x64-windows@1.91.0 490fdb22d806618bcd9b04f5f1f5341dd74675c5d6e0aa372767248de2534e5b",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-throw-exception-x64-windows-static-md-1.92.0-0c239466-2576-40e6-b224-7e662daa04df",
+  "name": "boost-throw-exception:x64-windows-static-md@1.92.0 22dfab33bf965ae31d96f5894620624c336760ce3d10b4bd8f018da700d9df8d",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:52:47Z"
+    "created": "2026-09-17T13:06:03Z"
   },
   "relationships": [
     {
@@ -66,25 +66,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-6"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-7"
     }
   ],
   "packages": [
     {
       "name": "boost-throw-exception",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-throw-exception",
       "homepage": "https://www.boost.org/library/latest/throw_exception/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost throw_exception module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-throw-exception@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-throw-exception"
+        }
+      ]
     },
     {
-      "name": "boost-throw-exception:x64-windows",
+      "name": "boost-throw-exception:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "490fdb22d806618bcd9b04f5f1f5341dd74675c5d6e0aa372767248de2534e5b",
+      "versionInfo": "22dfab33bf965ae31d96f5894620624c336760ce3d10b4bd8f018da700d9df8d",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -93,17 +105,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/throw_exception",
-      "downloadLocation": "git+https://github.com/boostorg/throw_exception@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "176b334133df8bc914113eca31c0885a356bf891df9a825705a34b2c29be6a139b43f791d86c734856a6014ed85a723e6e35a24ebed4dfb2724b90e725566a0d"
+          "checksumValue": "db8b60a1ed193056db2397eea2201784116c90023f7a7ba7a0e0a2968df38b247809f3f174c09969f8f891654e8ce1b2e125c21a4aba2e009a7dbcca65e65da5"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/throw_exception@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/throw_exception"
     }
   ],
   "files": [
@@ -113,7 +125,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "38ce858b1c435b353cb11fd04643bc0bcd8aead62642bfad133fd454a71c002e"
+          "checksumValue": "b39ce1cd4549bcabe669ff34014b093d14fcfc673ef0dc4069f066e3497591e6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -125,7 +137,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b94e1f0fbaf46fd46a67c5e67ded1481a2e6ce2ff5a88d1baa94a6d9ce19e512"
+          "checksumValue": "dbb3778ecd1b93ddab0add2efa2f7326ee3ec3f56af86e4d2d5838288a77b0ef"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -137,7 +149,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -180,12 +192,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_throw_exception/boost_throw_exception-config-version.cmake",
+      "fileName": "./share/boost-throw-exception/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "0341956fb082c49346b00cb5d1ea51b32b74a80d7dcfa1cc938572b188f30ad4"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_throw_exception/boost_throw_exception-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-5",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -193,11 +217,11 @@
     },
     {
       "fileName": "./share/boost_throw_exception/boost_throw_exception-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-5",
+      "SPDXID": "SPDXRef-binary-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a52f16682ed54e029cbc5e0f058c5abf6870cd4cd882afd937be5500c9fc4cd4"
+          "checksumValue": "dcb0d5868c8a10cf84ab95e60880b88959149976aa42f84ba8ea97f3a4c1b4fa"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -205,11 +229,11 @@
     },
     {
       "fileName": "./share/boost_throw_exception/boost_throw_exception-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-6",
+      "SPDXID": "SPDXRef-binary-file-7",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4e48e98fe4d569a399066319c3367067ed1a1d1a9b847f577a924cab960abec5"
+          "checksumValue": "b54c96f12106d491f23f5a27713407123ac584a2cbbc59b6475e423828967926"
         }
       ],
       "licenseConcluded": "NOASSERTION",

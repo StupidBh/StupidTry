@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-predef-x64-windows-1.91.0-0af2fbc6-80bb-4e20-838e-5f2cd6c489a0",
-  "name": "boost-predef:x64-windows@1.91.0 42f40fff7080ae46d6e6135461226bd97f9f0c5353187a91126e7998a61238b0",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-predef-x64-windows-static-md-1.92.0-182b0cc7-fb4e-4d57-b6b6-8780681d6bde",
+  "name": "boost-predef:x64-windows-static-md@1.92.0 7897f39fa7b26d9a56296362a4350fd17b4f29f9798d60bb3ff7ffdd154d92a3",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:29Z"
+    "created": "2026-09-17T13:07:43Z"
   },
   "relationships": [
     {
@@ -831,25 +831,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-159"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-160"
     }
   ],
   "packages": [
     {
       "name": "boost-predef",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-predef",
       "homepage": "https://www.boost.org/library/latest/predef/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost predef module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-predef@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-predef"
+        }
+      ]
     },
     {
-      "name": "boost-predef:x64-windows",
+      "name": "boost-predef:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "42f40fff7080ae46d6e6135461226bd97f9f0c5353187a91126e7998a61238b0",
+      "versionInfo": "7897f39fa7b26d9a56296362a4350fd17b4f29f9798d60bb3ff7ffdd154d92a3",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -858,17 +870,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/predef",
-      "downloadLocation": "git+https://github.com/boostorg/predef@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "af8636d463a7b63b7953f7874c2ab107e6a7224c285ca23a65ae71671e60f230a410763fbe5927dfe7c87de561387bfb3ffea6202f051ffc4f6a248f1dab0387"
+          "checksumValue": "e64a7e6608e8c73e1ee4d73a54cbee178e90cba94fe88682badfea810dbbc4de5c312d6566e99dd3ec7e5c311c38a1abf945090c7acffd2f6518269f8ebc2709"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/predef@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/predef"
     }
   ],
   "files": [
@@ -878,7 +890,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "7a3889bbad4a10543b495db7a750245835cfa64324362ba1c2950a27df2c3842"
+          "checksumValue": "d1896bb85a5e394ec3ca0ebdc05c8f1ccd26c1d64725c67db73cb4b1767c9987"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -890,7 +902,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8ad57d22262ff9976379fefd1eb1301b5396af7be605bb5b550f290c31604ef2"
+          "checksumValue": "87ddda1296a47fbac5ab3ff42a3cb717d1358e1a9299135c64f49beb0a84d2a1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -902,7 +914,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2781,12 +2793,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_predef/boost_predef-config-version.cmake",
+      "fileName": "./share/boost-predef/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-157",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "bd8c7db3521f4c635a72c9ae0540438d6387c2f407951ad2ccb59ce90a477163"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_predef/boost_predef-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-158",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2794,11 +2818,11 @@
     },
     {
       "fileName": "./share/boost_predef/boost_predef-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-158",
+      "SPDXID": "SPDXRef-binary-file-159",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c5a4e12e5a09e05db70241b38b7007ea266fa0ce6bf08963d9f64adfe60224ac"
+          "checksumValue": "fa0fd967f790578c82d226babe51cf744a4334c9d2c7b3c8d09f4e6e38dd1833"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2806,11 +2830,11 @@
     },
     {
       "fileName": "./share/boost_predef/boost_predef-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-159",
+      "SPDXID": "SPDXRef-binary-file-160",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "99c655cbcda2b1b26408ce6f64d10f22b65c1430f00737a19ae8d19f5e7885db"
+          "checksumValue": "cfc4f25d5b778d0d2bfe5e9b517b94dcbdfaaf5ccb4182f40031849bec5fcc31"
         }
       ],
       "licenseConcluded": "NOASSERTION",

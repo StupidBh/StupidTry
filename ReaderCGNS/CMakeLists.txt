@@ -24,10 +24,6 @@ target_include_directories(${PROJECT_NAME}
         "${CMAKE_CURRENT_SOURCE_DIR}/Core"
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-        READER_CGNS_EXPORTS
-)
-
 set(CGNS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cgns")
 # HDF5's package config uses FindZLIB; specify the vendored multi-config libraries explicitly.
 set(ZLIB_LIBRARY_DEBUG "${CGNS_ROOT}/debug/lib/zsd.lib")

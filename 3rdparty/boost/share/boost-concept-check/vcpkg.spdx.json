@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-concept-check-x64-windows-1.91.0-61f99f60-2a46-4069-b0e2-44d66914c057",
-  "name": "boost-concept-check:x64-windows@1.91.0 9424ca726e755d37eabeeb9376084ac1589f2cb02fa49432bf5f2fe39b2bfe06",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-concept-check-x64-windows-static-md-1.92.0-512ad22e-2474-439b-9103-414ab934a49c",
+  "name": "boost-concept-check:x64-windows-static-md@1.92.0 f908b04199dbd2472d1c1836c022bc2b8b7e533dc6d6d4e54ca16446a43f75bc",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:12Z"
+    "created": "2026-09-17T13:06:46Z"
   },
   "relationships": [
     {
@@ -136,25 +136,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-20"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-21"
     }
   ],
   "packages": [
     {
       "name": "boost-concept-check",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-concept-check",
       "homepage": "https://www.boost.org/library/latest/concept_check/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost concept_check module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-concept-check@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-concept-check"
+        }
+      ]
     },
     {
-      "name": "boost-concept-check:x64-windows",
+      "name": "boost-concept-check:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "9424ca726e755d37eabeeb9376084ac1589f2cb02fa49432bf5f2fe39b2bfe06",
+      "versionInfo": "f908b04199dbd2472d1c1836c022bc2b8b7e533dc6d6d4e54ca16446a43f75bc",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -163,17 +175,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/concept_check",
-      "downloadLocation": "git+https://github.com/boostorg/concept_check@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "cbad88af522b9b8915a9178a24175d44f14dadd9c7bc372193863b5b810a4abb24df917c25242a649ae72dc60e852d1f8116e503008097529d7e19ab0bf18a2d"
+          "checksumValue": "5db6791a932b7533ab11089c022bea54b29426d4d4d08f1e3f5ea2611a3603ecc1566e83c1ab17f15adf4526ac708cb46fa8e8cc04747245bca17ec7fdd6c1c5"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/concept_check@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/concept_check"
     }
   ],
   "files": [
@@ -183,7 +195,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8d2fb6ea7ef1db29d21182bbf39e0756955a6b6694b8d3133cddf11c94114fea"
+          "checksumValue": "b297ef1acc43f766e018967d064572171e8331cb6b6720f2711d0ada5be376f5"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -195,7 +207,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "57ac41a406c714cd8d4c5637d6a169dbd541da62799359e8e042bc1dd00e5caa"
+          "checksumValue": "84f5946e04dc779cb34347aa19906af848186f2e3d231e466bec0b9ba7582b04"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -207,7 +219,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -418,12 +430,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_concept_check/boost_concept_check-config-version.cmake",
+      "fileName": "./share/boost-concept-check/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-18",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "dbd09d35792e4bfcb6cd37c30cf7a18f6cfc649329816fc6641b5cc774fab770"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_concept_check/boost_concept_check-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-19",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -431,11 +455,11 @@
     },
     {
       "fileName": "./share/boost_concept_check/boost_concept_check-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-19",
+      "SPDXID": "SPDXRef-binary-file-20",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f9c4a49f9bcc31a615f67606ac005286cb917d22eb82d594d40fcfeb44d02dac"
+          "checksumValue": "83a3ac785eb02c6d699fdee4a3219aaf2943f001ed0e970f730f8d4fe1ea4c46"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -443,11 +467,11 @@
     },
     {
       "fileName": "./share/boost_concept_check/boost_concept_check-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-20",
+      "SPDXID": "SPDXRef-binary-file-21",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "745b7adbe7f60101e9b0aeb4945d6b7bd5128bb5ac44e09cb948b27a3f7dccaf"
+          "checksumValue": "ff823defc22bcd40e4ec2e98a0d8d6775067026ba473047cd00f2b189e407688"
         }
       ],
       "licenseConcluded": "NOASSERTION",

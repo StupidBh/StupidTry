@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "2.8.12")
    message(FATAL_ERROR "CMake >= 2.8.12 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.8.12...4.1)
+cmake_policy(VERSION 2.8.12...4.2)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -55,13 +55,13 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target Boost::program_options
-add_library(Boost::program_options SHARED IMPORTED)
+add_library(Boost::program_options STATIC IMPORTED)
 
 set_target_properties(Boost::program_options PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "BOOST_PROGRAM_OPTIONS_NO_LIB;BOOST_PROGRAM_OPTIONS_DYN_LINK"
+  INTERFACE_COMPILE_DEFINITIONS "BOOST_PROGRAM_OPTIONS_NO_LIB;BOOST_PROGRAM_OPTIONS_STATIC_LINK"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "Boost::any;Boost::config;Boost::core;Boost::detail;Boost::function;Boost::iterator;Boost::lexical_cast;Boost::smart_ptr;Boost::static_assert;Boost::throw_exception;Boost::type_traits"
+  INTERFACE_LINK_LIBRARIES "Boost::any;Boost::config;Boost::core;Boost::detail;Boost::function;Boost::iterator;Boost::lexical_cast;Boost::smart_ptr;Boost::throw_exception;Boost::type_traits;\$<LINK_ONLY:Boost::bind>;\$<LINK_ONLY:Boost::tokenizer>"
 )
 
 # Load information for each installed configuration.

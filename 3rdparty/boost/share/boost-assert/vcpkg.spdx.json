@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-assert-x64-windows-1.91.0-31c44a31-1d55-4540-9745-c4f79ea2b1aa",
-  "name": "boost-assert:x64-windows@1.91.0 a4625988c0fb64741e7aadc4aeafc63b05b6aa5782b9931e735354a73d46aabe",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-assert-x64-windows-static-md-1.92.0-4ac7c9b3-c5e4-45e1-8974-cb605dd0da96",
+  "name": "boost-assert:x64-windows-static-md@1.92.0 440ec481772f10cd702368346913fe87a1f2f88f4cc843b8fc9a3c5b36492139",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:52:45Z"
+    "created": "2026-09-17T13:05:59Z"
   },
   "relationships": [
     {
@@ -76,25 +76,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-8"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-9"
     }
   ],
   "packages": [
     {
       "name": "boost-assert",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-assert",
       "homepage": "https://www.boost.org/library/latest/assert/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost assert module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-assert@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-assert"
+        }
+      ]
     },
     {
-      "name": "boost-assert:x64-windows",
+      "name": "boost-assert:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a4625988c0fb64741e7aadc4aeafc63b05b6aa5782b9931e735354a73d46aabe",
+      "versionInfo": "440ec481772f10cd702368346913fe87a1f2f88f4cc843b8fc9a3c5b36492139",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -103,17 +115,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/assert",
-      "downloadLocation": "git+https://github.com/boostorg/assert@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "6938da97de7d223c1459c038824148b467a53ce385b29e7f56df7788b5af0bb504598a042f9662d8d4a8337eb71365d47062b078783570a089263ae4b9400c02"
+          "checksumValue": "9814998329daddb87db3a7b59ec6d6c5c2a8b6bccfcf6626fb621b924c953990084be6fabea344a64f85af13a481546e2cef2270b7b5ff8c3437605d6654dfeb"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/assert@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/assert"
     }
   ],
   "files": [
@@ -123,7 +135,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f4413d4a1fe689b59f3b19bd23f394190b84c8edc2c54f395dd823efe6510da8"
+          "checksumValue": "c68ca890e274854dacc4cea30c4c99926be9a73b7a5d2009e2e9587ea246bbec"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -135,7 +147,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "12db0252150a872c60d8f138a76f959d800776e10fd53c160865888c95a0aeaa"
+          "checksumValue": "1b6daaa173a0a77aa92a1099cdad285eece0354f21319c0cd1ec5bb5b3b8bafa"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -147,7 +159,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -171,7 +183,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "be6777c7fba67ff7c83a06c86412b4b5bd06ed23f458f745f8812b26ed2b7d6d"
+          "checksumValue": "8c34a3e3d049c1f26c1ec8c03dea8ea3cf72e1377d64271234f4ec7cd7ae87a6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -190,7 +202,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost-1.91.0/assert/boost_assert.natvis",
+      "fileName": "./share/boost-1.92.0/assert/boost_assert.natvis",
       "SPDXID": "SPDXRef-binary-file-4",
       "checksums": [
         {
@@ -214,12 +226,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_assert/boost_assert-config-version.cmake",
+      "fileName": "./share/boost-assert/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-6",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "0aba7d4f97280dadd06c81e31ec224dc44878c434e78d2c8fd4b206186389688"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_assert/boost_assert-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-7",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -227,11 +251,11 @@
     },
     {
       "fileName": "./share/boost_assert/boost_assert-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-7",
+      "SPDXID": "SPDXRef-binary-file-8",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "dde47b52e39b8ad25c5f8e11b5f64235bb6c38c0cc521776fc22fe9b3b7fb4c9"
+          "checksumValue": "15e46174edfdc1fff3b77a055a28cc93b1afdf806338f51c61b33312f51302d8"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -239,11 +263,11 @@
     },
     {
       "fileName": "./share/boost_assert/boost_assert-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-8",
+      "SPDXID": "SPDXRef-binary-file-9",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "9065e9a84df5a03a52120aa4b0499a626c2d1bf397e1aeeec4205ecf209b36a2"
+          "checksumValue": "00cce9a404e4ea6df8169e97f03e8cba1f8b9dcda05f7568778b2dfa89804086"
         }
       ],
       "licenseConcluded": "NOASSERTION",

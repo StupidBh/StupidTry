@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "3.1.0")
    message(FATAL_ERROR "CMake >= 3.1.0 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 3.1.0...4.1)
+cmake_policy(VERSION 3.1.0...4.2)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -60,7 +60,7 @@ add_library(Boost::assert INTERFACE IMPORTED)
 set_target_properties(Boost::assert PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "Boost::config"
-  INTERFACE_SOURCES "${_IMPORT_PREFIX}/share/boost-1.91.0/assert/boost_assert.natvis"
+  INTERFACE_SOURCES "${_IMPORT_PREFIX}/share/boost-1.92.0/assert/boost_assert.natvis"
 )
 
 # Load information for each installed configuration.

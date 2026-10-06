@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-fusion-x64-windows-1.91.0-41239f9b-2348-4de3-bb1e-5b1547156c08",
-  "name": "boost-fusion:x64-windows@1.91.0 e4b6af58c3a5080ab5b436aed9cac3da1bb7cc95f248f92823de7999a74d7166",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-fusion-x64-windows-static-md-1.92.0-4f7bd142-c3e4-4043-91d6-5d155eb5d241",
+  "name": "boost-fusion:x64-windows-static-md@1.92.0 742ee3c5357adc25cd7f37020b4c2ade67d8e7bf982db0aa0cd0236588638a33",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:52Z"
+    "created": "2026-09-17T13:08:40Z"
   },
   "relationships": [
     {
@@ -5161,25 +5161,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-1025"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-1026"
     }
   ],
   "packages": [
     {
       "name": "boost-fusion",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-fusion",
       "homepage": "https://www.boost.org/library/latest/fusion/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost fusion module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-fusion@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-fusion"
+        }
+      ]
     },
     {
-      "name": "boost-fusion:x64-windows",
+      "name": "boost-fusion:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "e4b6af58c3a5080ab5b436aed9cac3da1bb7cc95f248f92823de7999a74d7166",
+      "versionInfo": "742ee3c5357adc25cd7f37020b4c2ade67d8e7bf982db0aa0cd0236588638a33",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -5188,17 +5200,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/fusion",
-      "downloadLocation": "git+https://github.com/boostorg/fusion@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "1b7600edbb5dbb73c75b26ec5732df7e58e7eb89330890b9bf0dfa83b5cd36da28a71497706fe8aaa546807dd6d5792a08eec5d0d8b577a64540a10e2df5186a"
+          "checksumValue": "05c9c3461a4ffdb37373a7bc542c9cf0433e5cba3870ab36a53fbea65d85488a20a6a55ba1a91a0c96dddb010614aed82593e692867734e2412e5e353ae0f9de"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/fusion@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/fusion"
     }
   ],
   "files": [
@@ -5208,7 +5220,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "6e58992da16cf7c18e9f7fcf4aab3d170439a2aea1628dad57a12782bd19bac2"
+          "checksumValue": "1b34a863555cb6adab11f49ea9d652e6475ac9466b9ebf2068b7d1e740b5ea8b"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -5220,7 +5232,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "00844224f7f4f3a0c6795cba40737c6313275d25e82bdb94a99332a46058c424"
+          "checksumValue": "50d9a4bc5bd09638133b18b76a49f841f436df9d06f220ac69a9ff67271aab95"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -5232,7 +5244,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -16104,7 +16116,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "eabea7ab73af5ad10ec6719f293148f4698af7eb8860c13f9007e4dd80136707"
+          "checksumValue": "c430ac73959b364d052a1d3d7bf86e31321ff063b904042dcfbf8f82973da40c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -17503,12 +17515,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_fusion/boost_fusion-config-version.cmake",
+      "fileName": "./share/boost-fusion/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-1023",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "5996022257d31c91358ee37675a7d2e343b6e7da44dafe00d0617f443bbe5749"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_fusion/boost_fusion-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-1024",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -17516,11 +17540,11 @@
     },
     {
       "fileName": "./share/boost_fusion/boost_fusion-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-1024",
+      "SPDXID": "SPDXRef-binary-file-1025",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b3590d4f6c93720d82ac82722e327847bebee9095aa3f4b4192d8e33333a72d4"
+          "checksumValue": "633c812afaea5a34e4eec0bff1c5743e9c6ffdc68539135d19f13e6f6461d025"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -17528,11 +17552,11 @@
     },
     {
       "fileName": "./share/boost_fusion/boost_fusion-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-1025",
+      "SPDXID": "SPDXRef-binary-file-1026",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c51cac71ed03368aa42c38ed88ad32d0bb4ddede4676e51237260ef1b347b3b3"
+          "checksumValue": "38491f9ca49cb1050e69d44381ceb290200757f69b6cb9d7c6fbd54c71953a70"
         }
       ],
       "licenseConcluded": "NOASSERTION",

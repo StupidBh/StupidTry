@@ -1,9 +1,8 @@
 #pragma once
-#include "ReaderAPI/ReaderApiBase.h"
-
 #include <filesystem>
 #include <memory>
-#include <string>
+
+#include "ReaderAPI/ReaderApiBase.h"
 
 class ModuleGuard;
 

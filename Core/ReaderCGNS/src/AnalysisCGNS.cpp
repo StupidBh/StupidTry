@@ -1,5 +1,9 @@
 #include "AnalysisCGNS.h"
+#include "Functions.h"
 #include "WindowsFunctions.h"
+
+#include <algorithm>
+#include <unordered_set>
 
 #include "Logger/logger.hpp"
 
@@ -11,13 +15,9 @@ namespace {
     }
 
     template<class Function>
-    Function ResolveExport(const HMODULE module, const char* export_name)
+    Function ResolveExport(const ModuleGuard& module, const char* export_name)
     {
-        const auto function = reinterpret_cast<Function>(GetProcAddress(module, export_name));
-        if (function == nullptr) {
-            LOG_ERROR("ReaderCGNS.dll does not export {}: {}", export_name, GetLastError());
-        }
-        return function;
+        return reinterpret_cast<Function>(module.GetExport(export_name));
     }
 } // namespace
 
@@ -33,9 +33,8 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
         return;
     }
 
-    const HMODULE module = this->m_module_guard->GetModule();
-    const auto create = ResolveExport<ReaderAPI::CreateReaderCGNSFunc>(module, "CreateReaderCGNS");
-    const auto destroy = ResolveExport<ReaderAPI::DestroyReaderCGNSFunc>(module, "DestroyReaderCGNS");
+    const auto create = ResolveExport<ReaderAPI::CreateReaderCGNSFunc>(*this->m_module_guard, "CreateReaderCGNS");
+    const auto destroy = ResolveExport<ReaderAPI::DestroyReaderCGNSFunc>(*this->m_module_guard, "DestroyReaderCGNS");
     if (create == nullptr || destroy == nullptr) {
         return;
     }
@@ -83,24 +82,65 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     LOG_INFO("[ReaderCGNS] solver type: {}", this->m_reader->GetSolverType());
 
+    std::vector<ReaderAPI::Node> all_nodes;
+    if (this->m_reader->GetAllNodeCoordinates(all_nodes)) {
+        std::unordered_set<int> unique_id;
+        for (const auto& [id, x, y, z] : all_nodes) {
+            if (unique_id.contains(id)) {
+                LOG_WARN("Repeat node: id={}, xyz=[{},{},{}]", id, x, y, z);
+                break;
+            }
+            unique_id.insert(id);
+        }
+    }
+
     std::vector<ReaderAPI::Elem> all_elements;
     if (this->m_reader->GetAllElement(all_elements)) {
-        LOG_INFO("AllElement: {}", all_elements.size());
+        std::unordered_set<int> unique_id;
+        for (const auto& element : all_elements) {
+            if (unique_id.contains(element.id)) {
+                LOG_WARN("Repeat elem: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+                break;
+            }
+            if (std::ranges::any_of(element.nodes, [limit = all_nodes.size()](auto value) { return value < 0 || value >= limit; })) {
+                LOG_WARN("Invalid elem in nodes: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
+                break;
+            }
+            unique_id.insert(element.id);
+        }
     }
 
-    std::vector<std::string> element_set_names;
-    if (this->m_reader->GetAllElementSetName(element_set_names)) {
-        LOG_INFO("ElementSet: {}:{}", element_set_names, element_set_names.size());
+    std::vector<std::string> all_component_names;
+    if (this->m_reader->GetAllComponentName(all_component_names)) {
+        std::vector<ReaderAPI::Integer> ids;
+        for (const auto& component_name : all_component_names) {
+            if (this->m_reader->GetComponent(component_name, ids)) {
+                if (std::ranges::any_of(ids, [limit = all_elements.size()](auto value) { return value < 0 || value >= limit; })) {
+                    LOG_WARN("Invalid component: name={}, ids_range=[{}, {}]", component_name, std::ranges::min(ids), std::ranges::max(ids));
+                }
+            }
+        }
     }
 
-    std::vector<std::string> field_function_names;
-    if (this->m_reader->GetAllFieldFunctionName(field_function_names)) {
-        std::vector<ReaderAPI::Field> loaded_fields;
-        if (this->m_reader->GetFieldFunctionData(field_function_names, loaded_fields)) {
-            LOG_INFO("FieldFunction: {}:{}", field_function_names, field_function_names.size());
-
-            for (auto& [name, type, ids, values] : loaded_fields) {
-                LOG_INFO("FieldFunction: {}, type={}, ids={}, value={}", name, type, ids.size(), values.size());
+    std::vector<ReaderAPI::Field> all_field_function_names;
+    if (this->m_reader->GetAllFieldFunctionName(all_field_function_names)) {
+        for (auto& [var, sub_vars] : all_field_function_names) {
+            for (auto& sub_var : sub_vars) {
+                std::vector<ReaderAPI::Integer> field_ids;
+                std::vector<ReaderAPI::Real> field_data;
+                if (this->m_reader->GetFieldFunctionData(var, sub_var, field_data) && this->m_reader->GetFieldFunctionIds(var, sub_var, field_ids)) {
+                    auto position = this->m_reader->GetFieldFunctionPosition(var, sub_var);
+                    LOG_INFO("Field function [{}]-[{}], position={}, values=[{},{}]:{}, ids=[{},{}]:{}",
+                             var,
+                             sub_var,
+                             position,
+                             std::ranges::min(field_data),
+                             std::ranges::max(field_data),
+                             field_data.size(),
+                             std::ranges::min(field_ids),
+                             std::ranges::max(field_ids),
+                             field_ids.size());
+                }
             }
         }
     }

@@ -66,6 +66,7 @@ private:
     void* m_context = nullptr;
 };
 
+#define LOG_TRACE(...) this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_DEBUG(...) this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_INFO(...)  this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_WARN(...)  this->GetLogDispatcher().FormatAndDispatch(ReaderAPI::Logger::READER_CGNS_LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)

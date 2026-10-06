@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-preprocessor-x64-windows-1.91.0-e6d46ab9-1ff5-4b70-a016-89c40ead7f93",
-  "name": "boost-preprocessor:x64-windows@1.91.0 ee92eeab37966894dbb4e8b1ea65713cb88b304216a00f056a0ef6f896b52c4d",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-preprocessor-x64-windows-static-md-1.92.0-d06d5553-c520-42cd-bc47-59b9e57bc89f",
+  "name": "boost-preprocessor:x64-windows-static-md@1.92.0 ef6ae0c366dd4f1ed5657ad8155e99d55918065e7483d402cf3d5ea4b0cdd7d5",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:53:06Z"
+    "created": "2026-09-17T13:06:31Z"
   },
   "relationships": [
     {
@@ -2061,25 +2061,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-405"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-406"
     }
   ],
   "packages": [
     {
       "name": "boost-preprocessor",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-preprocessor",
       "homepage": "https://www.boost.org/library/latest/preprocessor/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost preprocessor module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-preprocessor@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-preprocessor"
+        }
+      ]
     },
     {
-      "name": "boost-preprocessor:x64-windows",
+      "name": "boost-preprocessor:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "ee92eeab37966894dbb4e8b1ea65713cb88b304216a00f056a0ef6f896b52c4d",
+      "versionInfo": "ef6ae0c366dd4f1ed5657ad8155e99d55918065e7483d402cf3d5ea4b0cdd7d5",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -2088,17 +2100,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/preprocessor",
-      "downloadLocation": "git+https://github.com/boostorg/preprocessor@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "41efb9740abfeed698679c2ca191effc76c58da1d6253e53b33308e81dbf59269c228819fa101dba78c363dbde9123ad709a136a391afb44ad6673efc2e7e08b"
+          "checksumValue": "c153ada75f4b2fe43d001e5a1e44dec082b51dde94c6ee02c998a30622fc40b691e0f71f9502df900de92fc9eec30640a12b28438c03710a6e17df996b047ed0"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/preprocessor@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/preprocessor"
     }
   ],
   "files": [
@@ -2108,7 +2120,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "ee68511a1e3be827f99e7e9bc8446e9e1cc1eb8a95066e41277a82fa5bb4de93"
+          "checksumValue": "eabd2232c6099bf2d2f1dd1d42e0b8c6bf18c2472507665974922d23000782d1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2120,7 +2132,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "33ddf8ebd9f06530d793ed327b4b9119758f0ca0ba84ae3ae594ca1d9920e7aa"
+          "checksumValue": "3eca66088cbb2f0193837afca2d021fc2ced89b1a4c036981ebf2b347c15d191"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -2132,7 +2144,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -6963,12 +6975,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_preprocessor/boost_preprocessor-config-version.cmake",
+      "fileName": "./share/boost-preprocessor/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-403",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "99b04d091e1fde4251676e99c19fe572a85c687d8bdc0af686de8a0742690931"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_preprocessor/boost_preprocessor-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-404",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -6976,11 +7000,11 @@
     },
     {
       "fileName": "./share/boost_preprocessor/boost_preprocessor-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-404",
+      "SPDXID": "SPDXRef-binary-file-405",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "275ddca6c669602a99deadec3f04d68d4387e3921885d837b6d0865405859713"
+          "checksumValue": "592c5bcf13b2c63c23cbc5bd4dd04642cf71fd16427415e80a37036df489bab1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -6988,11 +7012,11 @@
     },
     {
       "fileName": "./share/boost_preprocessor/boost_preprocessor-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-405",
+      "SPDXID": "SPDXRef-binary-file-406",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "380efdcc283ceebe69d5fc48a7ab8dd3d1d7af80c5d16661476334007dd1c717"
+          "checksumValue": "2cbfc27960be33c339098f61dee78f115db34fcab9c146a72ef588a2c5c8f0be"
         }
       ],
       "licenseConcluded": "NOASSERTION",

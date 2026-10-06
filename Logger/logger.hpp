@@ -27,7 +27,7 @@ namespace dylog {
     public:
         ~Logger() { spdlog::shutdown(); };
 
-        void InitLog(const std::filesystem::path& work_dir, const std::string& log_file_name, bool verbose = false)
+        void InitLog(const std::filesystem::path& log_dir, const std::string& log_file_name, spdlog::level::level_enum log_level = spdlog::level::level_enum::info)
         {
             std::unique_lock lock(this->m_mutex);
 
@@ -45,9 +45,9 @@ namespace dylog {
 
             // 写入外部文件的日志消息
             try {
-                const std::filesystem::path log_dir = work_dir / "logs";
-                std::filesystem::create_directories(log_dir);
-
+                if (!std::filesystem::exists(log_dir)) {
+                    std::filesystem::create_directories(log_dir);
+                }
                 const std::filesystem::path log_path = log_dir / (log_file_name + ".log");
                 log_sinks.emplace_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(log_path.string(), 0, 0, false, 30));
             }
@@ -62,7 +62,7 @@ namespace dylog {
                                                                              spdlog::thread_pool(),
                                                                              spdlog::async_overflow_policy::block);
             async_logger->set_pattern(log_fmt);
-            async_logger->set_level(verbose ? spdlog::level::trace : spdlog::level::info);
+            async_logger->set_level(log_level);
             async_logger->flush_on(spdlog::level::trace);
             async_logger->set_error_handler([](const std::string& msg) { std::cerr << "[Logger ERROR] " << msg << std::endl; });
 
@@ -74,7 +74,6 @@ namespace dylog {
             if (log == nullptr) {
                 return;
             }
-
             std::unique_lock lock(this->m_mutex);
             spdlog::set_default_logger(std::move(log));
         }
@@ -83,7 +82,8 @@ namespace dylog {
 
 #define LOG spdlog::default_logger()
 
+#define LOG_TRACE(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::trace, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::debug, __VA_ARGS__)
 #define LOG_INFO(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::info, __VA_ARGS__)
 #define LOG_WARN(...)  SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::warn, __VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::debug, __VA_ARGS__)
 #define LOG_ERROR(...) SPDLOG_LOGGER_CALL(spdlog::default_logger(), spdlog::level::err, __VA_ARGS__)

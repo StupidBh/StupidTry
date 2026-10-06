@@ -12,8 +12,9 @@
 - 初始化基于 spdlog 的异步日志系统；
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
-- 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、单元与 element set 名称，并批量读取场值、输出字段摘要；
-- 提供内存映射文本读取、字符编码处理和进程调用等应用侧工具。
+- 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、节点坐标、单元、组件名称及其成员 ID，并批量读取场值、输出字段摘要；
+- 检查返回的节点和单元 ID 是否重复，并对单元连接数据做范围诊断；
+- 提供内存映射文本读取和进程调用等应用侧工具。
 
 `Core` 不对外提供稳定的 C++ 库接口。需要集成 CGNS 检查能力时，应使用 `ReaderCGNS` 的公开头文件与 DLL 导出约定，由调用方管理 reader 实例。
 
@@ -22,45 +23,53 @@
 程序入口位于 `src/Main.cpp`，主要流程如下：
 
 1. `SingletonData::ProcessArguments()` 解析并规范化参数；
-2. 在工作目录下初始化控制台与文件日志；
+2. 按日志级别初始化控制台日志，并在日志目录下初始化文件日志；
 3. 验证输入路径存在；
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
-7. 打开文件，依次查询求解器类型、全部单元、element set 名称，再获取场函数名称并批量读取场值；
+7. 打开文件，依次查询求解器类型、全部节点和全部单元，检查重复 ID 与连接数据范围，再查询组件名称及成员 ID、场函数名称并批量读取场值；
 8. 关闭文件、清除回调、销毁 reader 并卸载 DLL。
 
-当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。单元查询成功时输出 `AllElement` 数量；字段批量读取至少成功一项时输出名称列表，以及各成功字段的 `type`、`ids` 数量和 `values` 数量，不逐项打印数值。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
+当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。节点和单元查询成功时分别由 ReaderCGNS 记录 `All nodes`、`All elements` 数量；组件查询会读取每个组件的成员 ID 并检查其是否落在扁平单元数组范围内。
+
+节点与单元分别检查 ID 唯一性，重复时记录 `Repeat node` 或 `Repeat elem` 警告。单元 ID 按扁平输出顺序从 0 开始，并与输出数组下标一致；组件成员 ID 复用这一编号，Core 会检查其范围。当前连接范围诊断将 `Elem::nodes` 中的每个值与 `[0, 节点数量)` 比较；它尚未解析 NFACE 的面节点数前缀，因此可能把长度当作节点 ID 而误报。该诊断不等于完整拓扑验证，数据布局见 [多面体展开说明](../ReaderCGNS/Readme.md#多面体展开)。
+
+字段批量读取至少成功一项时输出 `Field Function sum` 和各成功字段的名称、`type`、`ids` 数量及 `value` 数量，不逐项打印数值。其中 `sum` 是枚举到的字段名称数量，部分读取失败时不等于成功字段数。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
 
 ## 命令行接口
 
 | 参数 | 必需 | 说明 |
 |---|---:|---|
-| `--inputPath`, `-i` | 是 | 要检查的 CGNS 文件路径。 |
-| `--workDirectory`, `-w` | 否 | 日志目录，不改变进程当前目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
-| `--DEBUG` | 否 | 启用详细日志。Debug 构建会强制启用详细日志。 |
-| `--help`, `-h` | 否 | 输出参数帮助。 |
+| `--input_file` | 是 | 要检查的 CGNS 文件路径。 |
+| `--workspace_dir` | 否 | 工作目录，不改变进程当前目录。默认使用输入文件所在目录；仅传入文件名时使用 `./<文件名主干>/`。 |
+| `--log_dir` | 否 | 日志文件目录，默认使用 `<workspace_dir>/logs/`。 |
+| `--log_level` | 否 | 接受 `trace`、`debug`、`info`、`warning`、`error`，默认为 `info`；Debug 构建会强制使用 `trace`。 |
+| `--help` | 否 | 输出参数帮助。 |
+
+旧参数 `--inputPath`、`--workDirectory`、`--DEBUG` 及短选项 `-i`、`-w`、`-h` 已移除，请使用上表中的参数。
 
 示例：
 
 ```powershell
 .\bin\Debug\Core.exe `
-    --inputPath D:\data\case.cgns `
-    --workDirectory D:\work\case `
-    --DEBUG
+    --input_file D:\data\case.cgns `
+    --workspace_dir D:\work\case `
+    --log_dir D:\work\case\logs `
+    --log_level debug
 ```
 
-运行时会在工作目录产生以下内容：
+运行时会在日志目录（默认 `<workspace_dir>/logs/`）产生以下内容：
 
 | 路径 | 内容 |
 |---|---|
-| `logs/stupid-bhh_YYYY-MM-DD.log` | 应用及 ReaderCGNS 转发日志，按日期命名，每天午夜轮换，最多保留 30 个日志文件。 |
+| `stupid-bhh_YYYY-MM-DD.log` | 应用及 ReaderCGNS 转发日志，按日期命名，每天午夜轮换，最多保留 30 个日志文件。 |
 
 日志同时输出到控制台；文件日志初始化失败时会向标准错误报告并继续使用控制台日志。CGNS 文件以只读方式打开，当前流程不生成网格或场值导出文件。
 
 ### 退出状态
 
-参数解析失败、`--help`、DLL/reader 初始化失败或文件打开失败返回 `EXIT_FAILURE`；输入路径不存在时返回 `-1`。打开文件后的单元、集合或字段查询失败不会使 `Analyze()` 返回 `false`，且 `main()` 捕获分析异常后仍会返回 `0`。因此当前退出码不能作为数据完整性或全部查询成功的判据，应检查日志与字段摘要。
+参数解析失败、`--help`、DLL/reader 初始化失败或文件打开失败返回 `EXIT_FAILURE`；输入路径不存在时返回 `-1`。打开文件后的节点、单元、组件或字段查询失败，以及重复 ID、组件成员范围和连接范围警告，都不会使 `Analyze()` 返回 `false`，且 `main()` 捕获分析异常后仍会返回 `0`。因此当前退出码不能作为数据完整性或全部查询成功的判据，应检查日志与字段摘要。
 
 ## 目录结构
 
@@ -71,9 +80,9 @@ Core/
 │   └── Main.cpp                    # 命令行入口与集成流程
 ├── Common/
 │   ├── SingletonData.h             # 参数和应用级状态
-│   ├── Functions.h                 # 仅依赖标准库的字符串工具
+│   ├── Functions.h                 # 字符串、环境变量、进程调用和可执行文件路径工具
 │   ├── Macros.hpp                  # 通用宏，当前包含作用域计时
-│   ├── WindowsFunctions.h          # Win32 编码、进程、环境、路径和 DLL 句柄工具
+│   ├── WindowsFunctions.h          # Win32 DLL 句柄工具
 │   └── src/
 ├── ReaderCGNS/
 │   ├── AnalysisCGNS.h              # ReaderCGNS DLL 加载、实例与分析流程
@@ -86,13 +95,15 @@ Core/
     └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置
 ```
 
+`Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。`GetExecutablePath()` 和 `GetExecutableDirectory()` 使用 Boost.Process 查询当前进程的可执行文件路径，供 `AnalysisCGNS` 定位同目录下的 `ReaderCGNS.dll`。`ExecuteProcess()` 使用 Boost.Process 启动子进程并转发其输出，支持通过回调控制进程收尾行为。
+
 ## 依赖关系
 
 | 依赖 | 用途 | 集成方式 |
 |---|---|---|
 | `ReaderCGNS` | CGNS 文件检查与日志回调 | 公开头 + 运行时 DLL；不链接 import library |
+| Boost.Process | 子进程执行与当前进程可执行文件路径查询 | vendored CMake package |
 | Boost.Program_options | 命令行解析 | vendored CMake package |
-| Boost.Container | 容器支持 | vendored CMake package |
 | HDF5 | 数据文件后端 | 共享库 |
 | HighFive | HDF5 C++ 封装 | 头文件库 |
 | spdlog | 控制台与文件日志 | 头文件库 |

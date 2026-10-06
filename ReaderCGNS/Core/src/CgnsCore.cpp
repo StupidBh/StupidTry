@@ -1,6 +1,5 @@
 #include "CgnsCore.h"
 
-#include <functional>
 #include <unordered_set>
 
 std::string CgnsCore::GetSolverType() const
@@ -562,4 +561,6 @@ void CgnsCore::clear_cache_data() noexcept
 {
     this->clear_grid_topology();
     this->clear_field_data();
+
+    LOG_TRACE("[clear_cache_data] finish.");
 }

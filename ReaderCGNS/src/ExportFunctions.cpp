@@ -3,6 +3,12 @@
 
 #include <type_traits>
 
+#ifdef _WIN32
+    #define READER_API __declspec(dllexport)
+#else
+    #define READER_API __attribute__((visibility("default")))
+#endif
+
 namespace ReaderAPI {
     static_assert(std::is_base_of_v<ReaderApiBase, CgnsCore>, "CgnsCore must derive from ReaderApiBase");
     static_assert(!std::is_abstract_v<CgnsCore>, "CgnsCore must implement every pure virtual function");

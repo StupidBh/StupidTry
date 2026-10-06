@@ -3,7 +3,6 @@
 
 #include <string>
 
-#include "cgnslib.h"
 #include "Utils/Utils.hpp"
 
 template<class T>
@@ -43,8 +42,6 @@ struct ZoneTopology : Topology<CG_ZoneType_t>
     std::array<cgsize_t, 9> zone_size = { };
     std::array<std::vector<float>, 3> coordinates_xyz;
 
-    std::vector<SectionTopology> sections;
-
     cgsize_t CellSum() const
     {
         cgsize_t cell_sum = 1;
@@ -73,6 +70,4 @@ struct BaseTopology : Topology<CG_SimulationType_t>
 
     int cell_dim = 0;
     int phy_dim = 0;
-
-    std::vector<ZoneTopology> zones;
 };

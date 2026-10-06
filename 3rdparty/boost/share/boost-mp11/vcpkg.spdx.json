@@ -1,15 +1,15 @@
 {
-  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
-  "spdxVersion": "SPDX-2.2",
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.3/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.3",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/boost-mp11-x64-windows-1.91.0-33fbaefe-5a62-4c92-90f9-009b939c5751",
-  "name": "boost-mp11:x64-windows@1.91.0 f63350fd303472a816f36bdf7bf91081383746210f941f4f392d66b6f0321c3a",
+  "documentNamespace": "https://spdx.org/spdxdocs/boost-mp11-x64-windows-static-md-1.92.0-aafc17e6-dd5e-4b25-8f44-2c33ad8af95e",
+  "name": "boost-mp11:x64-windows-static-md@1.92.0 38ead591b411a61bd3c3b7a2db8f13353f434362d4ac541be273519cfb2510e2",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-12-16-44bb3ce006467fc13ba37ca099f64077b8bbf84d"
+      "Tool: vcpkg-2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8"
     ],
-    "created": "2026-07-18T13:52:49Z"
+    "created": "2026-09-17T13:07:24Z"
   },
   "relationships": [
     {
@@ -236,25 +236,37 @@
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-binary-file-40"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-binary-file-41"
     }
   ],
   "packages": [
     {
       "name": "boost-mp11",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.91.0",
+      "versionInfo": "1.92.0",
       "downloadLocation": "git+https://github.com/Microsoft/vcpkg#ports/boost-mp11",
       "homepage": "https://www.boost.org/library/latest/mp11/",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "description": "Boost mp11 module",
-      "comment": "This is the port (recipe) consumed by vcpkg."
+      "comment": "This is the port (recipe) consumed by vcpkg.",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:vcpkg/boost-mp11@1.92.0?triplet=x64-windows-static-md&vcs_url=git%2Bhttps%3A%2F%2Fgithub.com%2FMicrosoft%2Fvcpkg%23ports%2Fboost-mp11"
+        }
+      ]
     },
     {
-      "name": "boost-mp11:x64-windows",
+      "name": "boost-mp11:x64-windows-static-md",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "f63350fd303472a816f36bdf7bf91081383746210f941f4f392d66b6f0321c3a",
+      "versionInfo": "38ead591b411a61bd3c3b7a2db8f13353f434362d4ac541be273519cfb2510e2",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSL-1.0",
       "licenseDeclared": "NOASSERTION",
@@ -263,17 +275,17 @@
     },
     {
       "SPDXID": "SPDXRef-resource-0",
-      "name": "boostorg/mp11",
-      "downloadLocation": "git+https://github.com/boostorg/mp11@boost-1.91.0",
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "5951acc5ab2f5661d9ac84654b6ba2761455469c9e2b52236ad4bbd5f1feac7c136fd07144dbf6954143e80b0dc12da09165f31e42107eb682bca4e46bf93225"
+          "checksumValue": "dc5a89370e2807534de85938c426252b9eeaa3c7f739871e4e57e3acb7e6507090036c96bc8d77f3ab698e1071f3e17935de36707463702fefe853a59378ff2b"
         }
-      ]
+      ],
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "git+https://github.com/boostorg/mp11@boost-1.92.0",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "boostorg/mp11"
     }
   ],
   "files": [
@@ -283,7 +295,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "07dc7ce5a695d190a2df09354e2d299efadcf114033dca7655a18dfb522e5a3b"
+          "checksumValue": "6a09df4236d4d313f267f304bc213512752b15caf2bc5de84f9d5364e14e5b18"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -295,7 +307,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f006df072af0aa4839d764c757d9c75394e9a21d3576f0584ebe262a63eea1eb"
+          "checksumValue": "1bcce2555c1f4680c2dae3076717d4311862b1bba91ddb1974ff7b95d4fca906"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -307,7 +319,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5e7f821ab4eb804deb535baa7b41edca682d0303cf21a91908c98d5c9a7dcf4d"
+          "checksumValue": "5bacb3bbb20da44b331b0cfd5c6c295c0c2b19de7fab181f77130c731bded41a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -319,7 +331,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "796af88be84f5e9d0506ff56e582bcbc8330fa7c9cc3eedce51885f1f1c30fb0"
+          "checksumValue": "1ed92dbd10ce982cba72c1aa19efb7aa5b0cc89ea2985060a5213dfccf4f6ba3"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -379,7 +391,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "2c982189cfa67c13fd73dca0eecd06f9bbf0950ef8749b780cd35217e7539567"
+          "checksumValue": "aabfdd7bbc8acbb5814037a32d8555d6172b3aff8a47340061bcf0f931822bf9"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -487,7 +499,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "186eae1f8ec601d46ced88406ca7207a090719a068327343d5c2dc2cd8d6c765"
+          "checksumValue": "b76b0ba6df5ccd7bcd3efcc52d9f6d76a16dd20407d18b0167826989783e794a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -523,7 +535,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "024f5641461702f4189e3d6994733a2b528159d322b8b114941ecd005c91ebd7"
+          "checksumValue": "fa3922ed87346e437f6e3f57b32779ecc3c28f474e87510d3ccbfbcecc3ed95e"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -595,7 +607,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8138862b7d8bd9f2f36819a52c3d21482e20268f26c41af5dc48c870c89532e3"
+          "checksumValue": "41acd03710152acff124abaf8ff12ab86d76fb6c06c65e7d0203b9098072dd3c"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -643,7 +655,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "4a854922d30bcac0aa2e2c71209e01ec1080e3d9e0ea2201f039216b73750fc6"
+          "checksumValue": "f4ea61c8a0c6ef25c0df4046d1a77139b779e3783d896799afdbdb03e584a0ed"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -727,7 +739,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "1c11cecffdf689761c74308c048019c8901ae55cba36b4e5e10f45d1cb7ae8d8"
+          "checksumValue": "02ed2553a80149dec2264fb5838a5f6b9b1c7fdfd16f7471eb0e345f4502e5f1"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -758,12 +770,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./share/boost_mp11/boost_mp11-config-version.cmake",
+      "fileName": "./share/boost-mp11/vcpkg-spdx-resources.json",
       "SPDXID": "SPDXRef-binary-file-38",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "354e88696ed7925e5835cdc2ec38b151b31e487b3aa73166a36248d846df8b14"
+          "checksumValue": "823746ef7509a4acd591abdcf5c4922a55dc655fb2915fff6810f774058d214e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./share/boost_mp11/boost_mp11-config-version.cmake",
+      "SPDXID": "SPDXRef-binary-file-39",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0a700e7cd7047a236a502d8828f6f39de052de0989f9e15d056ee5b247891ebc"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -771,11 +795,11 @@
     },
     {
       "fileName": "./share/boost_mp11/boost_mp11-config.cmake",
-      "SPDXID": "SPDXRef-binary-file-39",
+      "SPDXID": "SPDXRef-binary-file-40",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "a6624028d29cdf91d9cb20f37a33a0d11a8c84dd9f56d543afd56071d1d3a23e"
+          "checksumValue": "bf5de0affa7a95f49aecf72b38d0721136387ff13de6ad73ee40549807d77859"
         }
       ],
       "licenseConcluded": "NOASSERTION",
@@ -783,11 +807,11 @@
     },
     {
       "fileName": "./share/boost_mp11/boost_mp11-targets.cmake",
-      "SPDXID": "SPDXRef-binary-file-40",
+      "SPDXID": "SPDXRef-binary-file-41",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "c23f39670a0a03fbc02d5aa2aa71821a7454504041f24d66811ab07a835945aa"
+          "checksumValue": "66500564b82d81550635802ee8aac5039b06923a47f78d6f474a667fc968735e"
         }
       ],
       "licenseConcluded": "NOASSERTION",

@@ -31,8 +31,7 @@ private:
 
 #define SINGLE_DATA SingletonData::get_instance()
 
-#define INPUT_PATH SINGLE_DATA.GetProgramOptions<std::string>("inputPath")
-#define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workDirectory")
-#define IS_DEBUG   SINGLE_DATA.GetProgramOptions<bool>("DEBUG")
+#define INPUT_PATH SINGLE_DATA.GetProgramOptions<std::string>("input_file")
+#define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workspace_dir")
 
 #define WORK_DIR_PATH SINGLE_DATA.GetOrCreateWorkDirectory()

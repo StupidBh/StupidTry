@@ -1,0 +1,19 @@
+{
+  "packages": [
+{
+  "SPDXID" : "SPDXRef-resource-0",
+  "checksums" : 
+  [
+    {
+      "algorithm" : "SHA512",
+      "checksumValue" : "6fd6ab907f6e1195bae0343d73cf192d353be85e89137b98c6cee38e1f73db91453290fb05d63e3194440c5f4cf50b1f5c29e332edceda26e2689005b2a14296"
+    }
+  ],
+  "copyrightText" : "NOASSERTION",
+  "downloadLocation" : "git+https://github.com/boostorg/atomic@boost-1.92.0",
+  "licenseConcluded" : "NOASSERTION",
+  "licenseDeclared" : "NOASSERTION",
+  "name" : "boostorg/atomic"
+}
+  ]
+}
