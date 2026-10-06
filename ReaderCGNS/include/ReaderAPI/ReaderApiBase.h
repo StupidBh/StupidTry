@@ -1,16 +1,6 @@
 #pragma once
 #include "Types/ElementTypes.hpp"
 
-#ifdef _WIN32
-    #ifdef READER_CGNS_EXPORTS
-        #define READER_API __declspec(dllexport)
-    #else
-        #define READER_API __declspec(dllimport)
-    #endif
-#else
-    #define READER_API __attribute__((visibility("default")))
-#endif
-
 namespace ReaderAPI {
     namespace Logger {
         enum LogLevel : int
