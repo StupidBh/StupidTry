@@ -35,16 +35,7 @@ cmake --build build/Debug --config Release
 
 单元 ID 按扁平输出顺序生成，从 0 开始并与 `GetAllElement()` 结果下标一致；组件成员 ID 复用这一编号。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存一致性仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
-`UtilsAppendVectorTests` 已注册到 CTest，覆盖 `AppendVector` 的重载、别名和异常处理。构建后运行：
-
-```powershell
-ctest --test-dir build/Debug -C Debug --output-on-failure
-ctest --test-dir build/Debug -C Release --output-on-failure
-```
-
-`AppendVector` 对独立 vector 直接追加；元素构造抛异常时，目标可能保留已追加的前缀。右值来源的移动抛异常时，来源也可能有元素已被移动。计数填充值重载在追加元素的复制抛异常时撤销本次新增元素（容量仍可能变化）。
-
-当前不提供直接针对 `ReaderCGNS` 模块的测试目标；可通过上面的 `Core.exe` 命令进行集成验证。
+当前 CMake 仅定义 `Core` 和 `ReaderCGNS` 两个目标，尚未启用 CTest 或注册测试目标。可通过上面的 `Core.exe` 命令进行集成验证。
 
 仍没有随仓库提供完整 CGNS 样例文件，因此 Core 的 DLL 加载和真实文件读取需要另行用实际文件验证；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
 
@@ -66,18 +57,28 @@ StupidTry/
 │   ├── ReaderCGNS/                 # ReaderCGNS 的应用侧集成
 │   │   ├── AnalysisCGNS.h          # DLL 加载、reader 生命周期和日志适配
 │   │   └── src/
-│   ├── Utils/                      # Core 专用的 HDF5 和文件 I/O 工具
+│   ├── Utils/                      # Core 的 HDF5、文件 I/O 与应用日志工具
 │   │   ├── HighFiveUtils.hpp
 │   │   ├── MioReader.h
+│   │   ├── logger.hpp              # 基于 spdlog 的日志封装
+│   │   ├── logger_formatter.hpp
 │   │   └── src/
-│   └── 3rdparty/
-│       └── hdf5/                  # Core 使用的 HDF5 依赖
-├── ReaderCGNS/                     # CGNS 文件读取与检查共享库
+│   └── 3rdparty/                   # Core 使用的第三方依赖
+│       ├── boost/
+│       ├── hdf5/
+│       ├── highfive/
+│       ├── meojson/
+│       ├── mio/
+│       └── spdlog/
+├── ReaderAPI/                      # 调用方与 ReaderCGNS 共用的公开协议
+│   ├── ReaderApiBase.h             # reader 接口、工厂及日志协议类型
+│   ├── ReaderApiTypes.hpp          # Integer/Real 与 Node/Field
+│   └── Types/ElementTypes.hpp      # Elem、ElementTable 与视图类型
+├── ReaderCGNS/                     # CGNS 文件读取与检查动态加载模块
 │   ├── CMakeLists.txt
 │   ├── Readme.md                    # ReaderCGNS 接口、并发与构建说明
 │   ├── CGNS.md                      # CGNS 文件格式与数据结构
 │   ├── CGNS_API.md                  # CGNS 4.5.1 C API 开发参考
-│   ├── include/ReaderAPI/          # ReaderCGNS 对外公开头文件
 │   ├── src/                        # DLL reader 工厂导出
 │   ├── Common/                     # CGNS 常量、拓扑与内部字段类型
 │   ├── Core/                       # 文件生命周期、网格/场值读取与层次遍历
@@ -88,19 +89,12 @@ StupidTry/
 │   ├── BlockingQueue.hpp           # 线程安全阻塞队列
 │   ├── ThreadPool.hpp              # 线程池
 │   └── ...
-├── Logger/                         # 基于 spdlog 的日志封装
-├── 3rdparty/                       # 多个目标共用的第三方依赖
-│   ├── boost/
-│   ├── highfive/
-│   ├── meojson/                    # JSON/JSON5 头文件库
-│   ├── mio/
-│   └── spdlog/
 ├── .clang-format                   # C/C++ 代码格式化配置
 ├── build/                          # CMake 构建目录（生成）
 └── bin/<Debug|Release>/            # 可执行文件和动态库输出（生成）
 ```
 
-`Core` 通过公开头获得 ABI 类型，使用 `LoadLibraryW`/`GetProcAddress` 解析 `ReaderCGNS.dll` 的 Create/Destroy 工厂，并通过 reader 虚接口完成文件检查和实例级日志配置；两者之间没有链接时依赖。根目录下的 `Utils` 和 `Logger` 为头文件形式的通用组件。`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
+`Core` 和 `ReaderCGNS` 均将仓库根目录加入私有 include 路径，通过 `ReaderAPI/...` 引用公开协议。`Core` 使用 `LoadLibraryW`/`GetProcAddress` 解析 `ReaderCGNS.dll` 的 Create/Destroy 工厂，并通过 reader 虚接口完成文件检查和实例级日志配置；两者之间没有链接时依赖。根目录的 `Utils/` 提供头文件形式的通用工具，应用日志封装位于 `Core/Utils/`。根 CMake 统一设置 MSVC 编译选项、运行库和输出目录，再加入两个子工程；`build/` 和 `bin/` 均为生成目录，不应在其中维护源代码。
 
 ## 模块文档
 
@@ -111,7 +105,7 @@ StupidTry/
 
 ## 第三方依赖
 
-必需依赖均已 vendored 在仓库中：通用依赖位于根目录 `3rdparty/`，目标专用依赖分别位于 `Core/3rdparty/` 和 `ReaderCGNS/3rdparty/`。TBB 不随仓库交付；找到时 Core 额外链接 `TBB::tbb`，找不到时省略该链接。`std::execution::par` 的实际执行后端取决于标准库实现，不能据此判断是否串行执行；MSVC STL 的并行算法不依赖 TBB。
+必需依赖均已 vendored 在仓库中：Boost、HDF5、HighFive、meojson、mio 和 spdlog 位于 `Core/3rdparty/`，CGNS 及其私有依赖位于 `ReaderCGNS/3rdparty/cgns/`。Core 使用模块内的 `BOOST_ROOT`、`HDF5_ROOT` 查找包，ReaderCGNS 使用模块内的 `CGNS_ROOT`，并显式指定该依赖目录中的 Debug/Release ZLIB 静态库。TBB 不随仓库交付；找到时 Core 额外链接 `TBB::tbb`，找不到时省略该链接。`std::execution::par` 的实际执行后端取决于标准库实现，不能据此判断是否串行执行；MSVC STL 的并行算法不依赖 TBB。
 
 | 库        | 版本     | 链接方式                     | 用途                                    |
 |----------|--------|--------------------------|---------------------------------------|

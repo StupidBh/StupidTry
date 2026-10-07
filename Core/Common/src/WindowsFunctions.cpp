@@ -1,15 +1,13 @@
 #include "WindowsFunctions.h"
 #include "Functions.h"
+#include "logger.hpp"
 
 #ifndef NOMINMAX
     #define NOMINMAX
 #endif
 #include <windows.h>
 
-#include <array>
 #include <memory>
-
-#include "Logger/logger.hpp"
 
 ModuleGuard::ModuleGuard(const std::filesystem::path& library_path) noexcept :
     m_module(LoadLibraryW(library_path.c_str()))

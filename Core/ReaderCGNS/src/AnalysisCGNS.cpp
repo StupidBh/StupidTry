@@ -1,11 +1,10 @@
 #include "AnalysisCGNS.h"
 #include "Functions.h"
 #include "WindowsFunctions.h"
+#include "logger.hpp"
 
 #include <algorithm>
 #include <unordered_set>
-
-#include "Logger/logger.hpp"
 
 namespace {
     std::filesystem::path GetReaderLibraryPath()

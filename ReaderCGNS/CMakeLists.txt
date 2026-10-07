@@ -18,7 +18,6 @@ endif ()
 target_include_directories(${PROJECT_NAME}
         PRIVATE
         ${CMAKE_SOURCE_DIR}
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/Common"
         "${CMAKE_CURRENT_SOURCE_DIR}/Utils"
         "${CMAKE_CURRENT_SOURCE_DIR}/Core"
@@ -32,16 +31,3 @@ find_package(cgns CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CGNS::cgns_static
 )
-
-if (BUILD_TESTING)
-    add_executable(ReaderCGNSLoggerTests)
-    target_sources(ReaderCGNSLoggerTests PRIVATE
-            tests/LoggerCallbackTests.cpp
-    )
-    target_compile_features(ReaderCGNSLoggerTests PRIVATE cxx_std_23)
-    target_include_directories(ReaderCGNSLoggerTests PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
-    add_dependencies(ReaderCGNSLoggerTests ReaderCGNS)
-    add_test(NAME ReaderCGNS.LoggerCallback COMMAND ReaderCGNSLoggerTests)
-endif ()

@@ -1,10 +1,9 @@
 #include "SingletonData.h"
 #include "Functions.h"
+#include "logger.hpp"
 
 #include <iostream>
 #include <system_error>
-
-#include "Logger/logger.hpp"
 
 namespace spdlog::level {
     static void validate(boost::any& value, const std::vector<std::string>& values, level_enum*, int)

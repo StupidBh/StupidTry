@@ -2,7 +2,7 @@
 
 `Core` 是 StupidBhh 的命令行集成程序。它负责解析运行参数、初始化应用日志，并调用 `ReaderCGNS` 检查 CGNS 文件。
 
-该目标更接近应用入口和集成验证程序，而不是通用基础库。可复用的 CGNS 检查能力由 `ReaderCGNS` 提供；跨项目工具则位于仓库根目录的 `Utils/` 与 `Logger/`。
+该目标更接近应用入口和集成验证程序，而不是通用基础库。可复用的 CGNS 检查能力由 `ReaderCGNS` 提供，公开协议位于仓库根目录的 `ReaderAPI/`；通用头文件工具位于根目录的 `Utils/`，应用日志封装位于 `Core/Utils/`。
 
 ## 职责边界
 
@@ -90,9 +90,16 @@ Core/
 ├── Utils/
 │   ├── HighFiveUtils.hpp           # HDF5 数据集读写辅助函数
 │   ├── MioReader.h                 # 内存映射文本读取器
+│   ├── logger.hpp                 # 基于 spdlog 的异步日志封装
+│   ├── logger_formatter.hpp       # 日志格式化辅助工具
 │   └── src/
-└── 3rdparty/
-    └── hdf5/                       # Core 使用的 HDF5 运行库与 CMake 配置
+└── 3rdparty/                      # Core 使用的第三方依赖
+    ├── boost/                     # Boost 库与 CMake 配置
+    ├── hdf5/                      # HDF5 运行库与 CMake 配置
+    ├── highfive/                  # HDF5 C++ 头文件封装
+    ├── meojson/                   # JSON/JSON5 头文件库
+    ├── mio/                       # 内存映射文件头文件库
+    └── spdlog/                    # 日志头文件库
 ```
 
 `Functions.h` 中的 `GetEnv()` 使用 `std::getenv()` 读取环境变量；变量不存在时抛出 `std::runtime_error`。`GetExecutablePath()` 和 `GetExecutableDirectory()` 使用 Boost.Process 查询当前进程的可执行文件路径，供 `AnalysisCGNS` 定位同目录下的 `ReaderCGNS.dll`。`ExecuteProcess()` 使用 Boost.Process 启动子进程并转发其输出，支持通过回调控制进程收尾行为。
@@ -101,7 +108,7 @@ Core/
 
 | 依赖 | 用途 | 集成方式 |
 |---|---|---|
-| `ReaderCGNS` | CGNS 文件检查与日志回调 | 公开头 + 运行时 DLL；不链接 import library |
+| `ReaderAPI/` + `ReaderCGNS` | CGNS 文件检查与日志回调 | 根目录公开头 + 运行时 DLL；不链接 import library |
 | Boost.Process | 子进程执行与当前进程可执行文件路径查询 | vendored CMake package |
 | Boost.Program_options | 命令行解析 | vendored CMake package |
 | HDF5 | 数据文件后端 | 共享库 |
@@ -110,11 +117,11 @@ Core/
 | mio | 内存映射文件读取 | 头文件库 |
 | TBB | 部分标准库实现的并行算法后端 | 可选；未找到时不链接 `TBB::tbb`，MSVC STL 不依赖它 |
 
-依赖版本及仓库级工具链要求以根目录 [`README.md`](../README.md) 为准。
+必需第三方依赖均位于 `Core/3rdparty/`。CMake 将该目录和仓库根目录加入 Core 的私有 include 路径，并分别设置模块内的 `BOOST_ROOT`、`HDF5_ROOT` 查找包；公开协议通过 `#include "ReaderAPI/ReaderApiBase.h"` 引用。依赖版本及仓库级工具链要求以根目录 [`README.md`](../README.md) 为准。
 
 ## 构建
 
-`Core/CMakeLists.txt` 依赖根工程定义的公共路径，因此应从仓库根目录配置。完整运行布局需要同时构建默认 all target，使 `Core.exe` 与 `ReaderCGNS.dll` 写入同一配置目录：
+`Core/CMakeLists.txt` 使用仓库根目录下的公开协议和通用工具，并依赖根工程统一设置编译选项、MSVC 运行库及输出目录，因此应从仓库根目录配置。完整运行布局需要同时构建默认 all target，使 `Core.exe` 与 `ReaderCGNS.dll` 写入同一配置目录：
 
 ```powershell
 cmake -S . -B build/Debug -G "Visual Studio 18 2026" -A x64
@@ -152,6 +159,6 @@ Debug 构建中，日志回调将 ReaderCGNS 提供的源码路径和行号作�
 ## 开发约定
 
 - 应用入口保持轻量，通用能力优先下沉到明确归属的模块；
-- `Core/Utils` 只放置应用侧适配器，不应扩展 ReaderCGNS 的公开协议；
+- `Core/Utils/` 放置应用侧工具与日志封装，跨模块通用头文件放入根目录 `Utils/`，公开协议放入根目录 `ReaderAPI/`；
 - 修改参数、输出文件或构建依赖时，同步更新本文档和根 `README.md`；
 - 第三方内容位于 `Core/3rdparty/`，除有计划的依赖升级外不要直接修改。

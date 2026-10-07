@@ -1,3 +1,4 @@
+#include "logger.hpp"
 #include "Functions.h"
 
 #include <algorithm>
@@ -6,7 +7,6 @@
 #include <stdexcept>
 #include <thread>
 
-#include "Logger/logger.hpp"
 #include "boost/process/ext/exe.hpp"
 #include "boost/process/v1/args.hpp"
 #include "boost/process/v1/child.hpp"
