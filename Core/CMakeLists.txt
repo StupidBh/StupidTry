@@ -12,14 +12,14 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}
-        ${3RD_ROOT}
+        "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
         Common
         Utils
         ReaderCGNS
         ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
 )
 
-set(BOOST_ROOT "${3RD_ROOT}/boost")
+set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/boost")
 set(HDF5_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/hdf5")
 find_package(HDF5 CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS process program_options)
