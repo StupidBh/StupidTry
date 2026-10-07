@@ -16,7 +16,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
         Common
         Utils
         ReaderCGNS
-        ${CMAKE_SOURCE_DIR}/ReaderCGNS/include
 )
 
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/boost")
