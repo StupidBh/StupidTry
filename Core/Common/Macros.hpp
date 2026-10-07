@@ -1,7 +1,7 @@
 #pragma once
 #include <string_view>
 
-#include "Logger/logger.hpp"
+#include "logger.hpp"
 #include "Utils/ScopedTimer.hpp"
 
 #define UTILS_DETAIL_CONCAT_IMPL(x, y) x##y

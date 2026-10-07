@@ -1,6 +1,5 @@
 #pragma once
 #include "logger_formatter.hpp"
-#include "Utils/SingletonHolder.hpp"
 
 #include <exception>
 #include <filesystem>
@@ -16,6 +15,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "Utils/SingletonHolder.hpp"
 
 namespace dylog {
     class Logger final : public utils::SingletonHolder<Logger> {
