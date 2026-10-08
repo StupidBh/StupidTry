@@ -2,6 +2,11 @@
 
 #include <unordered_set>
 
+CgnsCore::CgnsCore() :
+    m_fluid_extensions(*this)
+{
+}
+
 std::string CgnsCore::GetSolverType() const
 {
     auto first_base = this->get_base_zone_indices().front().index_base;
@@ -13,6 +18,11 @@ std::string CgnsCore::GetSolverType() const
 
     const char* solver_type_name = cg_GoverningEquationsTypeName(solver_type);
     return solver_type_name != nullptr ? solver_type_name : "Unknown";
+}
+
+ReaderAPI::FluidExtensionsBase* CgnsCore::GetFluidExtensions()
+{
+    return &this->m_fluid_extensions;
 }
 
 void CgnsCore::info() const

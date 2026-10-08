@@ -56,7 +56,7 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 #include "ReaderAPI/ReaderApiBase.h"
 ```
 
-该头文件同时提供 `ReaderAPI::ReaderApiBase`、reader 工厂函数指针类型，以及
+该头文件同时提供 `ReaderAPI::ReaderApiBase`、可选的 `ReaderAPI::FluidExtensionsBase`、reader 工厂函数指针类型，以及
 `ReaderAPI::Logger::LogLevel` 和 `LogCallback` 日志协议类型。
 
 | API                                                                    | 作用                                                                                          |
@@ -77,6 +77,8 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(name, field)`          | 按公开字段名读取场值，成功时替换输出 `Field`。                                                |
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(names, fields)`        | 按请求顺序批量读取场值，至少一项成功时用成功项替换输出数组。                                  |
 | `ReaderAPI::ReaderApiBase::info()`                                     | 遍历当前已打开文件并输出结构检查信息。                                                        |
+| `ReaderAPI::ReaderApiBase::GetFluidExtensions()`                     | 获取 reader 拥有的可选流体扩展接口；默认实现返回 `nullptr`。                                  |
+| `ReaderAPI::FluidExtensionsBase::HasVelocityField()`                 | 检查当前文件的字段名称中是否包含所需速度分量。                                                |
 
 所有数据查询都要求文件已成功打开。`GetAllNodeCoordinates()`、两个 `GetAllElement()` 重载、`GetAllComponentName()` 和
 `GetComponent()` 成功时替换输出对象；按需初始化返回 `false` 时保留调用方输出。`GetAllFieldFunctionName()`
@@ -183,6 +185,22 @@ ID 可以不连续。此编号独立于网格 Section 展开：网格读取跳�
 `true` 并替换整个输出数组，全部失败或请求为空时返回 `false` 且保留原输出。批量成功不表示所有请求均成功，应核对返回的
 `Field::name`。
 
+### 流体扩展
+
+`GetFluidExtensions()` 是可选能力入口。`ReaderCGNS` 的 `CgnsCore` 持有一个内部 `FluidExtensions` 对象，该对象引用同一 reader 的
+`ReaderFieldData`，复用字段布局和名称查询。获取接口始终返回该对象的地址，无需先打开文件；其他 reader 可以保留默认的 `nullptr` 实现。
+
+返回指针由 reader 拥有，调用方不能删除它。指针在 reader 销毁前保持有效，`Close()` 和后续 `Open()` 不改变其地址；扩展查询针对当前打开的文件。
+销毁 reader 或卸载 DLL 前必须停止所有扩展调用。扩展没有独立的文件句柄或检测结果缓存，字段布局仍由 reader 在 `Close()` 时清理。
+
+`HasVelocityField()` 遍历 `GetAllFieldFunctionName()` 返回的所有 `Field::sub_vars`，区分大小写地精确匹配
+`VelocityX`、`VelocityY` 和 `VelocityZ`。三个名称全部存在时返回 `true`；文件未打开、字段名称查询失败、结果为空或缺少任意分量时返回 `false`。
+CGNS 读取诊断沿用 reader 的日志回调，布尔结果不区分读取失败和分量缺失。
+
+该检查只验证全文件的名称存在性，不要求三个分量位于同一个 `Field` 分组，也不验证它们的 Zone、位置、ID 覆盖或数值读取结果是否一致。
+只有两个分量的二维速度场，以及带 `_Vertex` / `_CellCenter` 后缀的名称不满足当前三分量精确匹配条件。
+首次查询可能读取文件并构建字段布局；`const` 不代表没有 I/O 或可并发调用。扩展遵循 reader 的数据查询并发约定，当前 DLL 内的 CGNS 文件访问应串行执行。
+
 ## 动态加载约定
 
 ReaderCGNS 的交付物是仓库根目录 `ReaderAPI/` 下的完整公开头目录和 `ReaderCGNS.dll`，调用方不依赖 import library。DLL 只提供以下两个稳定名称，由调用方通过
@@ -200,6 +218,9 @@ reader，并通过 reader 虚接口完成文件操作和日志配置。头文件
 
 公开整数类型为 64 位，影响 `Node`、`Elem`、`ElementTable` 及 ID 数组的二进制表示。使用旧版 32 位 `Integer` 头文件构建的调用方
 必须重新编译，并与使用相同公开头文件构建的 `ReaderCGNS.dll` 配套交付。
+
+新增 `GetFluidExtensions()` 改变了 `ReaderApiBase` 的 C++ 虚表布局。已有调用方必须使用新的公开头文件重新编译，并与同一版本的
+`ReaderCGNS.dll` 配套交付。
 
 工厂导出使用 C 符号名，但 reader 虚接口及 `std::string` / `std::vector` 参数仍是 C++ ABI。调用方应与 DLL 使用兼容的 MSVC
 工具链、相同构建配置和运行库（Debug `/MDd`，Release `/MD`），并通过 `DestroyReaderCGNS` 销毁实例。
@@ -275,6 +296,7 @@ ReaderCGNS/
 │   ├── FileManager.h               # 文件生命周期、版本与 Base/Zone 布局
 │   ├── ReaderMeshData.h            # Base/Zone/Section 网格拓扑初始化
 │   ├── ReaderFieldData.h           # 字段布局、名称合并与单个/批量场值读取
+│   ├── FluidExtensions.h           # 复用字段读取能力的流体扩展实现
 │   └── src/
 ├── Utils/
 │   ├── Logger.h                    # 实例 dispatcher、格式化与错误适配

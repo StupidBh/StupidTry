@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME} MODULE
         Core/src/FileManager.cpp
         Core/src/ReaderMeshData.cpp
         Core/src/ReaderFieldData.cpp
+        Core/src/FluidExtensions.cpp
         Core/src/CgnsCore.cpp
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
