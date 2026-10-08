@@ -35,9 +35,16 @@ cmake --build build/Debug --config Release
 
 单元 ID 按扁平输出顺序生成，从 0 开始并与 `GetAllElement()` 结果下标一致；组件成员 ID 复用这一编号。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存一致性仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
-当前 CMake 仅定义 `Core` 和 `ReaderCGNS` 两个目标，尚未启用 CTest 或注册测试目标。可通过上面的 `Core.exe` 命令进行集成验证。
+默认启用 `BUILD_TESTING`，CTest 注册 `Core.ReaderLogLifetime` 和 `Core.MioReaderLines` 回归测试，分别检查 DLL 卸载后的异步日志路径安全，以及静态文本文件的混合换行、跨批次状态和长行读取，无需真实 CGNS 样例。完成对应配置的全量构建后运行：
 
-仍没有随仓库提供完整 CGNS 样例文件，因此 Core 的 DLL 加载和真实文件读取需要另行用实际文件验证；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
+```powershell
+ctest --test-dir build/Debug -C Debug --output-on-failure
+ctest --test-dir build/Debug -C Release --output-on-failure
+```
+
+配置时可通过 `-DBUILD_TESTING=OFF` 关闭测试目标。测试、文本读取约定及日志生命周期说明见 [Core 文档](Core/Readme.md)。
+
+仍没有随仓库提供完整 CGNS 样例文件，因此真实文件读取需要另行用实际文件验证；当前帮助命令返回非零退出码，读取流程的零退出码也不代表全部查询成功，需结合日志检查。
 
 ## 工程目录
 
