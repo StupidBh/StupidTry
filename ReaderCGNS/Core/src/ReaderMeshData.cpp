@@ -61,7 +61,7 @@ bool ReaderMeshData::GetAllComponentName(std::vector<std::string>& component_nam
     }
 
     component_names = std::move(loaded_components);
-    LOG_TRACE("Components: {}:{}", component_names, component_names.size());
+    LOG_TRACE("[GetAllComponentName] Components: {}:{}", component_names, component_names.size());
     return true;
 }
 
@@ -83,7 +83,7 @@ bool ReaderMeshData::GetComponent(const std::string& name, std::vector<ReaderAPI
         return false;
     }
 
-    LOG_TRACE("Component: name={}, ids_range=[{}, {}]:{}", name, std::ranges::min(ids), std::ranges::max(ids), ids.size());
+    LOG_TRACE("[GetComponent] Component: name={}, ids_range=[{}, {}]:{}", name, std::ranges::min(ids), std::ranges::max(ids), ids.size());
     return true;
 }
 

@@ -25,7 +25,6 @@ bool FileManager::Open(const std::string& cgns_file_path)
         }
         this->Close();
     }
-    LOG_INFO("Open in read only: [{}]...", cgns_file_path);
 
     int cgns_file_type = -1;
     if (cg_is_cgns(cgns_file_path.c_str(), &cgns_file_type) != CG_OK) {
@@ -46,6 +45,7 @@ bool FileManager::Open(const std::string& cgns_file_path)
         return false;
     }
 
+    LOG_TRACE("Try to open in read only: [{}]...", cgns_file_path);
     if (CGNS_LOG_CALL(cg_open(cgns_file_path.c_str(), CG_MODE_READ, &this->m_file_id)) != CG_OK) {
         return false;
     }
