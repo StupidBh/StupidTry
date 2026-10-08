@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -9,6 +10,7 @@
 
 #include "mio/mmap.hpp"
 
+// The mapped file must remain unchanged while this reader is in use.
 class MioReader {
 public:
     explicit MioReader(const std::string& filename);
@@ -76,4 +78,6 @@ private:
     const char* m_data;
     size_t m_size;
     size_t m_pos;
+    // nullopt: not searched; m_size: no LF remains in the immutable mapping.
+    std::optional<size_t> m_next_lf;
 };
