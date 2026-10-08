@@ -25,7 +25,7 @@
 1. `SingletonData::ProcessArguments()` 解析并规范化参数；
 2. 按日志级别初始化控制台日志，并在日志目录下初始化文件日志；
 3. 验证输入路径存在；
-4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`；
+4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`，并使用 `SingletonData::GetLogger()` 获取应用日志对象；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
 7. 打开文件，依次查询求解器类型、全部节点和全部单元，检查重复 ID 与连接数据范围，再查询组件名称及成员 ID、场函数名称并批量读取场值；
@@ -90,9 +90,10 @@ Core/
 ├── Utils/
 │   ├── HighFiveUtils.hpp           # HDF5 数据集读写辅助函数
 │   ├── MioReader.h                 # 内存映射文本读取器
-│   ├── logger.hpp                 # 基于 spdlog 的异步日志封装
-│   ├── logger_formatter.hpp       # 日志格式化辅助工具
+│   ├── Logger.h                   # 日志接口与调用点宏
 │   └── src/
+│       ├── Logger.cpp              # 基于 spdlog 的异步日志实现
+│       └── MioReader.cpp
 ├── tests/                         # CTest 回归测试
 │   ├── ReaderLogLifetimeTests.cpp  # 日志路径与 DLL 卸载后的队列生命周期
 │   └── MioReaderLineTests.cpp      # 换行、批量状态及长行读取
@@ -158,7 +159,7 @@ ctest --test-dir build/Debug -C Debug --output-on-failure
 ctest --test-dir build/Debug -C Release --output-on-failure
 ```
 
-`Core.ReaderLogLifetime` 检查已有全局线程池配置的保留、路径文本所有权、扩容后的地址稳定性和并发查找；它还暂停异步日志线程，加载并卸载实际的 `ReaderCGNS.dll`，再验证排队日志。Debug 检查 DLL 源码位置仍可格式化，Release 检查回调不附带源码位置。测试使用仓库内的非 CGNS 文本文件触发错误日志，不需要 CGNS 样例；配置时传入 `-DBUILD_TESTING=OFF` 可关闭测试目标。
+`Core.ReaderLogLifetime` 使用 `SingletonData` 持有的应用 Logger，检查已有全局线程池配置的保留、路径文本所有权、扩容后的地址稳定性和并发查找；它还暂停异步日志线程，加载并卸载实际的 `ReaderCGNS.dll`。测试观察对象在应用单例之前构造，因而在应用 Logger 析构、排空队列并释放路径表之后检查线程池和排队日志，验证真实的退出顺序。Debug 检查 DLL 源码位置仍可格式化，Release 检查回调不附带源码位置。测试同时覆盖文件路径的 `fmt::format()`、输出迭代器和范围拼接，使用仓库内的非 CGNS 文本文件触发错误日志，不需要 CGNS 样例；测试目标链接 `Boost::program_options`，配置时传入 `-DBUILD_TESTING=OFF` 可关闭测试目标。
 
 `Core.MioReaderLines` 使用独立的分行参考解析器检查 9841 种文本/换行排列，并覆盖六种批量大小、逐行与批量交替读取、默认批量大小、UTF-8/BOM/NUL、EOF 行为和移动后的读取状态。长行用例包括 4 MiB 的单行，以及由 256 条 64 KiB 长行组成的混合换行文件。测试输入在临时目录生成，读取期间不修改，结束后清理。
 
@@ -166,17 +167,25 @@ ctest --test-dir build/Debug -C Release --output-on-failure
 
 ## 日志生命周期
 
+`SingletonData` 是应用级单例，通过组合持有普通的 `Logger` 对象；`Logger` 位于全局命名空间，不再具有独立的单例入口。`m_logger` 声明在其他成员之前，最先构造、最后析构，因此后续成员的析构仍可使用日志。`ProcessArguments()` 通过该成员初始化默认日志，对外使用 `GetLogger()` 获取引用。
+
+日志接口与调用点宏位于 `Utils/Logger.h`；构造、析构、源码路径存储、日志初始化与替换等具体实现位于 `Utils/src/Logger.cpp`。Core 主程序和日志生命周期测试目标都编译该源文件。日志宏保留在头文件中，使 Debug 日志的源码位置继续指向调用点。
+
+文件路径的 `fmt::formatter<std::filesystem::path>` 特化声明与 `constexpr parse()` 定义保留在 `Logger.h`，供各调用点完成编译期格式检查；`format()` 使用具体的 `fmt::format_context`，作为普通成员函数在 `Logger.cpp` 中定义，负责实际路径格式化。
+
+`AnalysisCGNS` 使用无参构造，从 `SingletonData::GetLogger()` 获取应用日志对象，并将其地址作为 reader 日志回调的 `context`，回调通过这个上下文保存源码路径。
 `AnalysisCGNS` 在 reader 创建后调用实例级 `SetLogCallback()`，静态适配回调通过 `spdlog::default_logger()` 转发日志。日志注册失败是非致命状态：Core 使用自身 logger 记录警告，reader 仍可继续检查文件。
 
-Logger 首次构造时只在 `spdlog::thread_pool()` 为空的情况下创建默认线程池；已由调用方配置的全局线程池会被保留。这样首次保存源码路径不会覆盖现有异步 logger 使用的线程池。
+Logger 构造时只在 `spdlog::thread_pool()` 为空的情况下创建默认线程池；已由调用方配置的全局线程池会被保留。
 
 该适配依赖以下应用不变量：
 
 - 构造 `AnalysisCGNS` 前，`ProcessArguments()` 已完成默认 logger 初始化；
+- 应用 Logger 存活至 `AnalysisCGNS` 销毁且剩余异步日志消费完成；
 - `AnalysisCGNS` 存活期间，不替换或关闭默认 logger；
 - 销毁 `AnalysisCGNS` 前，所有针对其 reader 的 API 调用都已结束。
 
-Debug 构建中，日志回调先通过 `dylog::Logger::InternSourceFile()` 将 ReaderCGNS 提供的完整源码路径复制到 Core 的路径表，再将表内的稳定指针和原行号作为 spdlog 的 `source_loc`。路径按文本内容去重，查找与插入由独立互斥锁保护；已有路径不会因新增路径或 rehash 改变地址。因此日志格式中的源码位置仍指向 DLL 内部调用点，而不是 Core 的回调函数。ReaderCGNS 不预先截取文件名；当前 spdlog `%s` 格式负责显示短文件名。Release 构建不保存回调路径，日志格式也不输出源码位置。
+Debug 构建中，日志回调先通过 `Logger::InternSourceFile()` 将 ReaderCGNS 提供的完整源码路径复制到 Core 的路径表，再将表内的稳定指针和原行号作为 spdlog 的 `source_loc`。路径按文本内容去重，查找与插入由独立互斥锁保护；已有路径不会因新增路径或 rehash 改变地址。因此日志格式中的源码位置仍指向 DLL 内部调用点，而不是 Core 的回调函数。ReaderCGNS 不预先截取文件名；当前 spdlog `%s` 格式负责显示短文件名。Release 构建不保存回调路径，日志格式也不输出源码位置。
 
 `AnalysisCGNS` 析构时先关闭文件以保留关闭日志，再调用实例级 `ClearLogCallback()` 等待已经进入的回调结束，随后销毁 reader，最后由 `ModuleGuard` 卸载 DLL。显式销毁 reader 和成员声明顺序共同固定该生命周期。
 
