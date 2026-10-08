@@ -126,7 +126,7 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
     return true;
 }
 
-const std::filesystem::path& SingletonData::GetOrCreateWorkDirectory()
+const std::filesystem::path& SingletonData::GetOrCreateWorkspaceDir()
 {
     static const std::filesystem::path workspaceDir = this->GetProgramOptions<std::string>("workspace_dir");
     if (!std::filesystem::exists(workspaceDir)) {

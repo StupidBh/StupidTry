@@ -11,14 +11,14 @@ int main(int argc, char* argv[])
     }
     SCOPED_TIMER_LOG("Main");
 
-    if (!std::filesystem::exists(INPUT_PATH)) {
-        LOG_ERROR("Input path [{}] does not exist.", INPUT_PATH);
+    if (!std::filesystem::exists(INPUT_FILE)) {
+        LOG_ERROR("Input path [{}] does not exist.", INPUT_FILE);
         return -1;
     }
 
     try {
         AnalysisCGNS analysis;
-        if (!analysis || !analysis.Analyze(INPUT_PATH)) {
+        if (!analysis || !analysis.Analyze(INPUT_FILE)) {
             return EXIT_FAILURE;
         }
     }

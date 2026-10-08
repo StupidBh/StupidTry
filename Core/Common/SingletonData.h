@@ -15,7 +15,7 @@ public:
     ~SingletonData() = default;
 
     bool ProcessArguments(int argc, char* argv[]);
-    [[nodiscard]] const std::filesystem::path& GetOrCreateWorkDirectory();
+    [[nodiscard]] const std::filesystem::path& GetOrCreateWorkspaceDir();
 
     [[nodiscard]] Logger& GetLogger() noexcept { return this->m_logger; }
 
@@ -36,7 +36,7 @@ private:
 
 #define SINGLE_DATA SingletonData::get_instance()
 
-#define INPUT_PATH SINGLE_DATA.GetProgramOptions<std::string>("input_file")
-#define WORK_DIR   SINGLE_DATA.GetProgramOptions<std::string>("workspace_dir")
+#define INPUT_FILE    SINGLE_DATA.GetProgramOptions<std::string>("input_file")
+#define WORKSPACE_DIR SINGLE_DATA.GetProgramOptions<std::string>("workspace_dir")
 
-#define WORK_DIR_PATH SINGLE_DATA.GetOrCreateWorkDirectory()
+#define WORKSPACE_DIR_PATH SINGLE_DATA.GetOrCreateWorkspaceDir()
