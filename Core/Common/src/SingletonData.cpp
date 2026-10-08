@@ -137,3 +137,15 @@ const std::filesystem::path& SingletonData::GetOrCreateWorkspaceDir()
     }
     return workspaceDir;
 }
+
+const std::filesystem::path& SingletonData::GetOrCreateLogDir()
+{
+    static const std::filesystem::path logDir = this->GetProgramOptions<std::string>("log_dir");
+    if (!std::filesystem::exists(logDir)) {
+        if (std::error_code ec; !std::filesystem::create_directories(logDir, ec)) {
+            LOG_ERROR("Create directories [{}] failed: {}", logDir, ec.message());
+            exit(1003);
+        }
+    }
+    return logDir;
+}

@@ -16,6 +16,7 @@ public:
 
     bool ProcessArguments(int argc, char* argv[]);
     [[nodiscard]] const std::filesystem::path& GetOrCreateWorkspaceDir();
+    [[nodiscard]] const std::filesystem::path& GetOrCreateLogDir();
 
     [[nodiscard]] Logger& GetLogger() noexcept { return this->m_logger; }
 
@@ -39,4 +40,5 @@ private:
 #define INPUT_FILE    SINGLE_DATA.GetProgramOptions<std::string>("input_file")
 #define WORKSPACE_DIR SINGLE_DATA.GetProgramOptions<std::string>("workspace_dir")
 
+#define LOG_DIR_PATH       SINGLE_DATA.GetOrCreateLogDir()
 #define WORKSPACE_DIR_PATH SINGLE_DATA.GetOrCreateWorkspaceDir()
