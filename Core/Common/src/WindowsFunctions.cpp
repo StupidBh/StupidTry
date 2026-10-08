@@ -1,6 +1,6 @@
 #include "WindowsFunctions.h"
 #include "Functions.h"
-#include "logger.hpp"
+#include "Logger.h"
 
 #ifndef NOMINMAX
     #define NOMINMAX

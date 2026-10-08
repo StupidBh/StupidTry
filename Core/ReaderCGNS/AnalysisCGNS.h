@@ -7,8 +7,6 @@
 class ModuleGuard;
 
 class AnalysisCGNS final {
-    explicit AnalysisCGNS(const std::filesystem::path& library_path);
-
 public:
     AnalysisCGNS();
     ~AnalysisCGNS() noexcept;

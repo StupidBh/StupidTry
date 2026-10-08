@@ -1,7 +1,7 @@
 #include "AnalysisCGNS.h"
 #include "Functions.h"
+#include "SingletonData.h"
 #include "WindowsFunctions.h"
-#include "logger.hpp"
 
 #include <algorithm>
 #include <unordered_set>
@@ -21,12 +21,7 @@ namespace {
 } // namespace
 
 AnalysisCGNS::AnalysisCGNS() :
-    AnalysisCGNS(GetReaderLibraryPath())
-{
-}
-
-AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
-    m_module_guard(LoadModuleGuard(library_path))
+    m_module_guard(LoadModuleGuard(GetReaderLibraryPath()))
 {
     if (this->m_module_guard == nullptr) {
         return;
@@ -44,7 +39,7 @@ AnalysisCGNS::AnalysisCGNS(const std::filesystem::path& library_path) :
         return;
     }
     this->m_reader = ReaderPtr(reader, ReaderDeleter { destroy });
-    if (!this->m_reader->SetLogCallback(LogCallback, nullptr)) {
+    if (!this->m_reader->SetLogCallback(LogCallback, &SINGLE_DATA.GetLogger())) {
         LOG_WARN("Failed to install the ReaderCGNS log callback.");
     }
 }
@@ -156,9 +151,8 @@ void AnalysisCGNS::ReaderDeleter::operator()(ReaderAPI::ReaderApiBase* reader) c
 
 void AnalysisCGNS::LogCallback(void* context, const ReaderAPI::Logger::LogLevel level, const char* file, const int line, const char* message)
 {
-    static_cast<void>(context);
     const auto logger = spdlog::default_logger();
-    if (logger == nullptr) {
+    if (logger == nullptr || context == nullptr) {
         return;
     }
 
@@ -174,7 +168,7 @@ void AnalysisCGNS::LogCallback(void* context, const ReaderAPI::Logger::LogLevel 
     }
 
 #ifndef NDEBUG
-    const char* stable_file = dylog::Logger::get_instance().InternSourceFile(file);
+    const char* stable_file = static_cast<Logger*>(context)->InternSourceFile(file);
     logger->log(spdlog::source_loc { stable_file, line, "ReaderCGNS" }, spd_level, "[ReaderCGNS] {}", message);
 #else
     logger->log(spd_level, "[ReaderCGNS] {}", message);

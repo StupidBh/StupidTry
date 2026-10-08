@@ -1,6 +1,5 @@
 #include "SingletonData.h"
 #include "Functions.h"
-#include "logger.hpp"
 
 #include <iostream>
 #include <system_error>
@@ -101,7 +100,7 @@ bool SingletonData::ProcessArguments(int argc, char* argv[])
         normalize_path_option("log_dir");
     }
 
-    dylog::Logger::get_instance().InitLog(this->m_vm["log_dir"].as<std::string>(), "stupid-bhh", this->m_vm["log_level"].as<spdlog::level::level_enum>());
+    this->m_logger.InitLog(this->m_vm["log_dir"].as<std::string>(), "stupid-bhh", this->m_vm["log_level"].as<spdlog::level::level_enum>());
 
 #ifndef NDEBUG
     LOG_INFO(GetExecutableDirectory());

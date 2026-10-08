@@ -5,6 +5,7 @@
 
 #include "Utils/SingletonHolder.hpp"
 #include "boost/program_options.hpp"
+#include "Logger.h"
 
 class SingletonData final : public utils::SingletonHolder<SingletonData> {
     friend class utils::SingletonHolder<SingletonData>;
@@ -16,6 +17,8 @@ public:
     bool ProcessArguments(int argc, char* argv[]);
     [[nodiscard]] const std::filesystem::path& GetOrCreateWorkDirectory();
 
+    [[nodiscard]] Logger& GetLogger() noexcept { return this->m_logger; }
+
     template<class T>
     T& GetProgramOptions(const std::string& key)
     {
@@ -26,6 +29,8 @@ public:
     }
 
 private:
+    // Keep logging available while all subsequent members are destroyed.
+    Logger m_logger;
     boost::program_options::variables_map m_vm;
 };
 

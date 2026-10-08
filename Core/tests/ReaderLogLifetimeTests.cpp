@@ -1,12 +1,16 @@
 #include "AnalysisCGNS.h"
 #include "Functions.h"
-#include "logger.hpp"
+#include "Logger.h"
+#include "SingletonData.h"
+#include "spdlog/async.h"
 #include "spdlog/sinks/base_sink.h"
 
 #include <atomic>
+#include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <iterator>
 #include <latch>
 #include <memory>
 #include <mutex>
@@ -23,7 +27,21 @@
 namespace {
     std::filesystem::path reader_library_directory;
 
-    bool CheckSourceFileStorage(dylog::Logger& logger)
+    bool CheckPathFormatting()
+    {
+        const std::filesystem::path path("D:/test/path with spaces/input.cgns");
+        const std::string expected = path.string();
+        std::string output;
+        fmt::format_to(std::back_inserter(output), "{}", path);
+        const std::vector<std::filesystem::path> paths { path, path.filename() };
+        if (fmt::format("{}", path) != expected || output != expected || fmt::format("{}", fmt::join(paths, "|")) != expected + "|" + path.filename().string()) {
+            std::cerr << "Filesystem paths must support formatting, output iterators, and range joins.\n";
+            return false;
+        }
+        return true;
+    }
+
+    bool CheckSourceFileStorage(Logger& logger)
     {
         const std::string expected = "D:/test/plugin/Core/src/ReaderMeshData.cpp";
         const char* stored = nullptr;
@@ -104,7 +122,39 @@ namespace {
         void flush_() override { }
     };
 
-    bool CheckQueuedLogsAfterUnload(dylog::Logger& application_logger, const std::string& input_file)
+    struct ShutdownCheck
+    {
+        std::shared_ptr<BlockedSink> sink;
+        bool initialized = false;
+        bool opened = false;
+        bool unloaded = false;
+
+        ~ShutdownCheck()
+        {
+            if (this->sink == nullptr) {
+                return;
+            }
+            if (spdlog::thread_pool() != nullptr) {
+                std::cerr << "Application Logger destruction did not release the managed logging thread pool." << std::endl;
+                std::_Exit(EXIT_FAILURE);
+            }
+            if (!this->initialized || this->opened || !this->unloaded || this->sink->reader_messages == 0 || this->sink->invalid_source_paths != 0) {
+                std::cerr << "Queued ReaderCGNS logs failed after application shutdown: initialized=" << this->initialized << ", opened=" << this->opened
+                          << ", unloaded=" << this->unloaded << ", messages=" << this->sink->reader_messages
+                          << ", invalid_source_paths=" << this->sink->invalid_source_paths << std::endl;
+                std::_Exit(EXIT_FAILURE);
+            }
+#ifndef NDEBUG
+            if (this->sink->formatted_locations != this->sink->reader_messages) {
+                std::cerr << "DLL source locations were not preserved by delayed formatting." << std::endl;
+                std::_Exit(EXIT_FAILURE);
+            }
+#endif
+            std::cout << "Reader log lifetime checks passed." << std::endl;
+        }
+    };
+
+    void QueueLogsBeforeUnload(Logger& application_logger, const std::string& input_file, ShutdownCheck& shutdown_check)
     {
         const auto sink = std::make_shared<BlockedSink>();
         sink->set_pattern("%s:%#|%v");
@@ -114,36 +164,21 @@ namespace {
         logger->info("gate");
         sink->entered.wait();
 
-        bool initialized = false;
-        bool opened = false;
         try {
             AnalysisCGNS analysis;
-            initialized = static_cast<bool>(analysis);
-            if (initialized) {
-                opened = analysis.Analyze(input_file);
+            shutdown_check.initialized = static_cast<bool>(analysis);
+            if (shutdown_check.initialized) {
+                shutdown_check.opened = analysis.Analyze(input_file);
             }
         }
         catch (...) {
             sink->release.count_down();
-            spdlog::shutdown();
             throw;
         }
-        const bool unloaded = GetModuleHandleW(L"ReaderCGNS.dll") == nullptr;
+        shutdown_check.unloaded = GetModuleHandleW(L"ReaderCGNS.dll") == nullptr;
+        shutdown_check.sink = sink;
         sink->release.count_down();
-        spdlog::shutdown();
-
-        if (!initialized || opened || !unloaded || sink->reader_messages == 0 || sink->invalid_source_paths != 0) {
-            std::cerr << "Queued ReaderCGNS logs failed after unload: initialized=" << initialized << ", opened=" << opened << ", unloaded=" << unloaded
-                      << ", messages=" << sink->reader_messages << ", invalid_source_paths=" << sink->invalid_source_paths << '\n';
-            return false;
-        }
-#ifndef NDEBUG
-        if (sink->formatted_locations != sink->reader_messages) {
-            std::cerr << "DLL source locations were not preserved by delayed formatting.\n";
-            return false;
-        }
-#endif
-        return true;
+        // Results are checked after the application Logger drains the queue during static destruction.
     }
 } // namespace
 
@@ -162,17 +197,19 @@ int main(int argc, char* argv[])
     try {
         reader_library_directory = argv[1];
         spdlog::init_thread_pool(64, 1);
+        // Register this observer before SingletonData so it checks the sink after the application Logger is destroyed.
+        static ShutdownCheck shutdown_check;
         auto configured_pool = spdlog::thread_pool();
-        auto& logger = dylog::Logger::get_instance();
+        auto& application_logger = SINGLE_DATA.GetLogger();
         if (spdlog::thread_pool() != configured_pool) {
-            std::cerr << "Source file storage initialization replaced the configured logging thread pool.\n";
+            std::cerr << "Application Logger initialization replaced the configured logging thread pool.\n";
             return 1;
         }
         configured_pool.reset();
-        if (!CheckSourceFileStorage(logger) || !CheckQueuedLogsAfterUnload(logger, argv[2])) {
+        if (!CheckPathFormatting() || !CheckSourceFileStorage(application_logger)) {
             return 1;
         }
-        std::cout << "Reader log lifetime checks passed.\n";
+        QueueLogsBeforeUnload(application_logger, argv[2], shutdown_check);
         return 0;
     }
     catch (const std::exception& error) {
