@@ -137,10 +137,10 @@ NFACE。若一个 Zone 只有 NGON 而没有 NFACE，则自动输出每个 NGON 
 - MIXED 当前按每条记录的类型调用 `cg_npe()` 核对节点数；非法类型号会回退为 `NODE`，节点数不匹配会使该 Section
   读取失败。不要将读取成功视为 MIXED 拓扑已完整验证。
 
-整数结果使用 32 位 `ReaderAPI::Integer`，内部 Section 范围、connectivity、面号和累计偏移使用 `cgsize_t`，当前 vendored CGNS
+整数结果使用 64 位 `ReaderAPI::Integer`（`std::int64_t`），内部 Section 范围、connectivity、面号和累计偏移使用 `cgsize_t`，当前 vendored CGNS
 为 64 位尺寸构建。固定类型与 MIXED 检查 Section 数量和累计单元数量；NGON 检查顶点号为正且加节点偏移后的编号可由
-`ReaderAPI::Integer` 表示；NFACE 检查当前扁平单元数量是否仍可表示，并在取绝对值前排除最小负值。这些检查尚未完整覆盖输出
-`Elem::npts` 的 32 位转换，也未完整校验 Zone 内顶点编号上界。
+`ReaderAPI::Integer` 表示；NFACE 检查当前扁平单元数量是否仍可表示，并在取绝对值前排除最小负值。NFACE 的内部面数计数仍使用
+`int`，这些检查尚未完整覆盖其范围，也未完整校验 Zone 内顶点编号上界。
 
 `GetAllNodeCoordinates()` 在按需初始化失败或累计节点数量超出 `ReaderAPI::Integer` 范围时返回 `false`
 ，调用方输出容器不变，但此前生成的内部缓存会保留。初始化完成后替换节点输出并返回 `true`，即使结果为空也不代表文件包含可用网格。同一
@@ -150,7 +150,7 @@ reader 的文件与数据读取接口不保证并发调用安全。
 
 ### 场值读取
 
-`ReaderApiTypes.hpp` 定义 `Integer = std::int32_t`、`Real = float`，以及 `Node`、`Elem` 和 `Field`。`Field` 包含以下成员：
+`ReaderApiTypes.hpp` 定义 `Integer = std::int64_t`、`Real = float`，以及 `Node` 和 `Field`；`Elem` 定义位于 `Types/ElementTypes.hpp`。`Field` 包含以下成员：
 
 | 成员        | 当前返回语义                                                                                                                   |
 |-------------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -169,7 +169,7 @@ reader 的文件与数据读取接口不保证并发调用安全。
   ，不自动选择时间步。
 - 只接受 `Vertex` 和 `CellCenter`，解数组的值数量必须等于对应 Zone 的节点数或单元数。不提供 PointSet 映射、Rind 处理或面中心场读取；
   `DiscreteData`、ZoneSubRegion 和粒子场不在此接口范围内。
-- 全文件无可用字段、字段布局读取失败、公开名称冲突或字段 ID 超出 32 位范围时，名称查询和依赖该布局的场值查询返回 `false`。
+- 全文件无可用字段、字段布局读取失败或公开名称冲突时，名称查询和依赖该布局的场值查询返回 `false`。
 
 相同源字段名、相同位置的数据按 Base/Zone 顺序合并；若同一源名称跨 Zone 同时出现在节点和单元中心，则公开名分别为
 `<原名>_Vertex` 与 `<原名>_CellCenter`，例如 `Pressure_Vertex`、`Pressure_CellCenter`。后缀名与其他字段原名冲突时初始化失败。调用方应使用
@@ -197,6 +197,9 @@ DLL 导出、调用方的 `GetProcAddress` 名称、相关测试和本文档，�
 `ReaderApiBase.h` 不声明需要 import library 的导出函数，而是提供两个工厂函数的指针类型。调用方使用这些类型解析导出、创建
 reader，并通过 reader 虚接口完成文件操作和日志配置。头文件与 DLL 必须配套交付；这是工程交付约定，本项目不额外提供 ABI
 版本导出或运行时版本校验。
+
+公开整数类型为 64 位，影响 `Node`、`Elem`、`ElementTable` 及 ID 数组的二进制表示。使用旧版 32 位 `Integer` 头文件构建的调用方
+必须重新编译，并与使用相同公开头文件构建的 `ReaderCGNS.dll` 配套交付。
 
 工厂导出使用 C 符号名，但 reader 虚接口及 `std::string` / `std::vector` 参数仍是 C++ ABI。调用方应与 DLL 使用兼容的 MSVC
 工具链、相同构建配置和运行库（Debug `/MDd`，Release `/MD`），并通过 `DestroyReaderCGNS` 销毁实例。

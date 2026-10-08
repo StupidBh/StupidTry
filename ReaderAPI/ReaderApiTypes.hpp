@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace ReaderAPI {
-    using Integer = std::int32_t;
+    using Integer = std::int64_t;
     using Real = float;
 
     struct Node
