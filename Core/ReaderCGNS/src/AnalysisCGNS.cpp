@@ -139,6 +139,13 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
         }
     }
 
+    const auto fluid_extensions = this->m_reader->GetFluidExtensions();
+    if (fluid_extensions != nullptr) {
+        if (fluid_extensions->HasVelocityField()) {
+            LOG_INFO("Fluid extensions have velocity field.");
+        }
+    }
+
     return true;
 }
 

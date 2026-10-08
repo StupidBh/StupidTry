@@ -13,6 +13,7 @@
 - 通过通用的 `ModuleGuard` 管理 DLL 句柄，并由具体工具类解析所需导出；
 - 在作用域内将 ReaderCGNS 日志转发到应用 logger；
 - 通过 `ReaderAPI::ReaderApiBase` 实例读取求解器类型、节点坐标、单元、组件名称及其成员 ID，并批量读取场值、输出字段摘要；
+- 查询可选流体扩展，并在所需速度分量名称齐全时记录日志；
 - 检查返回的节点和单元 ID 是否重复，并对单元连接数据做范围诊断；
 - 提供内存映射文本读取和进程调用等应用侧工具。
 
@@ -28,7 +29,7 @@
 4. 构造 `AnalysisCGNS`，从可执行文件目录加载 `ReaderCGNS.dll`，并使用 `SingletonData::GetLogger()` 获取应用日志对象；
 5. `AnalysisCGNS` 解析 `CreateReaderCGNS`/`DestroyReaderCGNS` 并创建 reader；
 6. 通过 reader 实例注册静态日志回调，将 DLL 日志接入默认 spdlog logger；
-7. 打开文件，依次查询求解器类型、全部节点和全部单元，检查重复 ID 与连接数据范围，再查询组件名称及成员 ID、场函数名称并批量读取场值；
+7. 打开文件，依次查询求解器类型、全部节点和全部单元，检查重复 ID 与连接数据范围，再查询组件名称及成员 ID、场函数名称并读取场值，最后查询可选流体扩展；
 8. 关闭文件、清除回调、销毁 reader 并卸载 DLL。
 
 当前 `AnalysisCGNS::Analyze()` 中的 `info()` 调用已注释，默认不输出完整 CGNS 节点树，也没有启用它的命令行选项。节点和单元查询成功时分别由 ReaderCGNS 记录 `All nodes`、`All elements` 数量；组件查询会读取每个组件的成员 ID 并检查其是否落在扁平单元数组范围内。
@@ -36,6 +37,10 @@
 节点与单元分别检查 ID 唯一性，重复时记录 `Repeat node` 或 `Repeat elem` 警告。单元 ID 按扁平输出顺序从 0 开始，并与输出数组下标一致；组件成员 ID 复用这一编号，Core 会检查其范围。当前连接范围诊断将 `Elem::nodes` 中的每个值与 `[0, 节点数量)` 比较；它尚未解析 NFACE 的面节点数前缀，因此可能把长度当作节点 ID 而误报。该诊断不等于完整拓扑验证，数据布局见 [多面体展开说明](../ReaderCGNS/Readme.md#多面体展开)。
 
 字段批量读取至少成功一项时输出 `Field Function sum` 和各成功字段的名称、`type`、`ids` 数量及 `value` 数量，不逐项打印数值。其中 `sum` 是枚举到的字段名称数量，部分读取失败时不等于成功字段数。场值支持范围和编号规则见 [ReaderCGNS 文档](../ReaderCGNS/Readme.md#场值读取)。
+
+字段查询之后，`AnalysisCGNS::Analyze()` 调用 `GetFluidExtensions()`。扩展存在且 `HasVelocityField()` 返回 `true` 时记录
+`Fluid extensions have velocity field.`；扩展缺失或检查返回 `false` 时继续完成分析。当前检查的名称匹配范围见
+[流体扩展说明](../ReaderCGNS/Readme.md#流体扩展)。
 
 ## 命令行接口
 
