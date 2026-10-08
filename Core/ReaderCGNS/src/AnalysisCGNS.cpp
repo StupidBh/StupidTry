@@ -78,7 +78,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     std::vector<ReaderAPI::Node> all_nodes;
     if (this->m_reader->GetAllNodeCoordinates(all_nodes)) {
-        std::unordered_set<int> unique_id;
+        std::unordered_set<ReaderAPI::Integer> unique_id;
         for (const auto& [id, x, y, z] : all_nodes) {
             if (unique_id.contains(id)) {
                 LOG_WARN("Repeat node: id={}, xyz=[{},{},{}]", id, x, y, z);
@@ -90,7 +90,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
 
     std::vector<ReaderAPI::Elem> all_elements;
     if (this->m_reader->GetAllElement(all_elements)) {
-        std::unordered_set<int> unique_id;
+        std::unordered_set<ReaderAPI::Integer> unique_id;
         for (const auto& element : all_elements) {
             if (unique_id.contains(element.id)) {
                 LOG_WARN("Repeat elem: id={}, type={}, nodes={}", element.id, element.type, element.nodes);
