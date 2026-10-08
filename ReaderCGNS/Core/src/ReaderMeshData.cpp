@@ -155,7 +155,7 @@ bool ReaderMeshData::initialize_grid_topology()
     return true;
 }
 
-void ReaderMeshData::update_components(std::string& component_name, std::size_t element_count, cgsize_t element_start)
+void ReaderMeshData::update_components(std::string& component_name, const std::size_t element_count, const cgsize_t element_start)
 {
     int component_count = 0;
     while (this->m_components.contains(component_name)) {

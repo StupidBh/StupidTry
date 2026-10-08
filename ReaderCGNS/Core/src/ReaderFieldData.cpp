@@ -108,7 +108,7 @@ bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::str
         cgsize_t data_size = 1;
         const auto& offset = this->m_offset[index.base][index.zone];
         for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
-            data_size *= (offset.r_max[i] - offset.r_min[i] + 1);
+            data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
 
         auto position = this->m_solution_location[index.base][index.zone][index.solution];
@@ -147,7 +147,7 @@ bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::st
         cgsize_t data_size = 1;
         const auto& offset = this->m_offset[index.base][index.zone];
         for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
-            data_size *= (offset.r_max[i] - offset.r_min[i] + 1);
+            data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
         std::vector<ReaderAPI::Real> loaded_values(data_size, 0);
 
