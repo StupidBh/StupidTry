@@ -3,11 +3,14 @@
 
 #include <exception>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include <string_view>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -20,12 +23,46 @@
 namespace dylog {
     class Logger final : public utils::SingletonHolder<Logger> {
         friend class utils::SingletonHolder<Logger>;
-        std::shared_mutex m_mutex;
 
-        Logger() { spdlog::init_thread_pool(32768, 1); }
+        struct SourceFileHash
+        {
+            using is_transparent = void;
+
+            std::size_t operator()(std::string_view value) const noexcept { return std::hash<std::string_view> { }(value); }
+        };
+
+        std::shared_mutex m_mutex;
+        std::mutex m_source_mutex;
+        std::unordered_set<std::string, SourceFileHash, std::equal_to<>> m_source_files;
+
+        Logger()
+        {
+            if (spdlog::thread_pool() == nullptr) {
+                spdlog::init_thread_pool(32768, 1);
+            }
+        }
 
     public:
-        ~Logger() { spdlog::shutdown(); };
+        ~Logger()
+        {
+            // Drain the managed logging thread pool before source strings are destroyed.
+            spdlog::shutdown();
+        }
+
+        // Returned paths remain immutable until this Logger is destroyed.
+        [[nodiscard]] const char* InternSourceFile(const char* file)
+        {
+            if (file == nullptr || *file == '\0') {
+                return "";
+            }
+
+            const std::string_view path(file);
+            std::lock_guard lock(this->m_source_mutex);
+            if (const auto iter = this->m_source_files.find(path); iter != this->m_source_files.end()) {
+                return iter->c_str();
+            }
+            return this->m_source_files.emplace(path).first->c_str();
+        }
 
         void InitLog(const std::filesystem::path& log_dir, const std::string& log_file_name, spdlog::level::level_enum log_level = spdlog::level::level_enum::info)
         {

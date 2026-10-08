@@ -174,7 +174,8 @@ void AnalysisCGNS::LogCallback(void* context, const ReaderAPI::Logger::LogLevel 
     }
 
 #ifndef NDEBUG
-    logger->log(spdlog::source_loc { file, line, "ReaderCGNS" }, spd_level, "[ReaderCGNS] {}", message);
+    const char* stable_file = dylog::Logger::get_instance().InternSourceFile(file);
+    logger->log(spdlog::source_loc { stable_file, line, "ReaderCGNS" }, spd_level, "[ReaderCGNS] {}", message);
 #else
     logger->log(spd_level, "[ReaderCGNS] {}", message);
 #endif

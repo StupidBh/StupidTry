@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 4.3)
 project(StupidBhh LANGUAGES CXX)
 
+include(CTest)
+
 if (MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY
             "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"

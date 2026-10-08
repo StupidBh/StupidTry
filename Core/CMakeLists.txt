@@ -50,3 +50,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMAND_EXPAND_LISTS
 )
+
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+endif ()
