@@ -79,6 +79,8 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 | `ReaderAPI::ReaderApiBase::info()`                                     | 遍历当前已打开文件并输出结构检查信息。                                                        |
 | `ReaderAPI::ReaderApiBase::GetFluidExtensions()`                     | 获取 reader 拥有的可选流体扩展接口；默认实现返回 `nullptr`。                                  |
 | `ReaderAPI::FluidExtensionsBase::HasVelocityField()`                 | 检查当前文件的字段名称中是否包含所需速度分量。                                                |
+| `ReaderAPI::FluidExtensionsBase::GetVelocityFieldPosition()`        | 查询三个速度分量的共同位置：`0` 为节点，`1` 为单元中心，失败返回 `-1`。                        |
+| `ReaderAPI::FluidExtensionsBase::GetVelocityField(data, ids)`       | 读取按 X/Y/Z 排列的三个分量数组和它们共同的实体 ID。                                           |
 
 所有数据查询都要求文件已成功打开。`GetAllNodeCoordinates()`、两个 `GetAllElement()` 重载、`GetAllComponentName()` 和
 `GetComponent()` 成功时替换输出对象；按需初始化返回 `false` 时保留调用方输出。`GetAllFieldFunctionName()`
@@ -188,18 +190,37 @@ ID 可以不连续。此编号独立于网格 Section 展开：网格读取跳�
 ### 流体扩展
 
 `GetFluidExtensions()` 是可选能力入口。`ReaderCGNS` 的 `CgnsCore` 持有一个内部 `FluidExtensions` 对象，该对象引用同一 reader 的
-`ReaderFieldData`，复用字段布局和名称查询。获取接口始终返回该对象的地址，无需先打开文件；其他 reader 可以保留默认的 `nullptr` 实现。
+`ReaderFieldData` 和 `LogDispatcher`，复用字段布局、查询接口和日志回调。获取接口始终返回该对象的地址，无需先打开文件；其他 reader 可以保留默认的 `nullptr` 实现。
 
 返回指针由 reader 拥有，调用方不能删除它。指针在 reader 销毁前保持有效，`Close()` 和后续 `Open()` 不改变其地址；扩展查询针对当前打开的文件。
-销毁 reader 或卸载 DLL 前必须停止所有扩展调用。扩展没有独立的文件句柄或检测结果缓存，字段布局仍由 reader 在 `Close()` 时清理。
+销毁 reader 或卸载 DLL 前必须停止所有扩展调用。扩展没有独立的文件句柄，字段布局仍由 reader 在 `Close()` 时清理。
 
-`HasVelocityField()` 遍历 `GetAllFieldFunctionName()` 返回的所有 `Field::sub_vars`，区分大小写地精确匹配
-`VelocityX`、`VelocityY` 和 `VelocityZ`。三个名称全部存在时返回 `true`；文件未打开、字段名称查询失败、结果为空或缺少任意分量时返回 `false`。
-CGNS 读取诊断沿用 reader 的日志回调，布尔结果不区分读取失败和分量缺失。
+`HasVelocityField()` 遍历 `GetAllFieldFunctionName()` 返回的所有 `Field::sub_vars`，先将待匹配名称转为小写，再分别在编译期排序的 X、Y、Z 别名数组中按完整名称进行二分查找。
+三个分量各自匹配到一个名称时返回 `true`；文件未打开、字段名称查询失败、结果为空或缺少任意分量时返回 `false`。
 
-该检查只验证全文件的名称存在性，不要求三个分量位于同一个 `Field` 分组，也不验证它们的 Zone、位置、ID 覆盖或数值读取结果是否一致。
-只有两个分量的二维速度场，以及带 `_Vertex` / `_CellCenter` 后缀的名称不满足当前三分量精确匹配条件。
-首次查询可能读取文件并构建字段布局；`const` 不代表没有 I/O 或可并发调用。扩展遵循 reader 的数据查询并发约定，当前 DLL 内的 CGNS 文件访问应串行执行。
+| 分量 | 接受的别名 |
+|------|------------------------------|
+| X | `velocityx`、`velocity_0`、`velocity[i]`、`ux`、`velocity_vectorsx` |
+| Y | `velocityy`、`velocity_1`、`velocity[j]`、`uy`、`velocity_vectorsy` |
+| Z | `velocityz`、`velocity_2`、`velocity[k]`、`uz`、`velocity_vectorsz` |
+
+名称比较忽略大小写，其他字符须完整一致。例如 `VelocityX`、`VELOCITY_0` 和 `UX` 均可作为 X 分量。三个分量可以分别使用不同命名方式；
+匹配时只转换名称副本，按 X/Y/Z 顺序记录匹配到的原始分量名供后续位置查询和数据读取使用。
+CGNS 读取诊断和扩展自身的错误都沿用 reader 的日志回调；重新注册或清除回调同样作用于扩展。布尔结果不区分读取失败和分量缺失。
+
+`HasVelocityField()` 只验证全文件的名称存在性，不要求三个分量位于同一个 `Field` 分组，也不验证它们的 Zone、位置、ID 覆盖或数值读取结果是否一致。
+只有两个分量的二维速度场，以及带 `_Vertex` / `_CellCenter` 后缀的名称不在当前三分量别名匹配范围内。
+
+`GetVelocityFieldPosition()` 独立检查分量是否存在，并要求三个分量的位置一致：`0` 为 `Vertex`，`1` 为 `CellCenter`。文件未打开、
+缺少分量、查询失败或位置不一致时返回 `-1`；位置不一致的日志包含分量名、实际位置和预期位置。无需先调用 `HasVelocityField()`。
+
+`GetVelocityField(data, ids)` 的两个参数均为输出引用。成功时替换 `data` 为三个分量数组，`data[0]`、`data[1]`、`data[2]` 分别对应
+X、Y、Z；每个数组与 `ids` 长度相同，`data[component][i]` 是实体 `ids[i]` 上的对应速度分量。三个分量必须具有相同位置、相同且非空的
+ID 序列，且各自的值数量等于 ID 数量；共同的 ID 可以不连续。缺少分量、读取失败或上述校验失败时返回 `false`，保留调用方原有的两个输出。
+该接口复用现有字段读取行为，不提供额外的 Zone 完整性检查。
+
+每次查询都会重新匹配当前文件的字段，并先清空上次的匹配结果；重复调用不会追加旧结果，文件切换后的查询也不会使用之前的分量名。
+首次查询可能读取文件并构建字段布局。扩展遵循 reader 的数据查询并发约定，当前 DLL 内的 CGNS 文件访问应串行执行。
 
 ## 动态加载约定
 
@@ -219,8 +240,8 @@ reader，并通过 reader 虚接口完成文件操作和日志配置。头文件
 公开整数类型为 64 位，影响 `Node`、`Elem`、`ElementTable` 及 ID 数组的二进制表示。使用旧版 32 位 `Integer` 头文件构建的调用方
 必须重新编译，并与使用相同公开头文件构建的 `ReaderCGNS.dll` 配套交付。
 
-新增 `GetFluidExtensions()` 改变了 `ReaderApiBase` 的 C++ 虚表布局。已有调用方必须使用新的公开头文件重新编译，并与同一版本的
-`ReaderCGNS.dll` 配套交付。
+新增 `GetFluidExtensions()` 及流体扩展虚接口会改变 C++ 虚表布局；`GetVelocityField()` 使用输出引用。已有调用方必须使用新的公开头文件
+重新编译，并与同一版本的 `ReaderCGNS.dll` 配套交付。
 
 工厂导出使用 C 符号名，但 reader 虚接口及 `std::string` / `std::vector` 参数仍是 C++ ABI。调用方应与 DLL 使用兼容的 MSVC
 工具链、相同构建配置和运行库（Debug `/MDd`，Release `/MD`），并通过 `DestroyReaderCGNS` 销毁实例。
@@ -335,6 +356,19 @@ add_dependencies(YourTarget ReaderCGNS)
 ```
 
 `ReaderCGNS` 使用 CMake `MODULE` 库类型构建，CGNS 依赖以 `CGNS::cgns_static` 私有链接，MSVC 下使用 `/NOIMPLIB` 禁止生成 import library。调用方应配套分发 `ReaderAPI/` 完整目录（包括 `Types/` 子目录）和 DLL，并将包含 `ReaderAPI/` 的父目录加入 include 路径。模块内部头文件位于 `ReaderCGNS/Core/`、`ReaderCGNS/Common/` 和 `ReaderCGNS/Utils/`，不属于公开接口。
+
+### 回归测试
+
+Windows 下启用 `BUILD_TESTING`（默认开启）时，`ReaderCGNS/tests/` 注册元数据、速度数据、别名匹配和扩展日志四组 CTest 测试。测试使用 vendored CGNS
+生成临时文件，再通过公开工厂动态加载实际构建的 `ReaderCGNS.dll`；临时文件在测试结束时删除。覆盖重复查询、文件切换、节点/单元位置、
+跨 Zone 的不连续 ID、分量不一致、失败时保留输出、所有别名的大小写混用，以及 reader 日志回调的隔离、清除和重新注册。
+
+```powershell
+cmake --build build/Debug --config Debug --target ReaderCGNSFluidExtensionsTests
+ctest --test-dir build/Debug -C Debug -R '^ReaderCGNS\.FluidExtensions\.' --output-on-failure
+```
+
+Release 验证使用相同命令并将两处配置参数 `Debug` 改为 `Release`，构建目录仍为 `build/Debug`。
 
 ## 开发约定
 
