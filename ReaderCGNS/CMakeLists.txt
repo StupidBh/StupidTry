@@ -32,3 +32,7 @@ find_package(cgns CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CGNS::cgns_static
 )
+
+if (BUILD_TESTING AND WIN32)
+    add_subdirectory(tests)
+endif ()

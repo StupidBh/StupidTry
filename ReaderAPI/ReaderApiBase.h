@@ -26,9 +26,9 @@ namespace ReaderAPI {
         FluidExtensionsBase(FluidExtensionsBase&&) = delete;
         FluidExtensionsBase& operator=(FluidExtensionsBase&&) = delete;
 
-        // Requires an open file; returns false if velocity metadata is unavailable or unreadable.
-        // Queries share the owning reader's thread-safety constraints.
-        [[nodiscard]] virtual bool HasVelocityField() const = 0;
+        [[nodiscard]] virtual bool HasVelocityField() = 0;
+        [[nodiscard]] virtual int GetVelocityFieldPosition() = 0;
+        [[nodiscard]] virtual bool GetVelocityField(std::vector<std::vector<Real>>& data, std::vector<Integer>& ids) = 0;
     };
 
     class ReaderApiBase {

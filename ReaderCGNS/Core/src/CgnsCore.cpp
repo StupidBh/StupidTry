@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 CgnsCore::CgnsCore() :
-    m_fluid_extensions(*this)
+    m_fluid_extensions(*this, this->GetLogDispatcher())
 {
 }
 
