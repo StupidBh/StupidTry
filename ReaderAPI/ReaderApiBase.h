@@ -63,10 +63,6 @@ namespace ReaderAPI {
         // Obtain the summary of the CGNS file, for testing purposes only
         virtual void info() const = 0;
 
-        // Optional capability; nullptr means this reader does not provide fluid extensions.
-        // A non-null pointer is borrowed from the reader and must not be deleted.
-        // It remains valid until reader destruction; Close()/Open() changes the queried file.
-        // Stop extension calls before destroying the reader or unloading its module.
         virtual FluidExtensionsBase* GetFluidExtensions() { return nullptr; }
 
         [[nodiscard]] virtual Real GetVersion() const = 0;
