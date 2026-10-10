@@ -10,9 +10,16 @@ public:
     [[nodiscard]] bool GetVelocityField(std::vector<std::vector<ReaderAPI::Real>>& data, std::vector<ReaderAPI::Integer>& ids) override;
 
 private:
-    LogDispatcher& GetLogDispatcher() const noexcept { return this->m_log_dispatcher; }
+    [[nodiscard]] LogDispatcher& GetLogDispatcher() const noexcept { return this->m_log_dispatcher; }
 
     ReaderFieldData& m_fields;
     LogDispatcher& m_log_dispatcher;
-    ReaderAPI::Field m_velocity;
+
+    struct FieldReference
+    {
+        std::string var;
+        std::string sub_var;
+    };
+
+    std::array<FieldReference, 3> m_velocity;
 };

@@ -23,121 +23,69 @@ namespace {
 
 bool ReaderFieldData::GetAllFieldFunctionName(std::vector<ReaderAPI::Field>& field_names)
 {
-    if (this->m_field_layout.empty()) {
-        if (!this->initialize_field_layout()) {
-            return false;
-        }
+    if (!this->m_field_layout_initialized && !this->initialize_field_layout()) {
+        return false;
     }
 
     std::vector<ReaderAPI::Field> loaded_fields;
-    ReaderAPI::Field loaded_field;
-
-    auto keys = this->m_field_layout | std::views::keys | std::ranges::to<std::vector<std::string>>();
-    std::ranges::sort(keys);
-
-    for (auto& field_name : keys) {
-        if (!loaded_field.var.empty()) {
-            if (field_name.starts_with(loaded_field.var)) {
-                loaded_field.sub_vars.emplace_back(field_name);
-                continue;
-            }
-            loaded_fields.emplace_back(loaded_field);
-            loaded_field.var.clear();
-            loaded_field.sub_vars.clear();
-        }
-
-        const auto index = std::min(field_name.rfind("Magnitude"), field_name.rfind('_'));
-        if (index != std::string::npos) {
-            loaded_field.var = field_name.substr(0, index);
-            loaded_field.sub_vars.emplace_back(field_name);
-        }
-        else {
-            loaded_field.var = field_name;
-            loaded_field.sub_vars.emplace_back(field_name);
-
-            loaded_fields.emplace_back(loaded_field);
-            loaded_field.var.clear();
-            loaded_field.sub_vars.clear();
-        }
+    loaded_fields.reserve(this->m_field_groups.size());
+    for (const auto& [name, group] : this->m_field_groups) {
+        auto sub_vars = group.fields | std::views::keys | std::ranges::to<std::vector<std::string>>();
+        std::ranges::sort(sub_vars);
+        loaded_fields.emplace_back(name, std::move(sub_vars));
     }
-
-    if (!loaded_field.var.empty()) {
-        loaded_fields.emplace_back(loaded_field);
+    std::ranges::sort(loaded_fields, { }, &ReaderAPI::Field::var);
+    if (loaded_fields.empty()) {
+        LOG_WARN("Get field function data is empty.");
+        return false;
     }
 
     field_names = std::move(loaded_fields);
+    LOG_INFO("Get field function count={}", field_names.size());
     return true;
 }
 
 int ReaderFieldData::GetFieldFunctionPosition(const std::string& var, const std::string& sub_var)
 {
-    if (this->m_field_layout.empty()) {
-        if (!this->initialize_field_layout()) {
-            return -1;
-        }
-    }
-
-    auto iter = this->m_field_layout.find(sub_var);
-    if (iter == this->m_field_layout.end()) {
-        LOG_ERROR("Field function [{}]-[{}] doesn't exists.", var, sub_var);
+    if (this->find_field_indices(var, sub_var) == nullptr) {
         return -1;
     }
-    auto first_index = iter->second.front();
-    switch (this->m_solution_location[first_index.base][first_index.zone][first_index.solution]) {
-        case CG_GridLocation_t::CG_Vertex    : return 0;
-        case CG_GridLocation_t::CG_CellCenter: return 1;
-        default                              : return -1;
-    }
+    return this->m_field_groups.at(var).position;
 }
 
 bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Integer>& ids)
 {
-    if (this->m_field_layout.empty()) {
-        if (!this->initialize_field_layout()) {
-            return false;
-        }
-    }
-
-    auto iter = this->m_field_layout.find(sub_var);
-    if (iter == this->m_field_layout.end()) {
-        LOG_ERROR("Field function [{}]-[{}] doesn't exists.", var, sub_var);
+    const auto* indices = this->find_field_indices(var, sub_var);
+    if (indices == nullptr) {
         return false;
     }
 
-    for (const auto& index : iter->second) {
+    const int position = this->m_field_groups.at(var).position;
+    for (const auto& index : *indices) {
         cgsize_t data_size = 1;
-        const auto& offset = this->m_offset[index.base][index.zone];
+        const auto& offset = this->m_offset.at(index.base).at(index.zone);
         for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
             data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
 
-        auto position = this->m_solution_location[index.base][index.zone][index.solution];
-        utils::AppendVector(
-            ids,
-            utils::CreateVector<ReaderAPI::Integer>(data_size, position == CG_GridLocation_t::CG_Vertex ? offset.node_offset : offset.cell_offset, 1));
+        utils::AppendVector(ids, utils::CreateVector<ReaderAPI::Integer>(data_size, position == 0 ? offset.node_offset : offset.cell_offset, 1));
     }
 
     if (ids.empty()) {
         LOG_WARN("Field function [{}]-[{}] ids is empty.", var, sub_var);
+        return false;
     }
     return true;
 }
 
 bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Real>& data)
 {
-    if (this->m_field_layout.empty()) {
-        if (!this->initialize_field_layout()) {
-            return false;
-        }
-    }
-
-    auto iter = this->m_field_layout.find(sub_var);
-    if (iter == this->m_field_layout.end()) {
-        LOG_ERROR("Field function [{}]-[{}] doesn't exists.", var, sub_var);
+    const auto* indices = this->find_field_indices(var, sub_var);
+    if (indices == nullptr) {
         return false;
     }
 
-    for (const auto& index : iter->second) {
+    for (const auto& index : *indices) {
         char field_name[CGNS_NAME_MAX_LEN] = { };
         CG_DataType_t field_data_type = CG_DataType_t::CG_DataTypeNull;
         if (CGNS_LOG_CALL(cg_field_info(this->get_file_id(), index.base, index.zone, index.solution, index.field, &field_data_type, field_name)) != CG_OK) {
@@ -145,7 +93,7 @@ bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::st
         }
 
         cgsize_t data_size = 1;
-        const auto& offset = this->m_offset[index.base][index.zone];
+        const auto& offset = this->m_offset.at(index.base).at(index.zone);
         for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
             data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
@@ -167,13 +115,16 @@ bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::st
 
     if (data.empty()) {
         LOG_WARN("Field function [{}]-[{}] values is empty.", var, sub_var);
+        return false;
     }
     return true;
 }
 
 void ReaderFieldData::clear_field_data() noexcept
 {
-    utils::DeepClear(this->m_field_layout);
+    utils::DeepClear(this->m_field_groups);
+    utils::DeepClear(this->m_offset);
+    this->m_field_layout_initialized = false;
 
     LOG_TRACE("[clear_field_data] finish.");
 }
@@ -181,13 +132,13 @@ void ReaderFieldData::clear_field_data() noexcept
 bool ReaderFieldData::initialize_field_layout()
 {
     if (!this->IsOpen()) {
-        LOG_ERROR("Cannot initialize grid topology without an open CGNS file.");
+        LOG_ERROR("Cannot initialize field layout without an open CGNS file.");
         return false;
     }
-    this->m_field_layout.clear();
 
     using PositionGroups = std::array<FieldIndices, 2>; // 0-Vertex | 1-CellCenter
     std::unordered_map<std::string, PositionGroups> loaded_field_layout;
+    BaseZoneOffset loaded_offsets;
 
     cgsize_t node_offset = 0;
     cgsize_t cell_offset = 0;
@@ -222,28 +173,20 @@ bool ReaderFieldData::initialize_field_layout()
             node_offset += node_count;
             cell_offset += cell_count;
 
-            int temp_check_bit = 0;
-            if (CGNS_LOG_CALL(cg_nsols(this->get_file_id(), index_base, index_zone, &temp_check_bit)) != CG_OK) {
-                continue;
-            }
-            if (temp_check_bit < 1) {
+            int nsolutions = 0;
+            if (CGNS_LOG_CALL(cg_nsols(this->get_file_id(), index_base, index_zone, &nsolutions)) != CG_OK) {
                 continue;
             }
 
+            if (nsolutions < 1) {
+                continue;
+            }
             static constexpr int index_sol = 1;
-            index_offset.r_max.resize(index_zone_dim, 0);
-            if (CGNS_LOG_CALL(cg_sol_size(this->get_file_id(), index_base, index_zone, index_sol, &temp_check_bit, index_offset.r_max.data())) != CG_OK) {
-                return false;
-            }
-            this->m_offset[index_base][index_zone] = std::move(index_offset);
-
             char sol_name[CGNS_NAME_MAX_LEN] = { };
             CG_GridLocation_t sol_location = CG_GridLocation_t::CG_GridLocationNull;
             if (CGNS_LOG_CALL(cg_sol_info(this->get_file_id(), index_base, index_zone, index_sol, sol_name, &sol_location)) != CG_OK) {
                 continue;
             }
-            this->m_solution_location[index_base][index_zone][index_sol] = sol_location;
-
             if (sol_location != CG_GridLocation_t::CG_Vertex && sol_location != CG_GridLocation_t::CG_CellCenter) {
                 LOG_WARN("Skip unsupported type [{}] by [{}] at Base {}/Zone {}/Sol {}",
                          cg_GridLocationName(sol_location),
@@ -254,11 +197,18 @@ bool ReaderFieldData::initialize_field_layout()
                 continue;
             }
 
+            index_offset.r_max.resize(index_zone_dim, 0);
+            int solution_dim = 0;
+            if (CGNS_LOG_CALL(cg_sol_size(this->get_file_id(), index_base, index_zone, index_sol, &solution_dim, index_offset.r_max.data())) != CG_OK) {
+                return false;
+            }
+            loaded_offsets[index_base][index_zone] = std::move(index_offset);
+
             int nfields = 0;
             if (CGNS_LOG_CALL(cg_nfields(this->get_file_id(), index_base, index_zone, index_sol, &nfields)) != CG_OK) {
                 continue;
             }
-
+            const auto position = sol_location == CG_GridLocation_t::CG_Vertex ? 0 : 1;
             for (int index_field = 1; index_field <= nfields; ++index_field) {
                 char field_name[CGNS_NAME_MAX_LEN] = { };
                 CG_DataType_t field_data_type = CG_DataType_t::CG_DataTypeNull;
@@ -266,7 +216,7 @@ bool ReaderFieldData::initialize_field_layout()
                     continue;
                 }
                 if (field_data_type != CG_DataType_t::CG_RealDouble && field_data_type != CG_DataType_t::CG_RealSingle) {
-                    LOG_WARN("Skip unsupported type [{}] by [{}] at Base {}/Zone {}/Sol {}/Field {} ",
+                    LOG_WARN("Skip unsupported type [{}] by [{}] at Base {}/Zone {}/Sol {}/Field {}",
                              cg_DataTypeName(field_data_type),
                              field_name,
                              index_base,
@@ -275,28 +225,71 @@ bool ReaderFieldData::initialize_field_layout()
                              index_field);
                     continue;
                 }
-
-                const auto position = sol_location == CG_GridLocation_t::CG_Vertex ? 0 : 1;
                 loaded_field_layout[field_name][position].emplace_back(
                     FieldIndex { .base = index_base, .zone = index_zone, .solution = index_sol, .field = index_field });
             }
         }
     }
 
-    for (auto& [name, groups] : loaded_field_layout) {
-        auto& [vertex, cell_center] = groups;
-
-        if (!vertex.empty() && !cell_center.empty()) {
-            utils::AppendVector(this->m_field_layout[name + "_Vertex"], std::move(vertex));
-            utils::AppendVector(this->m_field_layout[name + "_CellCenter"], std::move(cell_center));
-        }
-        else if (!vertex.empty()) {
-            utils::AppendVector(this->m_field_layout[name], std::move(vertex));
-        }
-        else {
-            utils::AppendVector(this->m_field_layout[name], std::move(cell_center));
+    auto names = loaded_field_layout | std::views::keys | std::ranges::to<std::vector<std::string>>();
+    std::ranges::sort(names);
+    std::unordered_map<std::string, std::array<FieldGroup, 2>> grouped_fields;
+    std::array<std::string, 2> current_groups;
+    for (const auto& name : names) {
+        auto& positions = loaded_field_layout.at(name);
+        for (std::size_t position = 0; position < positions.size(); ++position) {
+            if (positions[position].empty()) {
+                continue;
+            }
+            auto& group_name = current_groups[position];
+            const auto index = std::min(name.rfind("Magnitude"), name.rfind('_'));
+            const bool starts_group = group_name.empty() || !name.starts_with(group_name);
+            if (starts_group) {
+                group_name = index == 0 ? name : name.substr(0, index);
+            }
+            auto& group = grouped_fields[group_name][position];
+            group.position = static_cast<int>(position);
+            group.fields.emplace(name, std::move(positions[position]));
+            if (starts_group && index == std::string::npos) {
+                group_name.clear();
+            }
         }
     }
 
+    std::unordered_map<std::string, FieldGroup> loaded_groups;
+    for (auto& [name, positions] : grouped_fields) {
+        const bool mixed_positions = !positions[0].fields.empty() && !positions[1].fields.empty();
+        for (std::size_t position = 0; position < positions.size(); ++position) {
+            if (positions[position].fields.empty()) {
+                continue;
+            }
+            const auto suffix = mixed_positions ? (position == 0 ? "_vertex" : "_cellcenter") : "";
+            if (!loaded_groups.emplace(name + suffix, std::move(positions[position])).second) {
+                LOG_ERROR("Field group name [{}] is ambiguous.", name + suffix);
+                return false;
+            }
+        }
+    }
+
+    this->m_offset = std::move(loaded_offsets);
+    this->m_field_groups = std::move(loaded_groups);
+    this->m_field_layout_initialized = true;
     return true;
+}
+
+const ReaderFieldData::FieldIndices* ReaderFieldData::find_field_indices(const std::string& var, const std::string& sub_var)
+{
+    if (!this->m_field_layout_initialized && !this->initialize_field_layout()) {
+        return nullptr;
+    }
+
+    const auto group = this->m_field_groups.find(var);
+    if (group != this->m_field_groups.end()) {
+        const auto field = group->second.fields.find(sub_var);
+        if (field != group->second.fields.end()) {
+            return &field->second;
+        }
+    }
+    LOG_ERROR("Field function [{}]-[{}] doesn't exist.", var, sub_var);
+    return nullptr;
 }

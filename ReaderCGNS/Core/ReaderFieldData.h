@@ -20,7 +20,15 @@ protected:
     bool initialize_field_layout();
 
 private:
+    struct FieldGroup
+    {
+        int position = -1;
+        std::unordered_map<std::string, FieldIndices> fields;
+    };
+
+    const FieldIndices* find_field_indices(const std::string& var, const std::string& sub_var);
+
     BaseZoneOffset m_offset;
-    SolutionLocation m_solution_location;
-    std::unordered_map<std::string, FieldIndices> m_field_layout;
+    std::unordered_map<std::string, FieldGroup> m_field_groups;
+    bool m_field_layout_initialized = false;
 };

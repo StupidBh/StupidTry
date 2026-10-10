@@ -7,7 +7,6 @@
 #include <string_view>
 
 namespace {
-    constexpr auto VELOCITY_NAME = "velocity";
     constexpr auto VELOCITY_FIELD_X = [] {
         std::array<std::string_view, 5> res { "velocityx", "velocity_0", "velocity[i]", "ux", "velocity_vectorsx" };
         std::ranges::sort(res);
@@ -28,61 +27,70 @@ namespace {
 
 FluidExtensions::FluidExtensions(ReaderFieldData& fields, LogDispatcher& log_dispatcher) noexcept :
     m_fields(fields),
-    m_log_dispatcher(log_dispatcher),
-    m_velocity(VELOCITY_NAME)
+    m_log_dispatcher(log_dispatcher)
 {
 }
 
 bool FluidExtensions::HasVelocityField()
 {
-    this->m_velocity.sub_vars.clear();
+    this->m_velocity = { };
     std::vector<ReaderAPI::Field> field_names;
     if (!this->m_fields.GetAllFieldFunctionName(field_names)) {
         return false;
     }
-    std::array<std::string, 3> components;
-
-    bool x_flag = true, y_flag = true, z_flag = true;
-    for (const auto& [_, sub_vars] : field_names) {
+    std::array<FieldReference, 3> components;
+    std::array<std::array<FieldReference, 3>, 2> position_components;
+    for (const auto& [var, sub_vars] : field_names) {
         for (const auto& sub_var : sub_vars) {
-            std::string temp_sub_var_name = sub_var;
-            std::ranges::transform(temp_sub_var_name, temp_sub_var_name.begin(), [](const unsigned char character) {
+            std::string normalized_name = sub_var;
+            std::ranges::transform(normalized_name, normalized_name.begin(), [](const unsigned char character) {
                 return static_cast<char>(std::tolower(character));
             });
 
-            if (x_flag && std::ranges::binary_search(VELOCITY_FIELD_X, temp_sub_var_name)) {
-                LOG_TRACE("[HasVelocityField] catch velocity-x: [{}]", sub_var);
-                x_flag = false;
-                components[0] = sub_var;
+            std::size_t component = 0;
+            if (std::ranges::binary_search(VELOCITY_FIELD_X, normalized_name)) {
+                component = 0;
             }
-            else if (y_flag && std::ranges::binary_search(VELOCITY_FIELD_Y, temp_sub_var_name)) {
-                LOG_TRACE("[HasVelocityField] catch velocity-y: [{}]", sub_var);
-                y_flag = false;
-                components[1] = sub_var;
+            else if (std::ranges::binary_search(VELOCITY_FIELD_Y, normalized_name)) {
+                component = 1;
             }
-            else if (z_flag && std::ranges::binary_search(VELOCITY_FIELD_Z, temp_sub_var_name)) {
-                LOG_TRACE("[HasVelocityField] catch velocity-z: [{}]", sub_var);
-                z_flag = false;
-                components[2] = sub_var;
+            else if (std::ranges::binary_search(VELOCITY_FIELD_Z, normalized_name)) {
+                component = 2;
+            }
+            else {
+                continue;
             }
 
-            if (!x_flag && !y_flag && !z_flag) {
-                break;
+            const int position = this->m_fields.GetFieldFunctionPosition(var, sub_var);
+            if (position < 0 || position > 1) {
+                continue;
             }
-        }
-
-        if (!x_flag && !y_flag && !z_flag) {
-            LOG_TRACE("[HasVelocityField] catch velocity field finish.");
-            break;
+            const FieldReference reference { .var = var, .sub_var = sub_var };
+            if (components[component].sub_var.empty()) {
+                components[component] = reference;
+            }
+            if (position_components[position][component].sub_var.empty()) {
+                position_components[position][component] = reference;
+                LOG_TRACE("[HasVelocityField] catch velocity component: [{}]-[{}]", var, sub_var);
+            }
         }
     }
 
-    if (x_flag || y_flag || z_flag) {
-        LOG_WARN("No valid velocity field");
-        return false;
+    const auto complete = [](const auto& candidate) {
+        return std::ranges::all_of(candidate, [](const FieldReference& field) { return !field.sub_var.empty(); });
+    };
+    for (auto& candidate : position_components) {
+        if (complete(candidate)) {
+            this->m_velocity = std::move(candidate);
+            return true;
+        }
     }
-    this->m_velocity.sub_vars.assign(components.begin(), components.end());
-    return true;
+    if (complete(components)) {
+        this->m_velocity = std::move(components);
+        return true;
+    }
+    LOG_WARN("No valid velocity field");
+    return false;
 }
 
 int FluidExtensions::GetVelocityFieldPosition()
@@ -92,8 +100,8 @@ int FluidExtensions::GetVelocityFieldPosition()
     }
 
     int position = -1;
-    for (const auto& sub_var : this->m_velocity.sub_vars) {
-        const int location = this->m_fields.GetFieldFunctionPosition(this->m_velocity.var, sub_var);
+    for (const auto& [var, sub_var] : this->m_velocity) {
+        const int location = this->m_fields.GetFieldFunctionPosition(var, sub_var);
         if (location == -1 || (position != -1 && location != position)) {
             LOG_ERROR("Velocity component [{}] has position {}, expected {}.", sub_var, location, position);
             return -1;
@@ -111,10 +119,9 @@ bool FluidExtensions::GetVelocityField(std::vector<std::vector<ReaderAPI::Real>>
     }
 
     std::vector<std::vector<ReaderAPI::Real>> loaded_data;
-    loaded_data.reserve(this->m_velocity.sub_vars.size());
+    loaded_data.reserve(this->m_velocity.size());
     std::vector<ReaderAPI::Integer> loaded_ids;
-    const auto& var = this->m_velocity.var;
-    for (const auto& sub_var : this->m_velocity.sub_vars) {
+    for (const auto& [var, sub_var] : this->m_velocity) {
         std::vector<ReaderAPI::Integer> component_ids;
         std::vector<ReaderAPI::Real> component_data;
         if (!this->m_fields.GetFieldFunctionIds(var, sub_var, component_ids) || !this->m_fields.GetFieldFunctionData(var, sub_var, component_data)) {
@@ -128,7 +135,7 @@ bool FluidExtensions::GetVelocityField(std::vector<std::vector<ReaderAPI::Real>>
             loaded_ids = std::move(component_ids);
         }
         else if (component_ids != loaded_ids) {
-            LOG_ERROR("Velocity component [{}] IDs do not match [{}].", sub_var, this->m_velocity.sub_vars.front());
+            LOG_ERROR("Velocity component [{}] IDs do not match [{}].", sub_var, this->m_velocity.front().sub_var);
             return false;
         }
         loaded_data.emplace_back(std::move(component_data));

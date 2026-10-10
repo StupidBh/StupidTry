@@ -192,12 +192,18 @@ namespace {
         const std::array missing_zones { ZoneSpec { CG_Vertex, 3 } };
         const std::array position_zones { ZoneSpec { CG_Vertex, 1 }, ZoneSpec { CG_CellCenter, 6 } };
         const std::array id_zones { ZoneSpec { CG_Vertex, 3 }, ZoneSpec { CG_Vertex, 4 } };
+        const std::array dual_position_zones { ZoneSpec { CG_Vertex, 7 }, ZoneSpec { CG_CellCenter, 7 } };
+        const std::array complete_cell_zones { ZoneSpec { CG_Vertex, 1 }, ZoneSpec { CG_CellCenter, 7 } };
+        const std::array complete_vertex_zones { ZoneSpec { CG_Vertex, 7 }, ZoneSpec { CG_CellCenter, 1 } };
         const auto vertex = CreateFixture(directory, "vertex.cgns", vertex_zones);
         const auto cell = CreateFixture(directory, "cell.cgns", cell_zones);
         const auto sparse = CreateFixture(directory, "sparse.cgns", sparse_zones);
         const auto missing = CreateFixture(directory, "missing.cgns", missing_zones);
         const auto positions = CreateFixture(directory, "positions.cgns", position_zones);
         const auto ids_mismatch = CreateFixture(directory, "ids.cgns", id_zones);
+        const auto dual_positions = CreateFixture(directory, "dual-positions.cgns", dual_position_zones);
+        const auto complete_cell = CreateFixture(directory, "complete-cell.cgns", complete_cell_zones);
+        const auto complete_vertex = CreateFixture(directory, "complete-vertex.cgns", complete_vertex_zones);
 
         auto reader = module.CreateReader();
         auto* extension = reader->GetFluidExtensions();
@@ -235,6 +241,19 @@ namespace {
         Check(reader->Open(ids_mismatch), "Cannot open the ID-mismatch fixture.");
         Check(extension->HasVelocityField() && extension->GetVelocityFieldPosition() == 0, "ID mismatches should not affect name/position checks.");
         check_failure();
+        Check(reader->Open(dual_positions), "Cannot open the dual-position velocity fixture.");
+        Check(extension->GetVelocityFieldPosition() == 0, "Complete Vertex velocity must be preferred when both positions exist.");
+        Check(extension->GetVelocityField(data, ids) && data == vertex_data && ids == vertex_ids,
+              "Dual-position velocity queries did not use the selected group/subfield pairs.");
+        Check(reader->Open(complete_cell), "Cannot open the complete CellCenter velocity fixture.");
+        const std::vector<std::vector<ReaderAPI::Real>> complete_cell_data { { 101, 102 }, { 111, 112 }, { 121, 122 } };
+        const std::vector<ReaderAPI::Integer> complete_cell_ids { 2, 3 };
+        Check(extension->GetVelocityFieldPosition() == 1, "Incomplete Vertex velocity must not hide complete CellCenter velocity.");
+        Check(extension->GetVelocityField(data, ids) && data == complete_cell_data && ids == complete_cell_ids,
+              "Complete CellCenter velocity reads mixed fields from different positions.");
+        Check(reader->Open(complete_vertex), "Cannot open the complete Vertex velocity fixture.");
+        Check(extension->GetVelocityFieldPosition() == 0 && extension->GetVelocityField(data, ids) && data == vertex_data && ids == vertex_ids,
+              "Incomplete CellCenter velocity must not hide complete Vertex velocity.");
         reader->Close();
         check_failure();
     }
