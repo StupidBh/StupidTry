@@ -101,15 +101,15 @@ bool ReaderFieldData::GetFieldFunctionData(const std::string& var, const std::st
         for (std::size_t i = 0; i < offset.r_max.size(); ++i) {
             data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
-        std::vector<ReaderAPI::Real> loaded_values(data_size, 0);
 
+        std::vector<ReaderAPI::Real> loaded_values(data_size, 0);
         if (CGNS_LOG_CALL(cg_field_read(this->get_file_id(),
                                         index.base,
                                         index.zone,
                                         index.solution,
                                         field_name,
                                         CG_DataType_t::CG_RealSingle,
-                                        offset.r_min.data(),
+                                        ZoneOffset::r_min.data(),
                                         offset.r_max.data(),
                                         loaded_values.data())) != CG_OK) {
             continue;
