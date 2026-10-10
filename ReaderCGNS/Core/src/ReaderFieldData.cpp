@@ -68,7 +68,11 @@ bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::str
             data_size *= (offset.r_max[i] - ZoneOffset::r_min[i] + 1);
         }
 
-        utils::AppendVector(ids, utils::CreateVector<ReaderAPI::Integer>(data_size, position == 0 ? offset.node_offset : offset.cell_offset, 1));
+        utils::detail::ReserveAdditional(ids, data_size);
+        const ReaderAPI::Integer start = position == 0 ? offset.node_offset : offset.cell_offset;
+        for (std::size_t i = 0; i < data_size; ++i) {
+            ids.emplace_back(start + static_cast<ReaderAPI::Integer>(i));
+        }
     }
 
     if (ids.empty()) {
