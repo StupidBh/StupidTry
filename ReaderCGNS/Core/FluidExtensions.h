@@ -4,6 +4,7 @@
 class FluidExtensions final : public ReaderAPI::FluidExtensionsBase {
 public:
     explicit FluidExtensions(ReaderFieldData& fields, LogDispatcher& log_dispatcher) noexcept;
+    ~FluidExtensions() override = default;
 
     [[nodiscard]] bool HasVelocityField() override;
     [[nodiscard]] int GetVelocityFieldPosition() override;
