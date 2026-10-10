@@ -70,12 +70,13 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 | `ReaderAPI::ReaderApiBase::GetSolverType()`                            | 返回 Base/Zone 布局中第一个有效 Base 下 `FlowEquationSet_t/GoverningEquations_t` 的类型名称。 |
 | `ReaderAPI::ReaderApiBase::GetAllComponentName(names)`                 | 用当前文件的组件名称替换输出数组。                                                            |
 | `ReaderAPI::ReaderApiBase::GetComponent(name, ids)`                    | 用指定组件的扁平单元 ID 替换输出数组。                                                        |
-| `ReaderAPI::ReaderApiBase::GetAllFieldFunctionName(names)`             | 将当前文件的场函数名称追加到调用方提供的字符串数组。                                          |
+| `ReaderAPI::ReaderApiBase::GetAllFieldFunctionName(names)`             | 返回按名称排序的物理场分组，替换调用方的 `std::vector<Field>`。                               |
 | `ReaderAPI::ReaderApiBase::GetAllNodeCoordinates(nodes)`               | 用可读 Zone 的节点坐标替换输出数组。                                                          |
 | `ReaderAPI::ReaderApiBase::GetAllElement(std::vector<Elem>& elements)` | 用缓存中的单元类型和连接数据替换 `std::vector<Elem>` 输出。                                   |
 | `ReaderAPI::ReaderApiBase::GetAllElement(ElementTable& elements)`      | 用缓存中的单元类型和连接数据填充并替换 `ElementTable` 输出。                                  |
-| `ReaderAPI::ReaderApiBase::GetFieldFunctionData(name, field)`          | 按公开字段名读取场值，成功时替换输出 `Field`。                                                |
-| `ReaderAPI::ReaderApiBase::GetFieldFunctionData(names, fields)`        | 按请求顺序批量读取场值，至少一项成功时用成功项替换输出数组。                                  |
+| `ReaderAPI::ReaderApiBase::GetFieldFunctionPosition(var, sub_var)`    | 严格按组名与子字段名查询位置；`0` 为节点，`1` 为单元中心，失败返回 `-1`。                      |
+| `ReaderAPI::ReaderApiBase::GetFieldFunctionIds(var, sub_var, ids)`    | 严格按组名与子字段名查询全局实体 ID，成功时追加到输出数组。                                    |
+| `ReaderAPI::ReaderApiBase::GetFieldFunctionData(var, sub_var, data)`  | 严格按组名与子字段名读取场值，成功读取的值追加到输出数组。                                      |
 | `ReaderAPI::ReaderApiBase::info()`                                     | 遍历当前已打开文件并输出结构检查信息。                                                        |
 | `ReaderAPI::ReaderApiBase::GetFluidExtensions()`                     | 获取 reader 拥有的可选流体扩展接口；默认实现返回 `nullptr`。                                  |
 | `ReaderAPI::FluidExtensionsBase::HasVelocityField()`                 | 检查当前文件的字段名称中是否包含所需速度分量。                                                |
@@ -84,8 +85,8 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 
 所有数据查询都要求文件已成功打开。`GetAllNodeCoordinates()`、两个 `GetAllElement()` 重载、`GetAllComponentName()` 和
 `GetComponent()` 成功时替换输出对象；按需初始化返回 `false` 时保留调用方输出。`GetAllFieldFunctionName()`
-成功时向输出数组追加名称，重复调用也会追加；它返回去重后的公开字段名称，顺序不构成接口保证。正常首次构建时，`Node::id` 从 0
-开始按被接受的 Zone 累加生成。两个 `GetFieldFunctionData()` 重载使用替换语义，详见下文。
+成功时替换输出分组数组，组名和各组子字段名均按名称排序。正常首次构建时，`Node::id` 从 0
+开始按被接受的 Zone 累加生成。场值与字段 ID 查询的追加语义见下文。
 
 组件名称和成员 ID 的当前语义如下：
 
@@ -154,38 +155,42 @@ reader 的文件与数据读取接口不保证并发调用安全。
 
 ### 场值读取
 
-`ReaderApiTypes.hpp` 定义 `Integer = std::int64_t`、`Real = float`，以及 `Node` 和 `Field`；`Elem` 定义位于 `Types/ElementTypes.hpp`。`Field` 包含以下成员：
+`ReaderApiTypes.hpp` 定义 `Integer = std::int64_t`、`Real = float`，以及 `Node` 和 `Field`；`Elem` 定义位于 `Types/ElementTypes.hpp`。
+`Field::var` 是物理场组名，`Field::sub_vars` 是该组中的 CGNS 原始字段名。每个组只包含一种位置：`0` 为 `Vertex`，`1` 为 `CellCenter`。
 
-| 成员        | 当前返回语义                                                                                                                   |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`      | 查询使用的公开字段名。                                                                                                         |
-| `type`      | `0` 为节点场（`Vertex`），`1` 为单元中心场（`CellCenter`）；头文件注释中的 `2`（FaceCenter）和 `3`（PointSet）当前未实现读取。 |
-| `ids`       | 全局 0-based 实体编号，与 `values` 一一对应。                                                                                  |
-| `values`    | 通过 `cg_field_read(..., CG_RealSingle, ...)` 转换得到的单精度值。                                                             |
-| `isEmpty()` | 名称、ID 或值数组为空，或两个数组长度不一致时返回 `true`。                                                                     |
+首次字段查询构建布局，后续复用布局，但每次场值查询都会重新读取数据，不缓存数值。`Close()` 清除分组、编号偏移及初始化状态。
+布局先按原始字段名收集两种位置的索引，再分别在每种位置内沿用名称前缀、下划线和 `Magnitude` 的分组规则。
 
-首次名称或场值查询构建字段布局，后续复用布局，但每次场值查询都会重新读取数据，不缓存数值。`Close()` 清除布局。
+同一物理量同时存在于两种位置时，组名分别加上 `_vertex` 和 `_cellcenter`；仅存在于一种位置时保留原组名。
+子字段保留 CGNS 原名，不添加位置后缀。例如不同 Zone 中各有一个 FlowSolution，包含 `u_1(Vertex)`、`u_2(Vertex)`、
+`u_1(CellCenter)` 和 `u_2(CellCenter)`，返回：
 
-当前字段布局有以下限制，任一有效 Base/Zone 中的布局错误都会使本次初始化失败：
+```text
+u_vertex     [u_1, u_2]
+u_cellcenter [u_1, u_2]
+```
 
-- 支持 Structured 和 Unstructured Zone，节点及单元尺寸必须为正，维数和累计数量须通过范围检查。
-- 每个 Zone 至多一个 `FlowSolution_t`；没有解的 Zone 跳过字段读取，但仍计入全局编号偏移。多个 FlowSolution 会返回 `false`
-  ，不自动选择时间步。
-- 只接受 `Vertex` 和 `CellCenter`，解数组的值数量必须等于对应 Zone 的节点数或单元数。不提供 PointSet 映射、Rind 处理或面中心场读取；
-  `DiscreteData`、ZoneSubRegion 和粒子场不在此接口范围内。
-- 全文件无可用字段、字段布局读取失败或公开名称冲突时，名称查询和依赖该布局的场值查询返回 `false`。
+每种位置仅包含实际存在的分量，不用另一种位置的分量补齐。相同原始字段名、相同位置的数据按 Base/Zone 顺序合并。
+生成的公开组名若与另一分组重名，则布局初始化返回 `false`；分组和偏移仅在整个布局构建成功后写入缓存。
+没有可用字段时，`GetAllFieldFunctionName()` 返回 `false`，保留调用方原有输出。
 
-相同源字段名、相同位置的数据按 Base/Zone 顺序合并；若同一源名称跨 Zone 同时出现在节点和单元中心，则公开名分别为
-`<原名>_Vertex` 与 `<原名>_CellCenter`，例如 `Pressure_Vertex`、`Pressure_CellCenter`。后缀名与其他字段原名冲突时初始化失败。调用方应使用
-`GetAllFieldFunctionName()` 返回的名称查询。
+`GetFieldFunctionPosition(var, sub_var)`、`GetFieldFunctionIds(var, sub_var, ids)` 和
+`GetFieldFunctionData(var, sub_var, data)` 都先定位 `var` 分组，再定位该组内的 `sub_var`。组名和子字段名区分大小写，
+调用方应使用枚举返回的名称。例如 `("u_vertex", "u_1")` 与 `("u_cellcenter", "u_1")` 分别查询对应位置。
+错误组名或不属于该组的子字段不会回退到其他分组；位置查询返回 `-1`，ID 和数据查询返回 `false` 并保留调用方输出。
 
-节点场和单元场分别按布局中各 Zone 的 `VertexSize` 与 `CellSize` 累加编号偏移；某个 Zone 缺少该字段时不补值，因此一个字段的
+字段读取按业务前提处理每个 Zone 最多一个 `FlowSolution_t`，当前访问第一个 FlowSolution，不提供多解或时间步选择。
+无解的 Zone 跳过字段读取，但仍计入全局编号偏移。支持 Structured 和 Unstructured Zone，只接受 `Vertex` 和 `CellCenter`，
+以及 `RealSingle` / `RealDouble` 字段；场值经 `cg_field_read(..., CG_RealSingle, ...)` 转换为单精度。
+不提供 PointSet 映射、Rind 处理、面中心场、DiscreteData、ZoneSubRegion 或粒子场读取。
+
+节点场和单元场分别按各 Zone 的 `VertexSize` 与 `CellSize` 累加编号偏移；某个 Zone 缺少该字段时不补值，因此一个字段的
 ID 可以不连续。此编号独立于网格 Section 展开：网格读取跳过 Zone、包含边界面 Section 或过滤单元时，不能假定字段 ID 等于
 `GetAllNodeCoordinates()` / `GetAllElement()` 结果下标，也不能普遍将单元场 ID 直接视为 `Elem::id`。
 
-单字段重载在完整读取成功后替换输出对象；未知名称或读取失败返回 `false`，保留原输出。批量重载按请求顺序逐项读取，跳过失败项，不去重；至少一项成功便返回
-`true` 并替换整个输出数组，全部失败或请求为空时返回 `false` 且保留原输出。批量成功不表示所有请求均成功，应核对返回的
-`Field::name`。
+调用方按业务约定传入空的字段 ID 和场值输出数组，由 DLL 读取并填充；当前实现通过追加构建输出。
+结果数组为空时返回 `false`。CGNS 字段描述或场值读取失败时，当前数据读取会跳过失败项，因此 `true` 不保证所有 Zone 的值均已读取，
+调用方应核对 ID 与场值数量。
 
 ### 流体扩展
 
@@ -205,11 +210,14 @@ ID 可以不连续。此编号独立于网格 Section 展开：网格读取跳�
 | Z | `velocityz`、`velocity_2`、`velocity[k]`、`uz`、`velocity_vectorsz` |
 
 名称比较忽略大小写，其他字符须完整一致。例如 `VelocityX`、`VELOCITY_0` 和 `UX` 均可作为 X 分量。三个分量可以分别使用不同命名方式；
-匹配时只转换名称副本，按 X/Y/Z 顺序记录匹配到的原始分量名供后续位置查询和数据读取使用。
+匹配时只转换名称副本，按 X/Y/Z 顺序记录每个分量的实际组名和原始子字段名，后续按这对名称严格查询位置、ID 和数据。
 CGNS 读取诊断和扩展自身的错误都沿用 reader 的日志回调；重新注册或清除回调同样作用于扩展。布尔结果不区分读取失败和分量缺失。
 
-`HasVelocityField()` 只验证全文件的名称存在性，不要求三个分量位于同一个 `Field` 分组，也不验证它们的 Zone、位置、ID 覆盖或数值读取结果是否一致。
-只有两个分量的二维速度场，以及带 `_Vertex` / `_CellCenter` 后缀的名称不在当前三分量别名匹配范围内。
+`HasVelocityField()` 优先选择同一位置的完整 X/Y/Z 分量：两种位置均完整时优先 `Vertex`，否则选择完整的 `CellCenter`。
+分量可以属于不同的物理场分组，以兼容 `VelocityX`、`UX` 及混合别名等命名方式。若三个名称齐全但分别位于不同位置，
+仍返回 `true`，由 `GetVelocityFieldPosition()` 报告位置不一致；名称检测不验证 ID 覆盖或数值读取结果。
+只有两个分量的二维速度场，以及原始字段名自带 `_Vertex` / `_CellCenter` 后缀的名称，不在当前三分量别名匹配范围内。
+自动生成的位置后缀只出现在组名中，不影响子字段别名匹配。
 
 `GetVelocityFieldPosition()` 独立检查分量是否存在，并要求三个分量的位置一致：`0` 为 `Vertex`，`1` 为 `CellCenter`。文件未打开、
 缺少分量、查询失败或位置不一致时返回 `-1`；位置不一致的日志包含分量名、实际位置和预期位置。无需先调用 `HasVelocityField()`。

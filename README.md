@@ -35,7 +35,7 @@ cmake --build build/Debug --config Release
 
 单元 ID 按扁平输出顺序生成，从 0 开始并与 `GetAllElement()` 结果下标一致；组件成员 ID 复用这一编号。多面体展开在函数内先按 CGNS 原始面号建立局部映射，再解析 NFACE 的带符号面引用；失败后的缓存一致性仍有限制，详见 [多面体展开](ReaderCGNS/Readme.md#多面体展开)及[当前网格读取限制](ReaderCGNS/Readme.md#当前网格读取限制)。场值读取目前仅支持每个 Zone 至多一个 FlowSolution，位置为 `Vertex` 或 `CellCenter`，详见 [场值读取说明](ReaderCGNS/Readme.md#场值读取)。
 
-默认启用 `BUILD_TESTING`，CTest 注册 `Core.ReaderLogLifetime` 和 `Core.MioReaderLines` 回归测试，分别检查 DLL 卸载后的异步日志路径安全，以及静态文本文件的混合换行、跨批次状态和长行读取，无需真实 CGNS 样例。完成对应配置的全量构建后运行：
+默认启用 `BUILD_TESTING`。`Core.ReaderLogLifetime` 和 `Core.MioReaderLines` 分别检查 DLL 卸载后的异步日志路径安全，以及静态文本文件的混合换行、跨批次状态和长行读取；`ReaderCGNS.FluidExtensions.*` 和 `ReaderCGNS.FieldGrouping` 使用临时生成的 CGNS 文件验证速度分量及按位置分组、严格组—子字段查询，无需外部 CGNS 样例。完成对应配置的全量构建后运行：
 
 ```powershell
 ctest --test-dir build/Debug -C Debug --output-on-failure
