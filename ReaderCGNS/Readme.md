@@ -74,7 +74,7 @@ offsets 范围，保留依赖当前节点/单元偏移和面引用的检查。
 | `ReaderAPI::ReaderApiBase::GetAllNodeCoordinates(nodes)`               | 用可读 Zone 的节点坐标替换输出数组。                                                          |
 | `ReaderAPI::ReaderApiBase::GetAllElement(std::vector<Elem>& elements)` | 用缓存中的单元类型和连接数据替换 `std::vector<Elem>` 输出。                                   |
 | `ReaderAPI::ReaderApiBase::GetAllElement(ElementTable& elements)`      | 用缓存中的单元类型和连接数据填充并替换 `ElementTable` 输出。                                  |
-| `ReaderAPI::ReaderApiBase::GetFieldFunctionPosition(var, sub_var)`    | 严格按组名与子字段名查询位置；`0` 为节点，`1` 为单元中心，失败返回 `-1`。                      |
+| `ReaderAPI::ReaderApiBase::GetFieldFunctionPosition(var)`             | 按组名查询组内所有子字段的统一位置；`0` 为节点，`1` 为单元中心，失败返回 `-1`。               |
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionIds(var, sub_var, ids)`    | 严格按组名与子字段名查询全局实体 ID，成功时追加到输出数组。                                    |
 | `ReaderAPI::ReaderApiBase::GetFieldFunctionData(var, sub_var, data)`  | 严格按组名与子字段名读取场值，成功读取的值追加到输出数组。                                      |
 | `ReaderAPI::ReaderApiBase::info()`                                     | 遍历当前已打开文件并输出结构检查信息。                                                        |
@@ -174,10 +174,15 @@ u_cellcenter [u_1, u_2]
 生成的公开组名若与另一分组重名，则布局初始化返回 `false`；分组和偏移仅在整个布局构建成功后写入缓存。
 没有可用字段时，`GetAllFieldFunctionName()` 返回 `false`，保留调用方原有输出。
 
-`GetFieldFunctionPosition(var, sub_var)`、`GetFieldFunctionIds(var, sub_var, ids)` 和
-`GetFieldFunctionData(var, sub_var, data)` 都先定位 `var` 分组，再定位该组内的 `sub_var`。组名和子字段名区分大小写，
-调用方应使用枚举返回的名称。例如 `("u_vertex", "u_1")` 与 `("u_cellcenter", "u_1")` 分别查询对应位置。
-错误组名或不属于该组的子字段不会回退到其他分组；位置查询返回 `-1`，ID 和数据查询返回 `false` 并保留调用方输出。
+`GetFieldFunctionPosition(var)` 仅按 `var` 分组查询统一位置，组内所有子字段共用该位置。
+`Open()` 成功后即可直接查询，无需先调用 `GetAllFieldFunctionName()`；首次位置查询也会按需构建字段布局。
+例如 `GetFieldFunctionPosition("u_vertex")` 返回 `0`，`GetFieldFunctionPosition("u_cellcenter")` 返回 `1`。
+文件未打开、布局初始化失败或组名不存在时返回 `-1`。
+
+`GetFieldFunctionIds(var, sub_var, ids)` 和 `GetFieldFunctionData(var, sub_var, data)` 先定位 `var` 分组，
+再定位该组内的 `sub_var`。组名和子字段名区分大小写，调用方应使用枚举返回的名称。
+错误组名或不属于该组的子字段不会回退到其他分组；ID 和数据查询返回 `false` 并保留调用方输出。
+子字段查询失败不影响有效分组的位置查询结果。
 
 字段读取按业务前提处理每个 Zone 最多一个 `FlowSolution_t`，当前访问第一个 FlowSolution，不提供多解或时间步选择。
 无解的 Zone 跳过字段读取，但仍计入全局编号偏移。支持 Structured 和 Unstructured Zone，只接受 `Vertex` 和 `CellCenter`，

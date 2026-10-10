@@ -124,13 +124,13 @@ namespace {
         std::vector<ReaderAPI::Real> data;
     };
 
-    void CheckRejectedQuery(ReaderAPI::ReaderApiBase& reader, const std::string& var, const std::string& sub_var)
+    void CheckRejectedQuery(ReaderAPI::ReaderApiBase& reader, const std::string& var, const std::string& sub_var, int expected_position = -1)
     {
         const std::vector<ReaderAPI::Integer> sentinel_ids { -42 };
         const std::vector<ReaderAPI::Real> sentinel_data { -42 };
         auto ids = sentinel_ids;
         auto data = sentinel_data;
-        Check(reader.GetFieldFunctionPosition(var, sub_var) == -1, "Invalid group/subfield position lookup was accepted.");
+        Check(reader.GetFieldFunctionPosition(var) == expected_position, "Rejected field lookup returned an incorrect group position.");
         Check(!reader.GetFieldFunctionIds(var, sub_var, ids), "Invalid group/subfield ID lookup was accepted.");
         Check(!reader.GetFieldFunctionData(var, sub_var, data), "Invalid group/subfield data lookup was accepted.");
         Check(ids == sentinel_ids && data == sentinel_data, "Rejected field lookup modified caller outputs.");
@@ -147,8 +147,8 @@ namespace {
                 const auto field = std::ranges::find(fields, group.var, &ReaderAPI::Field::var);
                 Check(field != fields.end(), "Expected field group is missing.");
                 Check(field->sub_vars == group.sub_vars, "Field components were grouped or named incorrectly.");
+                Check(reader.GetFieldFunctionPosition(field->var) == group.position, "Field group position is incorrect.");
                 for (const auto& sub_var : field->sub_vars) {
-                    Check(reader.GetFieldFunctionPosition(field->var, sub_var) == group.position, "A field group contains a different position.");
                     std::vector<ReaderAPI::Integer> ids;
                     std::vector<ReaderAPI::Real> data;
                     Check(reader.GetFieldFunctionIds(field->var, sub_var, ids), "Grouped field ID lookup failed.");
@@ -161,7 +161,7 @@ namespace {
                                                    : (group.position == 0 ? std::vector<ReaderAPI::Real> { 1, 2, 3 } : std::vector<ReaderAPI::Real> { 101, 102 });
                     Check(ids == expected_ids && data == expected_data, "Grouped field lookup returned incorrect IDs or values.");
                     CheckRejectedQuery(reader, "missing-group", sub_var);
-                    CheckRejectedQuery(reader, field->var, "missing-subfield");
+                    CheckRejectedQuery(reader, field->var, "missing-subfield", group.position);
                 }
             }
         }
@@ -176,6 +176,10 @@ namespace {
         const auto path = directory.File(name);
         CreateFixture(path, zones);
         Check(reader.Open(path.string()), "Cannot open the field grouping fixture.");
+        for (const auto& group : expected) {
+            Check(reader.GetFieldFunctionPosition(group.var) == group.position, "Position queries must work before field enumeration.");
+        }
+        Check(reader.GetFieldFunctionPosition("missing-group") == -1, "Invalid group position lookup was accepted.");
         CheckGroups(reader, expected);
     }
 
@@ -195,14 +199,14 @@ namespace {
         const std::array split_groups { ExpectedGroup { "Velocity_vertex", 0, { "VelocityMagnitude", "Velocity_0" } },
                                         ExpectedGroup { "Velocity_cellcenter", 1, { "Velocity_1" } } };
         CheckFixture(reader, directory, "split-components.cgns", split_zones, split_groups);
-        CheckRejectedQuery(reader, "Velocity_vertex", "Velocity_1");
-        CheckRejectedQuery(reader, "Velocity_cellcenter", "Velocity_0");
+        CheckRejectedQuery(reader, "Velocity_vertex", "Velocity_1", 0);
+        CheckRejectedQuery(reader, "Velocity_cellcenter", "Velocity_0", 1);
 
         const std::array partial_zones { ZoneSpec { CG_Vertex, { "Velocity_0", "Velocity_1" } }, ZoneSpec { CG_CellCenter, { "Velocity_0" } } };
         const std::array partial_groups { ExpectedGroup { "Velocity_vertex", 0, { "Velocity_0", "Velocity_1" } },
                                           ExpectedGroup { "Velocity_cellcenter", 1, { "Velocity_0" } } };
         CheckFixture(reader, directory, "partial-overlap.cgns", partial_zones, partial_groups);
-        CheckRejectedQuery(reader, "Velocity_cellcenter", "Velocity_1");
+        CheckRejectedQuery(reader, "Velocity_cellcenter", "Velocity_1", 1);
 
         const std::array vertex_zones { ZoneSpec { CG_Vertex, components } };
         const std::array vertex_groups { ExpectedGroup { "Velocity", 0, { "VelocityMagnitude", "Velocity_0", "Velocity_1" } } };
@@ -222,13 +226,13 @@ namespace {
         CheckFixture(reader, directory, "u-components.cgns", u_zones, u_groups);
         CheckRejectedQuery(reader, "u", "u_1");
         CheckRejectedQuery(reader, "u_Vertex", "u_1");
-        CheckRejectedQuery(reader, "u_vertex", "u_1_Vertex");
+        CheckRejectedQuery(reader, "u_vertex", "u_1_Vertex", 0);
 
         const std::array distinct_zones { ZoneSpec { CG_Vertex, { "Pressure", "Density" } } };
         const std::array distinct_groups { ExpectedGroup { "Pressure", 0, { "Pressure" } }, ExpectedGroup { "Density", 0, { "Density" } } };
         CheckFixture(reader, directory, "distinct-groups.cgns", distinct_zones, distinct_groups);
-        CheckRejectedQuery(reader, "Pressure", "Density");
-        CheckRejectedQuery(reader, "Density", "Pressure");
+        CheckRejectedQuery(reader, "Pressure", "Density", 0);
+        CheckRejectedQuery(reader, "Density", "Pressure", 0);
 
         const std::array aggregate_zones { ZoneSpec { CG_Vertex, u_components }, ZoneSpec { CG_Vertex, u_components } };
         const std::array aggregate_groups { ExpectedGroup { "u", 0, u_components, { 0, 1, 2, 3, 4, 5 }, { 1, 2, 3, 101, 102, 103 } } };
@@ -238,6 +242,7 @@ namespace {
         const auto empty_path = directory.File("empty-fields.cgns");
         CreateFixture(empty_path, empty_zones);
         Check(reader.Open(empty_path.string()), "Cannot open the empty-field fixture.");
+        CheckRejectedQuery(reader, "u", "u_1");
         for (int query = 0; query < 2; ++query) {
             std::vector<ReaderAPI::Field> fields { { "sentinel", { "sentinel" } } };
             Check(!reader.GetAllFieldFunctionName(fields), "Empty field enumeration must return false.");
@@ -249,6 +254,7 @@ namespace {
         const auto collision_path = directory.File("group-collision.cgns");
         CreateFixture(collision_path, collision_zones);
         Check(reader.Open(collision_path.string()), "Cannot open the group collision fixture.");
+        Check(reader.GetFieldFunctionPosition("u_vertex") == -1, "Position queries must reject ambiguous group names before enumeration.");
         for (int query = 0; query < 2; ++query) {
             std::vector<ReaderAPI::Field> fields { { "sentinel", { "sentinel" } } };
             Check(!reader.GetAllFieldFunctionName(fields), "Ambiguous public group names were accepted.");
@@ -258,9 +264,16 @@ namespace {
         CheckFixture(reader, directory, "after-failure.cgns", u_zones, u_groups);
 
         reader.Close();
+        CheckRejectedQuery(reader, "u_vertex", "u_1");
+        CheckRejectedQuery(reader, "u_cellcenter", "u_1");
         std::vector<ReaderAPI::Field> fields { { "sentinel", { "sentinel" } } };
         Check(!reader.GetAllFieldFunctionName(fields), "Closed readers must reject field enumeration.");
         Check(fields.size() == 1 && fields.front().var == "sentinel", "Failed enumeration modified caller output.");
+        Check(reader.Open(directory.File("after-failure.cgns").string()), "Cannot reopen the field grouping fixture.");
+        Check(reader.GetFieldFunctionPosition("u_vertex") == 0 && reader.GetFieldFunctionPosition("u_cellcenter") == 1,
+              "Position queries must initialize the layout again after Close/Open.");
+        CheckGroups(reader, u_groups);
+        reader.Close();
     }
 } // namespace
 
@@ -271,6 +284,7 @@ int main(int argc, char* argv[])
         const ReaderModule module { std::filesystem::path(argv[1]) };
         const TemporaryDirectory directory;
         auto reader = module.CreateReader();
+        CheckRejectedQuery(*reader, "u_vertex", "u_1");
         CheckFieldGrouping(*reader, directory);
         std::cout << "Field grouping checks passed.\n";
         return 0;

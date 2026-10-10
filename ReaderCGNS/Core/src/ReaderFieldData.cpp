@@ -45,12 +45,13 @@ bool ReaderFieldData::GetAllFieldFunctionName(std::vector<ReaderAPI::Field>& fie
     return true;
 }
 
-int ReaderFieldData::GetFieldFunctionPosition(const std::string& var, const std::string& sub_var)
+int ReaderFieldData::GetFieldFunctionPosition(const std::string& var)
 {
-    if (this->find_field_indices(var, sub_var) == nullptr) {
+    if (!this->m_field_layout_initialized && !this->initialize_field_layout()) {
         return -1;
     }
-    return this->m_field_groups.at(var).position;
+    const auto group = this->m_field_groups.find(var);
+    return group != this->m_field_groups.end() ? group->second.position : -1;
 }
 
 bool ReaderFieldData::GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<ReaderAPI::Integer>& ids)

@@ -56,7 +56,8 @@ namespace ReaderAPI {
         [[nodiscard]] virtual bool GetComponent(const std::string& name, std::vector<Integer>& ids) = 0;
 
         [[nodiscard]] virtual bool GetAllFieldFunctionName(std::vector<Field>& field_names) = 0;
-        [[nodiscard]] virtual int GetFieldFunctionPosition(const std::string& var, const std::string& sub_var) = 0;
+        // All subfields in var share one position: 0-Vertex, 1-CellCenter; -1 on failure.
+        [[nodiscard]] virtual int GetFieldFunctionPosition(const std::string& var) = 0;
         [[nodiscard]] virtual bool GetFieldFunctionIds(const std::string& var, const std::string& sub_var, std::vector<Integer>& ids) = 0;
         [[nodiscard]] virtual bool GetFieldFunctionData(const std::string& var, const std::string& sub_var, std::vector<Real>& data) = 0;
 

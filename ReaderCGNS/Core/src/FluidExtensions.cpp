@@ -61,7 +61,7 @@ bool FluidExtensions::HasVelocityField()
                 continue;
             }
 
-            const int position = this->m_fields.GetFieldFunctionPosition(var, sub_var);
+            const int position = this->m_fields.GetFieldFunctionPosition(var);
             if (position < 0 || position > 1) {
                 continue;
             }
@@ -101,7 +101,7 @@ int FluidExtensions::GetVelocityFieldPosition()
 
     int position = -1;
     for (const auto& [var, sub_var] : this->m_velocity) {
-        const int location = this->m_fields.GetFieldFunctionPosition(var, sub_var);
+        const int location = this->m_fields.GetFieldFunctionPosition(var);
         if (location == -1 || (position != -1 && location != position)) {
             LOG_ERROR("Velocity component [{}] has position {}, expected {}.", sub_var, location, position);
             return -1;

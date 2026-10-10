@@ -123,7 +123,7 @@ bool AnalysisCGNS::Analyze(const std::string& cgns_file_path) const
                 std::vector<ReaderAPI::Integer> field_ids;
                 std::vector<ReaderAPI::Real> field_data;
                 if (this->m_reader->GetFieldFunctionData(var, sub_var, field_data) && this->m_reader->GetFieldFunctionIds(var, sub_var, field_ids)) {
-                    auto position = this->m_reader->GetFieldFunctionPosition(var, sub_var);
+                    auto position = this->m_reader->GetFieldFunctionPosition(var);
                     LOG_INFO("Field function [{}]-[{}], position={}, values=[{},{}]:{}, ids=[{},{}]:{}",
                              var,
                              sub_var,
