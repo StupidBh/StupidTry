@@ -46,10 +46,21 @@ namespace utils::detail {
     template<class ValueType>
     constexpr void ReserveAdditional(std::vector<ValueType>& target, const std::size_t count)
     {
-        if (count > target.max_size() - target.size()) {
+        const auto maximum = target.max_size();
+        if (count > maximum - target.size()) {
             throw std::length_error("AppendVector exceeds vector max_size");
         }
-        target.reserve(target.size() + count);
+
+        const auto required = target.size() + count;
+        const auto capacity = target.capacity();
+        if (required <= capacity) {
+            return;
+        }
+
+        // Grow by approximately 1.5x while accommodating the entire append.
+        const auto increment = capacity / 2;
+        const auto grown = increment > maximum - capacity ? maximum : capacity + increment;
+        target.reserve(std::max(required, grown));
     }
 
     template<std::move_constructible ValueType>
